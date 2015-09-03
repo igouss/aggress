@@ -1,0 +1,5 @@
+rootProject.name = 'root'
+include 'common'
+include 'web'
+include 'crawler'
+
