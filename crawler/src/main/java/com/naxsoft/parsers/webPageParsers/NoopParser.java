@@ -1,21 +1,24 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.entity.WebPageEntity;
-
+import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 public class NoopParser implements WebPageParser {
-    @Override
+    public NoopParser() {
+    }
+
     public Set<WebPageEntity> parse(String url) {
-        Set<WebPageEntity> result = new HashSet<>();
+        HashSet result = new HashSet();
         return result;
     }
 
-    @Override
     public boolean canParse(String url, String action) {
         return false;
     }

@@ -1,15 +1,22 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package com.naxsoft.database;
 
+import com.naxsoft.database.Database;
+import com.naxsoft.database.IterableListScrollableResults;
 import com.naxsoft.entity.SourceEntity;
 import com.naxsoft.entity.WebPageEntity;
-import org.hibernate.*;
-
 import java.util.Iterator;
 import java.util.Set;
+import org.hibernate.Query;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
-/**
- * Copyright NAXSoft 2015
- */
 public class WebPageService {
     private Database database;
 
@@ -18,70 +25,73 @@ public class WebPageService {
     }
 
     public void save(SourceEntity source, Set<WebPageEntity> webPageEntitySet) {
-        Session session = database.getSessionFactory().openSession();
+        Session session = this.database.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
         int i = 0;
-        for (WebPageEntity webPageEntity : webPageEntitySet) {
+        Iterator var6 = webPageEntitySet.iterator();
+
+        while(var6.hasNext()) {
+            WebPageEntity webPageEntity = (WebPageEntity)var6.next();
             webPageEntity.setSourceBySourceId(source);
             session.save(webPageEntity);
-            if (++i % 20 == 0) { //20, same as the JDBC batch size
-                //flush a batch of inserts and release memory:
+            ++i;
+            if(i % 20 == 0) {
                 session.flush();
                 session.clear();
             }
-
         }
+
         session.flush();
+        session.clear();
         tx.commit();
         session.close();
     }
 
     public void markParsed(Set<WebPageEntity> parsedProductList) {
-        Session session = database.getSessionFactory().openSession();
+        Session session = this.database.getSessionFactory().openSession();
+        Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
         Transaction tx = session.beginTransaction();
-
         int count = 0;
-        for (WebPageEntity webPageEntity : parsedProductList) {
-            webPageEntity.setParsed(true);
-            session.update(webPageEntity);
-            if (++count % 20 == 0) {
-                //flush a batch of updates and release memory:
+        Iterator var6 = parsedProductList.iterator();
+
+        while(var6.hasNext()) {
+            WebPageEntity webPageEntity = (WebPageEntity)var6.next();
+            query.setInteger("id", webPageEntity.getId()).executeUpdate();
+            ++count;
+            if(count % 20 == 0) {
                 session.flush();
                 session.clear();
             }
         }
+
         session.flush();
+        session.clear();
         tx.commit();
         session.close();
-
     }
 
     private Iterator<WebPageEntity> get(String queryString) {
-        Session session = database.getSessionFactory().openSession();
-
+        Session session = this.database.getSessionFactory().openSession();
         Query query = session.createQuery(queryString);
         query.setCacheable(false);
         query.setReadOnly(true);
-
         ScrollableResults result = query.scroll(ScrollMode.FORWARD_ONLY);
-        IterableListScrollableResults<WebPageEntity> webPageEntities = new IterableListScrollableResults<WebPageEntity>(session, result);
-
+        IterableListScrollableResults webPageEntities = new IterableListScrollableResults(session, result);
         return webPageEntities.iterator();
     }
 
     public Iterator<WebPageEntity> getUnparsedProductList() {
-        String queryString = "from WebPageEntity where type = 'productList' and parsed = false order by rand()";
-        return get(queryString);
+        String queryString = "from WebPageEntity where type = \'productList\' and parsed = false order by rand()";
+        return this.get(queryString);
     }
 
     public Iterator<WebPageEntity> getUnparsedProductPage() {
-        String queryString = "from WebPageEntity where type = 'productPage' and parsed = false order by rand()";
-        return get(queryString);
+        String queryString = "from WebPageEntity where type = \'productPage\' and parsed = false order by rand()";
+        return this.get(queryString);
     }
 
-
     public Iterator<WebPageEntity> getUnparsedProductPageRaw() {
-        String queryString = "from WebPageEntity where type = 'productPageRaw' and parsed = false order by rand()";
-        return get(queryString);
+        String queryString = "from WebPageEntity where type = \'productPageRaw\' and parsed = false order by rand()";
+        return this.get(queryString);
     }
 }

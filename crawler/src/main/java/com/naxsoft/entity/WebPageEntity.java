@@ -1,13 +1,19 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package com.naxsoft.entity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-/**
- * Copyright NAXSoft 2015
- */
 @Entity
-@Table(name = "web_page", schema = "guns", catalog = "aggress")
+@Table(
+        name = "web_page",
+        schema = "guns",
+        catalog = "aggress"
+)
 public class WebPageEntity {
     private int id;
     private String content;
@@ -18,11 +24,18 @@ public class WebPageEntity {
     private SourceEntity sourceBySourceId;
     private String url;
 
+    public WebPageEntity() {
+    }
+
     @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(
+            name = "id"
+    )
+    @GeneratedValue(
+            strategy = GenerationType.IDENTITY
+    )
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(int id) {
@@ -30,9 +43,11 @@ public class WebPageEntity {
     }
 
     @Basic
-    @Column(name = "content")
+    @Column(
+            name = "content"
+    )
     public String getContent() {
-        return content;
+        return this.content;
     }
 
     public void setContent(String content) {
@@ -40,9 +55,11 @@ public class WebPageEntity {
     }
 
     @Basic
-    @Column(name = "modification_date")
+    @Column(
+            name = "modification_date"
+    )
     public Timestamp getModificationDate() {
-        return modificationDate;
+        return this.modificationDate;
     }
 
     public void setModificationDate(Timestamp modificationDate) {
@@ -50,9 +67,11 @@ public class WebPageEntity {
     }
 
     @Basic
-    @Column(name = "status_code")
+    @Column(
+            name = "status_code"
+    )
     public Integer getStatusCode() {
-        return statusCode;
+        return this.statusCode;
     }
 
     public void setStatusCode(Integer statusCode) {
@@ -60,9 +79,11 @@ public class WebPageEntity {
     }
 
     @Basic
-    @Column(name = "type")
+    @Column(
+            name = "type"
+    )
     public String getType() {
-        return type;
+        return this.type;
     }
 
     public void setType(String type) {
@@ -70,9 +91,11 @@ public class WebPageEntity {
     }
 
     @Basic
-    @Column(name = "parsed")
+    @Column(
+            name = "parsed"
+    )
     public boolean isParsed() {
-        return parsed;
+        return this.parsed;
     }
 
     public void setParsed(boolean parsed) {
@@ -80,9 +103,13 @@ public class WebPageEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "source_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+            name = "source_id",
+            referencedColumnName = "id",
+            nullable = false
+    )
     public SourceEntity getSourceBySourceId() {
-        return sourceBySourceId;
+        return this.sourceBySourceId;
     }
 
     public void setSourceBySourceId(SourceEntity sourceBySourceId) {
@@ -90,28 +117,29 @@ public class WebPageEntity {
     }
 
     @Basic
-    @Column(name = "url")
+    @Column(
+            name = "url"
+    )
     public String getUrl() {
-        return url;
+        return this.url;
     }
 
     public void setUrl(String url) {
         this.url = url;
     }
 
-    @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        WebPageEntity that = (WebPageEntity) o;
-
-        return url.equals(that.url);
-
+        if(this == o) {
+            return true;
+        } else if(o != null && this.getClass() == o.getClass()) {
+            WebPageEntity that = (WebPageEntity)o;
+            return this.url.equals(that.url);
+        } else {
+            return false;
+        }
     }
 
-    @Override
     public int hashCode() {
-        return url.hashCode();
+        return this.url.hashCode();
     }
 }

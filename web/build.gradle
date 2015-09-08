@@ -50,9 +50,9 @@ dependencyManagement {
 }
 
 dependencies {
-    compile project(":crawler")
-    testCompile project(":crawler")
-    testRuntime project(":crawler")
+//    compile project(":crawler")
+//    testCompile project(":crawler")
+//    testRuntime project(":crawler")
 
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-starter-actuator"
@@ -65,7 +65,10 @@ dependencies {
     compile "org.grails.plugins:cache"
     compile "org.hibernate:hibernate-ehcache"
     compile "org.grails.plugins:scaffolding"
-    
+    compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc41'
+
+    compile 'io.jsonwebtoken:jjwt:0.5.1'
+
     runtime "org.grails.plugins:asset-pipeline"
     
 
