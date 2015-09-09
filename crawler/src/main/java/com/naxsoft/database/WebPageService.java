@@ -5,17 +5,13 @@
 
 package com.naxsoft.database;
 
-import com.naxsoft.database.Database;
-import com.naxsoft.database.IterableListScrollableResults;
 import com.naxsoft.entity.SourceEntity;
 import com.naxsoft.entity.WebPageEntity;
+import org.hibernate.*;
+
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-import org.hibernate.Query;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 public class WebPageService {
     private Database database;
@@ -70,27 +66,27 @@ public class WebPageService {
         session.close();
     }
 
-    private Iterator<WebPageEntity> get(String queryString) {
+    private List<WebPageEntity> get(String queryString) {
         Session session = this.database.getSessionFactory().openSession();
         Query query = session.createQuery(queryString);
         query.setCacheable(false);
         query.setReadOnly(true);
         ScrollableResults result = query.scroll(ScrollMode.FORWARD_ONLY);
         IterableListScrollableResults webPageEntities = new IterableListScrollableResults(session, result);
-        return webPageEntities.iterator();
+        return webPageEntities;
     }
 
-    public Iterator<WebPageEntity> getUnparsedProductList() {
+    public List<WebPageEntity> getUnparsedProductList() {
         String queryString = "from WebPageEntity where type = \'productList\' and parsed = false order by rand()";
         return this.get(queryString);
     }
 
-    public Iterator<WebPageEntity> getUnparsedProductPage() {
+    public List<WebPageEntity> getUnparsedProductPage() {
         String queryString = "from WebPageEntity where type = \'productPage\' and parsed = false order by rand()";
         return this.get(queryString);
     }
 
-    public Iterator<WebPageEntity> getUnparsedProductPageRaw() {
+    public List<WebPageEntity> getUnparsedProductPageRaw() {
         String queryString = "from WebPageEntity where type = \'productPageRaw\' and parsed = false order by rand()";
         return this.get(queryString);
     }

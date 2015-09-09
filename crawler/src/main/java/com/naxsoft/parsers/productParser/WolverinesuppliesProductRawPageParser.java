@@ -8,15 +8,14 @@ package com.naxsoft.parsers.productParser;
 import com.google.gson.Gson;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.parsers.productParser.ProductParser;
-import com.naxsoft.parsers.productParser.RawProduct;
-import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 public class WolverinesuppliesProductRawPageParser implements ProductParser {
     public WolverinesuppliesProductRawPageParser() {
@@ -26,12 +25,10 @@ public class WolverinesuppliesProductRawPageParser implements ProductParser {
         Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
         HashSet result = new HashSet();
         Gson gson = new Gson();
-        RawProduct[] rawProducts = (RawProduct[])gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
-        RawProduct[] var6 = rawProducts;
-        int var7 = rawProducts.length;
+        RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
 
-        for(int var8 = 0; var8 < var7; ++var8) {
-            RawProduct rp = var6[var8];
+        for(int i = 0; i < rawProducts.length; ++i) {
+            RawProduct rp = rawProducts[i];
             logger.info("Parsing " + rp.Title + ", page=" + webPageEntity.getUrl());
             ProductEntity product = new ProductEntity();
             XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
@@ -46,8 +43,10 @@ public class WolverinesuppliesProductRawPageParser implements ProductParser {
             jsonBuilder.field("unitsAvailable", rp.StockAmount);
             jsonBuilder.field("description1", rp.ExtendedDescription);
 
-            for(int i = 0; i < rp.Attributes.length; ++i) {
-                jsonBuilder.field(rp.Attributes[i].AttributeName, rp.Attributes[i].AttributeValue);
+            for(int j = 0; j < rp.Attributes.length; ++j) {
+                jsonBuilder.field(
+                        rp.Attributes[j].AttributeName.toLowerCase(),
+                        rp.Attributes[j].AttributeValue);
             }
 
             jsonBuilder.endObject();

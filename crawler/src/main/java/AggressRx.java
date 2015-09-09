@@ -13,17 +13,17 @@ import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.Scheduler;
+import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class Aggress {
+public class AggressRx {
     static Logger logger;
-
-    public Aggress() {
-    }
 
     public static void main(String[] args) {
         Database db = null;
@@ -60,12 +60,46 @@ public class Aggress {
             ProductService productService = new ProductService(elasitic, db);
             SourceService sourceService = new SourceService(db);
 
-            process(sourceService.getSources(), webPageParserFactory, webPageService, sourceService);
-            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
-            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
-            logger.info("Fetch & parse complete");
-            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
-            logger.info("Parsing complete");
+            Scheduler subscriptionScheduler = Schedulers.io();
+            Scheduler observationScheduler = Schedulers.io();
+            Observable
+                    .from(sourceService.getSources())
+                    .subscribeOn(subscriptionScheduler)
+                    .observeOn(observationScheduler)
+                    .subscribe(sourceEntity -> {
+                        System.out.println(Thread.currentThread().toString());
+                        HashSet<SourceEntity> parsedSources = new HashSet<>();
+                        try {
+                            WebPageParser e = webPageParserFactory.getParser(sourceEntity.getUrl(), "frontPage");
+                            Set<WebPageEntity> webPageEntitySet = e.parse(sourceEntity.getUrl());
+                            if (webPageEntitySet != null) {
+                                webPageService.save(sourceEntity, webPageEntitySet);
+                            }
+
+                            parsedSources.add(sourceEntity);
+                        } catch (Exception var8) {
+                            logger.error("Failed to process source " + sourceEntity.getUrl());
+                        }
+                        sourceService.markParsed(parsedSources);
+
+                    });
+
+
+            Observable<SourceEntity> sourceObservable = Observable.from(sourceService.getSources());
+            Observable<WebPageEntity> webPageEntityObservable = Observable
+                    .from(webPageService.getUnparsedProductList())
+                    .mergeWith(Observable.from(webPageService.getUnparsedProductPage()))
+                    .mergeWith(Observable.from(webPageService.getUnparsedProductPageRaw()));
+
+
+            logger.info("Application complete");
+
+            Thread.currentThread().join();
+
+//            process(sourceService.getSources(), webPageParserFactory, webPageService, sourceService);
+//            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
+//            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
+//            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
         } catch (Exception var15) {
             logger.error("Application failure", var15);
         } finally {
@@ -78,14 +112,15 @@ public class Aggress {
         }
     }
 
-    private static void process(List<SourceEntity> sources, WebPageParserFactory webPageParserFactory, WebPageService webPageService, SourceService sourceService) {
+
+    private static void process( List<SourceEntity> sources, WebPageParserFactory webPageParserFactory, WebPageService webPageService, SourceService sourceService) {
         HashSet<SourceEntity> parsedSources = new HashSet<>();
 
-        for (SourceEntity sourceEntity : sources) {
+        for(SourceEntity sourceEntity : sources) {
             try {
                 WebPageParser e = webPageParserFactory.getParser(sourceEntity.getUrl(), "frontPage");
                 Set<WebPageEntity> webPageEntitySet = e.parse(sourceEntity.getUrl());
-                if (webPageEntitySet != null) {
+                if(webPageEntitySet != null) {
                     webPageService.save(sourceEntity, webPageEntitySet);
                 }
 
@@ -103,9 +138,9 @@ public class Aggress {
         HashSet<ProductEntity> products = new HashSet<>();
         ProductParserFactory productParserFactory = new ProductParserFactory();
 
-        for (WebPageEntity webPageEntity : productPageRaw) {
+        for(WebPageEntity webPageEntity : productPageRaw) {
             ProductParser parser = productParserFactory.getParser(webPageEntity.getUrl(), webPageEntity.getType());
-            if (parser.canParse(webPageEntity.getUrl(), webPageEntity.getType())) {
+            if(parser.canParse(webPageEntity.getUrl(), webPageEntity.getType())) {
                 try {
                     products.addAll(parser.parse(webPageEntity));
                     parsedPages.add(webPageEntity);
@@ -123,11 +158,11 @@ public class Aggress {
     private static void process(List<WebPageEntity> chain, WebPageParserFactory webPageParserFactory, WebPageService webPageService) {
         HashSet<WebPageEntity> parsedPages = new HashSet<>();
 
-        for (WebPageEntity webPageEntity : chain) {
+        for(WebPageEntity webPageEntity : chain) {
             WebPageParser webPageParser = webPageParserFactory.getParser(webPageEntity.getUrl(), webPageEntity.getType());
 
             try {
-                if (webPageParser.canParse(webPageEntity.getUrl(), webPageEntity.getType())) {
+                if(webPageParser.canParse(webPageEntity.getUrl(), webPageEntity.getType())) {
                     Set<WebPageEntity> e = webPageParser.parse(webPageEntity.getUrl());
                     parsedPages.add(webPageEntity);
                     webPageService.save(webPageEntity.getSourceBySourceId(), e);

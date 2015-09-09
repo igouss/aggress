@@ -7,21 +7,18 @@ package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.crawler.FetchClient;
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
 import org.jsoup.Connection.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WolverinesuppliesProductPageParser implements WebPageParser {
-    public WolverinesuppliesProductPageParser() {
-    }
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
+public class WolverinesuppliesProductPageParser implements WebPageParser {
     public Set<WebPageEntity> parse(String url) throws Exception {
         FetchClient client = new FetchClient();
-        HashSet result = new HashSet();
+        Set<WebPageEntity> result = new HashSet<>();
         Response response = client.get(url);
         Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductPageParser.class);
         if(response.statusCode() == 200) {
@@ -30,8 +27,7 @@ public class WolverinesuppliesProductPageParser implements WebPageParser {
             webPageEntity.setSourceBySourceId(webPageEntity.getSourceBySourceId());
             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
             webPageEntity.setType("productPageRaw");
-            String body = response.body();
-            webPageEntity.setContent(body);
+            webPageEntity.setContent(response.body());
             result.add(webPageEntity);
         } else {
             logger.error("Failed to fetch from " + url + " errorCode=" + response.statusCode());
