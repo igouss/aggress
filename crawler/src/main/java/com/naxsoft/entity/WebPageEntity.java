@@ -130,7 +130,7 @@ public class WebPageEntity {
         return this.url.hashCode();
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent", referencedColumnName = "id")
     public WebPageEntity getParent() {
         return parent;

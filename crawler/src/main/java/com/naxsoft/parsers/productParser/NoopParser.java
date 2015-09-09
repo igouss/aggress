@@ -7,7 +7,7 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.parsers.productParser.ProductParser;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,7 +20,7 @@ public class NoopParser implements ProductParser {
         return result;
     }
 
-    public boolean canParse(String url, String action) {
+    public boolean canParse(WebPageEntity webPage) {
         return false;
     }
 }

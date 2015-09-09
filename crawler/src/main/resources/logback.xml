@@ -7,6 +7,14 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>app.log</file>
+
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="org.hibernate" level="INFO" />
     <logger name="org.elasticsearch" level="INFO" />
     <logger name="io.netty" level="INFO" />
@@ -14,5 +22,6 @@
     <logger name="com.zaxxer.hikari" level="INFO" />
     <root level="DEBUG">
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </root>
 </configuration>

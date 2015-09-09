@@ -110,7 +110,7 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
         }
     }
 
-    public boolean canParse(String url, String action) {
-        return url.startsWith("http://www.bullseyelondon.com/") && action.equals("productPageRaw");
+    public boolean canParse(WebPageEntity webPage) {
+        return webPage.getUrl().startsWith("http://www.bullseyelondon.com/") && webPage.getType().equals("productPageRaw");
     }
 }

@@ -61,7 +61,7 @@ public class Aggress {
             ProductService productService = new ProductService(elastic, db);
             SourceService sourceService = new SourceService(db);
 
-            populateRoots(webPageService, sourceService);
+//            populateRoots(webPageService, sourceService);
             process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
             process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
             process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
@@ -120,19 +120,19 @@ public class Aggress {
         parsedPages.clear();
     }
 
-    private static void process(List<WebPageEntity> productPageRaw, WebPageService webPageService, ProductService productService) {
+    private static void process(List<WebPageEntity> parents, WebPageService webPageService, ProductService productService) {
         HashSet<WebPageEntity> parsedPages = new HashSet<>();
         HashSet<ProductEntity> products = new HashSet<>();
         ProductParserFactory productParserFactory = new ProductParserFactory();
 
-        for (WebPageEntity webPageEntity : productPageRaw) {
-            ProductParser parser = productParserFactory.getParser(webPageEntity.getUrl(), webPageEntity.getType());
-            if (parser.canParse(webPageEntity.getUrl(), webPageEntity.getType())) {
+        for (WebPageEntity parent : parents) {
+            ProductParser parser = productParserFactory.getParser(parent);
+            if (parser.canParse(parent)) {
                 try {
-                    products.addAll(parser.parse(webPageEntity));
-                    parsedPages.add(webPageEntity);
+                    products.addAll(parser.parse(parent));
+                    parsedPages.add(parent);
                 } catch (Exception e) {
-                    logger.error("Failed to parse product page " + webPageEntity.getUrl(), e);
+                    logger.error("Failed to parse product page " + parent.getUrl(), e);
                 }
             }
         }

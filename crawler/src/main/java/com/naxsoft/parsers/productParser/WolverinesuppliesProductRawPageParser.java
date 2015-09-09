@@ -55,7 +55,7 @@ public class WolverinesuppliesProductRawPageParser implements ProductParser {
         return result;
     }
 
-    public boolean canParse(String url, String action) {
-        return url.startsWith("https://www.wolverinesupplies.com/") && action.equals("productPageRaw");
+    public boolean canParse(WebPageEntity webPage) {
+        return webPage.getUrl().startsWith("https://www.wolverinesupplies.com/") && webPage.getType().equals("productPageRaw");
     }
 }

@@ -5,6 +5,7 @@
 
 package com.naxsoft.parsers.productParser;
 
+import com.naxsoft.entity.WebPageEntity;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanner;
 import org.slf4j.Logger;
@@ -32,18 +33,18 @@ public class ProductParserFactory {
         }
     }
 
-    public ProductParser getParser(String url, String action) {
+    public ProductParser getParser(WebPageEntity webPage) {
         Iterator it = this.parsers.iterator();
 
         ProductParser parser;
         do {
             if(!it.hasNext()) {
-                this.logger.warn("Failed to find a document parser for url=" + url + ", action=" + action);
+                this.logger.warn("Failed to find a document parser for url=" + webPage.getUrl() + ", action=" + webPage.getType());
                 return new NoopParser();
             }
 
             parser = (ProductParser)it.next();
-        } while(!parser.canParse(url, action));
+        } while(!parser.canParse(webPage));
 
         return parser;
     }

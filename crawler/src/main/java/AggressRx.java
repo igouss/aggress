@@ -159,8 +159,8 @@ public class AggressRx {
         ProductParserFactory productParserFactory = new ProductParserFactory();
 
         for (WebPageEntity webPageEntity : productPageRaw) {
-            ProductParser parser = productParserFactory.getParser(webPageEntity.getUrl(), webPageEntity.getType());
-            if (parser.canParse(webPageEntity.getUrl(), webPageEntity.getType())) {
+            ProductParser parser = productParserFactory.getParser(webPageEntity);
+            if (parser.canParse(webPageEntity)) {
                 try {
                     products.addAll(parser.parse(webPageEntity));
                     parsedPages.add(webPageEntity);

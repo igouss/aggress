@@ -12,5 +12,5 @@ import java.util.Set;
 public interface ProductParser {
     Set<ProductEntity> parse(WebPageEntity var1) throws Exception;
 
-    boolean canParse(String var1, String var2);
+    boolean canParse(WebPageEntity webPage);
 }
