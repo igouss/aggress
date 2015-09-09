@@ -27,6 +27,8 @@ public class Aggress {
     }
 
     public static void main(String[] args) {
+
+
         Database db = null;
         Elastic elastic = null;
         logger = LoggerFactory.getLogger(Aggress.class);
@@ -62,12 +64,23 @@ public class Aggress {
             SourceService sourceService = new SourceService(db);
 
 //            populateRoots(webPageService, sourceService);
-            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
-            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
-            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
-            logger.info("Fetch & parse complete");
-            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
-            logger.info("Parsing complete");
+//            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
+//            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
+//            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
+//            logger.info("Fetch & parse complete");
+//            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
+//            logger.info("Parsing complete");
+
+            do {
+                List<WebPageEntity> unparsedPages = webPageService.getUnparsedPage();
+                if (unparsedPages.isEmpty()) {
+                    break;
+                } else {
+                    process(unparsedPages, webPageParserFactory, webPageService);
+                }
+            } while (true);
+
+//            Thread.currentThread().join();
         } catch (Exception e) {
             logger.error("Application failure", e);
         } finally {
@@ -109,11 +122,7 @@ public class Aggress {
             } catch (Exception e) {
                 logger.error("Failed to process source " + parent.getUrl(), e);
             }
-            try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(1L));
-            } catch (InterruptedException e) {
-                logger.error("Thread interrupted", e);
-            }
+
         }
 
         webPageService.markParsed(parsedPages);
@@ -140,4 +149,6 @@ public class Aggress {
         webPageService.markParsed(parsedPages);
         parsedPages.clear();
     }
+
+
 }

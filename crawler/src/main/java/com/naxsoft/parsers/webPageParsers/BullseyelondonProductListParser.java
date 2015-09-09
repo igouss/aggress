@@ -24,11 +24,11 @@ public class BullseyelondonProductListParser implements WebPageParser {
     public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
         FetchClient client = new FetchClient();
         HashSet result = new HashSet();
-
+        Logger logger = LoggerFactory.getLogger(this.getClass());
 
             Response e = client.get(webPage.getUrl());
             if(e.statusCode() == 200) {
-                Logger logger = LoggerFactory.getLogger(this.getClass());
+
                 Document document = Jsoup.parse(e.body(), webPage.getUrl());
                 Elements elements = document.select(".item .product-name a");
 

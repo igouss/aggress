@@ -94,7 +94,7 @@ public class WebPageService {
     }
 
     public List<WebPageEntity> getUnparsedPage() {
-        String queryString = "from WebPageEntity where and parsed = false order by rand()";
+        String queryString = "from WebPageEntity where parsed = false order by rand()";
         return this.get(queryString);
     }
 }
