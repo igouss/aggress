@@ -8,13 +8,6 @@ package com.naxsoft.parsers.productParser;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.parsers.productParser.ProductParser;
-import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
@@ -24,12 +17,16 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BullseyelondonProductRawPageParser implements ProductParser {
-    public BullseyelondonProductRawPageParser() {
-    }
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+public class BullseyelondonProductRawPageParser implements ProductParser {
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        Logger logger = LoggerFactory.getLogger(BullseyelondonProductRawPageParser.class);
+        Logger logger = LoggerFactory.getLogger(this.getClass());
         HashSet products = new HashSet();
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
@@ -48,8 +45,7 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
 
         try {
             jsonBuilder.field("freeShipping", this.getFreeShipping(document));
-        } catch (Exception var13) {
-            ;
+        } catch (Exception e) {
         }
 
         jsonBuilder.field("unitsAvailable", this.getUnitsAvailable(document));

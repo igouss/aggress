@@ -5,10 +5,10 @@
 
 package com.naxsoft.database;
 
-import com.naxsoft.entity.SourceEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.hibernate.*;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +20,7 @@ public class WebPageService {
         this.database = database;
     }
 
-    public void save(SourceEntity source, Set<WebPageEntity> webPageEntitySet) {
+    public void save(Set<WebPageEntity> webPageEntitySet) {
         Session session = this.database.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
         int i = 0;
@@ -28,7 +28,6 @@ public class WebPageService {
 
         while(var6.hasNext()) {
             WebPageEntity webPageEntity = (WebPageEntity)var6.next();
-            webPageEntity.setSourceBySourceId(source);
             session.save(webPageEntity);
             ++i;
             if(i % 20 == 0) {
@@ -43,15 +42,13 @@ public class WebPageService {
         session.close();
     }
 
-    public void markParsed(Set<WebPageEntity> parsedProductList) {
+    public void markParsed(Collection<WebPageEntity> parsedProductList) {
         Session session = this.database.getSessionFactory().openSession();
         Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
         Transaction tx = session.beginTransaction();
         int count = 0;
-        Iterator var6 = parsedProductList.iterator();
 
-        while(var6.hasNext()) {
-            WebPageEntity webPageEntity = (WebPageEntity)var6.next();
+        for(WebPageEntity webPageEntity : parsedProductList) {
             query.setInteger("id", webPageEntity.getId()).executeUpdate();
             ++count;
             if(count % 20 == 0) {
@@ -88,6 +85,16 @@ public class WebPageService {
 
     public List<WebPageEntity> getUnparsedProductPageRaw() {
         String queryString = "from WebPageEntity where type = \'productPageRaw\' and parsed = false order by rand()";
+        return this.get(queryString);
+    }
+
+    public List<WebPageEntity> getUnparsedFrontPage() {
+        String queryString = "from WebPageEntity where type = \'frontPage\' and parsed = false order by rand()";
+        return this.get(queryString);
+    }
+
+    public List<WebPageEntity> getUnparsedPage() {
+        String queryString = "from WebPageEntity where and parsed = false order by rand()";
         return this.get(queryString);
     }
 }

@@ -21,8 +21,8 @@ public class WebPageEntity {
     private Integer statusCode;
     private String type;
     private boolean parsed;
-    private SourceEntity sourceBySourceId;
     private String url;
+    private WebPageEntity parent;
 
     public WebPageEntity() {
     }
@@ -102,19 +102,6 @@ public class WebPageEntity {
         this.parsed = parsed;
     }
 
-    @ManyToOne
-    @JoinColumn(
-            name = "source_id",
-            referencedColumnName = "id",
-            nullable = false
-    )
-    public SourceEntity getSourceBySourceId() {
-        return this.sourceBySourceId;
-    }
-
-    public void setSourceBySourceId(SourceEntity sourceBySourceId) {
-        this.sourceBySourceId = sourceBySourceId;
-    }
 
     @Basic
     @Column(
@@ -141,5 +128,15 @@ public class WebPageEntity {
 
     public int hashCode() {
         return this.url.hashCode();
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "parent", referencedColumnName = "id")
+    public WebPageEntity getParent() {
+        return parent;
+    }
+
+    public void setParent(WebPageEntity parent) {
+        this.parent = parent;
     }
 }

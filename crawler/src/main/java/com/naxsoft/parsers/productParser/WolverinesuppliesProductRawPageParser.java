@@ -18,11 +18,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WolverinesuppliesProductRawPageParser implements ProductParser {
-    public WolverinesuppliesProductRawPageParser() {
-    }
-
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
+        Logger logger = LoggerFactory.getLogger(this.getClass());
         HashSet result = new HashSet();
         Gson gson = new Gson();
         RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);

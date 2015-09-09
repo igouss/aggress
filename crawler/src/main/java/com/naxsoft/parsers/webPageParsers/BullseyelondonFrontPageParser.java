@@ -18,43 +18,41 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class BullseyelondonFrontPageParser implements WebPageParser {
 
-    public Set<WebPageEntity> parse(String url) {
+    public Set<WebPageEntity> parse(WebPageEntity webPage) {
         FetchClient client = new FetchClient();
         HashSet result = new HashSet();
-        Logger logger = LoggerFactory.getLogger(BullseyelondonFrontPageParser.class);
+        Logger logger = LoggerFactory.getLogger(this.getClass());
 
         try {
-            Response e = client.get(url);
-            if (e.statusCode() == 200) {
-                Document document = Jsoup.parse(e.body(), url);
+            Response resp = client.get(webPage.getUrl());
+            if (resp.statusCode() == 200) {
+                Document document = Jsoup.parse(resp.body(), webPage.getUrl());
                 Elements elements = document.select(".vertnav-cat a");
-                Iterator var8 = elements.iterator();
 
-                while (var8.hasNext()) {
-                    Element e1 = (Element) var8.next();
+                for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(e1.attr("abs:href") + "?limit=all");
+                    webPageEntity.setUrl(element.attr("abs:href") + "?limit=all");
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
-                    webPageEntity.setStatusCode(Integer.valueOf(e.statusCode()));
+                    webPageEntity.setStatusCode(Integer.valueOf(resp.statusCode()));
                     webPageEntity.setType("productList");
-                    logger.info("Thread " + Thread.currentThread().toString() + " parseUrl=" + url + ", productListUrl=" + webPageEntity.getUrl());
+                    webPageEntity.setParent(webPage);
+                    logger.info("parseUrl=" + webPage.getUrl() + ", productListUrl=" + webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }
-        } catch (IOException var11) {
-            var11.printStackTrace();
+        } catch (IOException e) {
+            logger.error("Failed to parse " + webPage.getUrl(), e);
         }
 
         return result;
     }
 
-    public boolean canParse(String url, String action) {
-        return url.startsWith("http://www.bullseyelondon.com/") && action.equals("frontPage");
+    public boolean canParse(WebPageEntity webPage) {
+        return webPage.getUrl().startsWith("http://www.bullseyelondon.com/") && webPage.getType().equals("frontPage");
     }
 }

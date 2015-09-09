@@ -15,13 +15,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WolverinesuppliesFrontPageParser implements WebPageParser {
-    public Set<WebPageEntity> parse(String url) throws Exception {
+    public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
         FetchClient client = new FetchClient();
         Set<WebPageEntity> result = new HashSet<>();
-        Response response = client.get(url);
+        Response response = client.get(webPage.getUrl());
         if(response.statusCode() == 200) {
-            Logger logger = LoggerFactory.getLogger(WolverinesuppliesFrontPageParser.class);
-            Document document = Jsoup.parse(response.body(), url);
+            Logger logger = LoggerFactory.getLogger(this.getClass());
+            Document document = Jsoup.parse(response.body(), webPage.getUrl());
             Elements elements = document.select(".mainnav a");
             for (Element e : elements) {
                 String linkUrl = e.attr("abs:href");
@@ -32,7 +32,8 @@ public class WolverinesuppliesFrontPageParser implements WebPageParser {
                     webPageEntity.setParsed(false);
                     webPageEntity.setStatusCode(response.statusCode());
                     webPageEntity.setType("productList");
-                    logger.info("Thread " + Thread.currentThread().toString() + " productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + url);
+                    webPageEntity.setParent(webPage);
+                    logger.info("ProductPageUrl=" + linkUrl + ", " + "parseUrl=" + webPage.getUrl());
                     result.add(webPageEntity);
                 }
             }
@@ -41,7 +42,7 @@ public class WolverinesuppliesFrontPageParser implements WebPageParser {
         return result;
     }
 
-    public boolean canParse(String url, String action) {
-        return url.equals("https://www.wolverinesupplies.com/") && action.equals("frontPage");
+    public boolean canParse(WebPageEntity webPage) {
+        return webPage.getUrl().equals("https://www.wolverinesupplies.com/") && webPage.getType().equals("frontPage");
     }
 }

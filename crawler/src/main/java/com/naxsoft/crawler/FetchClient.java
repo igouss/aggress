@@ -21,7 +21,7 @@ public class FetchClient {
     }
 
     public Response get(String url) throws IOException {
-        Logger logger = LoggerFactory.getLogger(FetchClient.class);
+        Logger logger = LoggerFactory.getLogger(this.getClass());
         logger.info("url=" + url);
         Connection connection = HttpConnection.connect(url);
         connection.ignoreContentType(true);

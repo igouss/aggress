@@ -8,10 +8,9 @@ package com.naxsoft.database;
 import com.naxsoft.entity.SourceEntity;
 import org.hibernate.*;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class SourceService {
     private SessionFactory sessionFactory;
@@ -26,15 +25,13 @@ public class SourceService {
         return new IterableListScrollableResults(session, result);
     }
 
-    public void markParsed(Set<SourceEntity> sourceEntities) {
+    public void markParsed(Collection<SourceEntity> sourceEntities) {
         Session session = this.sessionFactory.openSession();
         Query query = session.createQuery("update WebPageEntity set modificationDate = :modificationDate where id = :id");
         Transaction tx = session.beginTransaction();
         int count = 0;
-        Iterator var6 = sourceEntities.iterator();
 
-        while(var6.hasNext()) {
-            SourceEntity sourceEntity = (SourceEntity)var6.next();
+        for(SourceEntity sourceEntity : sourceEntities) {
             query.setInteger("id", sourceEntity.getId());
             query.setTimestamp("modificationDate", new Date());
             query.executeUpdate();

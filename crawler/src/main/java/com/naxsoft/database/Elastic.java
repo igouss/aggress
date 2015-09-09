@@ -5,7 +5,6 @@
 
 package com.naxsoft.database;
 
-import com.naxsoft.parsers.productParser.ProductParserFactory;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -16,22 +15,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class Elasitic {
+public class Elastic {
     TransportClient client = null;
     private Logger logger;
 
-    public Elasitic() {
-    }
-
     public void setup() {
-        this.logger = LoggerFactory.getLogger(ProductParserFactory.class);
+        this.logger = LoggerFactory.getLogger(this.getClass());
         Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         this.client = new TransportClient(settings);
         this.client.addTransportAddress(new InetSocketTransportAddress("localhost", 9300));
 
         while(true) {
-            int conntectedNodes = this.client.connectedNodes().size();
-            if(0 != conntectedNodes) {
+            int connectedNodes = this.client.connectedNodes().size();
+            if(0 != connectedNodes) {
                 return;
             }
 
@@ -39,8 +35,8 @@ public class Elasitic {
 
             try {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
-            } catch (InterruptedException var4) {
-                this.logger.error("Thread sleep failed", var4);
+            } catch (InterruptedException e) {
+                this.logger.error("Thread sleep failed", e);
             }
         }
     }

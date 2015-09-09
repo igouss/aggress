@@ -19,13 +19,13 @@ import java.util.regex.Pattern;
 public class WolverinesuppliesProductListParser implements WebPageParser {
 
 
-    public Set<WebPageEntity> parse(String url) throws Exception {
+    public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
         FetchClient client = new FetchClient();
         Set<WebPageEntity> result = new HashSet<>();
-        Response response = client.get(url);
+        Response response = client.get(webPage.getUrl());
         if (response.statusCode() == 200) {
-            Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
-            Document document = Jsoup.parse(response.body(), url);
+            Logger logger = LoggerFactory.getLogger(this.getClass());
+            Document document = Jsoup.parse(response.body(), webPage.getUrl());
             Elements elements = document.select("div[ng-init]");
 
             for (Element e : elements) {
@@ -48,9 +48,10 @@ public class WolverinesuppliesProductListParser implements WebPageParser {
                     if (0 != sb.length()) {
                         WebPageEntity webPageEntity = new WebPageEntity();
                         webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb.toString());
-                        webPageEntity.setSourceBySourceId(webPageEntity.getSourceBySourceId());
+                        webPageEntity.setParent(webPage.getParent());
                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setType("productPage");
+                        webPageEntity.setParent(webPage);
                         result.add(webPageEntity);
                     }
                 }
@@ -59,7 +60,7 @@ public class WolverinesuppliesProductListParser implements WebPageParser {
         return result;
     }
 
-    public boolean canParse(String url, String action) {
-        return url.startsWith("https://www.wolverinesupplies.com/") && action.equals("productList");
+    public boolean canParse(WebPageEntity webPage) {
+        return webPage.getUrl().startsWith("https://www.wolverinesupplies.com/") && webPage.getType().equals("productList");
     }
 }

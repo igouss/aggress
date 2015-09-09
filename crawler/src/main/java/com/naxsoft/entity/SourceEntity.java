@@ -5,17 +5,8 @@
 
 package com.naxsoft.entity;
 
-import com.naxsoft.entity.WebPageEntity;
+import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.Collection;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 @Entity
 @Table(
@@ -26,7 +17,6 @@ import javax.persistence.Table;
 public class SourceEntity {
     private int id;
     private String url;
-    private Collection<WebPageEntity> webPagesById;
     private boolean enabled;
     private Timestamp modificationDate;
 
@@ -51,6 +41,7 @@ public class SourceEntity {
     )
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
+
     )
     public int getId() {
         return this.id;
@@ -70,17 +61,6 @@ public class SourceEntity {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    @OneToMany(
-            mappedBy = "sourceBySourceId"
-    )
-    public Collection<WebPageEntity> getWebPagesById() {
-        return this.webPagesById;
-    }
-
-    public void setWebPagesById(Collection<WebPageEntity> webPagesById) {
-        this.webPagesById = webPagesById;
     }
 
     public boolean equals(Object o) {

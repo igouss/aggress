@@ -14,6 +14,7 @@ import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class Aggress {
 
     public static void main(String[] args) {
         Database db = null;
-        Elasitic elasitic = null;
+        Elastic elastic = null;
         logger = LoggerFactory.getLogger(Aggress.class);
 
         try {
@@ -46,56 +47,77 @@ public class Aggress {
             }
 
             try {
-                elasitic = new Elasitic();
-                elasitic.setup();
+                elastic = new Elastic();
+                elastic.setup();
                 logger.info("Elastic initialization complete");
             } catch (Exception e) {
                 logger.error("Failed to initialize elastic", e);
-                if (null != elasitic) {
-                    elasitic.tearDown();
+                if (null != elastic) {
+                    elastic.tearDown();
                 }
             }
 
             WebPageService webPageService = new WebPageService(db);
-            ProductService productService = new ProductService(elasitic, db);
+            ProductService productService = new ProductService(elastic, db);
             SourceService sourceService = new SourceService(db);
 
-            process(sourceService.getSources(), webPageParserFactory, webPageService, sourceService);
+            populateRoots(webPageService, sourceService);
+            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
             process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
             process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
             logger.info("Fetch & parse complete");
             process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
             logger.info("Parsing complete");
-        } catch (Exception var15) {
-            logger.error("Application failure", var15);
+        } catch (Exception e) {
+            logger.error("Application failure", e);
         } finally {
             if (null != db) {
                 db.tearDown();
             }
-            if (null != elasitic) {
-                elasitic.tearDown();
+            if (null != elastic) {
+                elastic.tearDown();
             }
         }
     }
 
-    private static void process(List<SourceEntity> sources, WebPageParserFactory webPageParserFactory, WebPageService webPageService, SourceService sourceService) {
-        HashSet<SourceEntity> parsedSources = new HashSet<>();
-
+    private static void populateRoots(WebPageService webPageService, SourceService sourceService) {
+        List<SourceEntity> sources = sourceService.getSources();
+        Set<WebPageEntity> newRoots = new HashSet<>();
         for (SourceEntity sourceEntity : sources) {
-            try {
-                WebPageParser e = webPageParserFactory.getParser(sourceEntity.getUrl(), "frontPage");
-                Set<WebPageEntity> webPageEntitySet = e.parse(sourceEntity.getUrl());
-                if (webPageEntitySet != null) {
-                    webPageService.save(sourceEntity, webPageEntitySet);
-                }
+            WebPageEntity webPageEntity = new WebPageEntity();
+            webPageEntity.setUrl(sourceEntity.getUrl());
+            webPageEntity.setType("frontPage");
+            newRoots.add(webPageEntity);
 
-                parsedSources.add(sourceEntity);
-            } catch (Exception var8) {
-                logger.error("Failed to process source " + sourceEntity.getUrl());
+            sourceEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+        }
+        webPageService.save(newRoots);
+        sourceService.markParsed(sources);
+    }
+
+    private static void process(List<WebPageEntity> parents, WebPageParserFactory webPageParserFactory, WebPageService webPageService) {
+        HashSet<WebPageEntity> parsedPages = new HashSet<>();
+
+        for (WebPageEntity parent : parents) {
+            try {
+                WebPageParser e = webPageParserFactory.getParser(parent);
+                Set<WebPageEntity> webPageEntitySet = e.parse(parent);
+                if (webPageEntitySet != null) {
+                    webPageService.save(webPageEntitySet);
+                }
+                parsedPages.add(parent);
+            } catch (Exception e) {
+                logger.error("Failed to process source " + parent.getUrl(), e);
+            }
+            try {
+                Thread.sleep(TimeUnit.SECONDS.toMillis(1L));
+            } catch (InterruptedException e) {
+                logger.error("Thread interrupted", e);
             }
         }
 
-        sourceService.markParsed(parsedSources);
+        webPageService.markParsed(parsedPages);
+        parsedPages.clear();
     }
 
     private static void process(List<WebPageEntity> productPageRaw, WebPageService webPageService, ProductService productService) {
@@ -109,40 +131,12 @@ public class Aggress {
                 try {
                     products.addAll(parser.parse(webPageEntity));
                     parsedPages.add(webPageEntity);
-                } catch (Exception var9) {
-                    logger.error("Failed to parse product page " + webPageEntity.getUrl(), var9);
+                } catch (Exception e) {
+                    logger.error("Failed to parse product page " + webPageEntity.getUrl(), e);
                 }
             }
         }
-
         productService.save(products);
-        webPageService.markParsed(parsedPages);
-        parsedPages.clear();
-    }
-
-    private static void process(List<WebPageEntity> chain, WebPageParserFactory webPageParserFactory, WebPageService webPageService) {
-        HashSet<WebPageEntity> parsedPages = new HashSet<>();
-
-        for (WebPageEntity webPageEntity : chain) {
-            WebPageParser webPageParser = webPageParserFactory.getParser(webPageEntity.getUrl(), webPageEntity.getType());
-
-            try {
-                if (webPageParser.canParse(webPageEntity.getUrl(), webPageEntity.getType())) {
-                    Set<WebPageEntity> e = webPageParser.parse(webPageEntity.getUrl());
-                    parsedPages.add(webPageEntity);
-                    webPageService.save(webPageEntity.getSourceBySourceId(), e);
-                }
-            } catch (Exception var9) {
-                logger.error("Failed to parse " + webPageEntity.getUrl());
-            }
-
-            try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(1L));
-            } catch (InterruptedException var8) {
-                var8.printStackTrace();
-            }
-        }
-
         webPageService.markParsed(parsedPages);
         parsedPages.clear();
     }

@@ -16,27 +16,28 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WolverinesuppliesProductPageParser implements WebPageParser {
-    public Set<WebPageEntity> parse(String url) throws Exception {
+    public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
         FetchClient client = new FetchClient();
         Set<WebPageEntity> result = new HashSet<>();
-        Response response = client.get(url);
-        Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductPageParser.class);
+        Response response = client.get(webPage.getUrl());
+        Logger logger = LoggerFactory.getLogger(this.getClass());
         if(response.statusCode() == 200) {
             WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(url);
-            webPageEntity.setSourceBySourceId(webPageEntity.getSourceBySourceId());
+            webPageEntity.setUrl(webPage.getUrl());
+            webPageEntity.setParent(webPage);
             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
             webPageEntity.setType("productPageRaw");
             webPageEntity.setContent(response.body());
+            webPageEntity.setParent(webPage);
             result.add(webPageEntity);
         } else {
-            logger.error("Failed to fetch from " + url + " errorCode=" + response.statusCode());
+            logger.error("Failed to fetch from " + webPage.getUrl() + " errorCode=" + response.statusCode());
         }
 
         return result;
     }
 
-    public boolean canParse(String url, String action) {
-        return url.startsWith("https://www.wolverinesupplies.com/") && action.equals("productPage");
+    public boolean canParse(WebPageEntity webPage) {
+        return webPage.getUrl().startsWith("https://www.wolverinesupplies.com/") && webPage.getType().equals("productPage");
     }
 }

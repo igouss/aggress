@@ -16,37 +16,33 @@ import java.util.Set;
 
 public class ProductParserFactory {
     private Set<ProductParser> parsers = new HashSet();
-    private final Logger logger = LoggerFactory.getLogger(ProductParserFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public ProductParserFactory() {
         Reflections reflections = new Reflections("com.naxsoft.parsers.productParser", new Scanner[0]);
         Set classes = reflections.getSubTypesOf(ProductParser.class);
-        Iterator var3 = classes.iterator();
 
-        while(var3.hasNext()) {
-            Class c = (Class)var3.next();
-
+        for (Class clazz : (Iterable<Class>) classes) {
             try {
-                ProductParser e = (ProductParser)c.getConstructor(new Class[0]).newInstance(new Object[0]);
+                ProductParser e = (ProductParser) clazz.getConstructor(new Class[0]).newInstance(new Object[0]);
                 this.parsers.add(e);
-            } catch (Exception var6) {
-                this.logger.error("Failed to create a new product parser", var6);
+            } catch (Exception e) {
+                this.logger.error("Failed to create a new product parser", e);
             }
         }
-
     }
 
     public ProductParser getParser(String url, String action) {
-        Iterator var3 = this.parsers.iterator();
+        Iterator it = this.parsers.iterator();
 
         ProductParser parser;
         do {
-            if(!var3.hasNext()) {
+            if(!it.hasNext()) {
                 this.logger.warn("Failed to find a document parser for url=" + url + ", action=" + action);
                 return new NoopParser();
             }
 
-            parser = (ProductParser)var3.next();
+            parser = (ProductParser)it.next();
         } while(!parser.canParse(url, action));
 
         return parser;

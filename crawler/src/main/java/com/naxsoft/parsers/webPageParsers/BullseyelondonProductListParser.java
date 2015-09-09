@@ -7,56 +7,49 @@ package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.crawler.FetchClient;
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import org.jsoup.Jsoup;
 import org.jsoup.Connection.Response;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BullseyelondonProductListParser implements WebPageParser {
-    public BullseyelondonProductListParser() {
-    }
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
-    public Set<WebPageEntity> parse(String url) {
+public class BullseyelondonProductListParser implements WebPageParser {
+
+    public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
         FetchClient client = new FetchClient();
         HashSet result = new HashSet();
 
-        try {
-            Response e = client.get(url);
-            if(e.statusCode() == 200) {
-                Logger logger = LoggerFactory.getLogger(BullseyelondonProductListParser.class);
-                Document document = Jsoup.parse(e.body(), url);
-                Elements elements = document.select(".item .product-name a");
-                Iterator var8 = elements.iterator();
 
-                while(var8.hasNext()) {
-                    Element e1 = (Element)var8.next();
+            Response e = client.get(webPage.getUrl());
+            if(e.statusCode() == 200) {
+                Logger logger = LoggerFactory.getLogger(this.getClass());
+                Document document = Jsoup.parse(e.body(), webPage.getUrl());
+                Elements elements = document.select(".item .product-name a");
+
+                for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(e1.attr("abs:href"));
+                    webPageEntity.setUrl(element.attr("abs:href"));
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setStatusCode(Integer.valueOf(e.statusCode()));
                     webPageEntity.setType("productPage");
-                    logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + url);
+                    webPageEntity.setParent(webPage);
+                    logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + webPage.getUrl());
                     result.add(webPageEntity);
                 }
             }
-        } catch (IOException var11) {
-            var11.printStackTrace();
-        }
+
 
         return result;
     }
 
-    public boolean canParse(String url, String action) {
-        return url.startsWith("http://www.bullseyelondon.com/") && action.equals("productList");
+    public boolean canParse(WebPageEntity webPage) {
+        return webPage.getUrl().startsWith("http://www.bullseyelondon.com/") && webPage.getType().equals("productList");
     }
 }
