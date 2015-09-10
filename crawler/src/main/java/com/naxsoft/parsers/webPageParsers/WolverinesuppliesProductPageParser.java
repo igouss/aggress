@@ -21,7 +21,7 @@ public class WolverinesuppliesProductPageParser implements WebPageParser {
         Set<WebPageEntity> result = new HashSet<>();
         Response response = client.get(webPage.getUrl());
         Logger logger = LoggerFactory.getLogger(this.getClass());
-        if(response.statusCode() == 200) {
+        if (response.statusCode() == 200) {
             WebPageEntity webPageEntity = new WebPageEntity();
             webPageEntity.setUrl(webPage.getUrl());
             webPageEntity.setParent(webPage);

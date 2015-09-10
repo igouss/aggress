@@ -17,9 +17,6 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class FetchClient {
-    public FetchClient() {
-    }
-
     public Response get(String url) throws IOException {
         Logger logger = LoggerFactory.getLogger(this.getClass());
         logger.info("url=" + url);

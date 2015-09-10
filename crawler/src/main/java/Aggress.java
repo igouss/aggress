@@ -3,6 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.database.*;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.SourceEntity;
@@ -18,10 +19,10 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class Aggress {
     static Logger logger;
+    public static final MetricRegistry metrics = new MetricRegistry();
 
     public Aggress() {
     }
@@ -63,22 +64,14 @@ public class Aggress {
             ProductService productService = new ProductService(elastic, db);
             SourceService sourceService = new SourceService(db);
 
-//            populateRoots(webPageService, sourceService);
-//            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
-//            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
-//            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
+            populateRoots(webPageService, sourceService);
+            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
+            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
+            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
 //            logger.info("Fetch & parse complete");
-//            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
-//            logger.info("Parsing complete");
+            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
+            logger.info("Parsing complete");
 
-            do {
-                List<WebPageEntity> unparsedPages = webPageService.getUnparsedPage();
-                if (unparsedPages.isEmpty()) {
-                    break;
-                } else {
-                    process(unparsedPages, webPageParserFactory, webPageService);
-                }
-            } while (true);
 
 //            Thread.currentThread().join();
         } catch (Exception e) {
