@@ -1,30 +1,35 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: Iouri
-  Date: 9/7/2015
-  Time: 1:52 PM
---%>
-
-<%@ page contentType="text/html;charset=UTF-8" %>
+<!doctype html>
 <html>
 <head>
+    <meta name="layout" content="main"/>
     <title>Register</title>
-    <g:meta name="layout" content="main"/>
 </head>
 
 <body>
-        <g:if test="${flash.message}">
-            <div class="message">
-                ${flash.message}
-            </div>
-        </g:if>
-        <g:form controller="user" action="saveUser">
-            <div class="login">
-                <label>E-mail</label><input type="email" name="username"/>
-                <label>Password</label><input type="password" name="password"/>
-                <label>Password</label><input type="password" name="password2"/>
-                <label>&nbsp;</label><input type="submit" name="Register"/>
-            </div>
-        </g:form>
+
+<g:if test="${flash.message}">
+    <div class="message">
+        ${flash.message}
+    </div>
+</g:if>
+<g:form controller="user" action="saveUser">
+    <div class="login">
+        <div class="input-group">
+            <input class="form-control" placeholder="E-Mail" type="email" name="username"/>
+        </div>
+
+        <div class="input-group">
+            <input class="form-control" placeholder="Password" type="password" name="password"/>
+        </div>
+
+        <div class="input-group">
+            <input class="form-control" placeholder="Password" type="password" name="password2"/>
+        </div>
+
+        <div class="input-group">
+            <input type="submit" name="Register" value="Register"/>
+        </div>
+    </div>
+</g:form>
 </body>
 </html>

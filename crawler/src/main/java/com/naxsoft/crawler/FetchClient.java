@@ -26,11 +26,11 @@ public class FetchClient {
         Request request = connection.request();
         request.method(Method.GET);
         Response response = connection.execute();
-        try {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(1L));
-        } catch (InterruptedException e) {
-            logger.error("Thread interrupted", e);
-        }
+//        try {
+//            Thread.sleep(TimeUnit.SECONDS.toMillis(1L));
+//        } catch (InterruptedException e) {
+//            logger.error("Thread interrupted", e);
+//        }
         return response;
     }
 }

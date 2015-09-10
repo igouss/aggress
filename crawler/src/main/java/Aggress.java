@@ -14,6 +14,7 @@ import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.schedulers.Schedulers;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -21,8 +22,9 @@ import java.util.List;
 import java.util.Set;
 
 public class Aggress {
-    static Logger logger;
     public static final MetricRegistry metrics = new MetricRegistry();
+    public static final Thread CURRENT_THREAD = Thread.currentThread();
+    static Logger logger;
 
     public Aggress() {
     }
@@ -64,16 +66,27 @@ public class Aggress {
             ProductService productService = new ProductService(elastic, db);
             SourceService sourceService = new SourceService(db);
 
-            populateRoots(webPageService, sourceService);
-            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
-            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
-            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
-//            logger.info("Fetch & parse complete");
-            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
-            logger.info("Parsing complete");
+//            populateRoots(webPageService, sourceService);
 
 
-//            Thread.currentThread().join();
+            webPageService.getUnparsedFrontPageAsync()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .concatWith(webPageService.getUnparsedProductListAsync())
+                    .concatWith(webPageService.getUnparsedProductPageAsync())
+
+                    .subscribe(wpe -> {
+                        processAsync(wpe, webPageParserFactory, webPageService);
+                    });
+//            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
+//            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
+//            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
+////            logger.info("Fetch & parse complete");
+//            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
+//            logger.info("Parsing complete");
+
+
+            CURRENT_THREAD.join();
         } catch (Exception e) {
             logger.error("Application failure", e);
         } finally {
@@ -117,6 +130,26 @@ public class Aggress {
             }
 
         }
+
+        webPageService.markParsed(parsedPages);
+        parsedPages.clear();
+    }
+
+    private static void processAsync(WebPageEntity parent, WebPageParserFactory webPageParserFactory, WebPageService webPageService) {
+        HashSet<WebPageEntity> parsedPages = new HashSet<>();
+
+
+        try {
+            WebPageParser e = webPageParserFactory.getParser(parent);
+            Set<WebPageEntity> webPageEntitySet = e.parse(parent);
+            if (webPageEntitySet != null) {
+                webPageService.save(webPageEntitySet);
+            }
+            parsedPages.add(parent);
+        } catch (Exception e) {
+            logger.error("Failed to process source " + parent.getUrl(), e);
+        }
+
 
         webPageService.markParsed(parsedPages);
         parsedPages.clear();

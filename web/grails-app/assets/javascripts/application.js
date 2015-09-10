@@ -4,8 +4,8 @@
 //
 // You're free to add application-wide JavaScript to this file, but it's generally better 
 // to create separate JavaScript files as needed.
-//
-//= require jquery-2.1.3.js
+// remove space
+//= require jquery-2.1.4.js
 //= require_tree .
 //= require_self
 
