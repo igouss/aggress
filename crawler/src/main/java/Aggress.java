@@ -12,14 +12,16 @@ import com.naxsoft.parsers.productParser.ProductParser;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.schedulers.Schedulers;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 public class Aggress {
     public static final MetricRegistry metrics = new MetricRegistry();
@@ -38,6 +40,26 @@ public class Aggress {
 
         try {
             WebPageParserFactory webPageParserFactory = new WebPageParserFactory();
+            try {
+                elastic = new Elastic();
+                elastic.setup();
+                logger.info("Elastic initialization complete");
+
+                Client client = elastic.getClient();
+                SearchResponse searchResponse = client.prepareSearch()
+                        .setQuery(matchAllQuery())
+                        .setFrom(0).setSize(2).setExplain(true)
+                        .execute()
+                        .actionGet();
+                System.out.println(searchResponse);
+            } catch (Exception e) {
+
+                logger.error("Failed to initialize elastic", e);
+                if (null != elastic) {
+                    elastic.tearDown();
+                }
+
+            }
 
 
             try {
@@ -51,39 +73,34 @@ public class Aggress {
                 }
             }
 
-            try {
-                elastic = new Elastic();
-                elastic.setup();
-                logger.info("Elastic initialization complete");
-            } catch (Exception e) {
-                logger.error("Failed to initialize elastic", e);
-                if (null != elastic) {
-                    elastic.tearDown();
-                }
-            }
 
             WebPageService webPageService = new WebPageService(db);
             ProductService productService = new ProductService(elastic, db);
             SourceService sourceService = new SourceService(db);
 
-//            populateRoots(webPageService, sourceService);
+//
+//
+//            webPageService.getUnparsedFrontPageAsync()
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(Schedulers.io())
+//                    .concatWith(webPageService.getUnparsedProductListAsync())
+//                    .concatWith(webPageService.getUnparsedProductPageAsync())
+//
+//                    .subscribe(wpe -> {
+//                        processAsync(wpe, webPageParserFactory, webPageService);
+//                    });
+//            webPageService.getUnparsedProductPageRawAsync().subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+//                    .subscribe(webPageEntity -> {
+//                        processAsync(webPageEntity, webPageService, productService);
+//                    });
 
-
-            webPageService.getUnparsedFrontPageAsync()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .concatWith(webPageService.getUnparsedProductListAsync())
-                    .concatWith(webPageService.getUnparsedProductPageAsync())
-
-                    .subscribe(wpe -> {
-                        processAsync(wpe, webPageParserFactory, webPageService);
-                    });
-//            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
-//            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
-//            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
-////            logger.info("Fetch & parse complete");
-//            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
-//            logger.info("Parsing complete");
+            populateRoots(webPageService, sourceService);
+            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
+            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
+            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
+            logger.info("Fetch & parse complete");
+            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
+            logger.info("Parsing complete");
 
 
             CURRENT_THREAD.join();
@@ -100,8 +117,9 @@ public class Aggress {
     }
 
     private static void populateRoots(WebPageService webPageService, SourceService sourceService) {
-        List<SourceEntity> sources = sourceService.getSources();
+        IterableListScrollableResults<SourceEntity> sources = sourceService.getSources();
         Set<WebPageEntity> newRoots = new HashSet<>();
+        Set<SourceEntity> processedSources = new HashSet<>();
         for (SourceEntity sourceEntity : sources) {
             WebPageEntity webPageEntity = new WebPageEntity();
             webPageEntity.setUrl(sourceEntity.getUrl());
@@ -109,12 +127,13 @@ public class Aggress {
             newRoots.add(webPageEntity);
 
             sourceEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+            processedSources.add(sourceEntity);
         }
         webPageService.save(newRoots);
-        sourceService.markParsed(sources);
+        sourceService.markParsed(processedSources);
     }
 
-    private static void process(List<WebPageEntity> parents, WebPageParserFactory webPageParserFactory, WebPageService webPageService) {
+    private static void process(IterableListScrollableResults<WebPageEntity> parents, WebPageParserFactory webPageParserFactory, WebPageService webPageService) {
         HashSet<WebPageEntity> parsedPages = new HashSet<>();
 
         for (WebPageEntity parent : parents) {
@@ -135,27 +154,7 @@ public class Aggress {
         parsedPages.clear();
     }
 
-    private static void processAsync(WebPageEntity parent, WebPageParserFactory webPageParserFactory, WebPageService webPageService) {
-        HashSet<WebPageEntity> parsedPages = new HashSet<>();
-
-
-        try {
-            WebPageParser e = webPageParserFactory.getParser(parent);
-            Set<WebPageEntity> webPageEntitySet = e.parse(parent);
-            if (webPageEntitySet != null) {
-                webPageService.save(webPageEntitySet);
-            }
-            parsedPages.add(parent);
-        } catch (Exception e) {
-            logger.error("Failed to process source " + parent.getUrl(), e);
-        }
-
-
-        webPageService.markParsed(parsedPages);
-        parsedPages.clear();
-    }
-
-    private static void process(List<WebPageEntity> parents, WebPageService webPageService, ProductService productService) {
+    private static void process(IterableListScrollableResults<WebPageEntity> parents, WebPageService webPageService, ProductService productService) {
         HashSet<WebPageEntity> parsedPages = new HashSet<>();
         HashSet<ProductEntity> products = new HashSet<>();
         ProductParserFactory productParserFactory = new ProductParserFactory();
@@ -175,6 +174,7 @@ public class Aggress {
         webPageService.markParsed(parsedPages);
         parsedPages.clear();
     }
+
 
 
 }

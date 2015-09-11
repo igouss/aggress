@@ -6,6 +6,7 @@
 // to create separate JavaScript files as needed.
 // remove space
 //= require jquery-2.1.4.js
+//= require bootstrap/tooltip.js
 //= require_tree .
 //= require_self
 

@@ -12,6 +12,9 @@
         ${flash.message}
     </div>
 </g:if>
+<div>
+    ${json}
+</div>
 <div class="row">
     <nav>
         <ul class="pager">

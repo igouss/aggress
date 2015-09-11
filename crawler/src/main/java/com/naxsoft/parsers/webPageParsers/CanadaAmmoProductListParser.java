@@ -25,19 +25,7 @@ public class CanadaAmmoProductListParser implements WebPageParser {
         FetchClient fetchClient = new FetchClient();
         Connection.Response response = fetchClient.get(webPage.getUrl());
         Document document = Jsoup.parse(response.body());
-        Elements elements = document.select("div.clearfix span.pagination a.nav-page");
-
-        for(Element el : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setParent(webPage);
-            webPageEntity.setUrl(el.attr("abs:href") + "??count=72");
-            webPageEntity.setType("productList");
-            webPageEntity.setParsed(false);
-            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-
-            result.add(webPageEntity);
-        }
-        elements = document.select("a.product__link");
+        Elements elements = document.select("a.product__link");
         for (Element element : elements) {
             WebPageEntity webPageEntity = new WebPageEntity();
             webPageEntity.setUrl(element.attr("abs:href"));

@@ -115,17 +115,19 @@ public class AggressRx {
 
 
     private static void populateRoots(WebPageService webPageService, SourceService sourceService) {
-        List<SourceEntity> sources = sourceService.getSources();
+        IterableListScrollableResults<SourceEntity> sources = sourceService.getSources();
         Set<WebPageEntity> newRoots = new HashSet<>();
-        for (SourceEntity sourceEntity : sources) {
+        Set<SourceEntity> processedSources = new HashSet<>();
+        for(SourceEntity sourceEntity : sources) {
             WebPageEntity webPageEntity = new WebPageEntity();
             webPageEntity.setUrl(sourceEntity.getUrl());
             webPageEntity.setType("frontPage");
             newRoots.add(webPageEntity);
             sourceEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+            processedSources.add(sourceEntity);
         }
         webPageService.save(newRoots);
-        sourceService.markParsed(sources);
+        sourceService.markParsed(processedSources);
     }
 
     private static void process(List<WebPageEntity> parents, WebPageParserFactory webPageParserFactory, WebPageService webPageService) {

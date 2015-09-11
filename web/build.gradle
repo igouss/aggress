@@ -79,6 +79,16 @@ dependencies {
     testRuntime 'org.seleniumhq.selenium:selenium-htmlunit-driver:2.44.0'
 
     console "org.grails:grails-console"
+
+    compile group: 'org.elasticsearch', name: 'elasticsearch', version: '1.7.1'
+    compile group: 'com.vividsolutions', name: 'jts', version: '1.12'
+
+//    compile group: 'org.hibernate', name: 'hibernate-core', version: '4.+'
+//    compile group: 'org.hibernate', name: 'hibernate-java8', version: '4.+'
+//    compile group: 'org.hibernate', name: 'hibernate-hikaricp', version: '4.+'
+//    compile group: 'org.hibernate', name: 'hibernate-ehcache', version: '4.+'
+//    compile group: 'org.hibernate', name: 'hibernate-validator', version: '4.+'
+
 }
 
 task wrapper(type: Wrapper) {

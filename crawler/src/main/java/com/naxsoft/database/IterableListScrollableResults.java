@@ -8,145 +8,93 @@ package com.naxsoft.database;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
-import java.util.AbstractList;
 import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
 
-public class IterableListScrollableResults<E> extends AbstractList<E> {
-    private static final int ENTITY_COUNTER_THRESHOLD = 20;
-    private Session hibernateSession;
-    private ScrollableResults results;
-    private int numberOfLoadedEntities;
-    private boolean empty = true;
-    private boolean ended = false;
-    private E currentEntity;
 
-    private E monitoredGet() {
-        if(++this.numberOfLoadedEntities > 20) {
-            this.hibernateSession.clear();
-            this.numberOfLoadedEntities = 0;
-        }
+public class IterableListScrollableResults<T> implements Iterable<T> {
+    Iterator<T> iterator;
 
-        Object[] row = this.results.get();
-        if(row.length == 1) {
-            this.currentEntity = (E) row[0];
-        }
-
-        return this.currentEntity;
+    public IterableListScrollableResults(Session session, ScrollableResults sr) {
+        iterator = new ScrollableResultsIterator<>(session, sr);
     }
 
-    private boolean nextAndGet() {
-        boolean hasNext = false;
-        if(this.results.next()) {
-            hasNext = true;
-            this.monitoredGet();
-        } else {
-            this.ended = true;
-            this.hibernateSession.close();
-        }
-
-        return hasNext;
+    @Override
+    public Iterator<T> iterator() {
+        return iterator;
     }
 
-    private E getCurrent() {
-        return this.currentEntity;
-    }
+    class ScrollableResultsIterator<T> implements Iterator<T> {
+        private static final int DEFAULT_FLUSH_LIMIT = 1000;
 
-    public IterableListScrollableResults(Session session, ScrollableResults scrollableresults) {
-        this.hibernateSession = session;
-        this.results = scrollableresults;
-        this.empty = !this.nextAndGet();
-    }
+        private ScrollableResults sr;
+        private T next = null;
+        private Session session;
+        private int count = 0;
+        private boolean elementPulled = false;
 
-    public E get(int index) {
-        if(index == this.results.getRowNumber()) {
-            return this.getCurrent();
-        } else if(this.results.setRowNumber(index)) {
-            return this.monitoredGet();
-        } else {
-            throw new IndexOutOfBoundsException();
-        }
-    }
-
-    public boolean isEmpty() {
-        return this.empty;
-    }
-
-    public int size() {
-        throw new UnsupportedOperationException();
-    }
-
-    public Iterator<E> iterator() {
-        return new IterableListScrollableResults.ResultIterator();
-    }
-
-    public ListIterator<E> listIterator() {
-        return this.listIterator(0);
-    }
-
-    public ListIterator<E> listIterator(int index) {
-        if(index != this.results.getRowNumber() && !this.results.setRowNumber(index)) {
-            throw new IndexOutOfBoundsException();
-        } else {
-            return new IterableListScrollableResults.ResultListIterator();
-        }
-    }
-
-    private class ResultListIterator extends ResultIterator implements ListIterator<E> {
-        private ResultListIterator() {
-            super();
+        public ScrollableResultsIterator(Session session, ScrollableResults sr) {
+            this.sr = sr;
+            this.session = session;
         }
 
-        public boolean hasPrevious() {
-            return !IterableListScrollableResults.this.results.isFirst();
-        }
-
-        public E previous() {
-            if(IterableListScrollableResults.this.results.previous()) {
-                return IterableListScrollableResults.this.monitoredGet();
-            } else {
-                throw new NoSuchElementException();
-            }
-        }
-
-        public int nextIndex() {
-            return IterableListScrollableResults.this.results.getRowNumber();
-        }
-
-        public int previousIndex() {
-            return IterableListScrollableResults.this.results.getRowNumber() - 1;
-        }
-
-        public void set(E e) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void add(E e) {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private class ResultIterator implements Iterator<E> {
-        private ResultIterator() {
-        }
-
+        /**
+         * ScrollableResults does not provide a hasNext method, implemented here for Iterator interface.
+         */
+        @SuppressWarnings("unchecked")
+        @Override
         public boolean hasNext() {
-            return !IterableListScrollableResults.this.ended;
-        }
-
-        public E next() {
-            if(!IterableListScrollableResults.this.ended) {
-                E result = IterableListScrollableResults.this.getCurrent();
-                IterableListScrollableResults.this.nextAndGet();
-                return result;
-            } else {
-                throw new NoSuchElementException();
+            // if we have a next element that was not pulled, just simply return true.
+            if (!elementPulled && next != null) {
+                return true;
             }
+
+            if (sr.next()) {
+                //we remember the element
+                next = (T) sr.get()[0];
+                elementPulled = false;
+                return true;
+            }
+            return false;
         }
 
+        @SuppressWarnings("unchecked")
+        @Override
+        public T next() {
+            T toReturn = null;
+            //next variable could be null because the last element was sent or because we iterate on the next()
+            //instead of hasNext()
+            if (next == null) {
+                //if we can retrieve an element, do it
+                if (sr.next()) {
+                    toReturn = (T) sr.get()[0];
+                }
+            } else { //the element was fetched by hasNext, return it
+                toReturn = next;
+                next = null;
+            }
+
+            //if we are at the end, close the result set
+            if (toReturn == null) {
+                sr.close();
+            } else { //clear memory to avoid memory leak
+                if (count == DEFAULT_FLUSH_LIMIT) {
+                    session.flush();
+                    session.clear();
+                    count = 0;
+                }
+                count++;
+            }
+            elementPulled = true;
+            return toReturn;
+        }
+
+        /**
+         * Unsupported Operation for this implementation.
+         */
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
     }
 }
+

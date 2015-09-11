@@ -10,13 +10,13 @@ import org.hibernate.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.observables.AbstractOnSubscribe;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
-public class WebPageService {
+public class WebPageService<T> {
     private final Logger logger;
     private Database database;
 
@@ -68,7 +68,7 @@ public class WebPageService {
         session.close();
     }
 
-    private List<WebPageEntity> get(String queryString) {
+    private IterableListScrollableResults get(String queryString) {
         Session session = this.database.getSessionFactory().openSession();
         Query query = session.createQuery(queryString);
         query.setCacheable(false);
@@ -99,27 +99,51 @@ public class WebPageService {
         });
     }
 
-    public List<WebPageEntity> getUnparsedProductList() {
+
+    private Observable<WebPageEntity> getAsync2(String queryString) {
+        return Observable.create(AbstractOnSubscribe.<WebPageEntity, ScrollableResults>create(s -> {
+            try {
+                ScrollableResults state = s.state();
+                while (state.next()) {
+                    s.onNext((WebPageEntity) state.get(0));
+                }
+                s.onCompleted();
+            } catch (Exception e) {
+                s.onError(e);
+            }
+        }, s -> {
+            Session session = this.database.getSessionFactory().openSession();
+            Query query = session.createQuery(queryString);
+            query.setCacheable(false);
+            query.setReadOnly(true);
+            ScrollableResults result = query.scroll(ScrollMode.FORWARD_ONLY);
+            return result;
+        }, scrollableResults -> {
+            scrollableResults.close();
+        }));
+    }
+
+    public IterableListScrollableResults<T> getUnparsedProductList() {
         String queryString = "from WebPageEntity where type = \'productList\' and parsed = false order by rand()";
         return this.get(queryString);
     }
 
-    public List<WebPageEntity> getUnparsedProductPage() {
+    public IterableListScrollableResults<T> getUnparsedProductPage() {
         String queryString = "from WebPageEntity where type = \'productPage\' and parsed = false order by rand()";
         return this.get(queryString);
     }
 
-    public List<WebPageEntity> getUnparsedProductPageRaw() {
+    public IterableListScrollableResults<T> getUnparsedProductPageRaw() {
         String queryString = "from WebPageEntity where type = \'productPageRaw\' and parsed = false order by rand()";
         return this.get(queryString);
     }
 
-    public List<WebPageEntity> getUnparsedFrontPage() {
+    public IterableListScrollableResults<T> getUnparsedFrontPage() {
         String queryString = "from WebPageEntity where type = \'frontPage\' and parsed = false order by rand()";
         return this.get(queryString);
     }
 
-    public List<WebPageEntity> getUnparsedPage() {
+    public IterableListScrollableResults<T> getUnparsedPage() {
         String queryString = "from WebPageEntity where parsed = false order by rand()";
         return this.get(queryString);
     }
@@ -136,7 +160,7 @@ public class WebPageService {
 
     public Observable<WebPageEntity> getUnparsedProductPageRawAsync() {
         String queryString = "from WebPageEntity where type = \'productPageRaw\' and parsed = false order by rand()";
-        return this.getAsync(queryString);
+        return this.getAsync2(queryString);
     }
 
     public Observable<WebPageEntity> getUnparsedFrontPageAsync() {
