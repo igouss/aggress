@@ -43,6 +43,9 @@ public class IterableListScrollableResults<T> implements Iterable<T> {
         @SuppressWarnings("unchecked")
         @Override
         public boolean hasNext() {
+            if (!session.isOpen()) {
+                return false;
+            }
             // if we have a next element that was not pulled, just simply return true.
             if (!elementPulled && next != null) {
                 return true;
@@ -54,6 +57,8 @@ public class IterableListScrollableResults<T> implements Iterable<T> {
                 elementPulled = false;
                 return true;
             }
+            sr.close();
+//            session.close();
             return false;
         }
 

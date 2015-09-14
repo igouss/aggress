@@ -115,19 +115,23 @@ public class WebPageEntity {
         this.url = url;
     }
 
+    @Override
     public boolean equals(Object o) {
-        if(this == o) {
-            return true;
-        } else if(o != null && this.getClass() == o.getClass()) {
-            WebPageEntity that = (WebPageEntity)o;
-            return this.url.equals(that.url);
-        } else {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WebPageEntity that = (WebPageEntity) o;
+
+        if (!type.equals(that.type)) return false;
+        return url.equals(that.url);
+
     }
 
+    @Override
     public int hashCode() {
-        return this.url.hashCode();
+        int result = type.hashCode();
+        result = 31 * result + url.hashCode();
+        return result;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -138,5 +142,14 @@ public class WebPageEntity {
 
     public void setParent(WebPageEntity parent) {
         this.parent = parent;
+    }
+
+    @Override
+    public String toString() {
+        return "WebPageEntity{" +
+                "parsed='" + parsed + '\'' +
+                ", type =" + type +
+                ", url='" + url + '\'' +
+                '}';
     }
 }

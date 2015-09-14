@@ -37,11 +37,11 @@ public class WebPageParserFactory {
 
         for (WebPageParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
-                this.logger.debug("Found a web-page parser for url=" + webPageEntity.getUrl() + ", action=" + webPageEntity.getType());
+                this.logger.debug("Found a web-page parser action = " + webPageEntity.getType() + " url =" + webPageEntity.getUrl());
                 return parser;
             }
         }
-        logger.warn("Failed to find a web-page parser for url=" + webPageEntity.getUrl() + ", action=" + webPageEntity.getType());
+        logger.warn("Failed to find a web-page parser for action =" + webPageEntity.getType() + ", url = " + webPageEntity.getUrl());
         return new NoopParser();
     }
 }

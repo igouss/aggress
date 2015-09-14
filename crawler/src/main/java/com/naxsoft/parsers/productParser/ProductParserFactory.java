@@ -39,7 +39,7 @@ public class ProductParserFactory {
         ProductParser parser;
         do {
             if(!it.hasNext()) {
-                this.logger.warn("Failed to find a document parser for url=" + webPage.getUrl() + ", action=" + webPage.getType());
+                this.logger.warn("Failed to find a document parser for action = " + webPage.getType() + " url = " + webPage.getUrl());
                 return new NoopParser();
             }
 

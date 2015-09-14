@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -94,16 +96,33 @@ public class Aggress {
 //                        processAsync(webPageEntity, webPageService, productService);
 //                    });
 
+
+//            webPageService.getAsync2("from WebPageEntity").
+//                    subscribeOn(Schedulers.io()).
+//                    observeOn(Schedulers.computation()).
+//                    doOnEach(wpe -> logger.debug("processing" + wpe.getValue())).
+//                    doOnCompleted(() -> logger.info("Processing complete")).
+//                    doOnError(e -> logger.error("Failed to process web-page", e)).
+//                    subscribe();
+
+            String indexSuffix = "-" + new SimpleDateFormat("yyyy-mm-dd").format(new Date());
+            System.out.println(elastic.createIndex("product", "guns", indexSuffix));
             populateRoots(webPageService, sourceService);
             process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
             process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
             process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
             logger.info("Fetch & parse complete");
-            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
+            process(webPageService.getParsedProductPageRaw(), webPageService, productService);
+            indexProducts(productService.getProducts(), elastic, "product" + indexSuffix, "guns");
+//            indexProducts(productService.getProducts(), elastic, "test", "guns");
             logger.info("Parsing complete");
 
+//            System.out.println(elastic.getIndex("product", "guns"));
 
-            CURRENT_THREAD.join();
+
+
+
+//            CURRENT_THREAD.join();
         } catch (Exception e) {
             logger.error("Application failure", e);
         } finally {
@@ -114,6 +133,10 @@ public class Aggress {
                 elastic.tearDown();
             }
         }
+    }
+
+    private static void indexProducts(IterableListScrollableResults<ProductEntity> products, Elastic elastic, String index, String type) {
+        elastic.index(products, index, type);
     }
 
     private static void populateRoots(WebPageService webPageService, SourceService sourceService) {
@@ -138,16 +161,22 @@ public class Aggress {
 
         for (WebPageEntity parent : parents) {
             try {
+                logger.debug("Start parent page processing: " + parent.getUrl());
                 WebPageParser e = webPageParserFactory.getParser(parent);
                 Set<WebPageEntity> webPageEntitySet = e.parse(parent);
                 if (webPageEntitySet != null) {
                     webPageService.save(webPageEntitySet);
                 }
+                logger.debug("End parent page processing: " + parent.getUrl());
                 parsedPages.add(parent);
+
+                if (parsedPages.size() % 100 == 0) {
+                    webPageService.markParsed(parsedPages);
+                    parsedPages.clear();
+                }
             } catch (Exception e) {
                 logger.error("Failed to process source " + parent.getUrl(), e);
             }
-
         }
 
         webPageService.markParsed(parsedPages);
@@ -155,7 +184,7 @@ public class Aggress {
     }
 
     private static void process(IterableListScrollableResults<WebPageEntity> parents, WebPageService webPageService, ProductService productService) {
-        HashSet<WebPageEntity> parsedPages = new HashSet<>();
+        HashSet<WebPageEntity> parsedParents = new HashSet<>();
         HashSet<ProductEntity> products = new HashSet<>();
         ProductParserFactory productParserFactory = new ProductParserFactory();
 
@@ -164,17 +193,17 @@ public class Aggress {
             if (parser.canParse(parent)) {
                 try {
                     products.addAll(parser.parse(parent));
-                    parsedPages.add(parent);
+                    parsedParents.add(parent);
+                    if (parsedParents.size() % 100 == 0) {
+                        webPageService.markParsed(parsedParents);
+                        parsedParents.clear();
+                    }
                 } catch (Exception e) {
                     logger.error("Failed to parse product page " + parent.getUrl(), e);
                 }
             }
         }
         productService.save(products);
-        webPageService.markParsed(parsedPages);
-        parsedPages.clear();
+        webPageService.markParsed(parsedParents);
     }
-
-
-
 }

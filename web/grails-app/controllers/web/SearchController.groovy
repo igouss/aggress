@@ -36,6 +36,6 @@ class SearchController {
         builder.append("]");
         String result= builder.toString();
 
-        [ json: "hello" ]
+        render (contentType: "text/json", text:  result )
     }
 }

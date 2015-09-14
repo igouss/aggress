@@ -14,6 +14,55 @@
             <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
         </encoder>
     </appender>
+    <appender name="ELASTIC" class="com.internetitem.logback.elasticsearch.ElasticsearchAppender">
+        <url>http://localhost:9200/_bulk</url>
+        <index>logs-%date{yyyy-MM-dd}</index>
+        <type>com.naxsoft.crawler</type>
+        <!-- optional -->
+        <!--<loggerName>es-logger</loggerName> -->
+        <!-- optional -->
+        <errorLoggerName>es-error-logger</errorLoggerName>
+        <!-- optional (in ms, default 30000) -->
+        <connectTimeout>30000</connectTimeout>
+        <!-- optional (default false) -->
+        <errorsToStdErr>false</errorsToStdErr>
+        <!-- optional (default false) -->
+        <includeCallerData>false</includeCallerData>
+        <!-- optional (default false) -->
+        <logsToStdErr>false</logsToStdErr>
+        <!-- optional (default 104857600) -->
+        <maxQueueSize>104857600</maxQueueSize>
+        <!-- optional (default 3) -->
+        <maxRetries>3</maxRetries>
+        <!-- optional (in ms, default 30000) -->
+        <readTimeout>30000</readTimeout>
+        <!-- optional (in ms, default 250) -->
+        <sleepTime>250</sleepTime>
+        <properties>
+            <property>
+                <name>host</name>
+                <value>${HOSTNAME}</value>
+                <allowEmpty>false</allowEmpty>
+            </property>
+            <property>
+                <name>severity</name>
+                <value>%level</value>
+            </property>
+            <property>
+                <name>thread</name>
+                <value>%thread</value>
+            </property>
+            <property>
+                <name>stacktrace</name>
+                <value>%ex</value>
+            </property>
+            <property>
+                <name>logger</name>
+                <value>%logger</value>
+            </property>
+        </properties>
+    </appender>
+
 
     <logger name="org.hibernate" level="INFO" />
     <logger name="org.elasticsearch" level="INFO" />
@@ -23,5 +72,6 @@
     <root level="DEBUG">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
+        <appender-ref ref="ELASTIC" />
     </root>
 </configuration>

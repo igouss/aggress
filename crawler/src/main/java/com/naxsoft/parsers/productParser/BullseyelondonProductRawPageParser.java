@@ -18,8 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.text.NumberFormat;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,30 +75,31 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
         return matcher.find()?"true":"false";
     }
 
+
+    private String parsePrice(String price) {
+        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        if (matcher.find()) {
+            try {
+                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
+            } catch (Exception e) {
+                return Double.valueOf(matcher.group(1)).toString();
+            }
+        } else {
+            return price;
+        }
+    }
+
     private String getRegularPrice(Document document) {
         String raw = document.select(".regular-price").text().trim();
         if(null == raw || raw.isEmpty()) {
             raw = document.select(".old-price .price").text().trim();
         }
-
-        Matcher matcher = Pattern.compile("\\d+.\\d+").matcher(raw);
-        if(matcher.find()) {
-            String value = matcher.group(0);
-            return value;
-        } else {
-            return raw;
-        }
+        return parsePrice(raw);
     }
 
     private String getSpecialPrice(Document document) {
         String raw = document.select(".special-price .price").text().trim();
-        Matcher matcher = Pattern.compile("\\d+.\\d+").matcher(raw);
-        if(matcher.find()) {
-            String value = matcher.group(0);
-            return value;
-        } else {
-            return raw;
-        }
+        return parsePrice(raw);
     }
 
     private String getUnitsAvailable(Document document) {

@@ -54,32 +54,22 @@ public class ProductEntity {
         this.json = json;
     }
 
+    @Override
     public boolean equals(Object o) {
-        if(this == o) {
-            return true;
-        } else if(o != null && this.getClass() == o.getClass()) {
-            ProductEntity that = (ProductEntity)o;
-            if(this.id != that.id) {
-                return false;
-            } else {
-                if(this.json != null) {
-                    if(!this.json.equals(that.json)) {
-                        return false;
-                    }
-                } else if(that.json != null) {
-                    return false;
-                }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-                return true;
-            }
-        } else {
-            return false;
-        }
+        ProductEntity that = (ProductEntity) o;
+
+        if (webpageId != that.webpageId) return false;
+        return json.equals(that.json);
+
     }
 
+    @Override
     public int hashCode() {
-        int result = this.id;
-        result = 31 * result + (this.json != null?this.json.hashCode():0);
+        int result = json.hashCode();
+        result = 31 * result + webpageId;
         return result;
     }
 

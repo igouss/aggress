@@ -13,4 +13,5 @@ repositories {
 dependencies {
     compile project (":web")
     compile project (":crawler")
+    compile project (":frontend")
 }
