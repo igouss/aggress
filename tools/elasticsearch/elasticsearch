@@ -1,0 +1,22 @@
+ES_USER=elasticsearch
+
+ES_HOME=/opt/elasticsearch-1.7.1
+
+# Elasticsearch log directory
+ES_LOG_DIR=/var/log/elasticsearch
+
+# Elasticsearch data directory
+ES_DATA_DIR=/var/lib/elasticsearch
+
+# Elasticsearch work directory
+ES_WORK_DIR=/tmp/elasticsearch
+
+# Elasticsearch configuration directory
+ES_CONF_DIR=/opt/elasticsearch-1.7.1/config
+
+# Elasticsearch configuration file (elasticsearch.yml)
+ES_CONF_FILE=/opt/elasticsearch-1.7.1/config/elasticsearch.yml
+
+# Java heap size
+ES_HEAP_SIZE=512m
+

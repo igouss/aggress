@@ -1,0 +1,27 @@
+[Unit]
+Description=Starts and stops a single elasticsearch instance on this system
+Documentation=http://www.elasticsearch.org
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+EnvironmentFile=/etc/default/elasticsearch
+User=elasticsearch
+Group=elasticsearch
+
+ExecStart=/opt/elasticsearch-1.7.1/bin/elasticsearch \
+                            -Des.default.config=$ES_CONF_FILE      \
+                            -Des.default.path.home=$ES_HOME     \
+                            -Des.default.path.logs=$ES_LOG_DIR     \
+                            -Des.default.path.data=$ES_DATA_DIR    \
+                            -Des.default.path.work=$ES_WORK_DIR    \
+                            -Des.default.path.conf=$ES_CONF_DIR
+# See MAX_OPEN_FILES in /etc/default/elasticsearch
+LimitNOFILE=65535
+# See MAX_LOCKED_MEMORY in /etc/default/elasticsearch, use "infinity" when     MAX_LOCKED_MEMORY=unlimited and using bootstrap.mlockall: true
+#LimitMEMLOCK=infinity
+# Shutdown delay in seconds, before process is tried to be killed with KILL (if configured)
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target
