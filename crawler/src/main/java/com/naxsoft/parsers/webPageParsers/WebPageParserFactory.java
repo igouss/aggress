@@ -37,7 +37,7 @@ public class WebPageParserFactory {
 
         for (WebPageParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
-                this.logger.debug("Found a web-page parser action = " + webPageEntity.getType() + " url =" + webPageEntity.getUrl());
+                this.logger.debug("Found a parser " + parser.getClass().toString() + " for action = " + webPageEntity.getType() + " url = " + webPageEntity.getUrl());
                 return parser;
             }
         }

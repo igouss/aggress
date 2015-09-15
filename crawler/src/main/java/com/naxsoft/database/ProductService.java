@@ -56,8 +56,28 @@ public class ProductService {
     }
 
     public IterableListScrollableResults<ProductEntity> getProducts() {
-        String queryString = "from ProductEntity";
+        String queryString = "from ProductEntity where indexed=false";
         return this.get(queryString);
+    }
+
+    public void markAllAsIndexed() {
+        Session session = this.database.getSessionFactory().openSession();
+        Query query = session.createQuery("update ProductEntity as p set p.indexed = true");
+        Transaction tx = null;
+
+        try {
+            tx = session.beginTransaction();
+            query.executeUpdate();
+            session.flush();
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx != null) {
+                session.flush();
+                tx.commit();
+            }
+        } finally {
+            session.close();
+        }
     }
 
 

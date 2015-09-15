@@ -23,7 +23,7 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
         Set<WebPageEntity> result = new HashSet<>();
         FetchClient fetchClient = new FetchClient();
         Connection.Response response = fetchClient.get(webPage.getUrl());
-        Document document = Jsoup.parse(response.body());
+        Document document = Jsoup.parse(response.body(), webPage.getUrl());
         Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
         Logger logger = LoggerFactory.getLogger(this.getClass());
         logger.info("Parsing for sub-pages + " + webPage.getUrl());
@@ -31,7 +31,7 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
         for (Element el : elements) {
             String url = el.attr("abs:href") + "?count=72";
             response = fetchClient.get(url);
-            document = Jsoup.parse(response.body());
+            document = Jsoup.parse(response.body(), url);
             elements = document.select("div.clearfix span.pagination a.nav-page");
             if (elements.size() == 0) {
                 WebPageEntity webPageEntity = new WebPageEntity();

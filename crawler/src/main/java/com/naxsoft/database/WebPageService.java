@@ -107,7 +107,7 @@ public class WebPageService {
     }
 
     public IterableListScrollableResults<WebPageEntity> getParsedProductPageRaw() {
-        String queryString = "from WebPageEntity where type = \'productPageRaw\' and parsed = true order by rand()";
+        String queryString = "from WebPageEntity where type = \'productPageRaw\' and parsed = false order by rand()";
         return this.get(queryString);
     }
 

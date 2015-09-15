@@ -105,9 +105,9 @@ public class Aggress {
 //                    doOnError(e -> logger.error("Failed to process web-page", e)).
 //                    subscribe();
 
-            String indexSuffix = "-" + new SimpleDateFormat("yyyy-mm-dd").format(new Date());
-            System.out.println(elastic.createIndex("product", "guns", indexSuffix));
-            populateRoots(webPageService, sourceService);
+            String indexSuffix = "-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+//            System.out.println(elastic.createIndex("product", "guns", indexSuffix));
+//            populateRoots(webPageService, sourceService);
             process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
             process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
             process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
@@ -148,9 +148,9 @@ public class Aggress {
             webPageEntity.setUrl(sourceEntity.getUrl());
             webPageEntity.setType("frontPage");
             newRoots.add(webPageEntity);
-
             sourceEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
             processedSources.add(sourceEntity);
+            logger.info("Adding new root + " + webPageEntity.getUrl());
         }
         webPageService.save(newRoots);
         sourceService.markParsed(processedSources);

@@ -23,6 +23,7 @@ public class ProductEntity {
     private int id;
     private String json;
     private int webpageId;
+    private boolean indexed;
 
     public ProductEntity() {
     }
@@ -83,5 +84,15 @@ public class ProductEntity {
 
     public void setWebpageId(int webpageId) {
         this.webpageId = webpageId;
+    }
+
+    @Basic
+    @Column(name = "indexed")
+    public boolean isIndexed() {
+        return indexed;
+    }
+
+    public void setIndexed(boolean indexed) {
+        this.indexed = indexed;
     }
 }

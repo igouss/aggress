@@ -26,26 +26,23 @@ public class ProductParserFactory {
         for (Class clazz : (Iterable<Class>) classes) {
             try {
                 ProductParser e = (ProductParser) clazz.getConstructor(new Class[0]).newInstance(new Object[0]);
-                this.parsers.add(e);
+                parsers.add(e);
             } catch (Exception e) {
-                this.logger.error("Failed to create a new product parser", e);
+                logger.error("Failed to create a new product parser", e);
             }
         }
     }
 
-    public ProductParser getParser(WebPageEntity webPage) {
+    public ProductParser getParser(WebPageEntity webPageEntity) {
         Iterator it = this.parsers.iterator();
 
-        ProductParser parser;
-        do {
-            if(!it.hasNext()) {
-                this.logger.warn("Failed to find a document parser for action = " + webPage.getType() + " url = " + webPage.getUrl());
-                return new NoopParser();
+        for (ProductParser parser : parsers) {
+            if (parser.canParse(webPageEntity)) {
+                this.logger.debug("Found a parser " + parser.getClass().toString() + " for action = " + webPageEntity.getType() + " url = " + webPageEntity.getUrl());
+                return parser;
             }
-
-            parser = (ProductParser)it.next();
-        } while(!parser.canParse(webPage));
-
-        return parser;
+        }
+        logger.warn("Failed to find a document parser for action = " + webPageEntity.getType() + " url = " + webPageEntity.getUrl());
+        return new NoopParser();
     }
 }
