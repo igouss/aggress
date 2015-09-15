@@ -1,7 +1,9 @@
 package com.naxsoft.parsers.webPageParsers;
 
+import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.FetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,44 +23,67 @@ public class WolverinesuppliesProductListParser implements WebPageParser {
 
 
     public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
-        FetchClient client = new FetchClient();
-        Set<WebPageEntity> result = new HashSet<>();
-        Response response = client.get(webPage.getUrl());
-        if (response.statusCode() == 200) {
-            Logger logger = LoggerFactory.getLogger(this.getClass());
-            Document document = Jsoup.parse(response.body(), webPage.getUrl());
-            Elements elements = document.select("div[ng-init]");
+        AsyncFetchClient<Set<WebPageEntity>> client = new AsyncFetchClient<>();
 
-            for (Element e : elements) {
-                String linkUrl = e.attr("ng-init");
-                Matcher categoryMatcher = Pattern.compile("\'\\d+\'").matcher(linkUrl);
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            @Override
+            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                HashSet<WebPageEntity> result = new HashSet<>();
+                if (resp.getStatusCode() == 200) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass());
+                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                    Elements elements = document.select("div[ng-init]");
 
-                if (categoryMatcher.find()) {
-                    String productCategory = categoryMatcher.group();
-                    String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
-                    String productDetailsJson = client.get(productDetailsUrl).body();
-                    Matcher itemNumberMatcher = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"").matcher(productDetailsJson);
-                    StringBuilder sb = new StringBuilder();
+                    for (Element e : elements) {
+                        String linkUrl = e.attr("ng-init");
+                        Matcher categoryMatcher = Pattern.compile("\'\\d+\'").matcher(linkUrl);
 
-                    while (itemNumberMatcher.find()) {
-                        logger.info(itemNumberMatcher.group(1));
-                        sb.append(itemNumberMatcher.group(1));
-                        sb.append(',');
-                    }
+                        if (categoryMatcher.find()) {
+                            String productCategory = categoryMatcher.group();
+                            String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
 
-                    if (0 != sb.length()) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb.toString());
-                        webPageEntity.setParent(webPage.getParent());
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setType("productPage");
-                        webPageEntity.setParent(webPage);
-                        result.add(webPageEntity);
+                            AsyncFetchClient<Set<WebPageEntity>> client2 = new AsyncFetchClient<>();
+                            Future<Set<WebPageEntity>> future2 = client2.get(productDetailsUrl, new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                                @Override
+                                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                                    HashSet<WebPageEntity> r = new HashSet<>();
+                                    String productDetailsJson = resp.getResponseBody();
+                                    Matcher itemNumberMatcher = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"").matcher(productDetailsJson);
+                                    StringBuilder sb = new StringBuilder();
+
+                                    while (itemNumberMatcher.find()) {
+                                        logger.info(itemNumberMatcher.group(1));
+                                        sb.append(itemNumberMatcher.group(1));
+                                        sb.append(',');
+                                    }
+
+                                    if (0 != sb.length()) {
+                                        WebPageEntity webPageEntity = new WebPageEntity();
+                                        webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb.toString());
+                                        webPageEntity.setParent(webPage.getParent());
+                                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                        webPageEntity.setType("productPage");
+                                        webPageEntity.setParent(webPage);
+                                        r.add(webPageEntity);
+                                    }
+                                    return r;
+                                }});
+                            result.addAll(future2.get());
+                        }
                     }
                 }
+                return result;
             }
+        });
+        try {
+            Set<WebPageEntity> webPageEntities = future.get();
+            client.close();
+            return webPageEntities;
+        } catch (Exception e) {
+            logger.error("HTTP error", e);
+            return new HashSet<>();
         }
-        return result;
     }
 
     public boolean canParse(WebPageEntity webPage) {

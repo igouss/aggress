@@ -5,9 +5,9 @@
 
 package com.naxsoft.parsers.webPageParsers;
 
-import com.naxsoft.crawler.FetchClient;
+import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
-import org.jsoup.Connection.Response;
+import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,37 +19,45 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 public class BullseyelondonFrontPageParser implements WebPageParser {
 
     public Set<WebPageEntity> parse(WebPageEntity webPage) {
-        FetchClient client = new FetchClient();
-        HashSet result = new HashSet();
+        AsyncFetchClient<Set<WebPageEntity>> client = new AsyncFetchClient<>();
+
         Logger logger = LoggerFactory.getLogger(this.getClass());
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            @Override
+            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                HashSet<WebPageEntity> result = new HashSet<>();
+                if (resp.getStatusCode() == 200) {
 
-        try {
-            Response resp = client.get(webPage.getUrl());
-            if (resp.statusCode() == 200) {
-                Document document = Jsoup.parse(resp.body(), webPage.getUrl());
-                Elements elements = document.select(".vertnav-cat a");
-
-                for (Element element : elements) {
-                    WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(element.attr("abs:href") + "?limit=all");
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                    webPageEntity.setParsed(false);
-                    webPageEntity.setStatusCode(Integer.valueOf(resp.statusCode()));
-                    webPageEntity.setType("productList");
-                    webPageEntity.setParent(webPage);
-                    logger.info("parseUrl=" + webPage.getUrl() + ", productListUrl=" + webPageEntity.getUrl());
-                    result.add(webPageEntity);
+                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                    Elements elements = document.select(".vertnav-cat a");
+                    for (Element element : elements) {
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl(element.attr("abs:href") + "?limit=all");
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setStatusCode(resp.getStatusCode());
+                        webPageEntity.setType("productList");
+                        webPageEntity.setParent(webPage);
+                        logger.info("parseUrl=" + webPage.getUrl() + ", productListUrl=" + webPageEntity.getUrl());
+                        result.add(webPageEntity);
+                    }
                 }
+                return result;
             }
-        } catch (IOException e) {
-            logger.error("Failed to parse " + webPage.getUrl(), e);
+        });
+        try {
+            Set<WebPageEntity> webPageEntities = future.get();
+            client.close();
+            return webPageEntities;
+        } catch (Exception e) {
+            logger.error("HTTP error", e);
+            return new HashSet<>();
         }
-
-        return result;
     }
 
     public boolean canParse(WebPageEntity webPage) {

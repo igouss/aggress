@@ -46,7 +46,7 @@ public class ProductService {
         }
     }
     private IterableListScrollableResults get(String queryString) {
-        Session session = this.database.getSessionFactory().openSession();
+        StatelessSession session = this.database.getSessionFactory().openStatelessSession();
         Query query = session.createQuery(queryString);
         query.setCacheable(false);
         query.setReadOnly(true);

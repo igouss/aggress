@@ -106,15 +106,20 @@ public class Aggress {
 //                    subscribe();
 
             String indexSuffix = "-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-//            System.out.println(elastic.createIndex("product", "guns", indexSuffix));
-//            populateRoots(webPageService, sourceService);
+            System.out.println(elastic.createIndex("product", "guns", indexSuffix));
+            populateRoots(webPageService, sourceService);
             process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
+            webPageService.deDup();
             process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
+            webPageService.deDup();
             process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
+            webPageService.deDup();
             logger.info("Fetch & parse complete");
             process(webPageService.getParsedProductPageRaw(), webPageService, productService);
+            webPageService.deDup();
             indexProducts(productService.getProducts(), elastic, "product" + indexSuffix, "guns");
 //            indexProducts(productService.getProducts(), elastic, "test", "guns");
+            productService.markAllAsIndexed();
             logger.info("Parsing complete");
 
 //            System.out.println(elastic.getIndex("product", "guns"));

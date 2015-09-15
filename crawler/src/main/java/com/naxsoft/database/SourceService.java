@@ -20,7 +20,7 @@ public class SourceService {
     }
 
     public IterableListScrollableResults<SourceEntity> getSources() {
-        Session session = this.sessionFactory.openSession();
+        StatelessSession session = this.sessionFactory.openStatelessSession();
         ScrollableResults result = session.createQuery("from SourceEntity as s where s.enabled = true order by rand()").scroll();
         return new IterableListScrollableResults(session, result);
     }

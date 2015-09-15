@@ -80,10 +80,11 @@ public class WebPageService {
     }
 
     private IterableListScrollableResults get(String queryString) {
-        Session session = this.database.getSessionFactory().openSession();
+        StatelessSession session = this.database.getSessionFactory().openStatelessSession();
         Query query = session.createQuery(queryString);
         query.setCacheable(false);
         query.setReadOnly(true);
+        query.setFetchSize(128);
         ScrollableResults result = query.scroll(ScrollMode.FORWARD_ONLY);
         IterableListScrollableResults webPageEntities = new IterableListScrollableResults(session, result);
         return webPageEntities;
@@ -114,6 +115,12 @@ public class WebPageService {
     public IterableListScrollableResults<WebPageEntity> getUnparsedFrontPage() {
         String queryString = "from WebPageEntity where type = \'frontPage\' and parsed = false order by rand()";
         return this.get(queryString);
+    }
+
+    public void deDup() {
+        Session session = database.getSessionFactory().openSession();
+        SQLQuery sqlQuery = session.createSQLQuery("DELETE FROM guns.web_page USING guns.web_page wp2 WHERE guns.web_page.url = wp2.url AND guns.web_page.type = wp2.type AND guns.web_page.id < wp2.id");
+        sqlQuery.executeUpdate();
     }
 
 //    private Observable<WebPageEntity> getAsync(String queryString) {

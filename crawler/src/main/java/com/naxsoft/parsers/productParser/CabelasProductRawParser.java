@@ -33,14 +33,14 @@ public class CabelasProductRawParser implements ProductParser {
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
         jsonBuilder.startObject();
-        jsonBuilder.field("url", "https://www.wolverinesupplies.com/ProductDetail/" + webPageEntity.getUrl());
+        jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
         jsonBuilder.field("productName", productName);
         jsonBuilder.field("category", document.select(".breadcrumbs").text());
         jsonBuilder.field("productImage", document.select("#product-image img").attr("src"));
         jsonBuilder.field("regularPrice", parsePrice(document.select(".productDetails-secondary .price-primary").text()));
         jsonBuilder.field("specialPrice", parsePrice(document.select(".productDetails-secondary .price-secondary").text()));
-        jsonBuilder.field("description1", document.select("productDetails-section").text());
+        jsonBuilder.field("description1", document.select(".productDetails-section .row").text());
         jsonBuilder.endObject();
         product.setJson(jsonBuilder.string());
         product.setWebpageId(webPageEntity.getId());

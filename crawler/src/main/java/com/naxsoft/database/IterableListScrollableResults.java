@@ -7,14 +7,33 @@ package com.naxsoft.database;
 
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 
 import java.util.Iterator;
 
-
+//class ScrollableResultIterator<T> implements Iterator<T> {
+//    private final ScrollableResults results;
+//    private final Class<T> type;
+//
+//    ScrollableResultIterator(ScrollableResults results, Class<T> type) {
+//        this.results = results;
+//        this.type = type;
+//    }
+//
+//    @Override
+//    public boolean hasNext() {
+//        return results.next();
+//    }
+//
+//    @Override
+//    public T next() {
+//        return type.cast(results.get(0));
+//    }
+//}
 public class IterableListScrollableResults<T> implements Iterable<T> {
     Iterator<T> iterator;
 
-    public IterableListScrollableResults(Session session, ScrollableResults sr) {
+    public IterableListScrollableResults(StatelessSession session, ScrollableResults sr) {
         iterator = new ScrollableResultsIterator<>(session, sr);
     }
 
@@ -28,11 +47,11 @@ public class IterableListScrollableResults<T> implements Iterable<T> {
 
         private ScrollableResults sr;
         private T next = null;
-        private Session session;
+        private StatelessSession session;
         private int count = 0;
         private boolean elementPulled = false;
 
-        public ScrollableResultsIterator(Session session, ScrollableResults sr) {
+        public ScrollableResultsIterator(StatelessSession session, ScrollableResults sr) {
             this.sr = sr;
             this.session = session;
         }
@@ -43,9 +62,6 @@ public class IterableListScrollableResults<T> implements Iterable<T> {
         @SuppressWarnings("unchecked")
         @Override
         public boolean hasNext() {
-            if (!session.isOpen()) {
-                return false;
-            }
             // if we have a next element that was not pulled, just simply return true.
             if (!elementPulled && next != null) {
                 return true;
@@ -83,8 +99,6 @@ public class IterableListScrollableResults<T> implements Iterable<T> {
                 sr.close();
             } else { //clear memory to avoid memory leak
                 if (count == DEFAULT_FLUSH_LIMIT) {
-                    session.flush();
-                    session.clear();
                     count = 0;
                 }
                 count++;
@@ -92,6 +106,7 @@ public class IterableListScrollableResults<T> implements Iterable<T> {
             elementPulled = true;
             return toReturn;
         }
+
 
         /**
          * Unsupported Operation for this implementation.
