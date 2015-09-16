@@ -74,7 +74,7 @@ public class IterableListScrollableResults<T> implements Iterable<T> {
                 return true;
             }
             sr.close();
-//            session.close();
+            session.close();
             return false;
         }
 
