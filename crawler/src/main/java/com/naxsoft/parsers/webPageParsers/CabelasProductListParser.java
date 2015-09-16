@@ -1,11 +1,9 @@
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.crawler.AsyncFetchClient;
-import com.naxsoft.crawler.FetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -41,14 +38,14 @@ public class CabelasProductListParser implements WebPageParser {
                                 try {
                                     int page = Integer.parseInt(subpage.text());
                                     AsyncFetchClient<Set<WebPageEntity>> client2 = new AsyncFetchClient<>();
-                                    Future<Set<WebPageEntity>> future2 = client.get(webPage.getUrl() + "?pagenumber=" + page, new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                                    Future<Set<WebPageEntity>> future2 = client2.get(webPage.getUrl() + "?pagenumber=" + page, new AsyncCompletionHandler<Set<WebPageEntity>>() {
                                         @Override
                                         public Set<WebPageEntity> onCompleted(Response response) throws Exception {
                                             Document productListDocument = Jsoup.parse(response.getResponseBody(), response.getUri().toString());
                                             Elements products = productListDocument.select("#main > div > section > section:nth-child(1) > div > article > a");
                                             HashSet<WebPageEntity> res = new HashSet<>();
                                             for (Element product : products) {
-                                                WebPageEntity productPage = getWebPageEntity(webPage, logger, response.getStatusCode(), product);
+                                                WebPageEntity productPage = productPage(webPage, logger, response.getStatusCode(), product);
                                                 res.add(productPage);
                                             }
                                             return res;
@@ -63,7 +60,7 @@ public class CabelasProductListParser implements WebPageParser {
                         } else {
                             Elements products = document.select("#main > div > section > section:nth-child(1) > div > article > a");
                             for (Element product : products) {
-                                WebPageEntity productPage = getWebPageEntity(webPage, logger, resp.getStatusCode(), product);
+                                WebPageEntity productPage = productPage(webPage, logger, resp.getStatusCode(), product);
                                 result.add(productPage);
                             }
                         }
@@ -78,6 +75,7 @@ public class CabelasProductListParser implements WebPageParser {
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setParent(webPage);
                             webPageEntity.setType("productList");
+                            logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
                             result.add(webPageEntity);
                         }
                     }
@@ -96,10 +94,10 @@ public class CabelasProductListParser implements WebPageParser {
     }
 
     private boolean isTerminalSubcategory(Document document) {
-        return document.select(".categories .active").size() != 0;
+        return document.select(".categories .active").size() == 1;
     }
 
-    private WebPageEntity getWebPageEntity(WebPageEntity parent, Logger logger, int statusCode, Element product) {
+    private WebPageEntity productPage(WebPageEntity parent, Logger logger, int statusCode, Element product) {
         WebPageEntity productPage = new WebPageEntity();
         productPage.setUrl(product.attr("abs:href"));
         productPage.setModificationDate(new Timestamp(System.currentTimeMillis()));
@@ -107,7 +105,7 @@ public class CabelasProductListParser implements WebPageParser {
         productPage.setStatusCode(statusCode);
         productPage.setType("productPage");
         productPage.setParent(parent);
-        logger.info("parseUrl=" + productPage.getUrl() + ", productListUrl=" + parent.getUrl());
+        logger.info("productPage = " + productPage.getUrl() + ", productList = " + parent.getUrl());
         return productPage;
     }
 

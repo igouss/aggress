@@ -40,7 +40,7 @@ public class CanadaAmmoProductListParser implements WebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setParent(webPage);
-                        logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + webPage.getUrl());
+                        logger.info("productPage=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
                         result.add(webPageEntity);
                     }
                 }

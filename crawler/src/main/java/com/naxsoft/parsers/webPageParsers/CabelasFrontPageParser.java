@@ -44,7 +44,7 @@ public class CabelasFrontPageParser implements WebPageParser{
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productList");
                         webPageEntity.setParent(webPage);
-                        logger.info("parseUrl=" + webPage.getUrl() + ", productListUrl=" + webPageEntity.getUrl());
+                        logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
                         result.add(webPageEntity);
                     }
 

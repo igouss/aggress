@@ -40,6 +40,7 @@ public class WolverinesuppliesProductPageParser implements WebPageParser {
                     webPageEntity.setContent(resp.getResponseBody());
                     webPageEntity.setParent(webPage);
                     result.add(webPageEntity);
+                    logger.info("productPageRaw=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
                 }
                 return result;
             }

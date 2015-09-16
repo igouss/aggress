@@ -65,11 +65,13 @@ public class WolverinesuppliesProductListParser implements WebPageParser {
                                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                         webPageEntity.setType("productPage");
                                         webPageEntity.setParent(webPage);
+                                        logger.info("productPage=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
                                         r.add(webPageEntity);
                                     }
                                     return r;
                                 }});
                             result.addAll(future2.get());
+                            client2.close();
                         }
                     }
                 }

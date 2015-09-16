@@ -41,6 +41,7 @@ public class BullseyelondonProductPageParser implements WebPageParser {
                     webPageEntity.setType("productPageRaw");
                     webPageEntity.setParent(webPage);
                     result.add(webPageEntity);
+                    logger.info("productPageRaw=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
                 }
                 return result;
             }

@@ -40,7 +40,7 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
                     for (Element el : elements) {
                         String url = el.attr("abs:href") + "?count=72";
                         AsyncFetchClient<Set<WebPageEntity>> client2 = new AsyncFetchClient<>();
-                        Future<Set<WebPageEntity>> future = client2.get(url, new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                        Future<Set<WebPageEntity>> future2 = client2.get(url, new AsyncCompletionHandler<Set<WebPageEntity>>() {
                             @Override
                             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                                 HashSet<WebPageEntity> result = new HashSet<>();
@@ -52,7 +52,7 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
                                     webPageEntity.setUrl(url);
                                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                     webPageEntity.setType("productList");
-                                    logger.info("Found productList page + " + webPageEntity.getUrl());
+                                    logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
                                     result.add(webPageEntity);
                                 } else {
                                     int i = Integer.parseInt(elements.first().text()) - 1;
@@ -63,14 +63,14 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
                                         webPageEntity.setUrl(url + "&page=" + i);
                                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                         webPageEntity.setType("productList");
-                                        logger.info("Found productList page + " + webPageEntity.getUrl());
+                                        logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
                                         result.add(webPageEntity);
                                     }
                                 }
                                 return result;
                             }
                         });
-                        result.addAll(future.get());
+                        result.addAll(future2.get());
                         client2.close();
                     }
                 }
