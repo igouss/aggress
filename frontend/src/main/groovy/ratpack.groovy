@@ -18,6 +18,7 @@ import ratpack.session.SessionModule
 import ratpack.thymeleaf.ThymeleafModule
 
 import java.nio.file.Paths
+import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
 
 import static ratpack.groovy.Groovy.ratpack
@@ -103,9 +104,10 @@ ratpack {
             if (request.getQueryParams().containsKey("startFrom")) {
                 startFrom = Integer.parseInt(request.getQueryParams().get("startFrom"))
             }
-
-            QueryBuilder queryBuilder = QueryBuilders.queryStringQuery("\""+ searchKey +"\"");
-            SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product-2015-09-15");
+            String indexSuffix = "-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+            QueryBuilder queryBuilder = QueryBuilders.queryStringQuery(searchKey);
+//            QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("productName", searchKey);
+            SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product" + indexSuffix);
             searchRequestBuilder.setTypes("guns");
             searchRequestBuilder.setSearchType(SearchType.DEFAULT);
             searchRequestBuilder.setQuery(queryBuilder);

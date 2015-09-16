@@ -25,10 +25,12 @@
             </div>
         </div>
     </div>
+    <div class="media row" id="searchResults">
+    </div>
 </div><!-- /.container -->
-<div class="media" id="searchResults">
 
-</div>
+
+
 <div id="navigation">
 </div>
 
@@ -45,7 +47,7 @@
 <script id="itemTemplate" type="text/x-tmpl-mustache">
 <div class="renderedItem">
   <div class="media-left">
-    <a href="#">
+    <a href="{{url}}">
       <img class="media-object"  src="{{productImage}}" alt="{{productName}}"  height="128" width="128">
     </a>
   </div>
@@ -53,18 +55,6 @@
     <h4 class="media-heading">{{productName}}</h4>
     <table class="table">
         <tbody>
-          {{#regularPrice}}
-          <tr>
-            <td>Regular Price</td>
-            <td>{{regularPrice}}</td>
-          </tr>
-          {{/regularPrice}}
-          {{#specialPrice}}
-          <tr>
-            <td>Special Price</td>
-            <td>{{specialPrice}}</td>
-          </tr>
-          {{/specialPrice}}
         </tbody>
     </table>
     <p><a href="{{url}}" class="btn btn-primary " role="button">Visit</a></p>

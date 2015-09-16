@@ -20,6 +20,15 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
         var itemTemplate = $('#itemTemplate').html();
         var navTemplate = $('#navTemplate').html();
 
+        function toCapitalizedWords(name) {
+            var words = name.match(/[A-Za-z][a-z]*/g);
+            return words.map(capitalize).join(" ");
+        }
+
+        function capitalize(word) {
+            return word.charAt(0).toUpperCase() + word.substring(1);
+        }
+
         var search = function(onFailure) {
             if ($("input").val() != searchData.searchKey) {
                 searchData.startFrom = 0;
@@ -49,7 +58,21 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
 
                 $.map(data, function(element, index) {
                     //console.info(element);
-                    var rendered = m.render(itemTemplate, element);
+                    var rendered = $(m.render(itemTemplate, element));
+                    var tbody = rendered.find("tbody");
+
+                    $.each(element, function(key, value) {
+                        if (key == "productImage" || key == "url" || value=="") {
+
+                        } else {
+                            var row = $(m.render("<tr><td>{{key}}</td><td>{{value}}</td></tr>", {
+                                "key": toCapitalizedWords(key),
+                                "value": value
+                            }));
+                            tbody.append(row);
+                        }
+                    });
+
                     $('#searchResults').append(rendered);
                 });
                 return true;
