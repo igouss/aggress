@@ -38,7 +38,7 @@ public class WolverinesuppliesProductRawPageParser implements ProductParser {
             jsonBuilder.field("regularPrice", rp.ListPrice);
             jsonBuilder.field("specialPrice", rp.Price);
             jsonBuilder.field("unitsAvailable", rp.StockAmount);
-            jsonBuilder.field("description1", rp.ExtendedDescription);
+            jsonBuilder.field("description", rp.ExtendedDescription);
 
             for(int j = 0; j < rp.Attributes.length; ++j) {
                 jsonBuilder.field(

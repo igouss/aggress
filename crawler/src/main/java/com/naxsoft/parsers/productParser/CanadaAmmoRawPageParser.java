@@ -50,7 +50,7 @@ public class CanadaAmmoRawPageParser implements ProductParser {
             jsonBuilder.field("specialPrice", parsePrice(document.select("div.product-details__main .product__price").first().child(0).text()));
         }
 
-        jsonBuilder.field("description1", document.select(".product-details__details-text").text());
+        jsonBuilder.field("description", document.select("div.product-details__meta-wrap > div > div > div:nth-child(1) > section span").text());
 
         Iterator<Element> labels = document.select(".product-details__spec-label").iterator();
         Iterator<Element> values = document.select(".product-details__spec-value").iterator();

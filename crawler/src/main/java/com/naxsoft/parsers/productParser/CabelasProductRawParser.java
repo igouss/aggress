@@ -40,7 +40,7 @@ public class CabelasProductRawParser implements ProductParser {
         jsonBuilder.field("productImage", document.select("#product-image img").attr("src"));
         jsonBuilder.field("regularPrice", parsePrice(document.select(".productDetails-secondary .price-primary").text()));
         jsonBuilder.field("specialPrice", parsePrice(document.select(".productDetails-secondary .price-secondary").text()));
-        jsonBuilder.field("description1", document.select(".productDetails-section .row").text());
+        jsonBuilder.field("description", document.select(".productDetails-section .row").text());
         jsonBuilder.endObject();
         product.setJson(jsonBuilder.string());
         product.setWebpageId(webPageEntity.getId());

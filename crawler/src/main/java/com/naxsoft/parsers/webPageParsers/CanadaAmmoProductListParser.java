@@ -23,38 +23,38 @@ import java.util.concurrent.Future;
 public class CanadaAmmoProductListParser implements WebPageParser {
     @Override
     public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
-        AsyncFetchClient<Set<WebPageEntity>> client = new AsyncFetchClient<>();
+        try(AsyncFetchClient<Set<WebPageEntity>> client = new AsyncFetchClient<>()) {
 
-        Logger logger = LoggerFactory.getLogger(this.getClass());
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-            @Override
-            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
-                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    Elements elements = document.select("a.product__link");
-                    for (Element element : elements) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(element.attr("abs:href"));
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setParsed(false);
-                        webPageEntity.setType("productPage");
-                        webPageEntity.setParent(webPage);
-                        logger.info("productPage=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
-                        result.add(webPageEntity);
+            Logger logger = LoggerFactory.getLogger(this.getClass());
+            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                @Override
+                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                    HashSet<WebPageEntity> result = new HashSet<>();
+                    if (resp.getStatusCode() == 200) {
+                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Elements elements = document.select("a.product__link");
+                        for (Element element : elements) {
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setUrl(element.attr("abs:href"));
+                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                            webPageEntity.setParsed(false);
+                            webPageEntity.setType("productPage");
+                            webPageEntity.setParent(webPage);
+                            logger.info("productPage=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
+                            result.add(webPageEntity);
+                        }
                     }
-                }
-                return result;
+                    return result;
 
+                }
+            });
+            try {
+                Set<WebPageEntity> webPageEntities = future.get();
+                return webPageEntities;
+            } catch (Exception e) {
+                logger.error("HTTP error", e);
+                return new HashSet<>();
             }
-        });
-        try {
-            Set<WebPageEntity> webPageEntities = future.get();
-            client.close();
-            return webPageEntities;
-        } catch (Exception e) {
-            logger.error("HTTP error", e);
-            return new HashSet<>();
         }
     }
 

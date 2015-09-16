@@ -19,37 +19,36 @@ import java.util.concurrent.Future;
 public class CanadaAmmoProductPageParser implements WebPageParser {
     @Override
     public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
-        AsyncFetchClient<Set<WebPageEntity>> client = new AsyncFetchClient<>();
+        try(AsyncFetchClient<Set<WebPageEntity>> client = new AsyncFetchClient<>()) {
 
-        Logger logger = LoggerFactory.getLogger(this.getClass());
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-            @Override
-            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
-                    WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(webPage.getUrl());
-                    webPageEntity.setContent(resp.getResponseBody());
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                    webPageEntity.setParsed(false);
-                    webPageEntity.setStatusCode(resp.getStatusCode());
-                    webPageEntity.setType("productPageRaw");
-                    webPageEntity.setParent(webPage);
-                    result.add(webPageEntity);
-                    logger.info("productPageRaw=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
+            Logger logger = LoggerFactory.getLogger(this.getClass());
+            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                @Override
+                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                    HashSet<WebPageEntity> result = new HashSet<>();
+                    if (resp.getStatusCode() == 200) {
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl(webPage.getUrl());
+                        webPageEntity.setContent(resp.getResponseBody());
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setStatusCode(resp.getStatusCode());
+                        webPageEntity.setType("productPageRaw");
+                        webPageEntity.setParent(webPage);
+                        result.add(webPageEntity);
+                        logger.info("productPageRaw=" + webPageEntity.getUrl());
+                    }
+                    return result;
                 }
-                return result;
+            });
+            try {
+                Set<WebPageEntity> webPageEntities = future.get();
+                return webPageEntities;
+            } catch (Exception e) {
+                logger.error("HTTP error", e);
+                return new HashSet<>();
             }
-        });
-        try {
-            Set<WebPageEntity> webPageEntities = future.get();
-            client.close();
-            return webPageEntities;
-        } catch (Exception e) {
-            logger.error("HTTP error", e);
-            return new HashSet<>();
         }
-
     }
 
     @Override

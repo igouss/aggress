@@ -51,7 +51,7 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
         }
 
         jsonBuilder.field("unitsAvailable", this.getUnitsAvailable(document));
-        jsonBuilder.field("description1", document.select(".short-description").text().trim());
+        jsonBuilder.field("description", document.select(".short-description").text().trim());
         Elements table = document.select("#product_tabs_additional_contents");
         Iterator var9 = table.select("tr").iterator();
 

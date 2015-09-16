@@ -24,66 +24,67 @@ import java.util.concurrent.Future;
 public class CanadaAmmoFrontPageParser implements WebPageParser {
     @Override
     public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
-        AsyncFetchClient<Set<WebPageEntity>> client = new AsyncFetchClient<>();
 
-        Logger logger = LoggerFactory.getLogger(this.getClass());
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-            @Override
-            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
-                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
-                    Logger logger = LoggerFactory.getLogger(this.getClass());
-                    logger.info("Parsing for sub-pages + " + webPage.getUrl());
+        try(AsyncFetchClient<Set<WebPageEntity>> client = new AsyncFetchClient<>()) {
 
-                    for (Element el : elements) {
-                        String url = el.attr("abs:href") + "?count=72";
-                        AsyncFetchClient<Set<WebPageEntity>> client2 = new AsyncFetchClient<>();
-                        Future<Set<WebPageEntity>> future2 = client2.get(url, new AsyncCompletionHandler<Set<WebPageEntity>>() {
-                            @Override
-                            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                                HashSet<WebPageEntity> result = new HashSet<>();
-                                Document document = Jsoup.parse(resp.getResponseBody(), url);
-                                Elements elements = document.select("div.clearfix span.pagination a.nav-page");
-                                if (elements.size() == 0) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setParent(webPage);
-                                    webPageEntity.setUrl(url);
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPageEntity.setType("productList");
-                                    logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
-                                    result.add(webPageEntity);
-                                } else {
-                                    int i = Integer.parseInt(elements.first().text()) - 1;
-                                    int end = Integer.parseInt(elements.last().text());
-                                    for (; i <= end; i++) {
-                                        WebPageEntity webPageEntity = new WebPageEntity();
-                                        webPageEntity.setParent(webPage);
-                                        webPageEntity.setUrl(url + "&page=" + i);
-                                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                        webPageEntity.setType("productList");
-                                        logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
-                                        result.add(webPageEntity);
+            Logger logger = LoggerFactory.getLogger(this.getClass());
+            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                @Override
+                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                    HashSet<WebPageEntity> result = new HashSet<>();
+                    if (resp.getStatusCode() == 200) {
+                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
+                        Logger logger = LoggerFactory.getLogger(this.getClass());
+                        logger.info("Parsing for sub-pages + " + webPage.getUrl());
+
+                        for (Element el : elements) {
+                            String url = el.attr("abs:href") + "?count=72";
+                            try (AsyncFetchClient<Set<WebPageEntity>> client2 = new AsyncFetchClient<>()) {
+                                Future<Set<WebPageEntity>> future2 = client2.get(url, new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                                    @Override
+                                    public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                                        HashSet<WebPageEntity> result = new HashSet<>();
+                                        Document document = Jsoup.parse(resp.getResponseBody(), url);
+                                        Elements elements = document.select("div.clearfix span.pagination a.nav-page");
+                                        if (elements.size() == 0) {
+                                            WebPageEntity webPageEntity = new WebPageEntity();
+                                            webPageEntity.setParent(webPage);
+                                            webPageEntity.setUrl(url);
+                                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                            webPageEntity.setType("productList");
+                                            logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
+                                            result.add(webPageEntity);
+                                        } else {
+                                            int i = Integer.parseInt(elements.first().text()) - 1;
+                                            int end = Integer.parseInt(elements.last().text());
+                                            for (; i <= end; i++) {
+                                                WebPageEntity webPageEntity = new WebPageEntity();
+                                                webPageEntity.setParent(webPage);
+                                                webPageEntity.setUrl(url + "&page=" + i);
+                                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                                webPageEntity.setType("productList");
+                                                logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
+                                                result.add(webPageEntity);
+                                            }
+                                        }
+                                        return result;
                                     }
-                                }
-                                return result;
+                                });
+                                result.addAll(future2.get());
                             }
-                        });
-                        result.addAll(future2.get());
-                        client2.close();
+                        }
                     }
+                    return result;
                 }
-                return result;
+            });
+            try {
+                Set<WebPageEntity> webPageEntities = future.get();
+                return webPageEntities;
+            } catch (Exception e) {
+                logger.error("HTTP error", e);
+                return new HashSet<>();
             }
-        });
-        try {
-            Set<WebPageEntity> webPageEntities = future.get();
-            client.close();
-            return webPageEntities;
-        } catch (Exception e) {
-            logger.error("HTTP error", e);
-            return new HashSet<>();
         }
     }
 
