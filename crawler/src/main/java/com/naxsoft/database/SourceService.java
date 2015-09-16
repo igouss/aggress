@@ -28,23 +28,28 @@ public class SourceService {
     public void markParsed(Collection<SourceEntity> sourceEntities) {
         Session session = this.sessionFactory.openSession();
         Query query = session.createQuery("update WebPageEntity set modificationDate = :modificationDate where id = :id");
-        Transaction tx = session.beginTransaction();
-        int count = 0;
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            int count = 0;
 
-        for(SourceEntity sourceEntity : sourceEntities) {
-            query.setInteger("id", sourceEntity.getId());
-            query.setTimestamp("modificationDate", new Date());
-            query.executeUpdate();
-            ++count;
-            if(count % 20 == 0) {
-                session.flush();
-                session.clear();
+            for (SourceEntity sourceEntity : sourceEntities) {
+                query.setInteger("id", sourceEntity.getId());
+                query.setTimestamp("modificationDate", new Date());
+                query.executeUpdate();
+                ++count;
+                if (count % 20 == 0) {
+                    session.flush();
+                }
             }
+            session.flush();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) {
+                tx.commit();
+            }
+        } finally {
+            session.close();
         }
-
-        session.flush();
-        session.clear();
-        tx.commit();
-        session.close();
     }
 }
