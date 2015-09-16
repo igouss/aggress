@@ -33,7 +33,7 @@ public class WebPageService {
 
             while (var6.hasNext()) {
                 WebPageEntity webPageEntity = (WebPageEntity) var6.next();
-                logger.debug("Saving page: " + webPageEntity);
+                logger.debug("Saving " + webPageEntity);
                 session.save(webPageEntity);
                 ++i;
                 if (i % 20 == 0) {
@@ -86,8 +86,7 @@ public class WebPageService {
         query.setReadOnly(true);
         query.setFetchSize(128);
         ScrollableResults result = query.scroll(ScrollMode.FORWARD_ONLY);
-        IterableListScrollableResults webPageEntities = new IterableListScrollableResults(session, result);
-        return webPageEntities;
+        return new IterableListScrollableResults(session, result);
     }
 
 
@@ -118,9 +117,16 @@ public class WebPageService {
     }
 
     public void deDup() {
-        Session session = database.getSessionFactory().openSession();
-        SQLQuery sqlQuery = session.createSQLQuery("DELETE FROM guns.web_page USING guns.web_page wp2 WHERE guns.web_page.url = wp2.url AND guns.web_page.type = wp2.type AND guns.web_page.id < wp2.id");
-        sqlQuery.executeUpdate();
+        Session session = null;
+        try {
+            session = database.getSessionFactory().openSession();
+            SQLQuery sqlQuery = session.createSQLQuery("DELETE FROM guns.web_page USING guns.web_page wp2 WHERE guns.web_page.url = wp2.url AND guns.web_page.type = wp2.type AND guns.web_page.id < wp2.id");
+            sqlQuery.executeUpdate();
+        } finally {
+            if (null != session) {
+                session.close();
+            }
+        }
     }
 
 //    private Observable<WebPageEntity> getAsync(String queryString) {

@@ -147,9 +147,9 @@ public class WebPageEntity {
     @Override
     public String toString() {
         return "WebPageEntity{" +
-                "parsed='" + parsed + '\'' +
+                "parsed = '" + parsed + '\'' +
                 ", type =" + type +
-                ", url='" + url + '\'' +
+                ", url = '" + url + '\'' +
                 '}';
     }
 }
