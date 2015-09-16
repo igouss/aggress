@@ -101,15 +101,15 @@ ratpack {
                     '  }'
 
             if (request.getQueryParams().containsKey("startFrom")) {
-                startFrom = Integer.parseInt(request.getQueryParams().containsKey("startFrom"))
+                startFrom = Integer.parseInt(request.getQueryParams().get("startFrom"))
             }
 
-            QueryBuilder queryBuilder = QueryBuilders.queryStringQuery("*"+ searchKey +"*");
-            SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product-2015-24-12");
+            QueryBuilder queryBuilder = QueryBuilders.queryStringQuery("\""+ searchKey +"\"");
+            SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product-2015-09-15");
             searchRequestBuilder.setTypes("guns");
             searchRequestBuilder.setSearchType(SearchType.DEFAULT);
             searchRequestBuilder.setQuery(queryBuilder);
-            searchRequestBuilder.setFrom(startFrom).setSize(60).setExplain(true);
+            searchRequestBuilder.setFrom(startFrom).setSize(10).setExplain(true);
 
             SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
             SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -127,8 +127,9 @@ ratpack {
             builder.append("]");
             String result= builder.toString();
 
+            response.getHeaders().set("Access-Control-Allow-Origin", "*")
+            response.send(result)
 
-            render(result)
 
 //            if (response != null) {
 //                for (SearchHit hit : response.getHits()) {
@@ -146,6 +147,6 @@ ratpack {
         delete("api", TestHandler)
         put("api", TestHandler)
 
-        fileSystem "public", { f -> f.files() }
+        fileSystem "thymeleaf", { f -> f.files() }
     }
 }

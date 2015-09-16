@@ -67,8 +67,9 @@
     <logger name="org.hibernate" level="INFO" />
     <logger name="org.elasticsearch" level="INFO" />
     <logger name="io.netty" level="INFO" />
-    <logger name="org.hibernate.SQL" level="DEBUG" />
+    <logger name="org.hibernate.SQL" level="INFO" />
     <logger name="com.zaxxer.hikari" level="INFO" />
+    <logger name="com.ning.http.client" level="INFO" />
     <root level="DEBUG">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
