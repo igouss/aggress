@@ -61,7 +61,7 @@
           "store": "no",
           "index": "not_analyzed"
         },
-        "description1": {
+        "description": {
           "type": "string",
           "store": "no",
           "index": "analyzed"

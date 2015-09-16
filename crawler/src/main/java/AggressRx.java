@@ -29,88 +29,89 @@ public class AggressRx {
     }
 
     public static void main(String[] args) {
-        Database db = null;
-        Elastic elastic = null;
-        logger = LoggerFactory.getLogger(Aggress.class);
-
-        try {
-
-
-            try {
-                db = new Database();
-                db.setUp();
-                logger.info("Database initialization complete");
-            } catch (Exception e) {
-                logger.error("Failed to initialize database", e);
-                if (null != db) {
-                    db.tearDown();
-                }
-            }
-
-            try {
-                elastic = new Elastic();
-                elastic.setup();
-                logger.info("Elastic initialization complete");
-            } catch (Exception e) {
-                logger.error("Failed to initialize elastic", e);
-                if (null != elastic) {
-                    elastic.tearDown();
-                }
-            }
-
-            WebPageParserFactory webPageParserFactory = new WebPageParserFactory();
-            WebPageService webPageService = new WebPageService(db);
-//            ProductService productService = new ProductService(elastic, db);
-            SourceService sourceService = new SourceService(db);
-
-//            Observable.interval(0, 1, TimeUnit.SECONDS, Schedulers.computation()).subscribe(t -> {
-//                System.out.println(t);
+        System.out.println(11.0/4.4);
+//        Database db = null;
+//        Elastic elastic = null;
+//        logger = LoggerFactory.getLogger(Aggress.class);
+//
+//        try {
+//
+//
+//            try {
+//                db = new Database();
+//                db.setUp();
+//                logger.info("Database initialization complete");
+//            } catch (Exception e) {
+//                logger.error("Failed to initialize database", e);
+//                if (null != db) {
+//                    db.tearDown();
+//                }
+//            }
+//
+//            try {
+//                elastic = new Elastic();
+//                elastic.setup();
+//                logger.info("Elastic initialization complete");
+//            } catch (Exception e) {
+//                logger.error("Failed to initialize elastic", e);
+//                if (null != elastic) {
+//                    elastic.tearDown();
+//                }
+//            }
+//
+//            WebPageParserFactory webPageParserFactory = new WebPageParserFactory();
+//            WebPageService webPageService = new WebPageService(db);
+////            ProductService productService = new ProductService(elastic, db);
+//            SourceService sourceService = new SourceService(db);
+//
+////            Observable.interval(0, 1, TimeUnit.SECONDS, Schedulers.computation()).subscribe(t -> {
+////                System.out.println(t);
+////            });
+////            Thread.currentThread().join();
+//
+//            populateRoots(webPageService, sourceService);
+//
+//            Observable<WebPageEntity> a = Observable.defer(() -> Observable.from(webPageService.getUnparsedFrontPage()));
+//            Observable<WebPageEntity> b = Observable.defer(() -> Observable.from(webPageService.getUnparsedProductList()));
+//            Observable<WebPageEntity> c = Observable.defer(() -> Observable.from(webPageService.getUnparsedFrontPage()));
+//            Observable<WebPageEntity> d = Observable.defer(() -> Observable.from(webPageService.getUnparsedProductPage()));
+//            Observable<WebPageEntity> webPageEntityObservable = a.concatWith(b).concatWith(c).concatWith(d);
+//
+//            webPageEntityObservable.subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).map(webPageEntity -> {
+//                WebPageParser e = webPageParserFactory.getParser(webPageEntity);
+//                try {
+//                    Set<WebPageEntity> webPageEntities = e.parse(webPageEntity);
+//                    return webPageEntities;
+//                } catch (Exception e1) {
+//                    logger.error("Failed to parse " + webPageEntity.getUrl());
+//                    return null;
+//                }
+//            }).filter(webPageEntities -> webPageEntities != null && webPageEntities.size() != 0).map(wpe -> {
+//                webPageService.save(wpe);
+//                return wpe.iterator().next().getParent();
+//            }).toList().subscribe(list -> {
+//                webPageService.markParsed(list);
 //            });
+//
 //            Thread.currentThread().join();
-
-            populateRoots(webPageService, sourceService);
-
-            Observable<WebPageEntity> a = Observable.defer(() -> Observable.from(webPageService.getUnparsedFrontPage()));
-            Observable<WebPageEntity> b = Observable.defer(() -> Observable.from(webPageService.getUnparsedProductList()));
-            Observable<WebPageEntity> c = Observable.defer(() -> Observable.from(webPageService.getUnparsedFrontPage()));
-            Observable<WebPageEntity> d = Observable.defer(() -> Observable.from(webPageService.getUnparsedProductPage()));
-            Observable<WebPageEntity> webPageEntityObservable = a.concatWith(b).concatWith(c).concatWith(d);
-
-            webPageEntityObservable.subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread()).map(webPageEntity -> {
-                WebPageParser e = webPageParserFactory.getParser(webPageEntity);
-                try {
-                    Set<WebPageEntity> webPageEntities = e.parse(webPageEntity);
-                    return webPageEntities;
-                } catch (Exception e1) {
-                    logger.error("Failed to parse " + webPageEntity.getUrl());
-                    return null;
-                }
-            }).filter(webPageEntities -> webPageEntities != null && webPageEntities.size() != 0).map(wpe -> {
-                webPageService.save(wpe);
-                return wpe.iterator().next().getParent();
-            }).toList().subscribe(list -> {
-                webPageService.markParsed(list);
-            });
-
-            Thread.currentThread().join();
-
-
-//            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
-//            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
-//            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
-//            logger.info("Fetch & parse complete");
-//            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
-//            logger.info("Parsing complete");
-        } catch (Exception e) {
-            logger.error("Application failure", e);
-        } finally {
-            if (null != db) {
-                db.tearDown();
-            }
-            if (null != elastic) {
-                elastic.tearDown();
-            }
-        }
+//
+//
+////            process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
+////            process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
+////            process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
+////            logger.info("Fetch & parse complete");
+////            process(webPageService.getUnparsedProductPageRaw(), webPageService, productService);
+////            logger.info("Parsing complete");
+//        } catch (Exception e) {
+//            logger.error("Application failure", e);
+//        } finally {
+//            if (null != db) {
+//                db.tearDown();
+//            }
+//            if (null != elastic) {
+//                elastic.tearDown();
+//            }
+//        }
     }
 
 

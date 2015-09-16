@@ -29,12 +29,20 @@
         "productName": {
           "type": "string",
           "store": "no",
-          "index": "analyzed"
+          "index": "analyzed",
+          "copy_to": [
+            "meta_data",
+            "suggest"
+          ]
         },
         "category": {
           "type": "string",
           "store": "no",
-          "index": "analyzed"
+          "index": "analyzed",
+          "copy_to": [
+            "meta_data",
+            "suggest"
+          ]
         },
         "productImage": {
           "type": "string",
@@ -61,10 +69,14 @@
           "store": "no",
           "index": "not_analyzed"
         },
-        "description1": {
+        "description": {
           "type": "string",
           "store": "no",
-          "index": "analyzed"
+          "index": "analyzed",
+          "copy_to": [
+            "meta_data",
+            "suggest"
+          ]
         },
         "meta_data": {
           "type": "string",

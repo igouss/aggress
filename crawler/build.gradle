@@ -31,7 +31,7 @@ dependencies {
     compile group: 'org.glassfish.web', name: 'el-impl', version: '2.+'
     compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc41'
     compile group: 'com.impossibl.pgjdbc-ng', name: 'pgjdbc-ng', version: '0.5'
-    compile group: 'com.zaxxer', name: 'HikariCP-java6', version: '2.+'
+//    compile group: 'com.zaxxer', name: 'HikariCP', version: '2.+'
     compile group: 'ch.qos.logback', name: 'logback-core', version: '1.+'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.+'
     compile group: 'com.internetitem', name: 'logback-elasticsearch-appender', version: '1.+'
