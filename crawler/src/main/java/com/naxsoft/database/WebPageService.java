@@ -47,6 +47,7 @@ public class WebPageService {
                 session.flush();
                 tx.commit();
             }
+            throw e;
         } finally {
             session.close();
         }
@@ -74,6 +75,7 @@ public class WebPageService {
                 session.flush();
                 tx.commit();
             }
+            throw e;
         } finally {
             session.close();
         }
@@ -118,10 +120,19 @@ public class WebPageService {
 
     public void deDup() {
         Session session = null;
+        Transaction tx = null;
         try {
             session = database.getSessionFactory().openSession();
+            tx = session.beginTransaction();
             SQLQuery sqlQuery = session.createSQLQuery("DELETE FROM guns.web_page USING guns.web_page wp2 WHERE guns.web_page.url = wp2.url AND guns.web_page.type = wp2.type AND guns.web_page.id < wp2.id");
             sqlQuery.executeUpdate();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) {
+                session.flush();
+                tx.commit();
+            }
+            throw e;
         } finally {
             if (null != session) {
                 session.close();

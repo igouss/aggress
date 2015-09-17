@@ -52,6 +52,7 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
                                             webPageEntity.setParent(webPage);
                                             webPageEntity.setUrl(url);
                                             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                            webPage.setStatusCode(resp.getStatusCode());
                                             webPageEntity.setType("productList");
                                             logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
                                             result.add(webPageEntity);
@@ -63,6 +64,7 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
                                                 webPageEntity.setParent(webPage);
                                                 webPageEntity.setUrl(url + "&page=" + i);
                                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                                webPage.setStatusCode(resp.getStatusCode());
                                                 webPageEntity.setType("productList");
                                                 logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
                                                 result.add(webPageEntity);

@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -77,7 +76,6 @@ public class Aggress {
             }
 
 
-
             WebPageService webPageService = new WebPageService(db);
             ProductService productService = new ProductService(elastic, db);
             SourceService sourceService = new SourceService(db);
@@ -108,25 +106,33 @@ public class Aggress {
 //                    subscribe();
 
             String indexSuffix = "-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-//            System.out.println(elastic.createIndex("product", "guns", indexSuffix));
-//            populateRoots(webPageService, sourceService);
+            System.out.println(elastic.createIndex("product", "guns", indexSuffix));
+            populateRoots(webPageService, sourceService);
 
-            boolean rc = false;
+            boolean rc;
             do {
+                rc = false;
                 rc |= process(webPageService.getUnparsedFrontPage(), webPageParserFactory, webPageService);
                 webPageService.deDup();
+            } while (rc);
+            do {
+                rc = false;
                 rc |= process(webPageService.getUnparsedProductList(), webPageParserFactory, webPageService);
                 webPageService.deDup();
+            } while (rc);
+            do {
+                rc = false;
                 rc |= process(webPageService.getUnparsedProductPage(), webPageParserFactory, webPageService);
                 webPageService.deDup();
-                logger.info("Fetch & parse complete");
-                process(webPageService.getParsedProductPageRaw(), webPageService, productService);
-                webPageService.deDup();
-                indexProducts(productService.getProducts(), elastic, "product" + indexSuffix, "guns");
-                productService.markAllAsIndexed();
             } while (rc);
-            logger.info("Parsing complete");
+            logger.info("Fetch & parse complete");
 
+            process(webPageService.getParsedProductPageRaw(), webPageService, productService);
+            webPageService.deDup();
+            indexProducts(productService.getProducts(), elastic, "product" + indexSuffix, "guns");
+            productService.markAllAsIndexed();
+
+            logger.info("Parsing complete");
         } catch (Exception e) {
             logger.error("Application failure", e);
         } finally {
@@ -172,7 +178,6 @@ public class Aggress {
                     webPageService.save(webPageEntitySet);
                     rc = true;
                 }
-
 
 
                 logger.debug("End parent page processing: " + parent.getUrl());
