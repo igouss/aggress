@@ -15,6 +15,7 @@
           "initial schema"
         ]
       },
+      "_ttl" : { "enabled" : true, "default" : "1d" },
       "properties": {
         "url": {
           "type": "string",

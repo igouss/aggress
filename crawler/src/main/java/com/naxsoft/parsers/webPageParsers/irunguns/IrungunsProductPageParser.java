@@ -1,19 +1,8 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
-package com.naxsoft.parsers.webPageParsers;
+package com.naxsoft.parsers.webPageParsers.irunguns;
 
 import com.naxsoft.crawler.AsyncFetchClient;
-import com.naxsoft.crawler.FetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.ning.http.client.AsyncCompletionHandler;
-import org.jsoup.Connection.Response;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +11,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-public class BullseyelondonProductPageParser implements WebPageParser {
+/**
+ * Copyright NAXSoft 2015
+ */
+public class IrungunsProductPageParser {
     public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
         try(AsyncFetchClient<Set<WebPageEntity>> client = new AsyncFetchClient<>()) {
 
@@ -34,11 +26,10 @@ public class BullseyelondonProductPageParser implements WebPageParser {
                     if (resp.getStatusCode() == 200) {
                         WebPageEntity webPageEntity = new WebPageEntity();
                         webPageEntity.setUrl(webPage.getUrl());
-                        webPageEntity.setContent(resp.getResponseBody());
+                        webPageEntity.setParent(webPage);
                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setParsed(false);
-                        webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productPageRaw");
+                        webPageEntity.setContent(resp.getResponseBody());
                         webPageEntity.setParent(webPage);
                         result.add(webPageEntity);
                         logger.info("productPageRaw=" + webPageEntity.getUrl());
@@ -57,6 +48,6 @@ public class BullseyelondonProductPageParser implements WebPageParser {
     }
 
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.bullseyelondon.com/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().startsWith("https://www.irunguns.us/") && webPage.getType().equals("productPage");
     }
 }

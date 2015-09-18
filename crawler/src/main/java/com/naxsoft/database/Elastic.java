@@ -5,6 +5,7 @@
 
 package com.naxsoft.database;
 
+import com.google.gson.Gson;
 import com.naxsoft.crawler.FetchClient;
 import com.naxsoft.entity.ProductEntity;
 import org.apache.commons.io.IOUtils;
@@ -69,7 +70,8 @@ public class Elastic {
             try {
                 XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
                 jsonBuilder.startObject();
-                IndexRequestBuilder request = client.prepareIndex(index, type, "" + p.getId());
+                Gson gson = new Gson();
+                IndexRequestBuilder request = client.prepareIndex(index, type, "" + p.getUrl());
                 request.setSource(p.getJson());
                 request.setOpType(IndexRequest.OpType.INDEX);
                 bulkRequestBuilder.add(request);

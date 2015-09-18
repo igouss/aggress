@@ -1,10 +1,9 @@
-package com.naxsoft.parsers.webPageParsers;
+package com.naxsoft.parsers.webPageParsers.alflahertys;
 
 import com.naxsoft.crawler.AsyncFetchClient;
-import com.naxsoft.crawler.FetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,32 +19,43 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadaAmmoProductListParser implements WebPageParser {
+public class AlflahertysFrontPageParser implements WebPageParser {
     @Override
     public Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
         try(AsyncFetchClient<Set<WebPageEntity>> client = new AsyncFetchClient<>()) {
-
             Logger logger = LoggerFactory.getLogger(this.getClass());
-            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            Future<Set<WebPageEntity>> future = client.get("http://www.alflahertys.com/collections/all/", new AsyncCompletionHandler<Set<WebPageEntity>>() {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
                     if (resp.getStatusCode() == 200) {
+
                         Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select("a.product__link");
+                        Elements elements = document.select(".paginate a");
+                        int max = 0;
                         for (Element element : elements) {
+                            try {
+                                int tmp = Integer.parseInt(element.text());
+                                if (tmp > max) {
+                                    max = tmp;
+                                }
+                            } catch (NumberFormatException e) {
+                                // ignore
+                            }
+                        }
+                        for (int i = 1; i <= max; i++) {
                             WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(element.attr("abs:href"));
+                            webPageEntity.setUrl("http://www.alflahertys.com/collections/all?page=" + i);
                             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                             webPageEntity.setParsed(false);
-                            webPageEntity.setType("productPage");
+                            webPageEntity.setStatusCode(resp.getStatusCode());
+                            webPageEntity.setType("productList");
                             webPageEntity.setParent(webPage);
-                            logger.info("productPage=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
+                            logger.info("productList = " + webPageEntity.getUrl() + ", parent = " + webPage.getUrl());
                             result.add(webPageEntity);
                         }
                     }
                     return result;
-
                 }
             });
             try {
@@ -60,6 +70,6 @@ public class CanadaAmmoProductListParser implements WebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.canadaammo.com/") && webPage.getType().equals("productList");
+        return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("frontPage");
     }
 }

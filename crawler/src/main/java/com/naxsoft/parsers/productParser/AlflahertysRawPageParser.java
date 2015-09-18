@@ -57,6 +57,7 @@ public class AlflahertysRawPageParser implements ProductParser {
                 jsonBuilder.field(specName, specValue);
             }
             jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());
             product.setWebpageId(webPageEntity.getId());
             result.add(product);

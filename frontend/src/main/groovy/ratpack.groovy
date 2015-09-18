@@ -104,7 +104,7 @@ ratpack {
             if (request.getQueryParams().containsKey("startFrom")) {
                 startFrom = Integer.parseInt(request.getQueryParams().get("startFrom"))
             }
-            String indexSuffix = "-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+            String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
             QueryBuilder queryBuilder = QueryBuilders.queryStringQuery(searchKey);
 //            QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("productName", searchKey);
             SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product" + indexSuffix);

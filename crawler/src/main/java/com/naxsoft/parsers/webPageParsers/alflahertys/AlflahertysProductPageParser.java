@@ -1,7 +1,8 @@
-package com.naxsoft.parsers.webPageParsers;
+package com.naxsoft.parsers.webPageParsers.alflahertys;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

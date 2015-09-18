@@ -63,6 +63,7 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
         }
 
         jsonBuilder.endObject();
+        product.setUrl(webPageEntity.getUrl());
         product.setWebpageId(webPageEntity.getId());
         product.setJson(jsonBuilder.string());
         products.add(product);

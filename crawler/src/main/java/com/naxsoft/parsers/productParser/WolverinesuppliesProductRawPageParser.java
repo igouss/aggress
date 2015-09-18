@@ -47,6 +47,7 @@ public class WolverinesuppliesProductRawPageParser implements ProductParser {
             }
 
             jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());
             product.setWebpageId(webPageEntity.getId());
             result.add(product);

@@ -24,6 +24,7 @@ public class ProductEntity {
     private String json;
     private int webpageId;
     private boolean indexed;
+    private String url;
 
     public ProductEntity() {
     }
@@ -94,5 +95,15 @@ public class ProductEntity {
 
     public void setIndexed(boolean indexed) {
         this.indexed = indexed;
+    }
+
+    @Basic
+    @Column(name = "url")
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

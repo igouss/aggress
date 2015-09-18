@@ -105,7 +105,7 @@ public class Aggress {
 //                    doOnError(e -> logger.error("Failed to process web-page", e)).
 //                    subscribe();
 
-            String indexSuffix = "-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+            String indexSuffix = "";//"-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
             System.out.println(elastic.createIndex("product", "guns", indexSuffix));
             populateRoots(webPageService, sourceService);
 

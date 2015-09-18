@@ -69,6 +69,7 @@ public class DantesportsProductRawPageParser implements ProductParser{
 //            jsonBuilder.field(specName, specValue);
 //        }
         jsonBuilder.endObject();
+        product.setUrl(webPage.getUrl());
         product.setWebpageId(webPage.getId());
         product.setJson(jsonBuilder.string());
         products.add(product);
