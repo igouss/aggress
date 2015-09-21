@@ -6,10 +6,11 @@
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.entity.WebPageEntity;
+import rx.Observable;
 
 import java.util.Set;
 
 public interface WebPageParser {
-    Set<WebPageEntity> parse(WebPageEntity webPage) throws Exception;
+    Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception;
     boolean canParse(WebPageEntity webPage);
 }

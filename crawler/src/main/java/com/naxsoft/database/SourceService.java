@@ -6,50 +6,58 @@
 package com.naxsoft.database;
 
 import com.naxsoft.entity.SourceEntity;
-import org.hibernate.*;
+import com.naxsoft.entity.WebPageEntity;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import rx.Observable;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 public class SourceService {
-    private SessionFactory sessionFactory;
+    private final Logger logger;
+    private Database database;
 
     public SourceService(Database database) {
-        this.sessionFactory = database.getSessionFactory();
+        this.database = database;
+        this.logger = LoggerFactory.getLogger(this.getClass());
+
     }
 
-    public IterableListScrollableResults<SourceEntity> getSources() {
-        StatelessSession session = this.sessionFactory.openStatelessSession();
-        ScrollableResults result = session.createQuery("from SourceEntity as s where s.enabled = true order by rand()").scroll();
-        return new IterableListScrollableResults(session, result);
+    public Observable<SourceEntity> getSources() {
+        String queryString = "from SourceEntity as s where s.enabled = true order by rand()";
+        return Observable.defer(() -> new ObservableQuery<SourceEntity>(database).execute(queryString));
     }
 
-    public void markParsed(Collection<SourceEntity> sourceEntities) {
-        Session session = this.sessionFactory.openSession();
-        Query query = session.createQuery("update WebPageEntity set modificationDate = :modificationDate where id = :id");
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            int count = 0;
+    public void markParsed(Observable<SourceEntity> sourceEntity) {
+        sourceEntity.toList().subscribe(list -> {
+            Session session = database.getSessionFactory().openSession();
+            Query query = session.createQuery("update WebPageEntity set modificationDate = :modificationDate where id = :id");
+            Transaction tx = null;
+            try {
+                tx = session.beginTransaction();
+                int count = 0;
 
-            for (SourceEntity sourceEntity : sourceEntities) {
-                query.setInteger("id", sourceEntity.getId());
-                query.setTimestamp("modificationDate", new Date());
-                query.executeUpdate();
-                ++count;
-                if (count % 20 == 0) {
-                    session.flush();
+                for (SourceEntity entry : list) {
+                    query.setInteger("id", entry.getId());
+                    query.setTimestamp("modificationDate", new Date());
+                    query.executeUpdate();
+                    ++count;
+                    if (count % 20 == 0) {
+                        session.flush();
+                    }
                 }
-            }
-            session.flush();
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
+                session.flush();
                 tx.commit();
+            } catch (Exception e) {
+                if (tx != null) {
+                    tx.commit();
+                }
+            } finally {
+                session.close();
             }
-        } finally {
-            session.close();
-        }
+        });
     }
 }

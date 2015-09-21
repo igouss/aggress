@@ -43,31 +43,28 @@ public class FetchClient {
         String result = "";
         Logger logger = LoggerFactory.getLogger(this.getClass());
         logger.info("PUT " + url);
-        try {
-            URL addr = new URL(url);
-            HttpURLConnection conn = (HttpURLConnection) addr.openConnection();
-            conn.setDoOutput(true);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
+        URL addr = new URL(url);
+        HttpURLConnection conn = (HttpURLConnection) addr.openConnection();
+        conn.setDoOutput(true);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
 
-            OutputStream os = conn.getOutputStream();
-            os.write(content.getBytes());
-            os.flush();
+        OutputStream os = conn.getOutputStream();
+        os.write(content.getBytes());
+        os.flush();
 
 //            if (conn.getResponseCode() != HttpURLConnection.HTTP_CREATED) {
 //                throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
 //            }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String output;
-            while ((output = br.readLine()) != null) {
-                result += output;
-            }
-
-            conn.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
+        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String output;
+        while ((output = br.readLine()) != null) {
+            result += output;
         }
+
+        conn.disconnect();
+
         return result;
     }
 }

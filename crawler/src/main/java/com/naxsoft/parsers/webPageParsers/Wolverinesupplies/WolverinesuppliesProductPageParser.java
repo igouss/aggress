@@ -1,7 +1,13 @@
-package com.naxsoft.parsers.webPageParsers.irunguns;
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
+package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +18,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-/**
- * Copyright NAXSoft 2015
- */
-public class IrungunsProductPageParser {
+public class WolverinesuppliesProductPageParser implements WebPageParser {
     private AsyncFetchClient<Set<WebPageEntity>> client;
 
-    public IrungunsProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public WolverinesuppliesProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
         this.client = client;
     }
 
@@ -49,6 +52,6 @@ public class IrungunsProductPageParser {
     }
 
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.irunguns.us/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().startsWith("https://www.wolverinesupplies.com/") && webPage.getType().equals("productPage");
     }
 }

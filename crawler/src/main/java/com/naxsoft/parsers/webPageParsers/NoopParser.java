@@ -5,18 +5,18 @@
 
 package com.naxsoft.parsers.webPageParsers;
 
+import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import rx.Observable;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class NoopParser implements WebPageParser {
-    public NoopParser() {
+    public NoopParser(AsyncFetchClient<Set<WebPageEntity>> client) {
     }
 
-    public Set<WebPageEntity> parse(WebPageEntity webPage) {
-        HashSet result = new HashSet();
-        return result;
+    public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) {
+        return Observable.empty();
     }
 
     public boolean canParse(WebPageEntity webPage) {

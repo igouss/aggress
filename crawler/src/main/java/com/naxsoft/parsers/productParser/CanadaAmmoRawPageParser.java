@@ -33,7 +33,7 @@ public class CanadaAmmoRawPageParser implements ProductParser {
         jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(webPageEntity.getContent());
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
         if (document.select(".product-details__add").size() == 0) {
             return products;

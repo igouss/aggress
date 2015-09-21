@@ -29,7 +29,7 @@ public class AlflahertysRawPageParser implements ProductParser {
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet result = new HashSet();
         Logger logger = LoggerFactory.getLogger(this.getClass());
-        Document document = Jsoup.parse(webPageEntity.getContent());
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select(".product_name").text();
         logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
 

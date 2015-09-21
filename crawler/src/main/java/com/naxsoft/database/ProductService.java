@@ -6,10 +6,13 @@
 package com.naxsoft.database;
 
 import com.naxsoft.entity.ProductEntity;
+import com.naxsoft.entity.SourceEntity;
 import org.hibernate.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
+import java.util.Collection;
 import java.util.Set;
 
 public class ProductService {
@@ -23,7 +26,7 @@ public class ProductService {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
-    public void save(Set<ProductEntity> products) {
+    public void save(Collection<ProductEntity> products) {
         Session session = this.database.getSessionFactory().openSession();
         Transaction tx = null;
         try {
@@ -45,19 +48,10 @@ public class ProductService {
             session.close();
         }
     }
-    private IterableListScrollableResults get(String queryString) {
-        StatelessSession session = this.database.getSessionFactory().openStatelessSession();
-        Query query = session.createQuery(queryString);
-        query.setCacheable(false);
-        query.setReadOnly(true);
-        ScrollableResults result = query.scroll(ScrollMode.FORWARD_ONLY);
-        IterableListScrollableResults webPageEntities = new IterableListScrollableResults(session, result);
-        return webPageEntities;
-    }
 
-    public IterableListScrollableResults<ProductEntity> getProducts() {
+    public Observable<ProductEntity> getProducts() {
         String queryString = "from ProductEntity where indexed=false";
-        return this.get(queryString);
+        return Observable.defer(() -> new ObservableQuery<ProductEntity>(database).execute(queryString));
     }
 
     public void markAllAsIndexed() {

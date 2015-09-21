@@ -153,3 +153,8 @@ jsonSchema2Pojo {
     // **EXPERIMENTAL** Whether to make the generated types Parcelable for Android
     parcelable = false
 }
+
+task copyLibs(type: Copy, dependsOn: clean) {
+    into "build"
+    from configurations.compile
+}

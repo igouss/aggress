@@ -9,10 +9,10 @@ import com.naxsoft.entity.WebPageEntity;
 import org.hibernate.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.functions.Action1;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
 
 public class WebPageService {
     private final Logger logger;
@@ -23,23 +23,17 @@ public class WebPageService {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
-    public void save(Set<WebPageEntity> webPageEntitySet) {
-        Session session = this.database.getSessionFactory().openSession();
+    private static Session getSession(Database database) {
+        return database.getSessionFactory().openSession();
+    }
+
+
+    public void executeInTransaction(Action1<Session> action1) {
+        Session session = getSession(this.database);
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            int i = 0;
-            Iterator var6 = webPageEntitySet.iterator();
-
-            while (var6.hasNext()) {
-                WebPageEntity webPageEntity = (WebPageEntity) var6.next();
-                logger.debug("Saving " + webPageEntity);
-                session.save(webPageEntity);
-                ++i;
-                if (i % 20 == 0) {
-                    session.flush();
-                }
-            }
+            action1.call(session);
             session.flush();
             tx.commit();
         } catch (Exception e) {
@@ -51,23 +45,42 @@ public class WebPageService {
         } finally {
             session.close();
         }
+
     }
 
-    public void markParsed(Collection<WebPageEntity> parsedProductList) {
-        Session session = this.database.getSessionFactory().openSession();
-        Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
-        Transaction tx = null;
-
-        try {
-            tx = session.beginTransaction();
-            int count = 0;
-            for (WebPageEntity webPageEntity : parsedProductList) {
-                logger.debug("update WebPageEntity set parsed = true where id = " + webPageEntity.getId());
-                query.setInteger("id", webPageEntity.getId()).executeUpdate();
-                if (++count % 20 == 0) {
+    public void save(Collection<WebPageEntity> webPageEntitySet) {
+        executeInTransaction(session -> {
+            int i = 0;
+            for (WebPageEntity webPageEntity : webPageEntitySet) {
+                logger.debug("Saving " + webPageEntity);
+                session.save(webPageEntity);
+                if (++i % 20 == 0) {
                     session.flush();
                 }
             }
+        });
+    }
+
+    public void markParsed(WebPageEntity webPageEntity) {
+
+            executeInTransaction(session -> {
+                Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
+                logger.debug("update WebPageEntity set parsed = true where id = " + webPageEntity.getId());
+                query.setInteger("id", webPageEntity.getId()).executeUpdate();
+            });
+
+    }
+
+    public long getUnparsedCount(String type) {
+        Session session = getSession(this.database);
+        String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
+        Query query = session.createQuery(queryString);
+        Transaction tx = null;
+        long count = 0;
+        try {
+            tx = session.beginTransaction();
+            query.setString("type", type);
+            count = (Long) query.list().get(0);
             session.flush();
             tx.commit();
         } catch (HibernateException e) {
@@ -79,128 +92,59 @@ public class WebPageService {
         } finally {
             session.close();
         }
+        return count;
     }
 
-    private IterableListScrollableResults get(String queryString) {
-        StatelessSession session = this.database.getSessionFactory().openStatelessSession();
-        Query query = session.createQuery(queryString);
-        query.setCacheable(false);
-        query.setReadOnly(true);
-        query.setFetchSize(128);
-        ScrollableResults result = query.scroll(ScrollMode.FORWARD_ONLY);
-        return new IterableListScrollableResults(session, result);
+    public Observable<WebPageEntity> getUnparsedProductList() {
+        final String queryString = "from WebPageEntity where type = 'productList' and parsed = false order by rand()";
+        return Observable.defer(() -> Observable.create(subscriber -> {
+            do {
+                Observable<WebPageEntity> result = new ObservableQuery<WebPageEntity>(database).execute(queryString);
+                result.subscribe(webPageEntity -> subscriber.onNext(webPageEntity));
+            } while (getUnparsedCount("productList") > 0);
+            subscriber.onCompleted();
+        }));
     }
 
-
-
-    public IterableListScrollableResults<WebPageEntity> getUnparsedProductList() {
-        String queryString = "from WebPageEntity where type = \'productList\' and parsed = false order by rand()";
-        return this.get(queryString);
+    public Observable<WebPageEntity> getUnparsedProductPage() {
+        final String queryString = "from WebPageEntity where type = 'productPage' and parsed = false order by rand()";
+        return Observable.defer(() -> Observable.create(subscriber -> {
+            do {
+                Observable<WebPageEntity> result = new ObservableQuery<WebPageEntity>(database).execute(queryString);
+                result.subscribe(webPageEntity -> subscriber.onNext(webPageEntity));
+            } while (getUnparsedCount("productPage") > 0);
+            subscriber.onCompleted();
+        }));
     }
 
-    public IterableListScrollableResults<WebPageEntity> getUnparsedProductPage() {
-        String queryString = "from WebPageEntity where type = \'productPage\' and parsed = false order by rand()";
-        return this.get(queryString);
+    public Observable<WebPageEntity> getUnparsedProductPageRaw() {
+        final String queryString = "from WebPageEntity where type = 'productPageRaw' and parsed = false order by rand()";
+        return Observable.defer(() -> Observable.create(subscriber -> {
+            do {
+                Observable<WebPageEntity> result = new ObservableQuery<WebPageEntity>(database).execute(queryString);
+                result.subscribe(webPageEntity -> subscriber.onNext(webPageEntity));
+            } while (getUnparsedCount("productPageRaw") > 0);
+            subscriber.onCompleted();
+        }));
     }
 
-    public IterableListScrollableResults<WebPageEntity> getUnparsedProductPageRaw() {
-        String queryString = "from WebPageEntity where type = \'productPageRaw\' and parsed = false order by rand()";
-        return this.get(queryString);
-    }
-
-    public IterableListScrollableResults<WebPageEntity> getParsedProductPageRaw() {
-        String queryString = "from WebPageEntity where type = \'productPageRaw\' and parsed = false order by rand()";
-        return this.get(queryString);
-    }
-
-    public IterableListScrollableResults<WebPageEntity> getUnparsedFrontPage() {
-        String queryString = "from WebPageEntity where type = \'frontPage\' and parsed = false order by rand()";
-        return this.get(queryString);
+    public Observable<WebPageEntity> getUnparsedFrontPage() {
+        final String queryString = "from WebPageEntity where type = 'frontPage' and parsed = false order by rand()";
+        return Observable.defer(() -> Observable.create(subscriber -> {
+           do {
+               Observable<WebPageEntity> result = new ObservableQuery<WebPageEntity>(database).execute(queryString);
+               result.subscribe(webPageEntity -> subscriber.onNext(webPageEntity));
+           } while (getUnparsedCount("frontPage") > 0);
+            subscriber.onCompleted();
+        }));
     }
 
     public void deDup() {
-        Session session = null;
-        Transaction tx = null;
-        try {
-            session = database.getSessionFactory().openSession();
-            tx = session.beginTransaction();
-            SQLQuery sqlQuery = session.createSQLQuery("DELETE FROM guns.web_page USING guns.web_page wp2 WHERE guns.web_page.url = wp2.url AND guns.web_page.type = wp2.type AND guns.web_page.id < wp2.id");
-            sqlQuery.executeUpdate();
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
-                session.flush();
-                tx.commit();
-            }
-            throw e;
-        } finally {
-            if (null != session) {
-                session.close();
-            }
-        }
+        final String queryString = "DELETE FROM guns.web_page USING guns.web_page wp2 WHERE guns.web_page.url = wp2.url AND guns.web_page.type = wp2.type AND guns.web_page.id < wp2.id";
+        executeInTransaction(session -> {
+            SQLQuery sqlQuery = session.createSQLQuery(queryString);
+            int result = sqlQuery.executeUpdate();
+            logger.info("De-dupped " + result + " rows");
+        });
     }
-
-//    private Observable<WebPageEntity> getAsync(String queryString) {
-//        return Observable.<WebPageEntity>create(o -> {
-//            try {
-//                Session session = this.database.getSessionFactory().openSession();
-//                Query query = session.createQuery(queryString);
-//                query.setCacheable(false);
-//                query.setReadOnly(true);
-//                ScrollableResults result = query.scroll(ScrollMode.FORWARD_ONLY);
-//                while (result.next()) {
-//                    o.onNext((WebPageEntity) result.get(0));
-//                }
-//                o.onCompleted();
-//                result.close();
-//                session.close();
-//            } catch (Exception e) {
-//                logger.error("Failed to get process async hibernate query " + queryString, e);
-//                o.onError(e);
-//            }
-//        });
-//    }
-//
-//
-//    public Observable<WebPageEntity> getAsync2(String queryString) {
-//        return Observable.using(
-//                () -> this.database.getSessionFactory().openSession()
-//                , session -> Observable.using(() -> {
-//                            Query query = session.createQuery(queryString);
-//                            query.setCacheable(false);
-//                            query.setReadOnly(true);
-//                            return query.scroll(ScrollMode.FORWARD_ONLY);
-//                        }, scrollableResults -> Observable.from(new IterableListScrollableResults<>(session, scrollableResults)), scrollableResults -> scrollableResults.close()
-//                ), session -> session.close());
-//    }
-
-//    public IterableListScrollableResults<WebPageEntity> getUnparsedPage() {
-//        String queryString = "from WebPageEntity where parsed = false order by rand()";
-//        return this.get(queryString);
-//    }
-//
-//    public Observable<WebPageEntity> getUnparsedProductListAsync() {
-//        String queryString = "from WebPageEntity where type = \'productList\' and parsed = false order by rand()";
-//        return this.getAsync2(queryString);
-//    }
-//
-//    public Observable<WebPageEntity> getUnparsedProductPageAsync() {
-//        String queryString = "from WebPageEntity where type = \'productPage\' and parsed = false order by rand()";
-//        return this.getAsync(queryString);
-//    }
-//
-//    public Observable<WebPageEntity> getUnparsedProductPageRawAsync() {
-//        String queryString = "from WebPageEntity where type = \'productPageRaw\' and parsed = false order by rand()";
-//        return this.getAsync2(queryString);
-//    }
-//
-//    public Observable<WebPageEntity> getUnparsedFrontPageAsync() {
-//        String queryString = "from WebPageEntity where type = \'frontPage\' and parsed = false order by rand()";
-//        return this.getAsync2(queryString);
-//    }
-//
-//    public Observable<WebPageEntity> getUnparsedPageAsync() {
-//        String queryString = "from WebPageEntity where parsed = false order by rand()";
-//        return this.getAsync2(queryString);
-//    }
 }

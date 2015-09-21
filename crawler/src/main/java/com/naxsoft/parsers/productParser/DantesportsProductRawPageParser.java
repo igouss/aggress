@@ -32,7 +32,7 @@ public class DantesportsProductRawPageParser implements ProductParser{
         jsonBuilder.field("url", webPage.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(webPage.getContent());
+        Document document = Jsoup.parse(webPage.getContent(), webPage.getUrl());
         String productName = document.select(".naitem").text();
         logger.info("Parsing " + productName + ", page=" + webPage.getUrl());
 

@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.alflahertys;
+package com.naxsoft.parsers.webPageParsers.dantesports;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -16,17 +16,20 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class AlflahertysProductListParser implements WebPageParser {
+public class DantesportsProductListParser implements WebPageParser {
     private AsyncFetchClient<Set<WebPageEntity>> client;
 
-    public AlflahertysProductListParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public DantesportsProductListParser(AsyncFetchClient<Set<WebPageEntity>> client) {
         this.client = client;
     }
 
+    @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
 
 
@@ -37,18 +40,24 @@ public class AlflahertysProductListParser implements WebPageParser {
                     HashSet<WebPageEntity> result = new HashSet<>();
                     if (resp.getStatusCode() == 200) {
                         Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select("body > div.container.main.content > div:nth-child(3) a:nth-child(1).view_product_info");
+                        Elements elements = document.select("#store div.listItem");
 
                         for (Element element : elements) {
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(element.attr("abs:href"));
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productPage");
-                            webPageEntity.setParent(webPage);
-                            logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + webPage.getUrl());
-                            result.add(webPageEntity);
+                            String onclick = element.attr("onclick");
+                            Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
+                            if (matcher.find()) {
+                                WebPageEntity webPageEntity = new WebPageEntity();
+                                webPageEntity.setUrl("https://shop.dantesports.com/items_detail.php?iid=" + matcher.group());
+                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                webPageEntity.setParsed(false);
+                                webPageEntity.setStatusCode(resp.getStatusCode());
+                                webPageEntity.setType("productPage");
+                                webPageEntity.setParent(webPage);
+                                logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + webPage.getUrl());
+                                result.add(webPageEntity);
+                            } else {
+                                logger.info("Product id not found: " + webPage);
+                            }
                         }
                     }
                     return result;
@@ -56,9 +65,11 @@ public class AlflahertysProductListParser implements WebPageParser {
             });
         // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
+
     }
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("productList");
+        return webPage.getUrl().startsWith("https://shop.dantesports.com/") && webPage.getType().equals("productList");
     }
 }

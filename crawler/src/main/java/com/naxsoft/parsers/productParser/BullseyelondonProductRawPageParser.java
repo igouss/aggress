@@ -35,7 +35,7 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
         jsonBuilder.startObject();
         jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-        Document document = Jsoup.parse(webPageEntity.getContent());
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         document.select(".product-name h1").first().children().remove();
         String productName = document.select(".product-name h1").first().text().trim();
         jsonBuilder.field("productName", productName);

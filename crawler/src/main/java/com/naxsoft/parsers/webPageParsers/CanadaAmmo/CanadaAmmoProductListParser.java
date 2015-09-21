@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.irunguns;
+package com.naxsoft.parsers.webPageParsers.canadaAmmo;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -20,49 +20,44 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class IrungunsFrontPageParser implements WebPageParser {
+public class CanadaAmmoProductListParser implements WebPageParser {
     private AsyncFetchClient<Set<WebPageEntity>> client;
 
-    public IrungunsFrontPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public CanadaAmmoProductListParser(AsyncFetchClient<Set<WebPageEntity>> client) {
         this.client = client;
     }
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-
-
             Logger logger = LoggerFactory.getLogger(this.getClass());
-            Future<Set<WebPageEntity>> future = client.get("https://www.irunguns.us/product_categories.php", new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
                     if (resp.getStatusCode() == 200) {
-                        Logger logger = LoggerFactory.getLogger(this.getClass());
                         Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select("#content .widthLimit a");
-                        for (Element e : elements) {
-                            String linkUrl = e.attr("abs:href");
+                        Elements elements = document.select("a.product__link");
+                        for (Element element : elements) {
                             WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(linkUrl);
+                            webPageEntity.setUrl(element.attr("abs:href"));
                             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                             webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productPage");
                             webPageEntity.setParent(webPage);
-                            logger.info("ProductPageUrl=" + linkUrl + ", " + "parseUrl=" + webPage.getUrl());
+                            logger.info("productPage=" + webPageEntity.getUrl());
                             result.add(webPageEntity);
                         }
                     }
                     return result;
+
                 }
             });
         // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
-
     }
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().equals("https://www.irunguns.us/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().startsWith("https://www.canadaammo.com/") && webPage.getType().equals("productList");
     }
 }

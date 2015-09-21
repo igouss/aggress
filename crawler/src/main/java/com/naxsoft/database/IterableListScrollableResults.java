@@ -33,8 +33,8 @@ import java.util.Iterator;
 public class IterableListScrollableResults<T> implements Iterable<T> {
     Iterator<T> iterator;
 
-    public IterableListScrollableResults(StatelessSession session, ScrollableResults sr) {
-        iterator = new ScrollableResultsIterator<>(session, sr);
+    public IterableListScrollableResults(ScrollableResults sr) {
+        iterator = new ScrollableResultsIterator<>(sr);
     }
 
     @Override
@@ -47,13 +47,11 @@ public class IterableListScrollableResults<T> implements Iterable<T> {
 
         private ScrollableResults sr;
         private T next = null;
-        private StatelessSession session;
         private int count = 0;
         private boolean elementPulled = false;
 
-        public ScrollableResultsIterator(StatelessSession session, ScrollableResults sr) {
+        public ScrollableResultsIterator(ScrollableResults sr) {
             this.sr = sr;
-            this.session = session;
         }
 
         /**
@@ -73,8 +71,7 @@ public class IterableListScrollableResults<T> implements Iterable<T> {
                 elementPulled = false;
                 return true;
             }
-            sr.close();
-            session.close();
+//            sr.close();
             return false;
         }
 

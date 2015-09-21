@@ -1,33 +1,41 @@
-package com.naxsoft.parsers.webPageParsers.alflahertys;
+package com.naxsoft.parsers.webPageParsers.dantesports;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
+import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class AlflahertysProductPageParser implements WebPageParser {
-
+public class DantesportsProductPageParser implements WebPageParser {
     private AsyncFetchClient<Set<WebPageEntity>> client;
 
-    public AlflahertysProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public DantesportsProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
         this.client = client;
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
+        List<Cookie> cookies = new LinkedList<>();
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        try (AsyncFetchClient<List<Cookie>> client = new AsyncFetchClient<>()) {
+            Future<List<Cookie>> future = client.get("https://shop.dantesports.com/set_lang.php?lang=EN", cookies, getEngCookiesHandler(), false);
+            cookies.addAll(future.get());
+        }
 
-            Logger logger = LoggerFactory.getLogger(this.getClass());
-            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+
+            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), cookies, new AsyncCompletionHandler<Set<WebPageEntity>>() {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
@@ -49,8 +57,18 @@ public class AlflahertysProductPageParser implements WebPageParser {
         // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
     }
+    private AsyncCompletionHandler<List<Cookie>> getEngCookiesHandler() {
+        return new AsyncCompletionHandler<List<Cookie>>() {
+            @Override
+            public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                List<Cookie> cookies = resp.getCookies();
+                return cookies;
+
+            }
+        };
+    }
 
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().startsWith("https://shop.dantesports.com/") && webPage.getType().equals("productPage");
     }
 }

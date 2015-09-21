@@ -5,10 +5,32 @@
       "number_of_replicas": 1
     }
   },
+  "analysis" : {
+    "analyzer" : {
+      "custom" : {
+        "tokenizer" : ["standard"],
+        "filter": ["stop", "asciifolding", "lowercase", "trim", "kstem"],
+        "char_filter" : ["html_strip"]
+      }
+    }
+  },
   "mappings": {
     "guns": {
-      "analyzer": "standard",
-      "numeric_detection": true,
+      "dynamic_templates": [
+        { "en": {
+          "match":              "*",
+          "mapping": {
+            "type":           "string",
+            "analyzer":       "custom",
+            "store": false,
+            "index": "analyzed",
+            "copy_to": [
+              "meta_data",
+              "suggest"
+            ]
+          }
+        }}
+      ],
       "_meta": {
         "version": 1,
         "changelog": [
@@ -16,10 +38,21 @@
         ]
       },
       "_ttl" : { "enabled" : true, "default" : "1d" },
+      "_all": {
+        "enabled": true
+      },
+      "_source": {
+        "enabled": false
+      },
+
+      "numeric_detection": true,
+
+
+
       "properties": {
         "url": {
           "type": "string",
-          "store": "no",
+          "store": false,
           "index": "not_analyzed"
         },
         "modificationDate": {
@@ -29,8 +62,9 @@
         },
         "productName": {
           "type": "string",
-          "store": "no",
+          "store": false,
           "index": "analyzed",
+          "analyzer":       "custom",
           "copy_to": [
             "meta_data",
             "suggest"
@@ -38,8 +72,9 @@
         },
         "category": {
           "type": "string",
-          "store": "no",
+          "store": false,
           "index": "analyzed",
+          "analyzer":       "custom",
           "copy_to": [
             "meta_data",
             "suggest"
@@ -47,33 +82,26 @@
         },
         "productImage": {
           "type": "string",
-          "store": "no",
+          "store": false,
           "index": "not_analyzed"
         },
         "regularPrice": {
           "type": "double",
-          "store": "no",
-          "index": "not_analyzed"
+          "store": false,
+          "index": "not_analyzed",
+          "ignore_malformed" : false
         },
         "specialPrice": {
           "type": "double",
-          "store": "no",
-          "index": "not_analyzed"
-        },
-        "freeShipping": {
-          "type": "boolean",
-          "store": "no",
-          "index": "not_analyzed"
-        },
-        "unitsAvailable": {
-          "type": "long",
-          "store": "no",
-          "index": "not_analyzed"
+          "store": false,
+          "index": "not_analyzed",
+          "ignore_malformed" : false
         },
         "description": {
           "type": "string",
           "store": "no",
           "index": "analyzed",
+          "analyzer":       "custom",
           "copy_to": [
             "meta_data",
             "suggest"
@@ -81,8 +109,9 @@
         },
         "meta_data": {
           "type": "string",
-          "store": "no",
+          "store": false,
           "index": "analyzed",
+          "analyzer":       "custom",
           "boost": 1,
           "include_in_all": false
         },
@@ -90,232 +119,6 @@
           "type": "completion",
           "payloads": true,
           "analyzer": "simple"
-        },
-        "accessories": {
-          "type": "string",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "action": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "ammunition": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "barrelLength": {
-          "type": "string",
-          "store": "no",
-          "index": "not_analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "brand": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "caliber": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "calibre": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "caseType": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "classification": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "firearms": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "frameFinish": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "magazineCapacity": {
-          "type": "string",
-          "store": "no",
-          "index": "not_analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "make": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "manufacturer": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "manufacturerPart#": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "model": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "projectileType": {
-          "type": "string",
-          "store": "no",
-          "index": "not_analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "projectileWeight": {
-          "type": "string",
-          "store": "no",
-          "index": "not_analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "scope": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "sights": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "sku": {
-          "type": "string",
-          "store": "no",
-          "index": "not_analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "slideFinish": {
-          "type": "string",
-          "store": "no",
-          "index": "not_analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "slideMaterial": {
-          "type": "string",
-          "store": "no",
-          "index": "not_analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "subcategory": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "copy_to": "category"
-        },
-        "weight": {
-          "type": "string",
-          "store": "no",
-          "index": "not_analyzed",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "_all": {
-          "enabled": true
-        },
-        "_source": {
-          "enabled": true
         }
       }
     }

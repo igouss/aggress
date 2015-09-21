@@ -1,7 +1,8 @@
-package com.naxsoft.parsers.webPageParsers.irunguns;
+package com.naxsoft.parsers.webPageParsers.bullseyelondon;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +13,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-/**
- * Copyright NAXSoft 2015
- */
-public class IrungunsProductPageParser {
+public class BullseyelondonProductPageParser implements WebPageParser {
     private AsyncFetchClient<Set<WebPageEntity>> client;
 
-    public IrungunsProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public BullseyelondonProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
         this.client = client;
     }
 
@@ -33,10 +31,11 @@ public class IrungunsProductPageParser {
                     if (resp.getStatusCode() == 200) {
                         WebPageEntity webPageEntity = new WebPageEntity();
                         webPageEntity.setUrl(webPage.getUrl());
-                        webPageEntity.setParent(webPage);
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setType("productPageRaw");
                         webPageEntity.setContent(resp.getResponseBody());
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setStatusCode(resp.getStatusCode());
+                        webPageEntity.setType("productPageRaw");
                         webPageEntity.setParent(webPage);
                         result.add(webPageEntity);
                         logger.info("productPageRaw=" + webPageEntity.getUrl());
@@ -49,6 +48,6 @@ public class IrungunsProductPageParser {
     }
 
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.irunguns.us/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().startsWith("http://www.bullseyelondon.com/") && webPage.getType().equals("productPage");
     }
 }

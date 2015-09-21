@@ -12,10 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class IrungunsRawProductPageParser implements ProductParser {
+public class MarstarRawProductPageParser implements ProductParser {
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -36,52 +35,51 @@ public class IrungunsRawProductPageParser implements ProductParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        if (document.select(".saleImage").size() != 0) {
-            return products;
-        }
-
-        String productName = document.select("div.innercontentDiv > div > div > h2").text();
+        String productName = document.select("h1").text();
         logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
-        jsonBuilder.field("productName",productName);
-        jsonBuilder.field("manufacturer", document.select(".product-details__title .product__manufacturer").text());
-        jsonBuilder.field("productImage", document.select("div.imgLiquidNoFill a").attr("abs:src"));
-        jsonBuilder.field("regularPrice", parsePrice(document.select("#desPrice > li:nth-child(1) > span.pricetag.show").text()));
-        jsonBuilder.field("specialPrice", parsePrice(document.select("#desPrice > li:nth-child(2) > span.pricetag.show").text()));
-        jsonBuilder.field("description", document.select("#TabbedPanels1 > div > div:nth-child(1)").text());
-        Iterator<Element> labels = document.select("table.productTbl > tbody > tr > td:nth-child(1)").iterator();
-        Iterator<Element> values = document.select("table.productTbl > tbody > tr > td:nth-child(2)").iterator();
+        jsonBuilder.field("productName", productName);
+        jsonBuilder.field("productImage", document.select("img[id=mainPic]").attr("abs:src"));
+        ArrayList<String> price = parsePrice(document.select(".priceAvail").text());
+        if (price.size() == 1) {
+            jsonBuilder.field("regularPrice", price.get(0));
+        } else {
+            jsonBuilder.field("regularPrice", price.get(0));
+            jsonBuilder.field("specialPrice", price.get(1));
+        }
+        jsonBuilder.field("description", document.select("#main-content > div:nth-child(6), #main-content > div:nth-child(8)").text());
+        Iterator<Element> labels = document.select("#main-content > table > tbody > tr:nth-child(1) > th").iterator();
+        Iterator<Element> values = document.select("#main-content > table > tbody > tr.baseTableCell > td").iterator();
 
-        while(labels.hasNext()) {
+        while (labels.hasNext()) {
             String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_'));
             String specValue = values.next().text();
             jsonBuilder.field(specName, specValue);
         }
         jsonBuilder.endObject();
+
         product.setUrl(webPageEntity.getUrl());
         product.setWebpageId(webPageEntity.getId());
         product.setJson(jsonBuilder.string());
         products.add(product);
+
         return products;
 
     }
 
-    private String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
-        if (matcher.find()) {
-            try {
-                return matcher.group(1).replace(",","");
-//                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
-            } catch (Exception e) {
-                return Double.valueOf(matcher.group(1)).toString();
-            }
-        } else {
-            return price;
+    private ArrayList<String> parsePrice(String price) {
+        ArrayList<String> result = new ArrayList<>();
+        Matcher matcher = Pattern.compile("((\\d+(\\.|,))+\\d\\d)+").matcher(price);
+
+        while (matcher.find()) {
+            result.add(matcher.group(1).replace(",", ""));
         }
+        return result;
     }
 
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.irunguns.us/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().startsWith("http://www.marstar.ca/") && webPage.getType().equals("productPageRaw");
     }
+
 }
