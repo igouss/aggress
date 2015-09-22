@@ -21,49 +21,27 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class MarstarFrontPageParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
-
     public MarstarFrontPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
-        this.client = client;
     }
 
     @Override
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
+    public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
+        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
+        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=1", parent)); // firearms
+        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=3", parent)); // ammo
 
+        return Observable.just(webPageEntities);
+    }
 
-        Logger logger = LoggerFactory.getLogger(this.getClass());
-        Future<Set<WebPageEntity>> future = client.get("http://www.marstar.ca/dynamic/index.jsp", new AsyncCompletionHandler<Set<WebPageEntity>>() {
-            @Override
-            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
-                    Logger logger = LoggerFactory.getLogger(this.getClass());
-                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    Elements elements = document.select("#myslidemenu > ul > li:nth-child(2) > ul a");
-                    if (elements.size() == 0) {
-                        logger.warn("Zero elements found");
-                    }
-                    for (Element e : elements) {
-                        String linkUrl = e.attr("abs:href").replace("/../", "/");
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(linkUrl);
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setParsed(false);
-                        webPageEntity.setStatusCode(resp.getStatusCode());
-                        webPageEntity.setType("productList");
-                        webPageEntity.setParent(webPage);
-                        logger.info("ProductPageUrl=" + linkUrl + ", " + "parseUrl=" + webPage.getUrl());
-                        result.add(webPageEntity);
-                    }
-                } else {
-                    logger.warn("Failed to open page " + resp.getUri() + " error code: " + resp.getStatusCode());
-                }
-                return result;
-            }
-        });
-        // return Observable.defer(() -> Observable.just(future.get()));
-        return Observable.defer(() -> Observable.from(future));
-
+    private WebPageEntity create(String url, WebPageEntity parent) {
+        WebPageEntity webPageEntity = new WebPageEntity();
+        webPageEntity.setUrl(url);
+        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+        webPageEntity.setParsed(false);
+        webPageEntity.setStatusCode(200);
+        webPageEntity.setType("productList");
+        webPageEntity.setParent(parent);
+        return webPageEntity;
     }
 
     @Override

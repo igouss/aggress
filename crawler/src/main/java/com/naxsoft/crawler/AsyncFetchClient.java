@@ -37,7 +37,7 @@ public class AsyncFetchClient<T> implements AutoCloseable, Cloneable {
     }
 
     public Future<T> get(String url, Collection<Cookie> cookies, AsyncHandler<T> handler, boolean followRedirect)  {
-        logger.debug("Starting async http request url = " + url);
+        logger.trace("Starting async http request url = " + url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setRequestTimeout((int) TimeUnit.SECONDS.toMillis(60));
         requestBuilder.setCookies(cookies);

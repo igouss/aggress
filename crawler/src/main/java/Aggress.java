@@ -12,16 +12,18 @@ import com.naxsoft.parsers.productParser.ProductParser;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
+import com.naxsoft.performance.HibernateStats;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.Subscription;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
@@ -45,14 +47,12 @@ public class Aggress {
         Database db = null;
 
         logger = LoggerFactory.getLogger(Aggress.class);
-        AsyncFetchClient asyncFetchClient = new AsyncFetchClient<>();
-        try {
+        try (AsyncFetchClient<Set<WebPageEntity>> asyncFetchClient = new AsyncFetchClient<>();) {
             webPageParserFactory = new WebPageParserFactory(asyncFetchClient);
             try {
-                elastic = new Elastic();
-                elastic.setup();
-                logger.info("Elastic initialization complete");
 
+                logger.info("Elastic initialization complete");
+                elastic = new Elastic();
                 Client client = elastic.getClient();
                 SearchResponse searchResponse = client.prepareSearch()
                         .setQuery(matchAllQuery())
@@ -60,32 +60,25 @@ public class Aggress {
                         .execute()
                         .actionGet();
                 System.out.println(searchResponse);
-            } catch (Exception e) {
 
-                logger.error("Failed to initialize elastic", e);
-                if (null != elastic) {
-                    elastic.tearDown();
+                try {
+                    db = new Database();
+                    logger.info("Database initialization complete");
+                } catch (Exception e) {
+                    logger.error("Failed to initialize database", e);
+                    if (null != db) {
+                        db.close();
+                        return;
+                    }
                 }
-            }
 
-            try {
-                db = new Database();
-                db.setUp();
-                logger.info("Database initialization complete");
-            } catch (Exception e) {
-                logger.error("Failed to initialize database", e);
-                if (null != db) {
-                    db.tearDown();
-                }
-            }
+                webPageService = new WebPageService(db);
+                productService = new ProductService(elastic, db);
+                sourceService = new SourceService(db);
 
-            webPageService = new WebPageService(db);
-            productService = new ProductService(elastic, db);
-            sourceService = new SourceService(db);
-
-            String indexSuffix = "";//"-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-            System.out.println(elastic.createIndex("product", "guns", indexSuffix));
-            populateRoots();
+                String indexSuffix = "";//"-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+                System.out.println(elastic.createIndex("product", "guns", indexSuffix));
+                populateRoots();
 
 //            webPageService.getUnparsedFrontPage().
 //                    map(Aggress::parseObservableHelper).
@@ -95,57 +88,63 @@ public class Aggress {
 //                    subscribe(products -> products.subscribe(set -> productService.save(set)));
 
 
+                process(webPageService.getUnparsedFrontPage());
+                process(webPageService.getUnparsedProductList());
+                process(webPageService.getUnparsedProductPage());
+                logger.info("Fetch & parse complete");
 
-            process(webPageService.getUnparsedFrontPage());
-            process(webPageService.getUnparsedProductList());
-            process(webPageService.getUnparsedProductPage());
-            logger.info("Fetch & parse complete");
+                processProducts(webPageService.getUnparsedProductPageRaw());
+                webPageService.deDup();
+                indexProducts(productService.getProducts(), "product" + indexSuffix, "guns");
+                productService.markAllAsIndexed();
 
-            processProducts(webPageService.getUnparsedProductPageRaw());
-            webPageService.deDup();
-            indexProducts(productService.getProducts(), "product" + indexSuffix, "guns");
-            productService.markAllAsIndexed();
+                logger.info("Parsing complete");
+            } catch (Exception e) {
 
-            logger.info("Parsing complete");
+                logger.error("Failed to initialize elastic", e);
+                if (null != elastic) {
+                    elastic.close();
+                    return;
+                }
+            }
+
         } catch (Exception e) {
             logger.error("Application failure", e);
         } finally {
             if (null != db) {
-                db.tearDown();
+                db.close();
             }
             if (null != elastic) {
-                elastic.tearDown();
+                elastic.close();
             }
-            asyncFetchClient.close();
         }
     }
 
-    private static Observable<WebPageEntity> parseObservable(Observable<WebPageEntity> webPageEntity) {
-        return webPageEntity.flatMap(f -> parseObservableHelper(f)).filter(result -> result != null);
-    }
-
-    private static Observable<WebPageEntity> parseObservableHelper(WebPageEntity webPageEntity) {
-        try {
-            return webPageParserFactory.getParser(webPageEntity).parse(webPageEntity).flatMap(set -> Observable.from(set));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static Observable<Set<ProductEntity>> productFromRawPage(Observable<WebPageEntity> productPageRaw) {
-        return productPageRaw.map(f -> productFromRawPageHelper(f)).filter(result -> result != null);
-    }
-
-    private static Set<ProductEntity> productFromRawPageHelper(WebPageEntity webPageEntity) {
-            try {
-                return productParserFactory.getParser(webPageEntity).parse(webPageEntity);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-
-    }
+//    private static Observable<WebPageEntity> parseObservable(Observable<WebPageEntity> webPageEntity) {
+//        return webPageEntity.flatMap(Aggress::parseObservableHelper).filter(result -> result != null);
+//    }
+//
+//    private static Observable<Set<ProductEntity>> productFromRawPage(Observable<WebPageEntity> productPageRaw) {
+//        return productPageRaw.map(Aggress::productFromRawPageHelper).filter(result -> result != null);
+//    }
+//
+//    private static Observable<WebPageEntity> parseObservableHelper(WebPageEntity webPageEntity) {
+//        try {
+//            return webPageParserFactory.getParser(webPageEntity).parse(webPageEntity).flatMap(set -> Observable.from(set));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+//
+//    private static Set<ProductEntity> productFromRawPageHelper(WebPageEntity webPageEntity) {
+//            try {
+//                return productParserFactory.getParser(webPageEntity).parse(webPageEntity);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            return null;
+//    }
 
 //    private static Set<ProductEntity> getWebPageEntitySetFunc1(WebPageEntity webPageEntity) {
 //
@@ -177,23 +176,22 @@ public class Aggress {
     }
 
     private static void process(Observable<WebPageEntity> parents) {
-        parents.doOnCompleted(() -> webPageService.deDup());
-        parents.subscribe(webPageEntity -> {
+        parents.doOnCompleted(webPageService::deDup);
+        parents.subscribe(parent -> {
             try {
-                WebPageParser e = webPageParserFactory.getParser(webPageEntity);
-                Observable<Set<WebPageEntity>> webPageEntitySet = e.parse(webPageEntity);
-                webPageEntitySet.subscribe(webPageService::save, throwable -> {
-                    logger.error("Failed to save web-page" + webPageEntity.getUrl(), e);
+                WebPageParser e = webPageParserFactory.getParser(parent);
+                e.parse(parent).subscribe((webPageEntitySet) -> {
+                    webPageService.save(webPageEntitySet);
+                    webPageService.markParsed(parent);
+                }, throwable -> {
+                    logger.error("Failed to save web-page" + parent.getUrl(), e);
                 });
-                webPageService.markParsed(webPageEntity);
+
             } catch (Exception e1) {
-                logger.error("Failed to process source " + webPageEntity.getUrl(), e1);
+                logger.error("Failed to process source " + parent.getUrl(), e1);
             }
         });
 
-    }
-
-    private static void saveParentToWebPage(WebPageEntity parent) {
     }
 
     private static void processProducts(Observable<WebPageEntity> webPage) {
@@ -202,16 +200,15 @@ public class Aggress {
             Set<ProductEntity> result = new HashSet<>();
             if (parser.canParse(webPageEntity)) {
                 try {
-                    webPageService.markParsed(webPageEntity);
                     result.addAll(parser.parse(webPageEntity));
-                    return result;
+                    webPageService.markParsed(webPageEntity);
+
                 } catch (Exception e) {
                     logger.error("Failed to parse product page " + webPageEntity.getUrl(), e);
                 }
-                return result;
             }
-            return null;
-        }).filter(data -> data != null).flatMap(Observable::from).toList().subscribe(productService::save);
+            return result;
+        }).filter(data -> !data.isEmpty()).flatMap(Observable::from).toList().subscribe(productService::save);
 
 
     }

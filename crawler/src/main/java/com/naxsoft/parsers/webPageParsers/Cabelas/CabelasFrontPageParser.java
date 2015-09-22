@@ -28,8 +28,6 @@ public class CabelasFrontPageParser implements WebPageParser {
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) {
-
-
             Logger logger = LoggerFactory.getLogger(this.getClass());
             Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                 @Override

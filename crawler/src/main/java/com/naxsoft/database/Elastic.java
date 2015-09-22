@@ -33,11 +33,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class Elastic {
+public class Elastic implements AutoCloseable, Cloneable {
     TransportClient client = null;
     private Logger logger;
 
-    public void setup() {
+    public Elastic() {
         this.logger = LoggerFactory.getLogger(this.getClass());
         Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         this.client = new TransportClient(settings);
@@ -58,7 +58,7 @@ public class Elastic {
         }
     }
 
-    public void tearDown() {
+    public void close() {
         this.client.close();
     }
 

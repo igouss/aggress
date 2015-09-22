@@ -40,13 +40,19 @@ public class MarstarRawProductPageParser implements ProductParser {
         jsonBuilder.field("productName", productName);
         jsonBuilder.field("productImage", document.select("img[id=mainPic]").attr("abs:src"));
         ArrayList<String> price = parsePrice(document.select(".priceAvail").text());
-        if (price.size() == 1) {
+        if (price.size() == 0) {
+            return products; // ignore
+        } else if (price.size() == 1) {
             jsonBuilder.field("regularPrice", price.get(0));
         } else {
             jsonBuilder.field("regularPrice", price.get(0));
             jsonBuilder.field("specialPrice", price.get(1));
         }
-        jsonBuilder.field("description", document.select("#main-content > div:nth-child(6), #main-content > div:nth-child(8)").text());
+        String description = document.select("#main-content > div:nth-child(7)").text();
+        if (description.isEmpty()) {
+            description = document.select("#main-content > div:nth-child(6), #main-content > div:nth-child(8)").text();
+        }
+        jsonBuilder.field("description", description);
         Iterator<Element> labels = document.select("#main-content > table > tbody > tr:nth-child(1) > th").iterator();
         Iterator<Element> values = document.select("#main-content > table > tbody > tr.baseTableCell > td").iterator();
 
