@@ -27,8 +27,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BullseyelondonProductRawPageParser implements ProductParser {
+    private final Logger logger;
+    public BullseyelondonProductRawPageParser() {
+        logger = LoggerFactory.getLogger(this.getClass());
+    }
+
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
+
         HashSet products = new HashSet();
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();

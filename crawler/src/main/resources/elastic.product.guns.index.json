@@ -1,125 +1,51 @@
 {
   "settings": {
     "index": {
-      "number_of_shards": 2,
+      "number_of_shards": 5,
       "number_of_replicas": 1
-    }
-  },
-  "analysis" : {
-    "analyzer" : {
-      "custom" : {
-        "tokenizer" : ["standard"],
-        "filter": ["stop", "asciifolding", "lowercase", "trim", "kstem"],
-        "char_filter" : ["html_strip"]
-      }
-    }
-  },
-  "mappings": {
-    "guns": {
-      "dynamic_templates": [
-        { "en": {
-          "match":              "*",
-          "mapping": {
-            "type":           "string",
-            "analyzer":       "custom",
-            "store": false,
-            "index": "analyzed",
-            "copy_to": [
-              "meta_data",
-              "suggest"
-            ]
-          }
-        }}
-      ],
-      "_meta": {
-        "version": 1,
-        "changelog": [
-          "initial schema"
-        ]
-      },
-      "_ttl" : { "enabled" : true, "default" : "1d" },
-      "_all": {
-        "enabled": true
-      },
-      "_source": {
-        "enabled": false
-      },
-
-      "numeric_detection": true,
-
-
-
-      "properties": {
-        "url": {
-          "type": "string",
-          "store": false,
-          "index": "not_analyzed"
-        },
-        "modificationDate": {
-          "type": "date",
-          "format": "dateOptionalTime",
-          "index": "not_analyzed"
-        },
-        "productName": {
-          "type": "string",
-          "store": false,
-          "index": "analyzed",
-          "analyzer":       "custom",
-          "copy_to": [
-            "meta_data",
-            "suggest"
+    },
+    "analysis": {
+      "analyzer": {
+        "my_analizer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "stop",
+            "asciifolding",
+            "lowercase",
+            "trim",
+            "kstem"
+          ],
+          "char_filter": [
+            "html_strip"
           ]
         },
-        "category": {
-          "type": "string",
-          "store": false,
-          "index": "analyzed",
-          "analyzer":       "custom",
-          "copy_to": [
-            "meta_data",
-            "suggest"
+        "my_autocomplete": {
+          "type": "custom",
+          "tokenizer": "my_edge_ngram_tokenizer",
+          "filter": [
+            "standard",
+            "lowercase",
+            "stop",
+            "kstem"
+          ],
+          "char_filter": [
+            "html_strip"
           ]
-        },
-        "productImage": {
-          "type": "string",
-          "store": false,
-          "index": "not_analyzed"
-        },
-        "regularPrice": {
-          "type": "double",
-          "store": false,
-          "index": "not_analyzed",
-          "ignore_malformed" : false
-        },
-        "specialPrice": {
-          "type": "double",
-          "store": false,
-          "index": "not_analyzed",
-          "ignore_malformed" : false
-        },
-        "description": {
-          "type": "string",
-          "store": "no",
-          "index": "analyzed",
-          "analyzer":       "custom",
-          "copy_to": [
-            "meta_data",
-            "suggest"
-          ]
-        },
-        "meta_data": {
-          "type": "string",
-          "store": false,
-          "index": "analyzed",
-          "analyzer":       "custom",
-          "boost": 1,
-          "include_in_all": false
-        },
-        "suggest": {
-          "type": "completion",
-          "payloads": true,
-          "analyzer": "simple"
         }
+      },
+      "tokenizer": {
+        "my_edge_ngram_tokenizer": {
+          "type": "edgeNGram",
+          "min_gram": "3",
+          "max_gram": "5",
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      },
+      "filter": {
       }
     }
   }

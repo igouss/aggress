@@ -12,7 +12,7 @@ import rx.Observable;
 import java.util.Set;
 
 public class NoopParser implements WebPageParser {
-    public NoopParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public NoopParser(AsyncFetchClient client) {
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) {

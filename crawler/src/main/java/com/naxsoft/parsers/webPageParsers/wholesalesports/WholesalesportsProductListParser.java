@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.ctcsupplies;
+package com.naxsoft.parsers.webPageParsers.wholesalesports;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -20,46 +20,45 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class CtcsuppliesProductListParser implements WebPageParser {
+public class WholesalesportsProductListParser implements WebPageParser {
     private AsyncFetchClient client;
+    private final Logger logger;
 
-    public CtcsuppliesProductListParser(AsyncFetchClient client) {
+    public WholesalesportsProductListParser(AsyncFetchClient client) {
         this.client = client;
+        logger = LoggerFactory.getLogger(this.getClass());
     }
 
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+    @Override
+    public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
+        Future<Set<WebPageEntity>> future = client.get(parent.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
                 if (resp.getStatusCode() == 200) {
-                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    Elements elements = document.select("a.grid-link");
-
+                    Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
+                    Elements elements = document.select(".productItemInfo a");
                     for (Element element : elements) {
-                        if (element.select("span.badge.badge--sold-out").size() != 0) {
-                            continue;
-                        }
                         WebPageEntity webPageEntity = new WebPageEntity();
                         webPageEntity.setUrl(element.attr("abs:href"));
                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setParsed(false);
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productPage");
-                        webPageEntity.setParent(webPage);
-                        logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + webPage.getUrl());
+                        webPageEntity.setParent(parent.getParent());
+                        logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + parent.getUrl());
                         result.add(webPageEntity);
                     }
                 }
                 return result;
             }
         });
-        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
+
     }
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://ctcsupplies.ca/") && webPage.getType().equals("productList");
+        return webPage.getUrl().startsWith("http://www.wholesalesports.com/") && webPage.getType().equals("productList");
     }
 }

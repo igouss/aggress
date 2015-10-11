@@ -21,9 +21,9 @@ import java.util.regex.Pattern;
 
 public class WolverinesuppliesProductListParser implements WebPageParser {
     Logger logger;
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public WolverinesuppliesProductListParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public WolverinesuppliesProductListParser(AsyncFetchClient client) {
         this.client = client;
         logger = LoggerFactory.getLogger(this.getClass());
     }
@@ -57,12 +57,7 @@ public class WolverinesuppliesProductListParser implements WebPageParser {
             }
         });
 
-        Observable<Future<Set<WebPageEntity>>> futureObservable = Observable.from(future).flatMap(Observable::from).map(this::getItemsData);
-        return Observable.create(subscriber -> futureObservable.subscribe(f -> {
-            Observable.from(f).doOnNext(subscriber::onNext).subscribe();
-        }));
-
-
+        return Observable.from(future).flatMap(Observable::from).map(this::getItemsData).flatMap(Observable::from);
     }
 
     private Future<Set<WebPageEntity>> getItemsData(WebPageEntity parent) {

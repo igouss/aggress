@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.marstar;
+package com.naxsoft.parsers.webPageParsers.wholesalesports;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -16,16 +16,16 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class MarstarProductParser implements WebPageParser {
+public class WholesalesportsProductPageParser implements WebPageParser {
     private AsyncFetchClient client;
-
-    public MarstarProductParser(AsyncFetchClient client) {
+    private final Logger logger;
+    public WholesalesportsProductPageParser(AsyncFetchClient client) {
         this.client = client;
+        logger = LoggerFactory.getLogger(this.getClass());
     }
-
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
+
         Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
@@ -33,26 +33,24 @@ public class MarstarProductParser implements WebPageParser {
                 if (resp.getStatusCode() == 200) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(webPage.getUrl());
-                    webPageEntity.setParent(webPage);
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                    webPageEntity.setType("productPageRaw");
                     webPageEntity.setContent(resp.getResponseBody());
-                    webPageEntity.setParent(webPage);
+                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                    webPageEntity.setParsed(false);
                     webPageEntity.setStatusCode(resp.getStatusCode());
+                    webPageEntity.setType("productPageRaw");
+                    webPageEntity.setParent(webPage);
                     result.add(webPageEntity);
                     logger.info("productPageRaw=" + webPageEntity.getUrl());
-                } else {
-                    logger.warn("Failed to open page " + resp.getUri() + " error code: " + resp.getStatusCode());
                 }
                 return result;
             }
         });
+        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
     }
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.marstar.ca/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().startsWith("http://www.wholesalesports.com/") && webPage.getType().equals("productPage");
     }
-
 }

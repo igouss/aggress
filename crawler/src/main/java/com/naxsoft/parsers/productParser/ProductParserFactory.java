@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class ProductParserFactory {
-    private Set<ProductParser> parsers = new HashSet();
+    private final Set<ProductParser> parsers = new HashSet();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public ProductParserFactory() {

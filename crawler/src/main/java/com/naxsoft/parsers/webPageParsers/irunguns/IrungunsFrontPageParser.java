@@ -21,41 +21,39 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class IrungunsFrontPageParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public IrungunsFrontPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public IrungunsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-
-
-            Logger logger = LoggerFactory.getLogger(this.getClass());
-            Future<Set<WebPageEntity>> future = client.get("https://www.irunguns.us/product_categories.php", new AsyncCompletionHandler<Set<WebPageEntity>>() {
-                @Override
-                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    HashSet<WebPageEntity> result = new HashSet<>();
-                    if (resp.getStatusCode() == 200) {
-                        Logger logger = LoggerFactory.getLogger(this.getClass());
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select("#content .widthLimit a");
-                        for (Element e : elements) {
-                            String linkUrl = e.attr("abs:href");
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(linkUrl);
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productPage");
-                            webPageEntity.setParent(webPage);
-                            logger.info("ProductPageUrl=" + linkUrl + ", " + "parseUrl=" + webPage.getUrl());
-                            result.add(webPageEntity);
-                        }
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        Future<Set<WebPageEntity>> future = client.get("https://www.irunguns.us/product_categories.php", new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            @Override
+            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                HashSet<WebPageEntity> result = new HashSet<>();
+                if (resp.getStatusCode() == 200) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass());
+                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                    Elements elements = document.select("#content .widthLimit a");
+                    for (Element e : elements) {
+                        String linkUrl = e.attr("abs:href");
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl(linkUrl);
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setStatusCode(resp.getStatusCode());
+                        webPageEntity.setType("productPage");
+                        webPageEntity.setParent(webPage);
+                        logger.info("ProductPageUrl=" + linkUrl + ", " + "parseUrl=" + webPage.getUrl());
+                        result.add(webPageEntity);
                     }
-                    return result;
                 }
-            });
+                return result;
+            }
+        });
         // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
 

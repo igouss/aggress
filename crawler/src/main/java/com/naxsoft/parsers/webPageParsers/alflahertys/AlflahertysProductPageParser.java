@@ -18,9 +18,9 @@ import java.util.concurrent.Future;
  */
 public class AlflahertysProductPageParser implements WebPageParser {
 
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public AlflahertysProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public AlflahertysProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 

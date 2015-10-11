@@ -20,43 +20,43 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class DantesportsProductPageParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public DantesportsProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public DantesportsProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
         List<Cookie> cookies = new LinkedList<>();
         Logger logger = LoggerFactory.getLogger(this.getClass());
-        try (AsyncFetchClient<List<Cookie>> client = new AsyncFetchClient<>()) {
-            Future<List<Cookie>> future = client.get("https://shop.dantesports.com/set_lang.php?lang=EN", cookies, getEngCookiesHandler(), false);
-            cookies.addAll(future.get());
-        }
+
+        Future<List<Cookie>> future = client.get("https://shop.dantesports.com/set_lang.php?lang=EN", cookies, getEngCookiesHandler(), false);
+        cookies.addAll(future.get());
 
 
-            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), cookies, new AsyncCompletionHandler<Set<WebPageEntity>>() {
-                @Override
-                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    HashSet<WebPageEntity> result = new HashSet<>();
-                    if (resp.getStatusCode() == 200) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(webPage.getUrl());
-                        webPageEntity.setContent(resp.getResponseBody());
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setParsed(false);
-                        webPageEntity.setStatusCode(resp.getStatusCode());
-                        webPageEntity.setType("productPageRaw");
-                        webPageEntity.setParent(webPage);
-                        result.add(webPageEntity);
-                        logger.info("productPageRaw=" + webPageEntity.getUrl());
-                    }
-                    return result;
+        Future<Set<WebPageEntity>> future2 = client.get(webPage.getUrl(), cookies, new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            @Override
+            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                HashSet<WebPageEntity> result = new HashSet<>();
+                if (resp.getStatusCode() == 200) {
+                    WebPageEntity webPageEntity = new WebPageEntity();
+                    webPageEntity.setUrl(webPage.getUrl());
+                    webPageEntity.setContent(resp.getResponseBody());
+                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                    webPageEntity.setParsed(false);
+                    webPageEntity.setStatusCode(resp.getStatusCode());
+                    webPageEntity.setType("productPageRaw");
+                    webPageEntity.setParent(webPage);
+                    result.add(webPageEntity);
+                    logger.info("productPageRaw=" + webPageEntity.getUrl());
                 }
-            });
+                return result;
+            }
+        });
         // return Observable.defer(() -> Observable.just(future.get()));
-        return Observable.defer(() -> Observable.from(future));
+        return Observable.defer(() -> Observable.from(future2));
     }
+
     private AsyncCompletionHandler<List<Cookie>> getEngCookiesHandler() {
         return new AsyncCompletionHandler<List<Cookie>>() {
             @Override

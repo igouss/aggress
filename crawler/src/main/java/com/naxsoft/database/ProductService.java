@@ -27,9 +27,8 @@ public class ProductService {
     }
 
     public void save(Collection<ProductEntity> products) {
-        Session session = this.database.getSessionFactory().openSession();
         Transaction tx = null;
-        try {
+        try (Session session = this.database.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
             int i = 0;
             for (ProductEntity productEntity : products) {
@@ -44,13 +43,12 @@ public class ProductService {
             if (tx != null) {
                 tx.commit();
             }
-        } finally {
-            session.close();
         }
     }
 
     public Observable<ProductEntity> getProducts() {
-        String queryString = "from ProductEntity where indexed=false";
+//        String queryString = "from ProductEntity where indexed=false";
+        String queryString = "from ProductEntity";
         return Observable.defer(() -> new ObservableQuery<ProductEntity>(database).execute(queryString));
     }
 
@@ -73,6 +71,4 @@ public class ProductService {
             session.close();
         }
     }
-
-
 }

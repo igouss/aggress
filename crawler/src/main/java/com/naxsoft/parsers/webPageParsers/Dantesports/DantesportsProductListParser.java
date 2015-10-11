@@ -23,16 +23,14 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class DantesportsProductListParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public DantesportsProductListParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public DantesportsProductListParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-
-
             Logger logger = LoggerFactory.getLogger(this.getClass());
             Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                 @Override

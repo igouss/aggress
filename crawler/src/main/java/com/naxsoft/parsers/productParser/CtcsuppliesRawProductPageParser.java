@@ -1,19 +1,16 @@
 package com.naxsoft.parsers.productParser;
 
-import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,10 +19,15 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class CtcsuppliesRawProductPageParser implements ProductParser {
+    private final Logger logger;
+
+    public CtcsuppliesRawProductPageParser() {
+        logger = LoggerFactory.getLogger(this.getClass());
+    }
+
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet result = new HashSet();
-        Logger logger = LoggerFactory.getLogger(this.getClass());
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select(".product-single h1").text();
         logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());

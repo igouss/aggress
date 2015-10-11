@@ -1,0 +1,95 @@
+{
+  "guns": {
+    "dynamic_templates": [
+      {
+        "en": {
+          "match": "*",
+          "mapping": {
+            "type": "string",
+            "analyzer": "my_analizer",
+            "store": false,
+            "index": "analyzed",
+            "copy_to": [
+              "meta_data",
+              "suggest"
+            ]
+          }
+        }
+      }
+    ],
+    "_meta": {
+      "version": 1,
+      "changelog": [
+        "initial schema"
+      ]
+    },
+    "_ttl": {
+      "enabled": true,
+      "default": "1d"
+    },
+    "_all": {
+      "enabled": true
+    },
+    "_source": {
+      "enabled": true
+    },
+    "numeric_detection": true,
+    "properties": {
+      "url": {
+        "type": "string",
+        "store": false,
+        "index": "not_analyzed"
+      },
+      "modificationDate": {
+        "type": "date",
+        "format": "dateOptionalTime",
+        "index": "not_analyzed"
+      },
+      "productName": {
+        "type": "multi_field",
+        "fields": {
+          "analized": {
+            "type": "string",
+            "store": false,
+            "boost": 2,
+            "analyzer": "my_analizer"
+          },
+          "autocomplete": {
+            "analyzer": "my_autocomplete",
+            "type": "string",
+            "store": false
+          }
+        }
+      },
+      "category": {
+        "type": "string",
+        "store": false,
+        "index": "analyzed",
+        "analyzer": "my_analizer"
+      },
+      "productImage": {
+        "type": "string",
+        "store": false,
+        "index": "not_analyzed"
+      },
+      "regularPrice": {
+        "type": "double",
+        "store": false,
+        "index": "not_analyzed",
+        "ignore_malformed": false
+      },
+      "specialPrice": {
+        "type": "double",
+        "store": false,
+        "index": "not_analyzed",
+        "ignore_malformed": false
+      },
+      "description": {
+        "type": "string",
+        "store": false,
+        "index": "analyzed",
+        "analyzer": "my_analizer"
+      }
+    }
+  }
+}

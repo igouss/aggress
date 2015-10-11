@@ -19,9 +19,9 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 public class WolverinesuppliesProductPageParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public WolverinesuppliesProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public WolverinesuppliesProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 

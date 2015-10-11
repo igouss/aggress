@@ -18,14 +18,13 @@ import java.util.concurrent.Future;
  */
 public class CtcsuppliesProductPageParser implements WebPageParser {
 
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public CtcsuppliesProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public CtcsuppliesProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-
         Logger logger = LoggerFactory.getLogger(this.getClass());
         Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override

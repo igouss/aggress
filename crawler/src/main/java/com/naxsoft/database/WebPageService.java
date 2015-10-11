@@ -31,7 +31,6 @@ public class WebPageService {
         return database.getSessionFactory().openSession();
     }
 
-
     public void save(Collection<WebPageEntity> webPageEntitySet) {
         new Transaction<Boolean>().executeInTransaction(database, session -> {
             int i = 0;
@@ -54,6 +53,12 @@ public class WebPageService {
         });
     }
 
+    /**
+     * Keep producing unparsedCount till it is equals to 0
+     *
+     * @param type Column type to check against
+     * @return row count in type
+     */
     public Observable<Long> getUnparsedCount(String type) {
         return Observable.create(subscriber -> {
             Long rc = 0L;
@@ -71,7 +76,8 @@ public class WebPageService {
                     }
                     return count;
                 });
-            } while (rc != 0L);
+            } while (rc != 0L && !subscriber.isUnsubscribed());
+            subscriber.onCompleted();
         });
     }
 
@@ -106,21 +112,24 @@ public class WebPageService {
     }
 
     private Observable<WebPageEntity> executeQuery(String query, String condColumn) {
-        return Observable.create(subscriber -> getUnparsedCount(condColumn).subscribe(count -> {
-            if (!subscriber.isUnsubscribed()) {
-                observableQuery.execute(query).subscribe(subscriber::onNext);
-            }
-        }, subscriber::onError, subscriber::onCompleted));
+        return Observable.create(subscriber -> {
+            getUnparsedCount(condColumn).subscribe(unparsedCount -> {
+                if (unparsedCount != 0) {
+                    observableQuery.execute(query).subscribe(subscriber::onNext);
+                } else {
+                    subscriber.onCompleted();
+                }
+            });
+        });
     }
 
     class Transaction<R> {
         public R executeInTransaction(Database database, Func1<Session, R> action) {
             Session session = getSession(database);
             org.hibernate.Transaction tx = null;
-            R result = null;
             try {
                 tx = session.beginTransaction();
-                result = action.call(session);
+                R result = action.call(session);
                 session.flush();
                 tx.commit();
                 return result;

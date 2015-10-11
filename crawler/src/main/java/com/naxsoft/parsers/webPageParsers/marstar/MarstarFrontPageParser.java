@@ -21,7 +21,10 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class MarstarFrontPageParser implements WebPageParser {
-    public MarstarFrontPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    private AsyncFetchClient client;
+
+    public MarstarFrontPageParser(AsyncFetchClient client) {
+        this.client = client;
     }
 
     @Override
@@ -29,6 +32,7 @@ public class MarstarFrontPageParser implements WebPageParser {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=1", parent)); // firearms
         webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=3", parent)); // ammo
+        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=81526", parent)); // Firearms
 
         return Observable.just(webPageEntities);
     }

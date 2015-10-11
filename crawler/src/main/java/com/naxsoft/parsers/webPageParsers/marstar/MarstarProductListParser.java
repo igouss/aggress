@@ -22,9 +22,9 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class MarstarProductListParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public MarstarProductListParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public MarstarProductListParser(AsyncFetchClient client) {
         this.client = client;
     }
 
@@ -90,7 +90,6 @@ public class MarstarProductListParser implements WebPageParser {
         });
         // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
-
     }
 
     @Override

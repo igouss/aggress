@@ -1,9 +1,10 @@
-package com.naxsoft.parsers.webPageParsers.ctcsupplies;
+package com.naxsoft.parsers.webPageParsers.crafm;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
+import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,39 +17,42 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class CtcsuppliesProductListParser implements WebPageParser {
-    private AsyncFetchClient client;
+public class CrafmFrontPageParser implements WebPageParser {
+    private final AsyncFetchClient client;
+    private final Logger logger;
 
-    public CtcsuppliesProductListParser(AsyncFetchClient client) {
+    public CrafmFrontPageParser(AsyncFetchClient client) {
         this.client = client;
+        logger = LoggerFactory.getLogger(this.getClass());
     }
 
+    @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+
+        Future<Set<WebPageEntity>> future = client.get("http://www.crafm.com/firearms.html?limit=all", new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
                 if (resp.getStatusCode() == 200) {
+                    Logger logger = LoggerFactory.getLogger(this.getClass());
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    Elements elements = document.select("a.grid-link");
-
-                    for (Element element : elements) {
-                        if (element.select("span.badge.badge--sold-out").size() != 0) {
-                            continue;
-                        }
+                    Elements elements = document.select(".products-grid .item > a");
+                    for (Element e : elements) {
+                        String linkUrl = e.attr("abs:href");
                         WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(element.attr("abs:href"));
+                        webPageEntity.setUrl(linkUrl);
                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setParsed(false);
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productPage");
                         webPageEntity.setParent(webPage);
-                        logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + webPage.getUrl());
+                        logger.info("ProductPageUrl=" + linkUrl + ", " + "parseUrl=" + webPage.getUrl());
                         result.add(webPageEntity);
                     }
                 }
@@ -59,7 +63,8 @@ public class CtcsuppliesProductListParser implements WebPageParser {
         return Observable.defer(() -> Observable.from(future));
     }
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://ctcsupplies.ca/") && webPage.getType().equals("productList");
+        return webPage.getUrl().equals("http://www.crafm.com/") && webPage.getType().equals("frontPage");
     }
 }

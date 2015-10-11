@@ -1,22 +1,16 @@
 package com.naxsoft.parsers.productParser;
 
-import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.text.NumberFormat;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,9 +18,9 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class AlflahertysRawPageParser implements ProductParser {
-    Logger logger;
-    public AlflahertysRawPageParser() {
+public class WholesalesportsProductRawPageParser implements ProductParser {
+    private final Logger logger;
+    public WholesalesportsProductRawPageParser() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
 
@@ -35,38 +29,30 @@ public class AlflahertysRawPageParser implements ProductParser {
         HashSet<ProductEntity> result = new HashSet<>();
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-        String productName = document.select(".product_name").text();
+        String productName = document.select("h1.product-name").text();
         logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
 
-        if(!document.select(".product_section .sold_out").text().equals("Sold Out")) {
             ProductEntity product = new ProductEntity();
             XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
             jsonBuilder.startObject();
             jsonBuilder.field("url", webPageEntity.getUrl());
             jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
             jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select("meta[property=og:image]").attr("content"));
+            jsonBuilder.field("productImage", document.select(".productImagePrimaryLink img").attr("abs:src"));
+            jsonBuilder.field("manufacturer", document.select(".product-brand").text());
 
-            if (document.select(".product_section .was_price").text().equals("")) {
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .current_price").text()));
+            if (document.select(".new .price-value").size() == 0) {
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".current .price-value").text()));
             } else {
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .was_price").text()));
-                jsonBuilder.field("specialPrice", parsePrice(document.select(".product_section-secondary .price-current_price").text()));
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".old .price-value").text()));
+                jsonBuilder.field("specialPrice", parsePrice(document.select(".new .price-value").text()));
             }
-            jsonBuilder.field("description", document.select(".product_section .description").text());
-            Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
-            Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
-            while(labels.hasNext()) {
-                String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_'));
-                String specValue = values.next().text();
-                jsonBuilder.field(specName, specValue);
-            }
+            jsonBuilder.field("description", document.select(".summary").text());
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());
             product.setWebpageId(webPageEntity.getId());
             result.add(product);
-        }
         return result;
     }
 
@@ -81,6 +67,6 @@ public class AlflahertysRawPageParser implements ProductParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().startsWith("http://www.wholesalesports.com/") && webPage.getType().equals("productPageRaw");
     }
 }

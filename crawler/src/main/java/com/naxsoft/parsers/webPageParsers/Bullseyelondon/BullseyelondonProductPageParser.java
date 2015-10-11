@@ -14,9 +14,9 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 public class BullseyelondonProductPageParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public BullseyelondonProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public BullseyelondonProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 

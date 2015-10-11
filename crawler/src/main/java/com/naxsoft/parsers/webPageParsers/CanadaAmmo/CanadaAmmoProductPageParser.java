@@ -17,9 +17,9 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class CanadaAmmoProductPageParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public CanadaAmmoProductPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public CanadaAmmoProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 

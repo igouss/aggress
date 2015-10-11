@@ -47,19 +47,12 @@ public class Aggress {
         Database db = null;
 
         logger = LoggerFactory.getLogger(Aggress.class);
-        try (AsyncFetchClient<Set<WebPageEntity>> asyncFetchClient = new AsyncFetchClient<>();) {
+        try (AsyncFetchClient asyncFetchClient = new AsyncFetchClient()) {
             webPageParserFactory = new WebPageParserFactory(asyncFetchClient);
             try {
 
                 logger.info("Elastic initialization complete");
                 elastic = new Elastic();
-                Client client = elastic.getClient();
-                SearchResponse searchResponse = client.prepareSearch()
-                        .setQuery(matchAllQuery())
-                        .setFrom(0).setSize(2).setExplain(true)
-                        .execute()
-                        .actionGet();
-                System.out.println(searchResponse);
 
                 try {
                     db = new Database();
@@ -77,8 +70,10 @@ public class Aggress {
                 sourceService = new SourceService(db);
 
                 String indexSuffix = "";//"-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-                System.out.println(elastic.createIndex("product", "guns", indexSuffix));
-                populateRoots();
+                elastic.createIndex(asyncFetchClient, "product", "guns", indexSuffix).subscribe();
+                elastic.createMapping(asyncFetchClient, "product", "guns", indexSuffix).subscribe();
+
+//                populateRoots();
 
 //            webPageService.getUnparsedFrontPage().
 //                    map(Aggress::parseObservableHelper).
@@ -100,11 +95,9 @@ public class Aggress {
 
                 logger.info("Parsing complete");
             } catch (Exception e) {
-
                 logger.error("Failed to initialize elastic", e);
                 if (null != elastic) {
                     elastic.close();
-                    return;
                 }
             }
 
@@ -176,19 +169,20 @@ public class Aggress {
     }
 
     private static void process(Observable<WebPageEntity> parents) {
-        parents.doOnCompleted(webPageService::deDup);
+//        parents.doOnCompleted(webPageService::deDup);
         parents.subscribe(parent -> {
             try {
-                WebPageParser e = webPageParserFactory.getParser(parent);
-                e.parse(parent).subscribe((webPageEntitySet) -> {
-                    webPageService.save(webPageEntitySet);
-                    webPageService.markParsed(parent);
-                }, throwable -> {
-                    logger.error("Failed to save web-page" + parent.getUrl(), e);
-                });
+                WebPageParser parser = webPageParserFactory.getParser(parent);
+                Observable<Set<WebPageEntity>> parsed = parser.parse(parent);
+                webPageService.markParsed(parent);
 
-            } catch (Exception e1) {
-                logger.error("Failed to process source " + parent.getUrl(), e1);
+                parsed.subscribe((webPageEntitySet) -> {
+                    webPageService.save(webPageEntitySet);
+                }, e -> {
+                    logger.error("Failed to save web-page " + parent.getUrl(), e);
+                });
+            } catch (Exception e) {
+                logger.error("Failed to process source " + parent.getUrl(), e);
             }
         });
 

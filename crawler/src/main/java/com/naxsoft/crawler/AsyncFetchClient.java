@@ -19,7 +19,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Copyright NAXSoft 2015
  */
-public class AsyncFetchClient<T> implements AutoCloseable, Cloneable {
+public class AsyncFetchClient implements AutoCloseable, Cloneable {
+    public static final int REQUEST_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60);
     private final Logger logger;
     AsyncHttpClient asyncHttpClient;
 
@@ -28,30 +29,31 @@ public class AsyncFetchClient<T> implements AutoCloseable, Cloneable {
         logger = LoggerFactory.getLogger(getClass());
     }
 
-    public Future<T> get(String url, AsyncHandler<T> handler)  {
+    public <R> Future<R> get(String url, AsyncHandler<R> handler)  {
         return get(url, Collections.<Cookie> emptyList(), handler);
     }
 
-    public Future<T> get(String url, Collection<Cookie> cookies, AsyncHandler<T> handler)  {
+    public <R> Future<R> get(String url, Collection<Cookie> cookies, AsyncHandler<R> handler)  {
         return get(url, cookies, handler, true);
     }
 
-    public Future<T> get(String url, Collection<Cookie> cookies, AsyncHandler<T> handler, boolean followRedirect)  {
-        logger.trace("Starting async http request url = " + url);
+    public <R> Future<R> get(String url, Collection<Cookie> cookies, AsyncHandler<R> handler, boolean followRedirect)  {
+        logger.trace("Starting async http GET request url = " + url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
-        requestBuilder.setRequestTimeout((int) TimeUnit.SECONDS.toMillis(60));
+        requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirects(followRedirect);
         return requestBuilder.execute(handler);
     }
 
-    public Future<T> post(String url, String content, AsyncHandler<T> handler) throws ExecutionException, InterruptedException {
+    public <T> Future<T> post(String url, String content, AsyncHandler<T> handler) {
         return post(url, content, Collections.<Cookie>emptyList(), handler);
     }
 
-    public ListenableFuture<T> post(String url, String content, Collection<Cookie> cookies, AsyncHandler<T> handler) {
+    public <T> ListenableFuture<T> post(String url, String content, Collection<Cookie> cookies, AsyncHandler<T> handler) {
+        logger.trace("Starting async http POST request url = " + url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
-        requestBuilder.setRequestTimeout((int) TimeUnit.SECONDS.toMillis(60));
+        requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
         requestBuilder.setBody(content);
         requestBuilder.setFollowRedirects(true);
@@ -59,13 +61,14 @@ public class AsyncFetchClient<T> implements AutoCloseable, Cloneable {
 
         return requestBuilder.execute(handler);
     }
-    public ListenableFuture<T> post(String url, Map<String, String> formParamaters, Collection<Cookie> cookies, AsyncHandler<T> handler) {
+    public <T> ListenableFuture<T> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AsyncHandler<T> handler) {
+        logger.trace("Starting async http POST request url = " + url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
-        requestBuilder.setRequestTimeout((int) TimeUnit.SECONDS.toMillis(60));
+        requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirects(true);
 
-        Set<Map.Entry<String, String>> entries = formParamaters.entrySet();
+        Set<Map.Entry<String, String>> entries = formParameters.entrySet();
         for(Map.Entry<String, String> e : entries) {
             requestBuilder.addFormParam(e.getKey(), e.getValue());
         }

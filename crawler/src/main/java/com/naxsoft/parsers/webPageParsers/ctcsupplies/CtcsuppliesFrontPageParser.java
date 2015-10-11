@@ -22,16 +22,15 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class CtcsuppliesFrontPageParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public CtcsuppliesFrontPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public CtcsuppliesFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
         Future<Set<WebPageEntity>> future = client.get("http://ctcsupplies.ca/collections/all", new Handler(parent));
-        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
     }
 

@@ -22,9 +22,9 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class AlflahertysFrontPageParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public AlflahertysFrontPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public AlflahertysFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 

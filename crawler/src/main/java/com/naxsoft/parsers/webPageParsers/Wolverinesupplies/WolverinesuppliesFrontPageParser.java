@@ -18,15 +18,13 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 public class WolverinesuppliesFrontPageParser implements WebPageParser {
-    private AsyncFetchClient<Set<WebPageEntity>> client;
+    private AsyncFetchClient client;
 
-    public WolverinesuppliesFrontPageParser(AsyncFetchClient<Set<WebPageEntity>> client) {
+    public WolverinesuppliesFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-
-
             Logger logger = LoggerFactory.getLogger(this.getClass());
             Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                 @Override
@@ -54,7 +52,6 @@ public class WolverinesuppliesFrontPageParser implements WebPageParser {
                     return result;
                 }
             });
-        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
     }
 

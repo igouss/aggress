@@ -5,15 +5,16 @@
 
 package com.naxsoft.database;
 
-import com.google.gson.Gson;
 import com.naxsoft.crawler.AsyncFetchClient;
-import com.naxsoft.crawler.FetchClient;
+import com.naxsoft.crawler.ObservableAsyncClient;
 import com.naxsoft.entity.ProductEntity;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.apache.commons.io.IOUtils;
+import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
@@ -68,11 +69,8 @@ public class Elastic implements AutoCloseable, Cloneable {
 
 
     public void index(Observable<ProductEntity> products, String index, String type) {
-        BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
-
-
-        products.toList().subscribe(list -> {
-            int i = 0;
+        products.buffer(200).map(list -> {
+            BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
             for (ProductEntity p : list) {
                 try {
                     XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
@@ -81,59 +79,61 @@ public class Elastic implements AutoCloseable, Cloneable {
                     request.setSource(p.getJson());
                     request.setOpType(IndexRequest.OpType.INDEX);
                     bulkRequestBuilder.add(request);
-                    if ((++i % 200) == 0) {
-                        BulkResponse bulkResponse = bulkRequestBuilder.execute().actionGet();
-                        if (bulkResponse.hasFailures()) {
-                            this.logger.error("Failed to index products:" + bulkResponse.buildFailureMessage());
-                        } else {
-                            this.logger.info("Successfully indexed " + bulkResponse.getItems().length + " in " + bulkResponse.getTookInMillis() + "ms");
-                        }
-                    }
                 } catch (IOException e) {
                     logger.error("Failed to create JSON generator");
                 }
             }
-            if (bulkRequestBuilder.numberOfActions() != 0) {
-                BulkResponse bulkResponse = bulkRequestBuilder.execute().actionGet();
-                if (bulkResponse.hasFailures()) {
-                    this.logger.error("Failed to index products:" + bulkResponse.buildFailureMessage());
-                } else {
-                    this.logger.info("Successfully indexed " + bulkResponse.getItems().length + " in " + bulkResponse.getTookInMillis() + "ms");
-                }
+            return bulkRequestBuilder.execute();
+        }).flatMap(Observable::from).subscribe(bulkResponse -> {
+            if (bulkResponse.hasFailures()) {
+                this.logger.error("Failed to index products:" + bulkResponse.buildFailureMessage());
+            } else {
+                this.logger.info("Successfully indexed " + bulkResponse.getItems().length + " in " + bulkResponse.getTookInMillis() + "ms");
             }
         });
-
     }
 
-    public String getIndex(String index, String type) throws IOException {
-        FetchClient fetchClient = new FetchClient();
-        return fetchClient.get("http://127.0.0.1:9200/" + index + "/" + type + "/_mapping?pretty=true").body();
-    }
-
-    public Integer createIndex(String index, String type, String indexSuffix) throws IOException, ExecutionException, InterruptedException {
+    public Observable<Integer> createIndex(AsyncFetchClient client, String index, String type, String indexSuffix) throws IOException, ExecutionException, InterruptedException {
         String resourceName = "/elastic." + index + "." + type + ".index.json";
         String newIndexName = index + indexSuffix;
         logger.info("Creating index " + newIndexName + " type " + type + " from " + resourceName);
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         String indexContent = IOUtils.toString(resourceAsStream);
-
-
         String url = "http://127.0.0.1:9200/" + newIndexName;
-
-        AsyncFetchClient<Integer> client = new AsyncFetchClient<>();
-        Future<Integer> result = client.post(url, indexContent, new AsyncCompletionHandler<Integer>() {
+        return Observable.from(client.post(url, indexContent, new AsyncCompletionHandler<Integer>() {
             @Override
             public Integer onCompleted(Response response) throws Exception {
                 int statusCode = response.getStatusCode();
                 if (statusCode != 200) {
                     logger.error("Error creating index: " + response.getResponseBody());
                 }
-
                 return statusCode;
             }
-        });
-        Integer rc = result.get();
-        client.close();
-        return rc;
+        }));
+    }
+
+    public Observable<Integer> createMapping(AsyncFetchClient client, String index, String type, String indexSuffix) throws IOException, ExecutionException, InterruptedException {
+        String resourceName = "/elastic." + index + "." + type + ".mapping.json";
+        String newIndexName = index + indexSuffix;
+        logger.info("Creating mapping for index " + newIndexName + " type " + type + " from " + resourceName);
+        InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
+        String indexContent = IOUtils.toString(resourceAsStream);
+        String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
+        return Observable.from(client.post(url, indexContent, new AsyncCompletionHandler<Integer>() {
+            @Override
+            public Integer onCompleted(Response response) throws Exception {
+                int statusCode = response.getStatusCode();
+                if (statusCode != 200) {
+                    logger.error("Error creating mapping: " + response.getResponseBody());
+                }
+                return statusCode;
+            }
+        }));
+    }
+
+
+    public ListenableActionFuture<IndicesAliasesResponse> updateAlias(String index, String newAlias, String oldAlias) {
+        return client.admin().indices().prepareAliases().addAlias(index, newAlias).removeAlias(index, oldAlias).execute();
     }
 }
+
