@@ -50,6 +50,13 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
+test {
+    testLogging.showStandardStreams = true;
+    testLogging.showStackTraces = true;
+    testLogging.showCauses = true;
+    testLogging.showExceptions = true;
+}
+
 task copyLibs(type: Copy, dependsOn: clean) {
     into "build"
     from configurations.compile
