@@ -6,7 +6,7 @@
           "match": "*",
           "mapping": {
             "type": "string",
-            "analyzer": "my_analizer",
+            "analyzer": "my_analyzer",
             "store": false,
             "index": "analyzed",
             "copy_to": [
@@ -43,29 +43,25 @@
       "modificationDate": {
         "type": "date",
         "format": "dateOptionalTime",
+        "store": false,
         "index": "not_analyzed"
       },
       "productName": {
-        "type": "multi_field",
-        "fields": {
-          "analized": {
-            "type": "string",
-            "store": false,
-            "boost": 2,
-            "analyzer": "my_analizer"
-          },
-          "autocomplete": {
-            "analyzer": "my_autocomplete",
-            "type": "string",
-            "store": false
-          }
-        }
+        "boost": 2,
+        "type": "string",
+        "analyzer": "my_analyzer",
+        "store": false,
+        "index": "analyzed",
+        "copy_to": [
+          "meta_data",
+          "suggest"
+        ]
       },
       "category": {
         "type": "string",
         "store": false,
         "index": "analyzed",
-        "analyzer": "my_analizer"
+        "analyzer": "my_analyzer"
       },
       "productImage": {
         "type": "string",
@@ -88,7 +84,7 @@
         "type": "string",
         "store": false,
         "index": "analyzed",
-        "analyzer": "my_analizer"
+        "analyzer": "my_analyzer"
       }
     }
   }

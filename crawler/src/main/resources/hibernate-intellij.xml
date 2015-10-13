@@ -7,6 +7,8 @@
         <property name="hibernate.connection.provider_class">org.hibernate.connection.DriverManagerConnectionProvider</property>
         <property name="connection.url">jdbc:postgresql://localhost:5432/aggress</property>
         <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.connection.username">postgres</property>
+        <property name="hibernate.connection.password">postgres</property>
 
         <mapping class="com.naxsoft.entity.SourceEntity"/>
         <mapping class="com.naxsoft.entity.WebPageEntity"/>

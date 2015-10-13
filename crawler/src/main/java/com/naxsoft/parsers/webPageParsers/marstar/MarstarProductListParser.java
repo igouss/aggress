@@ -88,7 +88,6 @@ public class MarstarProductListParser implements WebPageParser {
                 return webPageEntity;
             }
         });
-        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
     }
 

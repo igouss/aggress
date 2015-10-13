@@ -1,6 +1,2 @@
 rootProject.name = 'sprut'
-include 'common'
-include 'web'
-include 'crawler'
-include 'frontend'
-
+include 'common', 'crawler', 'frontend'

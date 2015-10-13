@@ -6,7 +6,7 @@
     },
     "analysis": {
       "analyzer": {
-        "my_analizer": {
+        "my_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
           "filter": [

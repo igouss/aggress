@@ -106,6 +106,8 @@ public class Elastic implements AutoCloseable, Cloneable {
                 int statusCode = response.getStatusCode();
                 if (statusCode != 200) {
                     logger.error("Error creating index: " + response.getResponseBody());
+                } else {
+                    logger.info("Created index: " + response.getResponseBody());
                 }
                 return statusCode;
             }
@@ -125,6 +127,8 @@ public class Elastic implements AutoCloseable, Cloneable {
                 int statusCode = response.getStatusCode();
                 if (statusCode != 200) {
                     logger.error("Error creating mapping: " + response.getResponseBody());
+                } else {
+                    logger.info("Created mapping: " + response.getResponseBody());
                 }
                 return statusCode;
             }

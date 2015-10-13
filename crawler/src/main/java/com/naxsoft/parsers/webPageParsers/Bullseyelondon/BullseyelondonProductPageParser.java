@@ -43,7 +43,6 @@ public class BullseyelondonProductPageParser implements WebPageParser {
                     return result;
                 }
             });
-        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
     }
 

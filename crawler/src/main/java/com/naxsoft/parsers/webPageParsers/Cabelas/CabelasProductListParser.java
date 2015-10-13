@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.cabelas;
+package com.naxsoft.parsers.webPageParsers.Cabelas;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -44,7 +44,6 @@ public class CabelasProductListParser implements WebPageParser {
                 return result;
             }
         });
-        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.from(future).map(documents -> {
             HashSet<WebPageEntity> result = new HashSet<>();
             for (Document document : documents) {
@@ -79,105 +78,13 @@ public class CabelasProductListParser implements WebPageParser {
                     Elements subPages = document.select("#categories > ul > li > a");
                     for (Element element : subPages) {
                         WebPageEntity subCategoryPage = getProductList(webPage, 200, element.attr("abs:href"));
-                        //subCategoryPage.setContent(document.html());
                         result.add(subCategoryPage);
                     }
                 }
             }
             return result;
         });
-//        .map(webPageEntities -> {
-//            HashSet<WebPageEntity> result = new HashSet<>();
-//            for (WebPageEntity webPageEntity : webPageEntities) {
-//                if (webPageEntity.getType().equals("productPage")) {
-//                    result.add(webPageEntity);
-//                } else {
-//                    try {
-//                        parse(webPageEntity).map(result::addAll).subscribe();
-//                    } catch (Exception e) {
-//                        logger.error("Failed to parse", e);
-//                    }
-//                }
-//            }
-//            return result;
-//        });
-
-
-//            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-//                @Override
-//                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-//                    HashSet<WebPageEntity> result = new HashSet<>();
-//                    if (resp.getStatusCode() == 200) {
-//                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-//                        Elements subpages = document.select("#main > div > section > section:nth-child(1) h6 a");
-//                        for (Element subpage : subpages) {
-//                            result.add(productPage(webPage.getParent(), resp.getStatusCode(), subpage.attr("abs:href")));
-//                        }
-//                    }
-//                    return result;
-//                }
-//            });
-//        // return Observable.defer(() -> Observable.just(future.get()));
-//        return Observable.defer(() -> Observable.from(future));
     }
-
-//    private Observable<Set<WebPageEntity>> getProductListPages(final WebPageEntity root, final WebPageEntity parent) {
-//        return Observable.defer(() -> Observable.from(client.get(parent.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-//            @Override
-//            public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
-//                HashSet<WebPageEntity> result = new HashSet<>();
-//                if (resp.getStatusCode() == 200) {
-//                    Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-//                    if (!isTerminalSubcategory(document)) {
-//                        Elements subPages = document.select("#categories > ul > li > a");
-//                        for (Element element : subPages) {
-//                            WebPageEntity productPage = getProductList(root, resp.getStatusCode(), element.attr("abs:href"));
-//                            productPage.setContent(resp.getResponseBody());
-//                            result.add(productPage);
-//                        }
-//                    } else {
-//                        parent.setContent(resp.getResponseBody());
-//                        parent.setParent(root);
-//                        result.add(parent);
-//                    }
-//                }
-//                return result;
-//            }
-//        }))).flatMap(set -> Observable.from(set).map(webPageEntity -> {
-//            HashSet<WebPageEntity> result = new HashSet<>();
-//            if (isTerminalSubcategory(Jsoup.parse(webPageEntity.getContent()))) {
-//                result.add(webPageEntity);
-//            } else {
-//                getProductListPages(root, webPageEntity).subscribe(pageSet ->
-//                                result.addAll(pageSet)
-//                );
-//            }
-//            return result;
-//        })).flatMap(set -> Observable.from(set).map(webPageEntity -> {
-//            Document document = Jsoup.parse(webPageEntity.getContent());
-//            Elements subpages = document.select("#main footer > nav span, #main footer > nav a");
-//            HashSet<WebPageEntity> result = new HashSet<>();
-//            if (subpages.size() != 0) {
-//                int max = 1;
-//                for (Element subpage : subpages) {
-//                    try {
-//                        int page = Integer.parseInt(subpage.text());
-//                        if (page > max) {
-//                            max = page;
-//                        }
-//                    } catch (Exception e) {
-//                        // ignore
-//                    }
-//                }
-//                for (int i= 1; i <= max; i++) {
-//                    result.add(getProductList(webPageEntity, 200, webPageEntity.getUrl() + "?pagenumber=" + i));
-//                }
-//            } else {
-//                result.add(getProductList(webPageEntity, 200, webPageEntity.getUrl()));
-//            }
-//            return result;
-//        }));
-//    }
 
     private WebPageEntity getProductList(WebPageEntity parent, int statusCode, String url) {
         WebPageEntity webPageEntity = new WebPageEntity();

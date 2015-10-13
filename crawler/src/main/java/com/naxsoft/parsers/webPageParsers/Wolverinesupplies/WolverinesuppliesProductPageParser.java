@@ -3,7 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
+package com.naxsoft.parsers.webPageParsers.Wolverinesupplies;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -47,7 +47,6 @@ public class WolverinesuppliesProductPageParser implements WebPageParser {
                     return result;
                 }
             });
-        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
     }
 

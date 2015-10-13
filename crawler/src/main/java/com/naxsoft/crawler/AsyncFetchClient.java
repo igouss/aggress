@@ -43,6 +43,7 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirects(followRedirect);
+
         return requestBuilder.execute(handler);
     }
 

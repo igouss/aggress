@@ -1,16 +1,22 @@
 group 'com.naxsoft'
 version '1.0-SNAPSHOT'
-
 apply plugin: 'java'
-
-sourceCompatibility=1.8
-targetCompatibility=1.8
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     compile project (":crawler")
     compile project (":frontend")
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.7'
+}
+
+allprojects {
+    group = 'com.naxsoft'
+    version '1.0-SNAPSHOT'
+    sourceCompatibility = 1.8
+    repositories {
+        maven {
+            url  "http://jcenter.bintray.com"
+        }
+    }
 }

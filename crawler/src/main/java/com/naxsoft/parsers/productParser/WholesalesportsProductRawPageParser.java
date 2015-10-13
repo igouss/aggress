@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
  */
 public class WholesalesportsProductRawPageParser implements ProductParser {
     private final Logger logger;
+
     public WholesalesportsProductRawPageParser() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
@@ -32,27 +33,31 @@ public class WholesalesportsProductRawPageParser implements ProductParser {
         String productName = document.select("h1.product-name").text();
         logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
 
-            ProductEntity product = new ProductEntity();
-            XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select(".productImagePrimaryLink img").attr("abs:src"));
-            jsonBuilder.field("manufacturer", document.select(".product-brand").text());
+        if (document.select("div.alert.negative").size() == 2) {
+            return result;
+        }
 
-            if (document.select(".new .price-value").size() == 0) {
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".current .price-value").text()));
-            } else {
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".old .price-value").text()));
-                jsonBuilder.field("specialPrice", parsePrice(document.select(".new .price-value").text()));
-            }
-            jsonBuilder.field("description", document.select(".summary").text());
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
-            product.setWebpageId(webPageEntity.getId());
-            result.add(product);
+        ProductEntity product = new ProductEntity();
+        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
+        jsonBuilder.startObject();
+        jsonBuilder.field("url", webPageEntity.getUrl());
+        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+        jsonBuilder.field("productName", productName);
+        jsonBuilder.field("productImage", document.select(".productImagePrimaryLink img").attr("abs:src"));
+        jsonBuilder.field("manufacturer", document.select(".product-brand").text());
+
+        if (document.select(".new .price-value").size() == 0) {
+            jsonBuilder.field("regularPrice", parsePrice(document.select(".current .price-value").text()));
+        } else {
+            jsonBuilder.field("regularPrice", parsePrice(document.select(".old .price-value").text()));
+            jsonBuilder.field("specialPrice", parsePrice(document.select(".new .price-value").text()));
+        }
+        jsonBuilder.field("description", document.select(".summary").text());
+        jsonBuilder.endObject();
+        product.setUrl(webPageEntity.getUrl());
+        product.setJson(jsonBuilder.string());
+        product.setWebpageId(webPageEntity.getId());
+        result.add(product);
         return result;
     }
 

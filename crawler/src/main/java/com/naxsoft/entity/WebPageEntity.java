@@ -148,7 +148,7 @@ public class WebPageEntity {
     public String toString() {
         return "WebPageEntity{" +
                 "parsed = '" + parsed + '\'' +
-                ", type =" + type +
+                ", type = " + type +
                 ", url = '" + url + '\'' +
                 '}';
     }

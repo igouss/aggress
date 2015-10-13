@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.dantesports;
+package com.naxsoft.parsers.webPageParsers.Dantesports;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -61,7 +61,6 @@ public class DantesportsProductListParser implements WebPageParser {
                     return result;
                 }
             });
-        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
 
     }

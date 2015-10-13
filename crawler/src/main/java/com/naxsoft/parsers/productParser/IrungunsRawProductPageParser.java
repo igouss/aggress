@@ -45,13 +45,31 @@ public class IrungunsRawProductPageParser implements ProductParser {
         }
 
         String productName = document.select("div.innercontentDiv > div > div > h2").text();
+
+        if (productName.isEmpty()) {
+            return products;
+        }
+
         logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
         jsonBuilder.field("productName",productName);
-        jsonBuilder.field("manufacturer", document.select(".product-details__title .product__manufacturer").text());
-        jsonBuilder.field("productImage", document.select("div.imgLiquidNoFill a").attr("abs:src"));
+        String manufacturer = document.select(".product-details__title .product__manufacturer").text();
+        if (!manufacturer.isEmpty()) {
+            jsonBuilder.field("manufacturer", manufacturer);
+        }
+        String productImage = document.select("div.imgLiquidNoFill a").attr("abs:src");
+        if (productImage.isEmpty()) {
+            productImage = document.select(".es-carousel img").attr("abs:src");;
+        }
+        jsonBuilder.field("productImage", productImage);
         jsonBuilder.field("regularPrice", parsePrice(document.select("#desPrice > li:nth-child(1) > span.pricetag.show").text()));
-        jsonBuilder.field("specialPrice", parsePrice(document.select("#desPrice > li:nth-child(2) > span.pricetag.show").text()));
-        jsonBuilder.field("description", document.select("#TabbedPanels1 > div > div:nth-child(1)").text());
+        String specialPrice = document.select("#desPrice > li:nth-child(2) > span.pricetag.show").text();
+        if (!specialPrice.isEmpty()) {
+            jsonBuilder.field("specialPrice", parsePrice(specialPrice));
+        }
+        String description = document.select("#TabbedPanels1 > div > div:nth-child(1)").text();
+        if (!description.isEmpty()) {
+            jsonBuilder.field("description", description);
+        }
         Iterator<Element> labels = document.select("table.productTbl > tbody > tr > td:nth-child(1)").iterator();
         Iterator<Element> values = document.select("table.productTbl > tbody > tr > td:nth-child(2)").iterator();
 
@@ -70,7 +88,7 @@ public class IrungunsRawProductPageParser implements ProductParser {
     }
 
     private String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        Matcher matcher = Pattern.compile("((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             try {
                 return matcher.group(1).replace(",","");

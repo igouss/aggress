@@ -31,7 +31,6 @@ public class AlflahertysFrontPageParser implements WebPageParser {
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
         Future<Set<WebPageEntity>> future = client.get("http://www.alflahertys.com/collections/all/", new Handler(parent));
-        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
     }
 

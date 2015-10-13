@@ -1,80 +1,80 @@
-<!DOCTYPE html>
-<html lang="en-us">
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <title>Aggress</title>
     <meta charset="UTF-8"/>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.css"/>
-    <title>Agress</title>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico" />
 </head>
-<body>
 
-<div class="container">
-    <div class="starter-template">
-        <h1>Canadian Gun & Ammo Search</h1>
-        <div class="row">
-            <div class="col-sm-12 col-md-12 col-lg-12">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search for...">
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" id="searchBtn" type="button">Go!</button>
-                    </span>
+
+<body>
+    <div class="container">
+        <div class="starter-template">
+            <h1>Canadian Gun &amp; Ammo Search</h1>
+
+            <div class="row">
+                <div class="col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for..."/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" id="searchBtn" type="button">Go!</button>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="media row" id="searchResults">
+        </div>
     </div>
-    <div class="media row" id="searchResults">
-    </div>
-</div><!-- /.container -->
-
-<div>
-    <ul>
-        <li>
-            <a href="http://localhost:9200/_plugin/HQ/">HQ</a>
-            <a href="http://localhost:9200/_plugin/kopf">kopf</a>
-            <a href="http://localhost:9200/_plugin/head">head</a>
-            <a href="http://localhost:9200/_plugin/inquisitor">inquisitor</a>
-            <a href="http://localhost:9200/_plugin/segmentspy">segmentspy</a>
-            <a href="http://localhost:9200/_plugin/paramedic">paramedic</a>
-            <a href="http://localhost:9200/_plugin/bigdesk">bigdesk</a>
-            <a href="http://localhost:9200/_plugin/whatson">whatson</a>
-            <a href="http://localhost:9200/_plugin/elastic-hammer">elastic-hammer</a>
-        </li>
-    </ul>
-</div>
-
-
-<div id="navigation">
-</div>
-
-<script src="js/require.js" data-main="js/require-setup.js"></script>
-<script src="js/application.js"></script>
-<script id="navTemplate" type="text/x-tmpl-mustache">
-    <nav>
-        <ul class="pager">
-            <li><a id="prev" href="#">Previous</a></li>
-            <li><a id="next" href="#">Next</a></li>
+    <div>
+        <ul>
+            <li>
+                <a href="http://localhost:9200/_plugin/HQ/">HQ</a>
+                <a href="http://localhost:9200/_plugin/kopf">kopf</a>
+                <a href="http://localhost:9200/_plugin/head">head</a>
+                <a href="http://localhost:9200/_plugin/inquisitor">inquisitor</a>
+                <a href="http://localhost:9200/_plugin/segmentspy">segmentspy</a>
+                <a href="http://localhost:9200/_plugin/paramedic">paramedic</a>
+                <a href="http://localhost:9200/_plugin/bigdesk">bigdesk</a>
+                <a href="http://localhost:9200/_plugin/whatson">whatson</a>
+                <a href="http://localhost:9200/_plugin/elastic-hammer">elastic-hammer</a>
+            </li>
         </ul>
-    </nav>
-</script>
-<script id="itemTemplate" type="text/x-tmpl-mustache">
-<div class="renderedItem">
-  <div class="media-left">
-    <a href="{{url}}">
-      <img class="media-object"  src="{{productImage}}" alt="{{productName}}"  height="128" width="128">
-    </a>
-  </div>
-  <div class="media-body">
-    <h4 class="media-heading">{{productName}}</h4>
-    <table class="table">
-        <tbody>
-        </tbody>
-    </table>
-    <p><a href="{{url}}" class="btn btn-primary " role="button">Visit</a></p>
-  </div>
-</div>
-</script>
+    </div>
+    <div id="navigation">
+    </div>
+
+    <script src="js/require.js" data-main="js/require-setup.js"></script>
+    <script src="js/application.js"></script>
+    <script id="navTemplate" type="text/x-tmpl-mustache">
+        <nav>
+            <ul class="pager">
+                <li><a id="prev" href="#">Previous</a></li>
+                <li><a id="next" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </script>
+    <script id="itemTemplate" type="text/x-tmpl-mustache">
+        <div class="renderedItem">
+          <div class="media-left">
+            <a href="{{url}}">
+              <img class="media-object"  src="{{productImage}}" alt="{{productName}}"  height="128" width="128"/>
+            </a>
+          </div>
+          <div class="media-body">
+            <h4 class="media-heading">{{productName}}</h4>
+            <table class="table">
+                <tbody>
+                </tbody>
+            </table>
+            <p><a href="{{url}}" class="btn btn-primary " role="button">Visit</a><a href="https://www.youtube.com/results?search_query={{productName}}" class="btn btn-primary " role="button">Youtube</a></p>
+          </div>
+        </div>
+    </script>
 </body>
 </html>

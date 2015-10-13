@@ -1,53 +1,14 @@
-group 'com.naxsoft'
-version '1.0-SNAPSHOT'
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "io.ratpack:ratpack-gradle:1.0.0-rc-3"
-		classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
-        // https://github.com/bertramdev/asset-pipeline-core/
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.4.3"
-    }
-}
-
-apply plugin: 'groovy'
-// https://docs.gradle.org/current/userguide/application_plugin.html
-apply plugin: 'application'
-// http://ratpack.io/manual/current/gradle.html
-apply plugin: 'io.ratpack.ratpack-groovy'
-// https://github.com/johnrengelman/shadow/
-apply plugin: 'com.github.johnrengelman.shadow'
-//https://github.com/bertramdev/ratpack-asset-pipeline
-apply plugin: 'asset-pipeline'
-
-repositories {
-    mavenCentral()
-}
-
-//mainClassName = "org.gradle.sample.Main"
-ratpack.baseDir = file('rackpackBaseDir')
+apply plugin: 'java'
 
 dependencies {
-    // Default SLF4J binding.  Note that this is a blocking implementation.
-    // See here for a non blocking appender http://logging.apache.org/log4j/2.x/manual/async.html
-    runtime 'org.slf4j:slf4j-simple:1.7.12'
+    compile 'org.slf4j:slf4j-simple:1.7.12'
+    compile 'ch.qos.logback:logback-core:1.1.3'
+    compile 'ch.qos.logback:logback-classic:1.1.3'
+    compile 'junit:junit:4.12'
+    compile 'org.elasticsearch:elasticsearch:1.7.2'
+    compile 'com.vividsolutions:jts:1.13'
 
-    testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
-    compile  'io.ratpack:ratpack-core:1.0.0-rc-3'
-    compile  'io.ratpack:ratpack-groovy:1.0.0-rc-3'
-    compile  'io.ratpack:ratpack-test:1.0.0-rc-3'
-    compile  'io.ratpack:ratpack-session:1.0.0-rc-3'
-    compile  'io.ratpack:ratpack-jackson:1.0.0-rc-3'
-    compile  'io.ratpack:ratpack-thymeleaf:1.0.0-rc-3'
-    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.+'
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.+'
-    compile group: 'junit', name: 'junit', version: '4.+'
-    compile 'com.bertramlabs.plugins:ratpack-asset-pipeline:2.4.3'
-
-    compile group: 'org.elasticsearch', name: 'elasticsearch', version: '1.7.1'
-    compile group: 'com.vividsolutions', name: 'jts', version: '1.12'
-
+    compile 'io.undertow:undertow-core:1.3.0.Final'
+    compile 'io.undertow:undertow-websockets-jsr:1.3.0.Final'
+    compile 'org.thymeleaf:thymeleaf:2.1.4.RELEASE'
 }

@@ -102,7 +102,7 @@ public class WebPageService {
     }
 
     public Observable<WebPageEntity> getUnparsedProductPageRaw() {
-        final String queryString = "from WebPageEntity where type = 'productPageRaw' and parsed = false order by rand()";
+        final String queryString = "from WebPageEntity where type = 'productPageRaw' order by rand()";
         return executeQuery(queryString, "productPageRaw");
     }
 

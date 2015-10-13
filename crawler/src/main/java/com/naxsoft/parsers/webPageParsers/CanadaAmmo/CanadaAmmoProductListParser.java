@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.canadaAmmo;
+package com.naxsoft.parsers.webPageParsers.CanadaAmmo;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -52,7 +52,6 @@ public class CanadaAmmoProductListParser implements WebPageParser {
 
                 }
             });
-        // return Observable.defer(() -> Observable.just(future.get()));
         return Observable.defer(() -> Observable.from(future));
     }
 
