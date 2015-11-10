@@ -25,7 +25,7 @@
     },
     "_ttl": {
       "enabled": true,
-      "default": "1d"
+      "default": "31d"
     },
     "_all": {
       "enabled": true

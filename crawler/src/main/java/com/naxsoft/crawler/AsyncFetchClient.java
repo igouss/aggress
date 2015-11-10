@@ -1,13 +1,11 @@
 package com.naxsoft.crawler;
 
-import com.ning.http.client.AsyncHandler;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
+import com.ning.http.client.*;
 import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -24,8 +22,9 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
     private final Logger logger;
     AsyncHttpClient asyncHttpClient;
 
-    public AsyncFetchClient() {
-        asyncHttpClient = new AsyncHttpClient();
+    public AsyncFetchClient(SSLContext sslContext) {
+        AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder().setAcceptAnyCertificate(true).setSSLContext(sslContext).build();
+        asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
         logger = LoggerFactory.getLogger(getClass());
     }
 

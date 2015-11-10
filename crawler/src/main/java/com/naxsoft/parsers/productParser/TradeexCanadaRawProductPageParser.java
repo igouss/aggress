@@ -21,10 +21,10 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class EllwoodeppsRawProductParser implements ProductParser {
+public class TradeexCanadaRawProductPageParser implements ProductParser {
     private final Logger logger;
 
-    public EllwoodeppsRawProductParser() {
+    public TradeexCanadaRawProductPageParser() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
 
@@ -33,11 +33,10 @@ public class EllwoodeppsRawProductParser implements ProductParser {
         HashSet<ProductEntity> result = new HashSet<>();
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        if (document.select(".firearm-links-sold").size() != 0) {
+        String productName = document.select("h1.title").text();
+        if (productName.contains("OUT OF STOCK") || productName.contains("Donation to the CSSA")) {
             return result;
         }
-
-        String productName = document.select(".product-name span").text();
         logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
 
         ProductEntity product = new ProductEntity();
@@ -46,19 +45,19 @@ public class EllwoodeppsRawProductParser implements ProductParser {
         jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
         jsonBuilder.field("productName", productName);
+        jsonBuilder.field("productImage", document.select(".main-product-image img").attr("abs:src"));
+        jsonBuilder.field("description", document.select(".product-body").text());
+        jsonBuilder.field("regularPrice", parsePrice(document.select("#price-group .product span").text()));
 
-        jsonBuilder.field("regularPrice", parsePrice(document.select(".price").text()));
+        Iterator<Element> labels = document.select(".product-additional .field-label").iterator();
+        Iterator<Element> values = document.select(".product-additional .field-items").iterator();
 
-        Iterator<Element> labels = document.select("th.label").iterator();
-        Iterator<Element> values = document.select("td.data").iterator();
-
-        while (labels.hasNext()) {
+        while(labels.hasNext()) {
             String specName = labels.next().text();
             String specValue = values.next().text();
-            if (!specValue.isEmpty()) {
-                jsonBuilder.field(specName, specValue);
-            }
+            jsonBuilder.field(specName, specValue);
         }
+
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setJson(jsonBuilder.string());
@@ -78,6 +77,6 @@ public class EllwoodeppsRawProductParser implements ProductParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://ellwoodepps.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().startsWith("https://www.tradeexcanada.com/") && webPage.getType().equals("productPageRaw");
     }
 }

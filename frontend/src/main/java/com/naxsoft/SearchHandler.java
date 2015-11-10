@@ -12,6 +12,8 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 
+import java.io.StringWriter;
+
 /**
  * Copyright NAXSoft 2015
  */
@@ -23,7 +25,10 @@ public class SearchHandler implements HttpHandler {
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
-        String searchKey = exchange.getQueryParameters().get("searchKey").getFirst();
+        StringWriter sw = new StringWriter();
+        String val = exchange.getQueryParameters().get("searchKey").getFirst();
+        ElasticEscape.escape(val, sw);
+        String searchKey = sw.toString();
 
         int startFrom = 0;
         if (exchange.getQueryParameters().containsKey("startFrom")) {
@@ -56,6 +61,7 @@ public class SearchHandler implements HttpHandler {
         exchange.getResponseHeaders().add(HttpString.tryFromString("Access-Control-Allow-Origin"), "*");
         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "application/json;");
         exchange.getResponseSender().send(result);
+        System.out.println(result);
 
     }
 }

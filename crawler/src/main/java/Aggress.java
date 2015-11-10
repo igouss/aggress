@@ -12,18 +12,24 @@ import com.naxsoft.parsers.productParser.ProductParser;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
-import com.naxsoft.performance.HibernateStats;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.SSLEngineFactory;
+import com.ning.http.util.SslUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.security.cert.X509Certificate;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
@@ -38,15 +44,56 @@ public class Aggress {
     private static ProductParserFactory productParserFactory;
     private static Database db;
 
-    public Aggress() {
-    }
 
     public static void main(String[] args) {
+        SSLContext sc = null;
+        try {
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+
+                        @Override
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+                        }
+
+                        @Override
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+                        }
+
+                        @Override
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+                    }
+            };
+            // Install the all-trusting trust manager
+
+            sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+            // Install all-trusting host name verifier
+            HttpsURLConnection.setDefaultHostnameVerifier((hostname, sslSession) -> {
+                return true;
+            });
+            SslUtils instance = SslUtils.getInstance();
+            AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
+            builder.setAcceptAnyCertificate(true);
+            instance.getSSLContext(builder.build()).init(null, trustAllCerts, new java.security.SecureRandom());
+        } catch (java.security.GeneralSecurityException e) {
+            e.printStackTrace();
+        }
         logger = LoggerFactory.getLogger(Aggress.class);
 
-        try (AsyncFetchClient asyncFetchClient = new AsyncFetchClient()) {
+        try (AsyncFetchClient asyncFetchClient = new AsyncFetchClient(sc)) {
             productParserFactory = new ProductParserFactory();
             webPageParserFactory = new WebPageParserFactory(asyncFetchClient);
+            System.setProperty("jsse.enableSNIExtension", "false");
+            System.setProperty("jdk.tls.trustNameService", "true");
+
+
             try {
                 logger.info("Elastic initialization complete");
                 elastic = new Elastic();
@@ -69,7 +116,6 @@ public class Aggress {
                 String indexSuffix = "";//"-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
                 elastic.createIndex(asyncFetchClient, "product", "guns", indexSuffix).subscribe();
                 elastic.createMapping(asyncFetchClient, "product", "guns", indexSuffix).subscribe();
-
 
 
 //            webPageService.getUnparsedFrontPage().

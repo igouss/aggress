@@ -6,14 +6,12 @@
 package com.naxsoft.database;
 
 import com.naxsoft.entity.ProductEntity;
-import com.naxsoft.entity.SourceEntity;
 import org.hibernate.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.Collection;
-import java.util.Set;
 
 public class ProductService {
     private final Logger logger;
@@ -48,7 +46,7 @@ public class ProductService {
 
     public Observable<ProductEntity> getProducts() {
 //        String queryString = "from ProductEntity where indexed=false";
-        String queryString = "from ProductEntity";
+        String queryString = "from ProductEntity where indexed=false";
         return Observable.defer(() -> new ObservableQuery<ProductEntity>(database).execute(queryString));
     }
 

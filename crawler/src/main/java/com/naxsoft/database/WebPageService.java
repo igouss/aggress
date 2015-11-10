@@ -8,11 +8,9 @@ package com.naxsoft.database;
 import com.naxsoft.entity.WebPageEntity;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.functions.Func1;
 
 import java.util.Collection;
 
@@ -27,12 +25,8 @@ public class WebPageService {
         observableQuery = new ObservableQuery<>(database);
     }
 
-    private static Session getSession(Database database) {
-        return database.getSessionFactory().openSession();
-    }
-
     public void save(Collection<WebPageEntity> webPageEntitySet) {
-        new Transaction<Boolean>().executeInTransaction(database, session -> {
+        AsyncTransaction.execute(database, session -> {
             int i = 0;
             for (WebPageEntity webPageEntity : webPageEntitySet) {
                 logger.debug("Saving " + webPageEntity);
@@ -46,7 +40,7 @@ public class WebPageService {
     }
 
     public void markParsed(WebPageEntity webPageEntity) {
-        new Transaction<Integer>().executeInTransaction(database, session -> {
+        AsyncTransaction.execute(database, session -> {
             Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
             logger.debug("update WebPageEntity set parsed = true where id = " + webPageEntity.getId());
             return query.setInteger("id", webPageEntity.getId()).executeUpdate();
@@ -62,9 +56,9 @@ public class WebPageService {
     public Observable<Long> getUnparsedCount(String type) {
         return Observable.create(subscriber -> {
             Long rc = 0L;
-            Transaction<Long> transaction = new Transaction<>();
+
             do {
-                rc = transaction.executeInTransaction(database, session -> {
+                rc = AsyncTransaction.execute(database, session -> {
                     String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
                     Query query = session.createQuery(queryString);
                     query.setString("type", type);
@@ -81,9 +75,9 @@ public class WebPageService {
         });
     }
 
-    public void deDup() {
+    public Integer deDup() {
         final String queryString = "DELETE FROM guns.web_page USING guns.web_page wp2 WHERE guns.web_page.url = wp2.url AND guns.web_page.type = wp2.type AND guns.web_page.id < wp2.id";
-        new Transaction<Integer>().executeInTransaction(database, session -> {
+        return AsyncTransaction.execute(database, session -> {
             SQLQuery sqlQuery = session.createSQLQuery(queryString);
             int result = sqlQuery.executeUpdate();
             logger.info("De-dupped " + result + " rows");
@@ -102,7 +96,7 @@ public class WebPageService {
     }
 
     public Observable<WebPageEntity> getUnparsedProductPageRaw() {
-        final String queryString = "from WebPageEntity where type = 'productPageRaw' order by rand()";
+        final String queryString = "from WebPageEntity where type = 'productPageRaw' and parsed = false order by rand()";
         return executeQuery(queryString, "productPageRaw");
     }
 
@@ -112,36 +106,6 @@ public class WebPageService {
     }
 
     private Observable<WebPageEntity> executeQuery(String query, String condColumn) {
-        return Observable.create(subscriber -> {
-            getUnparsedCount(condColumn).subscribe(unparsedCount -> {
-                if (unparsedCount != 0) {
-                    observableQuery.execute(query).subscribe(subscriber::onNext);
-                } else {
-                    subscriber.onCompleted();
-                }
-            });
-        });
-    }
-
-    class Transaction<R> {
-        public R executeInTransaction(Database database, Func1<Session, R> action) {
-            Session session = getSession(database);
-            org.hibernate.Transaction tx = null;
-            try {
-                tx = session.beginTransaction();
-                R result = action.call(session);
-                session.flush();
-                tx.commit();
-                return result;
-            } catch (Exception e) {
-                if (tx != null) {
-                    session.flush();
-                    tx.commit();
-                }
-                throw e;
-            } finally {
-                session.close();
-            }
-        }
+        return getUnparsedCount(condColumn).flatMap(count -> observableQuery.execute(query));
     }
 }

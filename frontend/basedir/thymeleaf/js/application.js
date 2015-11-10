@@ -2,19 +2,36 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
 
     // DOM ready
     $(function(){
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sURLVariables = window.location.search.substring(1).split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                }
+            }
+        };
+
+
         var searchData = {
             searchKey: null
             , startFrom: 0
         };
-        var prev = function() {
+        var prev = function(e) {
             searchData.startFrom -= 10;
             if (searchData.startFrom < 0) {
                 searchData.startFrom = 0;
             }
+            e.preventDefault();
             search();
         };
-        var next = function() {
+        var next = function(e) {
             searchData.startFrom += 10;
+            e.preventDefault();
             search(function() { searchData.startFrom -= 10;});
         };
         var itemTemplate = $('#itemTemplate').html();
@@ -29,11 +46,17 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
             return word.charAt(0).toUpperCase() + word.substring(1);
         }
 
+        var inputField = $("input");
         var search = function(onFailure) {
-            if ($("input").val() != searchData.searchKey) {
+            if (inputField.val() != searchData.searchKey) {
                 searchData.startFrom = 0;
             }
-            searchData.searchKey = $("input").val();
+            var searchField = $("#searchInput");
+            var pageName = "?search=" + encodeURIComponent(searchField.val()) + "&startFrom=" + searchData.startFrom;
+            var title = searchField.val() + " " + searchData.startFrom;
+            window.history.pushState(searchData, title, pageName);
+
+            searchData.searchKey = inputField.val();
             $.getJSON("http://localhost:8080/search", searchData, function(data) {
                 if (searchData.startFrom != 0 && data.length == 0) {
                     if (onFailure) {
@@ -56,7 +79,7 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
                     $("nav").remove();
                 }
 
-                $.map(data, function(element, index) {
+                $.map(data, function(element) {
                     //console.info(element);
                     var rendered = $(m.render(itemTemplate, element));
                     var tbody = rendered.find("tbody");
@@ -75,16 +98,30 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
 
                     $('#searchResults').append(rendered);
                 });
+                $("html, body").animate({ scrollTop: 0 }, "slow");
                 return true;
             })
         };
 
         m.parse(itemTemplate);
-        $("#searchBtn").on("click", search);
-        $("input").keypress(function(e) {
+        $("#searchBtn").on("click", function() {
+            searchData.startFrom = 0;
+            search();
+        });
+        inputField.keypress(function(e) {
             if(e.which == 13) {
+                searchData.startFrom = 0;
                 search();
             }
         });
+        searchData.searchKey = getUrlParameter("search");
+        inputField.val(searchData.searchKey);
+        searchData.startFrom = parseInt(getUrlParameter("startFrom"), 10);
+        if (searchData.searchKey) {
+            if (!searchData.startFrom) {
+                searchData.startFrom = 0;
+            }
+            search();
+        }
     });
 });
