@@ -7,10 +7,8 @@ import org.elasticsearch.common.logging.Loggers;
 
 
 public class IndexService {
-
     private static final long serialVersionUID = 1L;
-
-    private ESLogger logger = Loggers.getLogger(getClass().getName());
+    private static final ESLogger logger = Loggers.getLogger(IndexService.class);
 
     Client client;
 

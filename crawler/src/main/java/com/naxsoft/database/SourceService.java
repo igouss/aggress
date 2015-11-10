@@ -17,13 +17,11 @@ import rx.Observable;
 import java.util.Date;
 
 public class SourceService {
-    private final Logger logger;
+    private final static Logger logger = LoggerFactory.getLogger(SourceService.class);
     private Database database;
 
     public SourceService(Database database) {
         this.database = database;
-        this.logger = LoggerFactory.getLogger(this.getClass());
-
     }
 
     public Observable<SourceEntity> getSources() {
@@ -52,9 +50,8 @@ public class SourceService {
                 session.flush();
                 tx.commit();
             } catch (Exception e) {
-                if (tx != null) {
-                    tx.commit();
-                }
+                logger.error("Failed to mark as source as parsed", e);
+                tx.rollback();
             } finally {
                 session.close();
             }

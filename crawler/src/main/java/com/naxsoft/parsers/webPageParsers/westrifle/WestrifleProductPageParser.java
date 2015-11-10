@@ -18,11 +18,10 @@ import java.util.concurrent.Future;
  */
 public class WestrifleProductPageParser implements WebPageParser {
     private final AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(WestrifleProductPageParser.class);
 
     public WestrifleProductPageParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override

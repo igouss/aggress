@@ -18,14 +18,14 @@ import java.util.concurrent.Future;
  */
 public class MarstarProductParser implements WebPageParser {
     private AsyncFetchClient client;
-
+    private static final Logger logger = LoggerFactory.getLogger(MarstarProductParser.class);
     public MarstarProductParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
+
         Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {

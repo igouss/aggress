@@ -34,7 +34,7 @@ import java.util.Set;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 public class Aggress {
-    static Logger logger;
+    private static Logger logger = LoggerFactory.getLogger(Aggress.class);
     private static WebPageParserFactory webPageParserFactory;
 
     private static WebPageService webPageService;
@@ -75,9 +75,7 @@ public class Aggress {
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
             // Install all-trusting host name verifier
-            HttpsURLConnection.setDefaultHostnameVerifier((hostname, sslSession) -> {
-                return true;
-            });
+            HttpsURLConnection.setDefaultHostnameVerifier((hostname, sslSession) -> true);
             SslUtils instance = SslUtils.getInstance();
             AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
             builder.setAcceptAnyCertificate(true);
@@ -85,7 +83,6 @@ public class Aggress {
         } catch (java.security.GeneralSecurityException e) {
             e.printStackTrace();
         }
-        logger = LoggerFactory.getLogger(Aggress.class);
 
         try (AsyncFetchClient asyncFetchClient = new AsyncFetchClient(sc)) {
             productParserFactory = new ProductParserFactory();
@@ -110,7 +107,7 @@ public class Aggress {
                 }
 
                 webPageService = new WebPageService(db);
-                productService = new ProductService(elastic, db);
+                productService = new ProductService(db);
                 sourceService = new SourceService(db);
 
                 String indexSuffix = "";//"-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
@@ -202,7 +199,7 @@ public class Aggress {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(sourceEntity.getUrl());
         webPageEntity.setType("frontPage");
-        logger.info("Adding new root + " + webPageEntity.getUrl());
+        logger.info("Adding new root {}", webPageEntity.getUrl());
         return webPageEntity;
     }
 
@@ -217,13 +214,11 @@ public class Aggress {
                 Observable<Set<WebPageEntity>> parsed = parser.parse(parent);
                 webPageService.markParsed(parent);
 
-                parsed.subscribe((webPageEntitySet) -> {
-                    webPageService.save(webPageEntitySet);
-                }, e -> {
-                    logger.error("Failed to save web-page " + parent.getUrl(), e);
+                parsed.subscribe(webPageService::save, e -> {
+                    logger.error("Failed to save web-page {}", parent.getUrl(), e);
                 });
             } catch (Exception e) {
-                logger.error("Failed to process source " + parent.getUrl(), e);
+                logger.error("Failed to process source {}", parent.getUrl(), e);
             }
         });
     }
@@ -237,11 +232,9 @@ public class Aggress {
                 webPageService.markParsed(webPageEntity);
 
             } catch (Exception e) {
-                logger.error("Failed to parse product page " + webPageEntity.getUrl(), e);
+                logger.error("Failed to parse product page {}", webPageEntity.getUrl(), e);
             }
             return result;
-        }).subscribe((products) -> {
-            productService.save(products);
-        }); // filter(data -> !data.isEmpty()).flatMap(Observable::from).toList()
+        }).subscribe(productService::save); // filter(data -> !data.isEmpty()).flatMap(Observable::from).toList()
     }
 }

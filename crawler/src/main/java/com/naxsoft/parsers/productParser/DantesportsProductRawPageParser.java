@@ -22,10 +22,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class DantesportsProductRawPageParser implements ProductParser{
-    private final Logger logger;
-    public DantesportsProductRawPageParser() {
-        logger = LoggerFactory.getLogger(this.getClass());
-    }
+    private static final Logger logger = LoggerFactory.getLogger(DantesportsProductRawPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPage) throws Exception {

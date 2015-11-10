@@ -19,13 +19,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class AsyncFetchClient implements AutoCloseable, Cloneable {
     public static final int REQUEST_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60);
-    private final Logger logger;
-    AsyncHttpClient asyncHttpClient;
+    private static final Logger logger = LoggerFactory.getLogger(AsyncFetchClient.class);
+    private AsyncHttpClient asyncHttpClient;
 
     public AsyncFetchClient(SSLContext sslContext) {
         AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder().setAcceptAnyCertificate(true).setSSLContext(sslContext).build();
         asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
-        logger = LoggerFactory.getLogger(getClass());
     }
 
     public <R> Future<R> get(String url, AsyncHandler<R> handler)  {

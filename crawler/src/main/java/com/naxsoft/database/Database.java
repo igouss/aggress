@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Database implements AutoCloseable, Cloneable {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final static Logger logger = LoggerFactory.getLogger(Database.class);
     private SessionFactory sessionFactory;
 
     public Database() {

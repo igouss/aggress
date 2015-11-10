@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.corwinArms;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.CanadaAmmo.CanadaAmmoProductPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
@@ -25,20 +26,19 @@ import java.util.regex.Pattern;
  */
 public class CorwinArmsFrontPageParser implements WebPageParser {
     private AsyncFetchClient client;
-
+    private static final Logger logger = LoggerFactory.getLogger(CorwinArmsFrontPageParser.class);
     public CorwinArmsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
+
         Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
                 if (resp.getStatusCode() == 200) {
-                    Logger logger = LoggerFactory.getLogger(this.getClass());
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("#block-menu-menu-catalogue > div > ul a");
                     for (Element e : elements) {

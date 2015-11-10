@@ -22,11 +22,10 @@ import java.util.concurrent.Future;
  */
 public class CrafmProductPageParser implements WebPageParser {
     private final AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(CrafmProductPageParser.class);
     Collection<Cookie> cookies;
     public CrafmProductPageParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
         cookies = new ArrayList<>(1);
         cookies.add(Cookie.newValidCookie("store", "english", false, null, null, Long.MAX_VALUE, false, false));
     }

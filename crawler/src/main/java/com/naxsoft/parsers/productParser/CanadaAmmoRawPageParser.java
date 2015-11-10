@@ -24,13 +24,9 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class CanadaAmmoRawPageParser implements ProductParser {
-    private final Logger logger;
-    public CanadaAmmoRawPageParser() {
-        logger = LoggerFactory.getLogger(this.getClass());
-    }
+    private static final Logger logger = LoggerFactory.getLogger(CanadaAmmoRawPageParser.class);
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();

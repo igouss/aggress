@@ -3,6 +3,7 @@ package com.naxsoft.parsers.webPageParsers.marstar;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
+import com.naxsoft.parsers.webPageParsers.irunguns.IrungunsProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -23,14 +24,13 @@ import java.util.concurrent.Future;
  */
 public class MarstarProductListParser implements WebPageParser {
     private AsyncFetchClient client;
-
+    private static final Logger logger = LoggerFactory.getLogger(MarstarProductListParser.class);
     public MarstarProductListParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
         Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(Response resp) throws Exception {

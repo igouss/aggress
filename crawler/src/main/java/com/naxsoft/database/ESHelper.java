@@ -16,7 +16,7 @@ import java.io.InputStreamReader;
 
 
 public class ESHelper {
-    private static ESLogger logger = ESLoggerFactory.getLogger(ESHelper.class.getName());
+    private static final ESLogger logger = ESLoggerFactory.getLogger(ESHelper.class.getName());
 
     /**
      * Define a type for a given index and if exists with its mapping definition (loaded in classloader)

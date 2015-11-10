@@ -15,13 +15,12 @@ import rx.Observable;
 import java.util.Collection;
 
 public class WebPageService {
-    private final Logger logger;
+    private final static Logger logger = LoggerFactory.getLogger(WebPageService.class);
     private Database database;
     private ObservableQuery<WebPageEntity> observableQuery;
 
     public WebPageService(Database database) {
         this.database = database;
-        this.logger = LoggerFactory.getLogger(this.getClass());
         observableQuery = new ObservableQuery<>(database);
     }
 

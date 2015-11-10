@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class ProductParserFactory {
     private final Set<ProductParser> parsers = new HashSet();
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(ProductParserFactory.class);
 
     public ProductParserFactory() {
         Reflections reflections = new Reflections("com.naxsoft.parsers.productParser", new Scanner[0]);
@@ -38,7 +38,7 @@ public class ProductParserFactory {
 
         for (ProductParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
-                this.logger.debug("Found a parser " + parser.getClass().toString() + " for action = " + webPageEntity.getType() + " url = " + webPageEntity.getUrl());
+                logger.debug("Found a parser " + parser.getClass().toString() + " for action = " + webPageEntity.getType() + " url = " + webPageEntity.getUrl());
                 return parser;
             }
         }

@@ -3,6 +3,7 @@ package com.naxsoft.parsers.webPageParsers.ctcsupplies;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
+import com.naxsoft.parsers.webPageParsers.crafm.CrafmProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -23,6 +24,7 @@ import java.util.concurrent.Future;
  */
 public class CtcsuppliesFrontPageParser implements WebPageParser {
     private AsyncFetchClient client;
+    private static final Logger logger = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
 
     public CtcsuppliesFrontPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -40,12 +42,11 @@ public class CtcsuppliesFrontPageParser implements WebPageParser {
     }
 
     private class Handler extends AsyncCompletionHandler<Set<WebPageEntity>> {
-        Logger logger;
+
         private WebPageEntity parent;
 
         public Handler(WebPageEntity parent) {
             this.parent = parent;
-            logger = LoggerFactory.getLogger(this.getClass());
         }
 
         @Override
@@ -73,7 +74,7 @@ public class CtcsuppliesFrontPageParser implements WebPageParser {
                     webPageEntity.setStatusCode(resp.getStatusCode());
                     webPageEntity.setType("productList");
                     webPageEntity.setParent(parent);
-                    logger.info("productList = " + webPageEntity.getUrl() + ", parent = " + parent.getUrl());
+                    logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), parent.getUrl());
                     result.add(webPageEntity);
                 }
             }

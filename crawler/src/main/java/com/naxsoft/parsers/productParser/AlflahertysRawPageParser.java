@@ -25,10 +25,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class AlflahertysRawPageParser implements ProductParser {
-    Logger logger;
-    public AlflahertysRawPageParser() {
-        logger = LoggerFactory.getLogger(this.getClass());
-    }
+    private static final Logger logger = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {

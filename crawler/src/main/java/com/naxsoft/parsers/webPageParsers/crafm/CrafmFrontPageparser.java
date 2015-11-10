@@ -3,6 +3,7 @@ package com.naxsoft.parsers.webPageParsers.crafm;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
+import com.naxsoft.parsers.webPageParsers.corwinArms.CorwinArmsProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -25,11 +26,10 @@ import java.util.regex.Pattern;
  */
 public class CrafmFrontPageParser implements WebPageParser {
     private final AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(CrafmFrontPageParser.class);
 
     public CrafmFrontPageParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override
@@ -40,7 +40,6 @@ public class CrafmFrontPageParser implements WebPageParser {
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
                 if (resp.getStatusCode() == 200) {
-                    Logger logger = LoggerFactory.getLogger(this.getClass());
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select(".products-grid .item > a");
                     for (Element e : elements) {

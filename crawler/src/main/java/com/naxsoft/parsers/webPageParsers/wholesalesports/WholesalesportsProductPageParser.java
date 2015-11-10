@@ -18,14 +18,14 @@ import java.util.concurrent.Future;
  */
 public class WholesalesportsProductPageParser implements WebPageParser {
     private AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(WholesalesportsProductPageParser.class);
+
     public WholesalesportsProductPageParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
+
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-
         Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {

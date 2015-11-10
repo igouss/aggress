@@ -17,7 +17,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class AlflahertysProductPageParser implements WebPageParser {
-
+    private static final Logger logger = LoggerFactory.getLogger(AlflahertysProductPageParser.class);
     private AsyncFetchClient client;
 
     public AlflahertysProductPageParser(AsyncFetchClient client) {
@@ -25,8 +25,6 @@ public class AlflahertysProductPageParser implements WebPageParser {
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-
-            Logger logger = LoggerFactory.getLogger(this.getClass());
             Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
@@ -41,7 +39,7 @@ public class AlflahertysProductPageParser implements WebPageParser {
                         webPageEntity.setType("productPageRaw");
                         webPageEntity.setParent(webPage);
                         result.add(webPageEntity);
-                        logger.info("productPageRaw=" + webPageEntity.getUrl());
+                        logger.info("productPageRaw={}", webPageEntity.getUrl());
                     }
                     return result;
                 }

@@ -19,11 +19,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class WholesalesportsProductRawPageParser implements ProductParser {
-    private final Logger logger;
-
-    public WholesalesportsProductRawPageParser() {
-        logger = LoggerFactory.getLogger(this.getClass());
-    }
+    private static final Logger logger = LoggerFactory.getLogger(WholesalesportsProductRawPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {

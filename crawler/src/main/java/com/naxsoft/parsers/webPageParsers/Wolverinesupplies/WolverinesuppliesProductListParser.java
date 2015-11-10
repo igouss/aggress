@@ -20,12 +20,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WolverinesuppliesProductListParser implements WebPageParser {
-    Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
     private AsyncFetchClient client;
 
     public WolverinesuppliesProductListParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {

@@ -15,7 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WebPageParserFactory {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(WebPageParserFactory.class);
+
     private Set<WebPageParser> parsers = new HashSet<>();
     private AsyncFetchClient client;
 
@@ -30,7 +31,7 @@ public class WebPageParserFactory {
                 WebPageParser webPageParser = clazz.getConstructor(client.getClass()).newInstance(client);
                 this.parsers.add(webPageParser);
             } catch (Exception e) {
-                logger.error("Failed to instantiate WebPage parser " + clazz);
+                logger.error("Failed to instantiate WebPage parser {}", clazz, e);
             }
         }
     }
@@ -38,11 +39,11 @@ public class WebPageParserFactory {
     public WebPageParser getParser(WebPageEntity webPageEntity) {
         for (WebPageParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
-                this.logger.debug("Found a parser " + parser.getClass().toString() + " for action = " + webPageEntity.getType() + " url = " + webPageEntity.getUrl());
+                logger.debug("Found a parser {} for action = {} url = {}", parser.getClass().toString(), webPageEntity.getType(), webPageEntity.getUrl());
                 return parser;
             }
         }
-        logger.warn("Failed to find a web-page parser for action = " + webPageEntity.getType() + ", url = " + webPageEntity.getUrl());
+        logger.warn("Failed to find a web-page parser for action = {}, url = {}", webPageEntity.getType(), webPageEntity.getUrl());
         return new NoopParser(client);
     }
 }

@@ -18,11 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WolverinesuppliesProductRawPageParser implements ProductParser {
-    private final Logger logger;
-
-    public WolverinesuppliesProductRawPageParser() {
-        logger = LoggerFactory.getLogger(this.getClass());
-    }
+    private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
 

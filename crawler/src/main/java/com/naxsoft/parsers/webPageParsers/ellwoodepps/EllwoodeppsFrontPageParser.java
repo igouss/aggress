@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.ellwoodepps;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.Dantesports.DantesportsProductPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
@@ -23,11 +24,10 @@ import java.util.regex.Pattern;
  */
 public class EllwoodeppsFrontPageParser implements WebPageParser {
     private final AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(EllwoodeppsFrontPageParser.class);
 
     public EllwoodeppsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override

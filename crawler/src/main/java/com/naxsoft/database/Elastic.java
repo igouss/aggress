@@ -36,10 +36,9 @@ import java.util.concurrent.TimeUnit;
 
 public class Elastic implements AutoCloseable, Cloneable {
     TransportClient client = null;
-    private Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(Elastic.class);
 
     public Elastic() {
-        this.logger = LoggerFactory.getLogger(this.getClass());
         Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         this.client = new TransportClient(settings);
         this.client.addTransportAddress(new InetSocketTransportAddress("localhost", 9300));

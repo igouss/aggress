@@ -21,12 +21,11 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class WanstallsonlineProductListParser implements WebPageParser {
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(WanstallsonlineProductListParser.class);
     private AsyncFetchClient client;
 
     public WanstallsonlineProductListParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override

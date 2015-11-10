@@ -3,6 +3,7 @@ package com.naxsoft.parsers.webPageParsers.Cabelas;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
+import com.naxsoft.parsers.webPageParsers.bullseyelondon.BullseyelondonProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -22,12 +23,11 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class CabelasFrontPageParser implements WebPageParser {
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(CabelasFrontPageParser.class);
     private final AsyncFetchClient client;
 
     public CabelasFrontPageParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) {

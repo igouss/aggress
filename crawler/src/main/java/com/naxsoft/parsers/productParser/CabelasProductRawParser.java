@@ -21,10 +21,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class CabelasProductRawParser implements ProductParser {
-    private final Logger logger;
-    public CabelasProductRawParser() {
-        logger = LoggerFactory.getLogger(this.getClass());
-    }
+    private static final Logger logger = LoggerFactory.getLogger(CabelasProductRawParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {

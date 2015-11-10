@@ -22,11 +22,10 @@ import java.util.concurrent.Future;
  */
 public class WholesalesportsProductListParser implements WebPageParser {
     private AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(WholesalesportsProductListParser.class);
 
     public WholesalesportsProductListParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override

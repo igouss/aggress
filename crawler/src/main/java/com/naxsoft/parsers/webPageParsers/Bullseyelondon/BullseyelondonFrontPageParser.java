@@ -3,6 +3,7 @@ package com.naxsoft.parsers.webPageParsers.bullseyelondon;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
+import com.naxsoft.parsers.webPageParsers.alflahertys.AlflahertysProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 public class BullseyelondonFrontPageParser implements WebPageParser {
+    private static final Logger logger = LoggerFactory.getLogger(BullseyelondonFrontPageParser.class);
     private AsyncFetchClient client;
 
     public BullseyelondonFrontPageParser(AsyncFetchClient client) {
@@ -26,8 +28,6 @@ public class BullseyelondonFrontPageParser implements WebPageParser {
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) {
-
-            Logger logger = LoggerFactory.getLogger(this.getClass());
             Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
@@ -44,7 +44,7 @@ public class BullseyelondonFrontPageParser implements WebPageParser {
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productList");
                             webPageEntity.setParent(webPage);
-                            logger.info("productList = " + webPageEntity.getUrl() + ", parent = " + webPage.getUrl());
+                            logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), webPage.getUrl());
                             result.add(webPageEntity);
                         }
                     }

@@ -22,11 +22,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class EllwoodeppsRawProductParser implements ProductParser {
-    private final Logger logger;
-
-    public EllwoodeppsRawProductParser() {
-        logger = LoggerFactory.getLogger(this.getClass());
-    }
+    private static final Logger logger = LoggerFactory.getLogger(EllwoodeppsRawProductParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {

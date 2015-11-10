@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
  */
 public class DantesportsProductPageParser implements WebPageParser {
     private AsyncFetchClient client;
+    private static final Logger logger = LoggerFactory.getLogger(DantesportsProductPageParser.class);
 
     public DantesportsProductPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -28,7 +29,6 @@ public class DantesportsProductPageParser implements WebPageParser {
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
         List<Cookie> cookies = new LinkedList<>();
-        Logger logger = LoggerFactory.getLogger(this.getClass());
 
         Future<List<Cookie>> future = client.get("https://shop.dantesports.com/set_lang.php?lang=EN", cookies, getEngCookiesHandler(), false);
         cookies.addAll(future.get());

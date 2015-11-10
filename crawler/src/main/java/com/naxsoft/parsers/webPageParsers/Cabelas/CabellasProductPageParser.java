@@ -19,11 +19,10 @@ import java.util.concurrent.Future;
  */
 public class CabellasProductPageParser implements WebPageParser {
     private final AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(CabellasProductPageParser.class);
 
     public CabellasProductPageParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override

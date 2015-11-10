@@ -28,9 +28,9 @@ import java.io.File;
  * Copyright NAXSoft 2015
  */
 public class Server {
-    public static void main(final String[] args) {
-        Logger logger = LoggerFactory.getLogger(Server.class);
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
+    public static void main(final String[] args) {
         TemplateEngine templateEngine = new TemplateEngine();
         FileTemplateResolver templateResolver = new FileTemplateResolver();
         templateResolver.setTemplateMode("HTML5");

@@ -23,11 +23,10 @@ import java.util.concurrent.Future;
  */
 public class CabelasProductListParser implements WebPageParser {
     private final AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(CabelasProductListParser.class);
 
     public CabelasProductListParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {

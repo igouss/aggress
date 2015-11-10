@@ -1,5 +1,6 @@
 package com.naxsoft.performance;
 
+import com.naxsoft.parsers.webPageParsers.Wolverinesupplies.WolverinesuppliesProductPageParser;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 import org.slf4j.Logger;
@@ -10,12 +11,11 @@ import rx.schedulers.Schedulers;
 import java.util.concurrent.TimeUnit;
 
 public class HibernateStats {
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(HibernateStats.class);
     private SessionFactory sessionFactory;
 
     public HibernateStats(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     public Observable<Statistics> getStatistics() {

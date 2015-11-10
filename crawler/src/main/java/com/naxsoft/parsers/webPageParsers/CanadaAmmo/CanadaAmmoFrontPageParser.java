@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.CanadaAmmo;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.Cabelas.CabellasProductPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
@@ -24,6 +25,7 @@ import java.util.concurrent.Future;
  */
 public class CanadaAmmoFrontPageParser implements WebPageParser {
     private AsyncFetchClient client;
+    private static final Logger logger = LoggerFactory.getLogger(CanadaAmmoFrontPageParser.class);
 
     public CanadaAmmoFrontPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -31,9 +33,6 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-
-
-        Logger logger = LoggerFactory.getLogger(this.getClass());
         Future<Set<String>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<String>>() {
             @Override
             public HashSet<String> onCompleted(com.ning.http.client.Response resp) throws Exception {
@@ -41,7 +40,6 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
                 if (resp.getStatusCode() == 200) {
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
-                    Logger logger = LoggerFactory.getLogger(this.getClass());
                     logger.info("Parsing for sub-pages + " + webPage.getUrl());
 
                     for (Element el : elements) {

@@ -3,6 +3,7 @@ package com.naxsoft.parsers.webPageParsers.irunguns;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
+import com.naxsoft.parsers.webPageParsers.ellwoodepps.EllwoodeppsProductParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,20 +23,19 @@ import java.util.concurrent.Future;
  */
 public class IrungunsFrontPageParser implements WebPageParser {
     private AsyncFetchClient client;
-
+    private static final Logger logger = LoggerFactory.getLogger(IrungunsFrontPageParser.class);
     public IrungunsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
         Future<Set<WebPageEntity>> future = client.get("https://www.irunguns.us/product_categories.php", new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
                 if (resp.getStatusCode() == 200) {
-                    Logger logger = LoggerFactory.getLogger(this.getClass());
+
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("#content .widthLimit a");
                     for (Element e : elements) {
@@ -47,7 +47,7 @@ public class IrungunsFrontPageParser implements WebPageParser {
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productPage");
                         webPageEntity.setParent(webPage);
-                        logger.info("ProductPageUrl=" + linkUrl + ", " + "parseUrl=" + webPage.getUrl());
+                        logger.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
                         result.add(webPageEntity);
                     }
                 }
@@ -55,7 +55,6 @@ public class IrungunsFrontPageParser implements WebPageParser {
             }
         });
         return Observable.defer(() -> Observable.from(future));
-
     }
 
     @Override

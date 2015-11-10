@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
  */
 public class CanadaAmmoProductPageParser implements WebPageParser {
     private AsyncFetchClient client;
+    private static final Logger logger = LoggerFactory.getLogger(CanadaAmmoProductPageParser.class);
 
     public CanadaAmmoProductPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -25,7 +26,7 @@ public class CanadaAmmoProductPageParser implements WebPageParser {
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-            Logger logger = LoggerFactory.getLogger(this.getClass());
+
             Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
@@ -40,7 +41,7 @@ public class CanadaAmmoProductPageParser implements WebPageParser {
                         webPageEntity.setType("productPageRaw");
                         webPageEntity.setParent(webPage);
                         result.add(webPageEntity);
-                        logger.info("productPageRaw=" + webPageEntity.getUrl());
+                        logger.info("productPageRaw={}", webPageEntity.getUrl());
                     }
                     return result;
                 }

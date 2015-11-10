@@ -3,6 +3,7 @@ package com.naxsoft.parsers.webPageParsers.tradeexcanada;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
+import com.naxsoft.parsers.webPageParsers.marstar.MarstarProductParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -22,11 +23,10 @@ import java.util.Set;
  */
 public class TradeexCanadaFrontPageParser implements WebPageParser {
     private final AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(TradeexCanadaFrontPageParser.class);
 
     public TradeexCanadaFrontPageParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override

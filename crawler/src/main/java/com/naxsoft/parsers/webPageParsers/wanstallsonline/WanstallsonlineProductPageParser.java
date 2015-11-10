@@ -18,10 +18,9 @@ import java.util.concurrent.Future;
  */
 public class WanstallsonlineProductPageParser implements WebPageParser {
     private AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(WanstallsonlineProductPageParser.class);
     public WanstallsonlineProductPageParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override

@@ -24,10 +24,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class IrungunsRawProductPageParser implements ProductParser {
-    private final Logger logger;
-    public IrungunsRawProductPageParser() {
-        logger = LoggerFactory.getLogger(this.getClass());
-    }
+    private static final Logger logger = LoggerFactory.getLogger(IrungunsRawProductPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {

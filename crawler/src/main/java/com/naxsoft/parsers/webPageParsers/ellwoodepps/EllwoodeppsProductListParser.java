@@ -22,11 +22,10 @@ import java.util.concurrent.Future;
  */
 public class EllwoodeppsProductListParser implements WebPageParser {
     private final AsyncFetchClient client;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(EllwoodeppsProductListParser.class);
 
     public EllwoodeppsProductListParser(AsyncFetchClient client) {
         this.client = client;
-        logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @Override

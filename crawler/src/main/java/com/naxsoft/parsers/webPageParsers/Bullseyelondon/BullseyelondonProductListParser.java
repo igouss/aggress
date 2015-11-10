@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 public class BullseyelondonProductListParser implements WebPageParser {
-
+    private static final Logger logger = LoggerFactory.getLogger(BullseyelondonProductListParser.class);
     private AsyncFetchClient client;
 
     public BullseyelondonProductListParser(AsyncFetchClient client) {
@@ -26,9 +26,6 @@ public class BullseyelondonProductListParser implements WebPageParser {
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-
-
-            Logger logger = LoggerFactory.getLogger(this.getClass());
             Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
@@ -45,7 +42,7 @@ public class BullseyelondonProductListParser implements WebPageParser {
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productPage");
                             webPageEntity.setParent(webPage);
-                            logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + webPage.getUrl());
+                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
                             result.add(webPageEntity);
                         }
                     }
