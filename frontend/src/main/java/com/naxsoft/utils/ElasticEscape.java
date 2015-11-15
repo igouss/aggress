@@ -1,4 +1,4 @@
-package com.naxsoft;
+package com.naxsoft.utils;
 
 import org.elasticsearch.common.mustache.MustacheException;
 

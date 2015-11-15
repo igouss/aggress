@@ -12,7 +12,6 @@ import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.ListenableActionFuture;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
@@ -31,17 +30,16 @@ import rx.Observable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class Elastic implements AutoCloseable, Cloneable {
     TransportClient client = null;
     private static final Logger logger = LoggerFactory.getLogger(Elastic.class);
 
-    public Elastic() {
+    public Elastic(String hostname, int port) {
         Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         this.client = new TransportClient(settings);
-        this.client.addTransportAddress(new InetSocketTransportAddress("localhost", 9300));
+        this.client.addTransportAddress(new InetSocketTransportAddress(hostname, port));
 
         while (true) {
             this.logger.info("Waiting for elastic to connect to a node...");

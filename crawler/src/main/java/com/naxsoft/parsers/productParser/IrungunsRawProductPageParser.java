@@ -71,7 +71,7 @@ public class IrungunsRawProductPageParser implements ProductParser {
         Iterator<Element> values = document.select("table.productTbl > tbody > tr > td:nth-child(2)").iterator();
 
         while(labels.hasNext()) {
-            String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_'));
+            String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
             String specValue = values.next().text();
             jsonBuilder.field(specName, specValue);
         }

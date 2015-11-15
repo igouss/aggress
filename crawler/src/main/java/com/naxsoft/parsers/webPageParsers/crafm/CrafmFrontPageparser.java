@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.crafm;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;

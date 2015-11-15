@@ -1,14 +1,10 @@
 package com.naxsoft.performance;
 
-import com.naxsoft.parsers.webPageParsers.Wolverinesupplies.WolverinesuppliesProductPageParser;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
-
-import java.util.concurrent.TimeUnit;
 
 public class HibernateStats {
     private static final Logger logger = LoggerFactory.getLogger(HibernateStats.class);

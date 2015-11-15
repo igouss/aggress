@@ -41,8 +41,9 @@ public class WebPageService {
     public void markParsed(WebPageEntity webPageEntity) {
         AsyncTransaction.execute(database, session -> {
             Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
-            logger.debug("update WebPageEntity set parsed = true where id = " + webPageEntity.getId());
-            return query.setInteger("id", webPageEntity.getId()).executeUpdate();
+            int rc = query.setInteger("id", webPageEntity.getId()).executeUpdate();
+            logger.debug("update WebPageEntity set parsed = true where id = " + webPageEntity.getId() + " " + rc + " rows affected");
+            return rc;
         });
     }
 

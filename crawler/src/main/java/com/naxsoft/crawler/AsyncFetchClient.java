@@ -1,5 +1,6 @@
 package com.naxsoft.crawler;
 
+import com.codahale.metrics.*;
 import com.ning.http.client.*;
 import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;

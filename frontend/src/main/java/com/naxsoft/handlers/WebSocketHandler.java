@@ -1,4 +1,4 @@
-package com.naxsoft;
+package com.naxsoft.handlers;
 
 import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.core.WebSocketChannel;

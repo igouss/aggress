@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.Dantesports;
+package com.naxsoft.parsers.webPageParsers.dantesports;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;

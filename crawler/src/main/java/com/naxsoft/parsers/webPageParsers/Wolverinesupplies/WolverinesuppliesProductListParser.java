@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.Wolverinesupplies;
+package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;

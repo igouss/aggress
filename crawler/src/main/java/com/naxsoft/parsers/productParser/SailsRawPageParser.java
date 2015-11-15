@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class TradeexCanadaRawProductPageParser implements ProductParser {
+public class SailsRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(TradeexCanadaRawProductPageParser.class);
 
     @Override
@@ -29,10 +29,7 @@ public class TradeexCanadaRawProductPageParser implements ProductParser {
         HashSet<ProductEntity> result = new HashSet<>();
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        String productName = document.select("h1.title").text();
-        if (productName.contains("OUT OF STOCK") || productName.contains("Donation to the CSSA")) {
-            return result;
-        }
+        String productName = document.select(".product-shop .brand").text() + " " + document.select(".product-shop .product-name span").text();
         logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
 
         ProductEntity product = new ProductEntity();
@@ -41,15 +38,21 @@ public class TradeexCanadaRawProductPageParser implements ProductParser {
         jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
         jsonBuilder.field("productName", productName);
-        jsonBuilder.field("productImage", document.select(".main-product-image img").attr("abs:src"));
-        jsonBuilder.field("description", document.select(".product-body").text());
-        jsonBuilder.field("regularPrice", parsePrice(document.select("#price-group .product span").text()));
+        jsonBuilder.field("productImage", document.select(".product-image-gallery > img#image-main").attr("abs:src"));
+        jsonBuilder.field("description", document.select(".product-shop .short-description").text() + " " + document.select("div[data-component=product-description-region]").text());
 
-        Iterator<Element> labels = document.select(".product-additional .field-label").iterator();
-        Iterator<Element> values = document.select(".product-additional .field-items").iterator();
+        if (!document.select(".product-shop .special-price").isEmpty()) {
+            jsonBuilder.field("regularPrice", parsePrice(document.select(".product-shop .old-price .price").text()));
+            jsonBuilder.field("specialPrice", parsePrice(document.select(".product-shop .special-price .price").text()));
+        } else {
+            jsonBuilder.field("regularPrice", parsePrice(document.select(".product-shop .regular-price .price").text()));
+        }
+
+        Iterator<Element> labels = document.select(".spec-row .label").iterator();
+        Iterator<Element> values = document.select(".spec-row .data").iterator();
 
         while(labels.hasNext()) {
-            String specName = labels.next().text().replace(":", "").trim();
+            String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
             String specValue = values.next().text();
             jsonBuilder.field(specName, specValue);
         }
@@ -73,6 +76,6 @@ public class TradeexCanadaRawProductPageParser implements ProductParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.tradeexcanada.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().startsWith("http://www.sail.ca/") && webPage.getType().equals("productPageRaw");
     }
 }

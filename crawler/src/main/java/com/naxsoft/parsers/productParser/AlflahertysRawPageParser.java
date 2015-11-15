@@ -54,7 +54,7 @@ public class AlflahertysRawPageParser implements ProductParser {
             Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
             Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
             while(labels.hasNext()) {
-                String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_'));
+                String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
                 String specValue = values.next().text();
                 jsonBuilder.field(specName, specValue);
             }

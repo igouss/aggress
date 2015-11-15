@@ -1,9 +1,11 @@
-package com.naxsoft;
+package com.naxsoft.handlers;
 
+import com.naxsoft.utils.ElasticEscape;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
+import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -11,6 +13,8 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
@@ -19,6 +23,8 @@ import java.io.StringWriter;
  */
 public class SearchHandler implements HttpHandler {
     private TransportClient client;
+    private static final Logger logger = LoggerFactory.getLogger(SearchHandler.class);
+
     public SearchHandler(TransportClient client) {
         this.client = client;
     }
@@ -42,7 +48,9 @@ public class SearchHandler implements HttpHandler {
         searchRequestBuilder.setQuery(queryBuilder);
         searchRequestBuilder.setFrom(startFrom).setSize(10).setExplain(true);
 
-        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        ListenableActionFuture<SearchResponse> future = searchRequestBuilder.execute();
+        SearchResponse searchResponse = future.actionGet();
+        logger.debug(searchResponse.toString());
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         StringBuilder builder = new StringBuilder();
         int length = searchHits.length;
@@ -61,7 +69,5 @@ public class SearchHandler implements HttpHandler {
         exchange.getResponseHeaders().add(HttpString.tryFromString("Access-Control-Allow-Origin"), "*");
         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "application/json;");
         exchange.getResponseSender().send(result);
-        System.out.println(result);
-
     }
 }

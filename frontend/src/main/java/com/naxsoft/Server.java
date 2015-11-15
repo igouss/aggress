@@ -3,6 +3,8 @@ package com.naxsoft;
 import static io.undertow.Handlers.path;
 import static io.undertow.Handlers.websocket;
 
+import com.naxsoft.handlers.IndexHandler;
+import com.naxsoft.handlers.SearchHandler;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;
@@ -31,14 +33,54 @@ public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     public static void main(final String[] args) {
-        TemplateEngine templateEngine = new TemplateEngine();
-        FileTemplateResolver templateResolver = new FileTemplateResolver();
-        templateResolver.setTemplateMode("HTML5");
+        TemplateEngine templateEngine = getTemplateEngine();
+        TransportClient esClient = getTransportClient();
 
-        templateEngine.addTemplateResolver(templateResolver);
+        ApplicationContext context = new ApplicationContext();
+        context.setInvalidateTemplateCache(true);
+
+        PathHandler pathHandler = getPathHandler(templateEngine, esClient, context);
+
+        SessionManager sessionManager = new InMemorySessionManager("SESSION_MANAGER");
+        SessionCookieConfig sessionConfig = new SessionCookieConfig();
+        SessionAttachmentHandler sessionAttachmentHandler = new SessionAttachmentHandler(sessionManager, sessionConfig);
+        sessionAttachmentHandler.setNext(pathHandler);
+
+        Undertow server = Undertow.builder()
+                .addHttpListener(8080, "localhost")
+                .setHandler(pathHandler) // new SimpleErrorPageHandler().setNext
+                .build();
+        try {
+            server.start();
+        } catch (RuntimeException e) {
+            logger.error("Server error", e);
+        } finally {
+            // server.stop();
+        }
+    }
+
+    private static PathHandler getPathHandler(TemplateEngine templateEngine, TransportClient client, ApplicationContext context) {
+        PathHandler pathHandler = Handlers.path();
+        pathHandler.addExactPath("/", new IndexHandler(context, templateEngine));
+        pathHandler.addExactPath("/search", new SearchHandler(client));
+
+        String baseDir = Paths.get("").toAbsolutePath().toString();
+        String relPath = "\\frontend\\basedir\\thymeleaf";
+        pathHandler.addPrefixPath("/css", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\css\\"), 100)));
+        pathHandler.addPrefixPath("/fonts", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\fonts\\"), 100)));
+        pathHandler.addPrefixPath("/js", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\js\\"), 100)));
+        pathHandler.addPrefixPath("/img", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\img\\"), 100)));
+
+//                .setHandler(sessionAttachmentHandler)
+//                .setHandler(Handlers.path()
+//                        .addPrefixPath("/api/ws", websocket(new WebSocketHandler()))
+//                        .addPrefixPath("/api/rest", new RestHandler()))
 
 
+        return pathHandler;
+    }
 
+    private static TransportClient getTransportClient() {
         Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         TransportClient client = new TransportClient(settings);
         client.addTransportAddress(new InetSocketTransportAddress("localhost", 9300));
@@ -56,38 +98,15 @@ public class Server {
                 logger.error("Thread sleep failed", e);
             }
         }
-
-        ApplicationContext context = new ApplicationContext(true);
-
-        PathHandler pathHandler = Handlers.path();
-        pathHandler.addExactPath("/", new IndexHandler(context, templateEngine));
-        pathHandler.addExactPath("/search", new SearchHandler(client));
-
-        String baseDir = Paths.get("").toAbsolutePath().toString();
-        String relPath = "\\frontend\\basedir\\thymeleaf";
-        pathHandler.addPrefixPath("/css", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\css\\"), 100)));
-        pathHandler.addPrefixPath("/fonts", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\fonts\\"), 100)));
-        pathHandler.addPrefixPath("/js", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\js\\"), 100)));
-        pathHandler.addPrefixPath("/img", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\img\\"), 100)));
-
-        SessionManager sessionManager = new InMemorySessionManager("SESSION_MANAGER");
-        SessionCookieConfig sessionConfig = new SessionCookieConfig();
-        SessionAttachmentHandler sessionAttachmentHandler = new SessionAttachmentHandler(sessionManager, sessionConfig);
-        sessionAttachmentHandler.setNext(pathHandler);
-
-        Undertow server = Undertow.builder()
-                .addHttpListener(8080, "localhost")
-                .setHandler(pathHandler) // new SimpleErrorPageHandler().setNext
-
-//                .setHandler(sessionAttachmentHandler)
-//                .setHandler(Handlers.path()
-//                        .addPrefixPath("/api/ws", websocket(new WebSocketHandler()))
-//                        .addPrefixPath("/api/rest", new RestHandler()))
-                .build();
-
-        server.start();
+        return client;
     }
 
+    private static TemplateEngine getTemplateEngine() {
+        TemplateEngine templateEngine = new TemplateEngine();
+        FileTemplateResolver templateResolver = new FileTemplateResolver();
+        templateResolver.setTemplateMode("HTML5");
+
+        templateEngine.addTemplateResolver(templateResolver);
+        return templateEngine;
+    }
 }
-//.setHandler(resource(new PathResourceManager(Paths.get(System.getProperty("user.home")), 100))
-//        .setDirectoryListingEnabled(true))

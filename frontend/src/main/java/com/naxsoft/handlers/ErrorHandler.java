@@ -1,9 +1,8 @@
-package com.naxsoft;
+package com.naxsoft.handlers;
 
 import io.undertow.Handlers;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.session.SessionAttachmentHandler;
 
 public class ErrorHandler implements HttpHandler {
 

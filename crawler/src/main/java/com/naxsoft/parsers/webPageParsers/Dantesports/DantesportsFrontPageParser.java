@@ -1,9 +1,8 @@
-package com.naxsoft.parsers.webPageParsers.Dantesports;
+package com.naxsoft.parsers.webPageParsers.dantesports;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.naxsoft.parsers.webPageParsers.ctcsupplies.CtcsuppliesProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.cookie.Cookie;
 import org.jsoup.Jsoup;

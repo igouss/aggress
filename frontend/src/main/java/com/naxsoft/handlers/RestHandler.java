@@ -1,4 +1,4 @@
-package com.naxsoft;
+package com.naxsoft.handlers;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;

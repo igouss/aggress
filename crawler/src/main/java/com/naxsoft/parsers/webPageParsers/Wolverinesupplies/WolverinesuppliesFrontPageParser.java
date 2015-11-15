@@ -1,9 +1,8 @@
-package com.naxsoft.parsers.webPageParsers.Wolverinesupplies;
+package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.naxsoft.parsers.webPageParsers.wholesalesports.WholesalesportsProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
