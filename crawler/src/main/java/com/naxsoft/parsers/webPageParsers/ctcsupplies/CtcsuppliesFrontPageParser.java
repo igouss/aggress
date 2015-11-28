@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class CtcsuppliesFrontPageParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
 
     public CtcsuppliesFrontPageParser(AsyncFetchClient client) {
@@ -43,7 +43,7 @@ public class CtcsuppliesFrontPageParser implements WebPageParser {
 
     private class Handler extends AsyncCompletionHandler<Set<WebPageEntity>> {
 
-        private WebPageEntity parent;
+        private final WebPageEntity parent;
 
         public Handler(WebPageEntity parent) {
             this.parent = parent;
@@ -52,7 +52,7 @@ public class CtcsuppliesFrontPageParser implements WebPageParser {
         @Override
         public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
             HashSet<WebPageEntity> result = new HashSet<>();
-            if (resp.getStatusCode() == 200) {
+            if (200 == resp.getStatusCode()) {
                 Document document = Jsoup.parse(resp.getResponseBody(), resp.getUri().toString());
                 Elements elements = document.select("ul.pagination-custom  a");
                 int max = 0;
@@ -62,7 +62,7 @@ public class CtcsuppliesFrontPageParser implements WebPageParser {
                         if (tmp > max) {
                             max = tmp;
                         }
-                    } catch (NumberFormatException e) {
+                    } catch (NumberFormatException ignored) {
                         // ignore
                     }
                 }

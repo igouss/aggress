@@ -23,14 +23,16 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class SailsFrontPageParser  implements WebPageParser {
-    private final AsyncFetchClient client;
+public class SailsFrontPageParser implements WebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(SailsFrontPageParser.class);
-    private static Collection<Cookie> cookies;
+    private static final Collection<Cookie> cookies;
+
     static {
         cookies = new ArrayList<>(1);
         cookies.add(Cookie.newValidCookie("store_language", "english", false, null, null, Long.MAX_VALUE, false, false));
     }
+
+    private final AsyncFetchClient client;
 
     public SailsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -48,11 +50,11 @@ public class SailsFrontPageParser  implements WebPageParser {
                     @Override
                     public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                         HashSet<WebPageEntity> result = new HashSet<>();
-                        if (resp.getStatusCode() == 200) {
+                        if (200 == resp.getStatusCode()) {
                             Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
                             Elements elements = document.select("ol.nav-2 a");
 
-                            for(Element el : elements) {
+                            for (Element el : elements) {
                                 WebPageEntity webPageEntity = new WebPageEntity();
                                 webPageEntity.setUrl(el.attr("abs:href") + "?limit=36");
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
@@ -69,7 +71,7 @@ public class SailsFrontPageParser  implements WebPageParser {
                 }))));
     }
 
-    private WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url, WebPageEntity parent) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

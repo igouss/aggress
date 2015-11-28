@@ -34,7 +34,7 @@ public class TradeexCanadaProductListParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                     if (parent.getUrl().contains("page=")) {
                         Elements elements = document.select(".view-content a");
@@ -46,7 +46,7 @@ public class TradeexCanadaProductListParser implements WebPageParser {
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productPage");
                             webPageEntity.setParent(parent.getParent());
-                            logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + parent.getUrl());
+                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                             result.add(webPageEntity);
                         }
                     } else {
@@ -63,7 +63,7 @@ public class TradeexCanadaProductListParser implements WebPageParser {
         return Observable.defer(() -> Observable.from(future));
     }
 
-    private WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url, WebPageEntity parent) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

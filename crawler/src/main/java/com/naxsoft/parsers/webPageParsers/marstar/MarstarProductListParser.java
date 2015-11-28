@@ -3,7 +3,6 @@ package com.naxsoft.parsers.webPageParsers.marstar;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.naxsoft.parsers.webPageParsers.irunguns.IrungunsProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -23,7 +22,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class MarstarProductListParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(MarstarProductListParser.class);
     public MarstarProductListParser(AsyncFetchClient client) {
         this.client = client;
@@ -35,9 +34,9 @@ public class MarstarProductListParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    System.out.println("Parsing " + document.select("h1").text());
+                    logger.info("Parsing {}", document.select("h1").text());
                     Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
                     for (Element e : elements) {
                         WebPageEntity webPageEntity = getProductPage(resp, e);
@@ -53,11 +52,11 @@ public class MarstarProductListParser implements WebPageParser {
                         WebPageEntity webPageEntity = getProductList(resp, e);
                         result.add(webPageEntity);
                     }
-                    if (result.size() == 0) {
-                        logger.warn("No entries found url = " + resp.getUri());
+                    if (result.isEmpty()) {
+                        logger.warn("No entries found url = {}", resp.getUri());
                     }
                 } else {
-                    logger.warn("Failed to open page " + resp.getUri() + " error code: " + resp.getStatusCode());
+                    logger.warn("Failed to open page {} error code: {}", resp.getUri(), resp.getStatusCode());
                 }
                 return result;
             }
@@ -71,7 +70,7 @@ public class MarstarProductListParser implements WebPageParser {
                 webPageEntity.setStatusCode(resp.getStatusCode());
                 webPageEntity.setType("productList");
                 webPageEntity.setParent(webPage);
-                logger.info("Found product list page " + e.text() + " url=" + linkUrl);
+                logger.info("Found product list page {} url={}", e.text(), linkUrl);
                 return webPageEntity;
             }
 
@@ -84,7 +83,7 @@ public class MarstarProductListParser implements WebPageParser {
                 webPageEntity.setStatusCode(resp.getStatusCode());
                 webPageEntity.setType("productPage");
                 webPageEntity.setParent(webPage);
-                logger.info("Found product " + e.text() + " url=" + linkUrl);
+                logger.info("Found product {} url={}", e.text(), linkUrl);
                 return webPageEntity;
             }
         });

@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
  */
 public class AlflahertysProductPageParser implements WebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(AlflahertysProductPageParser.class);
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
 
     public AlflahertysProductPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -29,7 +29,7 @@ public class AlflahertysProductPageParser implements WebPageParser {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
-                    if (resp.getStatusCode() == 200) {
+                    if (200 == resp.getStatusCode()) {
                         WebPageEntity webPageEntity = new WebPageEntity();
                         webPageEntity.setUrl(webPage.getUrl());
                         webPageEntity.setContent(resp.getResponseBody());

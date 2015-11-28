@@ -36,35 +36,31 @@ import java.util.concurrent.TimeUnit;
 public class Aggress {
     private static final Logger logger = LoggerFactory.getLogger(Aggress.class);
 
-    private static final MetricRegistry metrics;
+    private static final MetricRegistry metrics = new MetricRegistry();
+    private static final Database db = new Database();
     private static ScheduledReporter reporter;
     private static WebPageParserFactory webPageParserFactory;
     private static WebPageService webPageService;
     private static ProductService productService;
     private static SourceService sourceService;
-    private static Elastic elastic;
+    private static Elastic elastic = new Elastic("localhost", 9300);
     private static ProductParserFactory productParserFactory;
-    private static Database db;
 
-    static {
-        metrics = new MetricRegistry();
-        db = new Database();
-        logger.info("Elastic initialization complete");
-        elastic = new Elastic("localhost", 9300);
-        logger.info("Database initialization complete");
+    public static void main(String[] args) {
+        try {
 //        reporter = Slf4jReporter.forRegistry(metrics).outputTo(logger)
 //                .build();
-        try {
+
             reporter = ElasticsearchReporter.forRegistry(metrics)
 //                    .hosts("localhost:9300")
                     .build();
+            reporter.start(1, TimeUnit.SECONDS);
+
         } catch (IOException e) {
             logger.error("Failed to initialize metrics reporter", e);
+            return;
         }
-    }
 
-    public static void main(String[] args) {
-        reporter.start(1, TimeUnit.SECONDS);
         SSLContext sc;
         try {
             // Create a trust manager that does not validate certificate chains
@@ -119,10 +115,15 @@ public class Aggress {
             elastic.createMapping(asyncFetchClient, "product", "guns", indexSuffix).subscribe();
 
             metrics.register(MetricRegistry.name(Database.class, "web_pages", "unparsed"), (Gauge<Long>) () -> {
-                StatelessSession session = db.getSessionFactory().openStatelessSession();
-                Query query = session.createQuery("select count(id) from WebPageEntity where parsed = false");
-                Long rc = (Long) query.uniqueResult();
-                session.close();
+                Long rc = -1L;
+                try {
+                    StatelessSession session = db.getSessionFactory().openStatelessSession();
+                    Query query = session.createQuery("select count(id) from WebPageEntity where parsed = false");
+                    rc = (Long) query.uniqueResult();
+                    session.close();
+                } catch (Exception e) {
+                    logger.error("Metric failed: com.naxsoft.database.Database.web_pages.unparsed", e);
+                }
                 return rc;
             });
 
@@ -141,7 +142,7 @@ public class Aggress {
             logger.info("Fetch & parse complete");
 
             processProducts(webPageService.getUnparsedProductPageRaw());
-            webPageService.deDup();
+//            webPageService.deDup();
             indexProducts(productService.getProducts(), "product" + indexSuffix, "guns");
             productService.markAllAsIndexed();
 
@@ -149,7 +150,9 @@ public class Aggress {
         } catch (Exception e) {
             logger.error("Application failure", e);
         } finally {
-            reporter.stop();
+            if (null != reporter) {
+                reporter.stop();
+            }
             if (null != db) {
                 db.close();
             }
@@ -213,18 +216,37 @@ public class Aggress {
     }
 
     private static void process(Observable<WebPageEntity> parents) {
-        parents.subscribe(parent -> {
-            try {
-                Observable<Set<WebPageEntity>> parsed = webPageParserFactory.parse(parent);
-                webPageService.markParsed(parent);
+//        parents.map(parent -> {
+//            Observable<Set<WebPageEntity>> parsed = webPageParserFactory.parse(parent);
+//            webPageService.markParsed(parent);
+//            return parsed;
+//        }).flatMap(pages -> webPageService::save).subscribe();
 
-                parsed.subscribe(webPageService::save, e -> {
-                    logger.error("Failed to save web-page {}", parent.getUrl(), e);
-                });
+        parents.flatMap(parent -> {
+            Observable<Set<WebPageEntity>> parsed = null;
+            try {
+                parsed = webPageParserFactory.parse(parent);
             } catch (Exception e) {
                 logger.error("Failed to process source {}", parent.getUrl(), e);
             }
-        });
+            webPageService.markParsed(parent);
+            return parsed;
+        }).filter(webPageEntities -> null != webPageEntities)
+                .map(webPageEntities -> webPageService.save(webPageEntities))
+                .subscribe();
+
+//        parents.subscribe(parent -> {
+//            try {
+//                Observable<Set<WebPageEntity>> parsed = webPageParserFactory.parse(parent);
+//                webPageService.markParsed(parent);
+//
+//                parsed.subscribe(webPageService::save, e -> {
+//                    logger.error("Failed to save web-page {}", parent.getUrl(), e);
+//                });
+//            } catch (Exception e) {
+//                logger.error("Failed to process source {}", parent.getUrl(), e);
+//            }
+//        });
     }
 
     private static void processProducts(Observable<WebPageEntity> webPage) {

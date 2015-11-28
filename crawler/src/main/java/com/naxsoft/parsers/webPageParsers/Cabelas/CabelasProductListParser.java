@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.Cabelas;
+package com.naxsoft.parsers.webPageParsers.cabelas;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -35,7 +35,7 @@ public class CabelasProductListParser implements WebPageParser {
             @Override
             public Set<Document> onCompleted(Response resp) throws Exception {
                 HashSet<Document> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     webPage.setParsed(true);
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     result.add(document);
@@ -54,7 +54,7 @@ public class CabelasProductListParser implements WebPageParser {
                         }
                     } else {
                         Elements subPages = document.select("#main footer > nav span, #main footer > nav a");
-                        if (subPages.size() != 0) {
+                        if (!subPages.isEmpty()) {
                             int max = 1;
                             for (Element subpage : subPages) {
                                 try {
@@ -62,7 +62,7 @@ public class CabelasProductListParser implements WebPageParser {
                                     if (page > max) {
                                         max = page;
                                     }
-                                } catch (Exception e) {
+                                } catch (Exception ignored) {
                                     // ignore
                                 }
                             }
@@ -85,7 +85,7 @@ public class CabelasProductListParser implements WebPageParser {
         });
     }
 
-    private WebPageEntity getProductList(WebPageEntity parent, int statusCode, String url) {
+    private static WebPageEntity getProductList(WebPageEntity parent, int statusCode, String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
@@ -98,11 +98,11 @@ public class CabelasProductListParser implements WebPageParser {
     }
 
 
-    private boolean isTerminalSubcategory(Document document) {
-        return (document.select(".categories .active").size() == 1) || document.select("h1").text().equals("Thanks for visiting Cabelas.ca!");
+    private static boolean isTerminalSubcategory(Document document) {
+        return (1 == document.select(".categories .active").size()) || document.select("h1").text().equals("Thanks for visiting Cabelas.ca!");
     }
 
-    private WebPageEntity productPage(WebPageEntity parent, int statusCode, String url) {
+    private static WebPageEntity productPage(WebPageEntity parent, int statusCode, String url) {
         WebPageEntity productPage = new WebPageEntity();
         productPage.setUrl(url);
         productPage.setModificationDate(new Timestamp(System.currentTimeMillis()));

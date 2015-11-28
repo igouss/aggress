@@ -37,13 +37,13 @@ public class MarstarRawProductPageParser implements ProductParser {
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
         String productName = document.select("h1").text();
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
         jsonBuilder.field("productName", productName);
         jsonBuilder.field("productImage", document.select("img[id=mainPic]").attr("abs:src"));
         ArrayList<String> price = parsePrice(document.select(".priceAvail").text());
-        if (price.size() == 0) {
+        if (price.isEmpty()) {
             return products; // ignore
-        } else if (price.size() == 1) {
+        } else if (1 == price.size()) {
             jsonBuilder.field("regularPrice", price.get(0));
         } else {
             jsonBuilder.field("regularPrice", price.get(0));
@@ -73,7 +73,7 @@ public class MarstarRawProductPageParser implements ProductParser {
 
     }
 
-    private ArrayList<String> parsePrice(String price) {
+    private static ArrayList<String> parsePrice(String price) {
         ArrayList<String> result = new ArrayList<>();
         Matcher matcher = Pattern.compile("((\\d+(\\.|,))+\\d\\d)+").matcher(price);
 

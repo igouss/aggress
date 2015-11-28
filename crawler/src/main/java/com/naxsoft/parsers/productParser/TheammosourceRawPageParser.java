@@ -18,17 +18,20 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class CrafmProductRawParser implements ProductParser {
-    private static final Logger logger = LoggerFactory.getLogger(CrafmProductRawParser.class);
+public class TheammosourceRawPageParser implements ProductParser {
+    private static final Logger logger = LoggerFactory.getLogger(TheammosourceRawPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
-
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-        String productName = document.select(".product-name").text();
+
+        String productName = document.select("#productListHeading").text();
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
+        if (document.select("#productDetailsList > li:nth-child(2)").text().equals("0 Units in Stock")) {
+            return result;
+        }
 
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
@@ -36,22 +39,26 @@ public class CrafmProductRawParser implements ProductParser {
         jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
         jsonBuilder.field("productName", productName);
-        String img = document.select(".product-image img").attr("src");
-        jsonBuilder.field("productImage", img);
-        jsonBuilder.field("regularPrice", parsePrice(document.select("#product_addtocart_form > div.product-shop > div:nth-child(4) > h2 > span").text()));
-        jsonBuilder.field("description", document.select("div.short-description p[align=justify]").text());
+        jsonBuilder.field("productImage", document.select("#productMainImage img").attr("abs:src"));
+        jsonBuilder.field("description", document.select("#productDescription").text());
+
+        if (!document.select("#productPrices .productSpecialPrice").isEmpty()) {
+            jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices .normalprice").text()));
+            jsonBuilder.field("specialPrice", parsePrice(document.select("#productPrices .productSpecialPrice").text()));
+        } else {
+            jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices #retail").text()));
+        }
+
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setJson(jsonBuilder.string());
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
-
         return result;
-
     }
 
     private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("((\\d+|,)+\\.\\d+)").matcher(price);
+        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
@@ -59,9 +66,8 @@ public class CrafmProductRawParser implements ProductParser {
         }
     }
 
-
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.crafm.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().startsWith("http://www.theammosource.com/") && webPage.getType().equals("productPageRaw");
     }
 }

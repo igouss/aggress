@@ -23,11 +23,11 @@ public class CorwinArmsProductRawPageParser implements ProductParser {
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet result = new HashSet();
+        HashSet<ProductEntity> result = new HashSet<>();
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select("#maincol h1").text();
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
         ProductEntity product = new ProductEntity();
@@ -53,7 +53,7 @@ public class CorwinArmsProductRawPageParser implements ProductParser {
 
     }
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");

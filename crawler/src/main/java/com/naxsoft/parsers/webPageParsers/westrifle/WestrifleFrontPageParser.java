@@ -3,12 +3,10 @@ package com.naxsoft.parsers.webPageParsers.westrifle;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.naxsoft.parsers.webPageParsers.wanstallsonline.WanstallsonlineProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +15,6 @@ import rx.Observable;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
@@ -41,7 +37,7 @@ public class WestrifleFrontPageParser implements WebPageParser {
                     @Override
                     public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                         HashSet<WebPageEntity> result = new HashSet<>();
-                        if (resp.getStatusCode() == 200) {
+                        if (200 == resp.getStatusCode()) {
                             Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
                             Elements elements = document.select("#allProductsListingTopNumber > strong:nth-child(3)");
                             int productTotal = Integer.parseInt(elements.text());
@@ -55,7 +51,7 @@ public class WestrifleFrontPageParser implements WebPageParser {
                                 webPageEntity.setStatusCode(resp.getStatusCode());
                                 webPageEntity.setType("productList");
                                 webPageEntity.setParent(page.getParent());
-                                logger.info("Product page listing=" + webPageEntity.getUrl());
+                                logger.info("Product page listing={}", webPageEntity.getUrl());
                                 result.add(webPageEntity);
                             }
                         }
@@ -64,7 +60,7 @@ public class WestrifleFrontPageParser implements WebPageParser {
                 }))));
     }
 
-    private WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url, WebPageEntity parent) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

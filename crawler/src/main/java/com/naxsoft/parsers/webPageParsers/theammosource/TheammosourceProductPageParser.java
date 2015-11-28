@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.wanstallsonline;
+package com.naxsoft.parsers.webPageParsers.theammosource;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -16,10 +16,11 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class WanstallsonlineProductPageParser implements WebPageParser {
+public class TheammosourceProductPageParser  implements WebPageParser {
     private final AsyncFetchClient client;
-    private static final Logger logger = LoggerFactory.getLogger(WanstallsonlineProductPageParser.class);
-    public WanstallsonlineProductPageParser(AsyncFetchClient client) {
+    private static final Logger logger = LoggerFactory.getLogger(TheammosourceProductPageParser.class);
+
+    public TheammosourceProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
@@ -49,6 +50,6 @@ public class WanstallsonlineProductPageParser implements WebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.wanstallsonline.com/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().startsWith("http://www.theammosource.com/") && webPage.getType().equals("productPage");
     }
 }

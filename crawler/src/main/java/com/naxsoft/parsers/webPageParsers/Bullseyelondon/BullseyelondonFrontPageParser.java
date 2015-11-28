@@ -20,10 +20,9 @@ import java.util.concurrent.Future;
 
 public class BullseyelondonFrontPageParser implements WebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(BullseyelondonFrontPageParser.class);
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
 
     public BullseyelondonFrontPageParser(AsyncFetchClient client) {
-
         this.client = client;
     }
 
@@ -32,7 +31,7 @@ public class BullseyelondonFrontPageParser implements WebPageParser {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
-                    if (resp.getStatusCode() == 200) {
+                    if (200 == resp.getStatusCode()) {
 
                         Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                         Elements elements = document.select(".vertnav-cat a");

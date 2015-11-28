@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class MarstarFrontPageParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
 
     public MarstarFrontPageParser(AsyncFetchClient client) {
         this.client = client;

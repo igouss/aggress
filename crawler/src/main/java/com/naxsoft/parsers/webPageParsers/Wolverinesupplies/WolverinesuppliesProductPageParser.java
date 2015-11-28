@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 public class WolverinesuppliesProductPageParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductPageParser.class);
     public WolverinesuppliesProductPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -30,7 +30,7 @@ public class WolverinesuppliesProductPageParser implements WebPageParser {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
-                    if (resp.getStatusCode() == 200) {
+                    if (200 == resp.getStatusCode()) {
                         WebPageEntity webPageEntity = new WebPageEntity();
                         webPageEntity.setUrl(webPage.getUrl());
                         webPageEntity.setParent(webPage);
@@ -39,7 +39,7 @@ public class WolverinesuppliesProductPageParser implements WebPageParser {
                         webPageEntity.setContent(resp.getResponseBody());
                         webPageEntity.setParent(webPage);
                         result.add(webPageEntity);
-                        logger.info("productPageRaw=" + webPageEntity.getUrl());
+                        logger.info("productPageRaw={}", webPageEntity.getUrl());
                     }
                     return result;
                 }

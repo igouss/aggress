@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class WholesalesportsProductListParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(WholesalesportsProductListParser.class);
 
     public WholesalesportsProductListParser(AsyncFetchClient client) {
@@ -34,7 +34,7 @@ public class WholesalesportsProductListParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                     Elements elements = document.select(".productItemInfo a");
                     for (Element element : elements) {
@@ -45,7 +45,7 @@ public class WholesalesportsProductListParser implements WebPageParser {
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productPage");
                         webPageEntity.setParent(parent.getParent());
-                        logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + parent.getUrl());
+                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                         result.add(webPageEntity);
                     }
                 }

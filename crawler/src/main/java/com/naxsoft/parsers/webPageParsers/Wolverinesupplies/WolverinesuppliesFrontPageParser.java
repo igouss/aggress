@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 public class WolverinesuppliesFrontPageParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesFrontPageParser.class);
     public WolverinesuppliesFrontPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -29,12 +29,12 @@ public class WolverinesuppliesFrontPageParser implements WebPageParser {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
-                    if (resp.getStatusCode() == 200) {
+                    if (200 == resp.getStatusCode()) {
                         Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                         Elements elements = document.select(".mainnav a");
                         for (Element e : elements) {
                             String linkUrl = e.attr("abs:href");
-                            if (null != linkUrl && !linkUrl.isEmpty() && linkUrl.contains("Products") && e.siblingElements().size() == 0) {
+                            if (null != linkUrl && !linkUrl.isEmpty() && linkUrl.contains("Products") && e.siblingElements().isEmpty()) {
                                 WebPageEntity webPageEntity = new WebPageEntity();
                                 webPageEntity.setUrl(linkUrl);
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
@@ -42,7 +42,7 @@ public class WolverinesuppliesFrontPageParser implements WebPageParser {
                                 webPageEntity.setStatusCode(resp.getStatusCode());
                                 webPageEntity.setType("productList");
                                 webPageEntity.setParent(webPage);
-                                logger.info("ProductPageUrl=" + linkUrl + ", " + "parseUrl=" + webPage.getUrl());
+                                logger.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
                                 result.add(webPageEntity);
                             }
                         }

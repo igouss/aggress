@@ -21,9 +21,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class ProductParserFactory {
-    private final Set<ProductParser> parsers = new HashSet();
+    private final Set<ProductParser> parsers = new HashSet<>();
     private static final Logger logger = LoggerFactory.getLogger(ProductParserFactory.class);
-    private MetricRegistry metricRegistry;
+    private final MetricRegistry metricRegistry;
 
     public ProductParserFactory(MetricRegistry metricRegistry) {
         this.metricRegistry = metricRegistry;

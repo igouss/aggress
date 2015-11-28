@@ -23,40 +23,39 @@ public class CtcsuppliesRawProductPageParser implements ProductParser {
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet result = new HashSet();
+        HashSet<ProductEntity> result = new HashSet<>();
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select(".product-single h1").text();
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
-            ProductEntity product = new ProductEntity();
-            XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select("#ProductPhotoImg").attr("src"));
-            jsonBuilder.field("manufacturer", document.select(".product-single h3").text());
+        ProductEntity product = new ProductEntity();
+        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
+        jsonBuilder.startObject();
+        jsonBuilder.field("url", webPageEntity.getUrl());
+        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+        jsonBuilder.field("productName", productName);
+        jsonBuilder.field("productImage", document.select("#ProductPhotoImg").attr("src"));
+        jsonBuilder.field("manufacturer", document.select(".product-single h3").text());
         String category = document.select("nav > a:nth-child(3)").text();
         if (!category.isEmpty()) {
             jsonBuilder.field("category", category);
         }
 
 
+        jsonBuilder.field("regularPrice", parsePrice(document.select("#ProductPrice").text()));
 
-                jsonBuilder.field("regularPrice", parsePrice(document.select("#ProductPrice").text()));
-
-            jsonBuilder.field("description", document.select(".product-description p").text());
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
-            product.setWebpageId(webPageEntity.getId());
-            result.add(product);
+        jsonBuilder.field("description", document.select(".product-description p").text());
+        jsonBuilder.endObject();
+        product.setUrl(webPageEntity.getUrl());
+        product.setJson(jsonBuilder.string());
+        product.setWebpageId(webPageEntity.getId());
+        result.add(product);
 
         return result;
     }
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");

@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class DantesportsProductListParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(DantesportsProductListParser.class);
     public DantesportsProductListParser(AsyncFetchClient client) {
         this.client = client;
@@ -35,7 +35,7 @@ public class DantesportsProductListParser implements WebPageParser {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
-                    if (resp.getStatusCode() == 200) {
+                    if (200 == resp.getStatusCode()) {
                         Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                         Elements elements = document.select("#store div.listItem");
 
@@ -50,10 +50,10 @@ public class DantesportsProductListParser implements WebPageParser {
                                 webPageEntity.setStatusCode(resp.getStatusCode());
                                 webPageEntity.setType("productPage");
                                 webPageEntity.setParent(webPage);
-                                logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + webPage.getUrl());
+                                logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
                                 result.add(webPageEntity);
                             } else {
-                                logger.info("Product id not found: " + webPage);
+                                logger.info("Product id not found: {}", webPage);
                             }
                         }
                     }

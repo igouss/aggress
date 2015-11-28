@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class CtcsuppliesProductListParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(CtcsuppliesProductListParser.class);
 
     public CtcsuppliesProductListParser(AsyncFetchClient client) {
@@ -34,12 +34,12 @@ public class CtcsuppliesProductListParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("a.grid-link");
 
                     for (Element element : elements) {
-                        if (element.select("span.badge.badge--sold-out").size() != 0) {
+                        if (!element.select("span.badge.badge--sold-out").isEmpty()) {
                             continue;
                         }
                         WebPageEntity webPageEntity = new WebPageEntity();
@@ -49,7 +49,7 @@ public class CtcsuppliesProductListParser implements WebPageParser {
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productPage");
                         webPageEntity.setParent(webPage);
-                        logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + webPage.getUrl());
+                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
                         result.add(webPageEntity);
                     }
                 }

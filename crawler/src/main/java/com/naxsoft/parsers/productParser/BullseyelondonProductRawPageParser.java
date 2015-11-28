@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -31,7 +30,7 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
 
-        HashSet products = new HashSet();
+        HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
         jsonBuilder.startObject();
@@ -42,23 +41,21 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
         String productName = document.select(".product-name h1").first().text().trim();
         jsonBuilder.field("productName", productName);
         jsonBuilder.field("category", document.select(".breadcrumbs .category18 a").text().trim());
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
         jsonBuilder.field("productImage", document.select("#product_addtocart_form > div.product-img-box > p > a > img").attr("src").trim());
-        jsonBuilder.field("regularPrice", this.getRegularPrice(document));
-        jsonBuilder.field("specialPrice", this.getSpecialPrice(document));
+        jsonBuilder.field("regularPrice", getRegularPrice(document));
+        jsonBuilder.field("specialPrice", getSpecialPrice(document));
 
         try {
-            jsonBuilder.field("freeShipping", this.getFreeShipping(document));
-        } catch (Exception e) {
+            jsonBuilder.field("freeShipping", BullseyelondonProductRawPageParser.getFreeShipping(document));
+        } catch (Exception ignored) {
         }
 
-        jsonBuilder.field("unitsAvailable", this.getUnitsAvailable(document));
+        jsonBuilder.field("unitsAvailable", BullseyelondonProductRawPageParser.getUnitsAvailable(document));
         jsonBuilder.field("description", document.select(".short-description").text().trim());
         Elements table = document.select("#product_tabs_additional_contents");
-        Iterator var9 = table.select("tr").iterator();
 
-        while(var9.hasNext()) {
-            Element row = (Element)var9.next();
+        for (Element row : table.select("tr")) {
             String th = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, row.select("th").text().replace(' ', '-'));
             String td = row.select("td").text();
             jsonBuilder.field(th, td);
@@ -72,19 +69,19 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
         return products;
     }
 
-    private String getFreeShipping(Document document) {
+    private static String getFreeShipping(Document document) {
         String raw = document.select(".freeShip").first().text();
         Matcher matcher = Pattern.compile("\\w+|\\s+").matcher(raw);
         return matcher.find()?"true":"false";
     }
 
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             try {
                 return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {
@@ -92,25 +89,24 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
         }
     }
 
-    private String getRegularPrice(Document document) {
+    private static String getRegularPrice(Document document) {
         String raw = document.select(".regular-price").text().trim();
-        if(null == raw || raw.isEmpty()) {
+        if(raw.isEmpty()) {
             raw = document.select(".old-price .price").text().trim();
         }
         return parsePrice(raw);
     }
 
-    private String getSpecialPrice(Document document) {
+    private static String getSpecialPrice(Document document) {
         String raw = document.select(".special-price .price").text().trim();
         return parsePrice(raw);
     }
 
-    private String getUnitsAvailable(Document document) {
+    private static String getUnitsAvailable(Document document) {
         String raw = document.select(".price-box").first().nextElementSibling().text().trim();
         Matcher matcher = Pattern.compile("\\d+").matcher(raw);
         if(matcher.find()) {
-            String value = matcher.group(0);
-            return value;
+            return matcher.group(0);
         } else {
             return raw;
         }

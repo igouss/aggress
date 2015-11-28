@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class DantesportsFrontPageParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
     public DantesportsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -42,7 +42,7 @@ public class DantesportsFrontPageParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("#scol1 > div.scell_menu > li > a");
 
@@ -54,7 +54,7 @@ public class DantesportsFrontPageParser implements WebPageParser {
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productList");
                         webPageEntity.setParent(webPage);
-                        logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
+                        logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                         result.add(webPageEntity);
                     }
 
@@ -65,12 +65,11 @@ public class DantesportsFrontPageParser implements WebPageParser {
         return Observable.defer(() -> Observable.from(future2));
     }
 
-    private AsyncCompletionHandler<List<Cookie>> getEngCookiesHandler() {
+    private static AsyncCompletionHandler<List<Cookie>> getEngCookiesHandler() {
         return new AsyncCompletionHandler<List<Cookie>>() {
             @Override
             public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                List<Cookie> cookies = resp.getCookies();
-                return cookies;
+                return resp.getCookies();
 
             }
         };

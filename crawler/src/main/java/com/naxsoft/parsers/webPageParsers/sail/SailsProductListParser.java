@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 public class SailsProductListParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(SailsProductListParser.class);
-    private static Collection<Cookie> cookies;
+    private static final Collection<Cookie> cookies;
 
     static {
         cookies = new ArrayList<>(1);

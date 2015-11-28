@@ -8,15 +8,12 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.text.NumberFormat;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +30,7 @@ public class AlflahertysRawPageParser implements ProductParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select(".product_name").text();
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         if(!document.select(".product_section .sold_out").text().equals("Sold Out")) {
             ProductEntity product = new ProductEntity();
@@ -67,7 +64,7 @@ public class AlflahertysRawPageParser implements ProductParser {
         return result;
     }
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");

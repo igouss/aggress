@@ -25,7 +25,7 @@ import java.util.concurrent.Future;
 public class AlflahertysFrontPageParser implements WebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(AlflahertysFrontPageParser.class);
 
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     public AlflahertysFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }
@@ -41,8 +41,8 @@ public class AlflahertysFrontPageParser implements WebPageParser {
         return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("frontPage");
     }
 
-    private class Handler extends AsyncCompletionHandler<Set<WebPageEntity>> {
-        private WebPageEntity parent;
+    private static class Handler extends AsyncCompletionHandler<Set<WebPageEntity>> {
+        private final WebPageEntity parent;
 
         public Handler(WebPageEntity parent) {
             this.parent = parent;
@@ -51,7 +51,7 @@ public class AlflahertysFrontPageParser implements WebPageParser {
         @Override
         public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
             HashSet<WebPageEntity> result = new HashSet<>();
-            if (resp.getStatusCode() == 200) {
+            if (200 == resp.getStatusCode()) {
                 Document document = Jsoup.parse(resp.getResponseBody(), resp.getUri().toString());
                 Elements elements = document.select(".paginate a");
                 int max = 0;

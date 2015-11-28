@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.Cabelas;
+package com.naxsoft.parsers.webPageParsers.cabelas;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -35,7 +35,7 @@ public class CabelasFrontPageParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("a[data-heading=Shooting]");
 
@@ -47,7 +47,7 @@ public class CabelasFrontPageParser implements WebPageParser {
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productList");
                         webPageEntity.setParent(webPage);
-                        logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + webPage.getUrl());
+                        logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                         result.add(webPageEntity);
                     }
 

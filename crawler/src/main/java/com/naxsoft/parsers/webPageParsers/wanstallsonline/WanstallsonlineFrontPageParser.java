@@ -3,7 +3,6 @@ package com.naxsoft.parsers.webPageParsers.wanstallsonline;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.naxsoft.parsers.webPageParsers.tradeexcanada.TradeexCanadaProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -41,7 +40,7 @@ public class WanstallsonlineFrontPageParser implements WebPageParser {
                     @Override
                     public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                         HashSet<WebPageEntity> result = new HashSet<>();
-                        if (resp.getStatusCode() == 200) {
+                        if (200 == resp.getStatusCode()) {
                             Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
                             int max = 1;
                             Elements elements = document.select(".navigationtable td[valign=middle] > a");
@@ -54,14 +53,14 @@ public class WanstallsonlineFrontPageParser implements WebPageParser {
                                             max = num;
                                         }
                                     }
-                                } catch (Exception e) {
+                                } catch (Exception ignored) {
                                     // ignore
                                 }
                             }
 
                             for (int i = 1; i < max; i++) {
                                 WebPageEntity webPageEntity = new WebPageEntity();
-                                if (i == 1) {
+                                if (1 == i) {
                                     webPageEntity.setUrl(page.getUrl());
                                 } else {
                                     webPageEntity.setUrl(page.getUrl() + "index " + i + ".html");
@@ -71,7 +70,7 @@ public class WanstallsonlineFrontPageParser implements WebPageParser {
                                 webPageEntity.setStatusCode(resp.getStatusCode());
                                 webPageEntity.setType("productList");
                                 webPageEntity.setParent(page.getParent());
-                                logger.info("Product page listing=" + webPageEntity.getUrl());
+                                logger.info("Product page listing={}", webPageEntity.getUrl());
                                 result.add(webPageEntity);
                             }
                         }
@@ -80,7 +79,7 @@ public class WanstallsonlineFrontPageParser implements WebPageParser {
                 }))));
     }
 
-    private WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url, WebPageEntity parent) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

@@ -30,7 +30,7 @@ public class EllwoodeppsProductParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(webPage.getUrl());
                     webPageEntity.setContent(resp.getResponseBody());
@@ -40,7 +40,7 @@ public class EllwoodeppsProductParser implements WebPageParser {
                     webPageEntity.setType("productPageRaw");
                     webPageEntity.setParent(webPage);
                     result.add(webPageEntity);
-                    logger.info("productPageRaw=" + webPageEntity.getUrl());
+                    logger.info("productPageRaw={}", webPageEntity.getUrl());
                 }
                 return result;
             }

@@ -18,7 +18,7 @@ import java.util.Date;
 
 public class SourceService {
     private final static Logger logger = LoggerFactory.getLogger(SourceService.class);
-    private Database database;
+    private final Database database;
 
     public SourceService(Database database) {
         this.database = database;
@@ -43,7 +43,7 @@ public class SourceService {
                     query.setTimestamp("modificationDate", new Date());
                     query.executeUpdate();
                     ++count;
-                    if (count % 20 == 0) {
+                    if (0 == count % 20) {
                         session.flush();
                     }
                 }
@@ -51,7 +51,9 @@ public class SourceService {
                 tx.commit();
             } catch (Exception e) {
                 logger.error("Failed to mark as source as parsed", e);
-                tx.rollback();
+                if (null != tx) {
+                    tx.rollback();
+                }
             } finally {
                 session.close();
             }

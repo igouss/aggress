@@ -16,8 +16,7 @@ public class NoopParser implements ProductParser {
     }
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) {
-        HashSet result = new HashSet();
-        return result;
+        return new HashSet<>();
     }
 
     public boolean canParse(WebPageEntity webPage) {

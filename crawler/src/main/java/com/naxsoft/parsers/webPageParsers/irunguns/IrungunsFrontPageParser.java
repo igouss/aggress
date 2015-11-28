@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class IrungunsFrontPageParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(IrungunsFrontPageParser.class);
     public IrungunsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -34,7 +34,7 @@ public class IrungunsFrontPageParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
 
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("#content .widthLimit a");

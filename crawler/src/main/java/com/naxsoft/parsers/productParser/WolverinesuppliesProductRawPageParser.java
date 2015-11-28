@@ -22,13 +22,12 @@ public class WolverinesuppliesProductRawPageParser implements ProductParser {
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
 
-        HashSet result = new HashSet();
+        HashSet<ProductEntity> result = new HashSet<>();
         Gson gson = new Gson();
         RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
 
-        for(int i = 0; i < rawProducts.length; ++i) {
-            RawProduct rp = rawProducts[i];
-            logger.info("Parsing " + rp.Title + ", page=" + webPageEntity.getUrl());
+        for (RawProduct rp : rawProducts) {
+            logger.info("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
             ProductEntity product = new ProductEntity();
             XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
             jsonBuilder.startObject();
@@ -42,7 +41,7 @@ public class WolverinesuppliesProductRawPageParser implements ProductParser {
             jsonBuilder.field("unitsAvailable", rp.StockAmount);
             jsonBuilder.field("description", rp.ExtendedDescription);
 
-            for(int j = 0; j < rp.Attributes.length; ++j) {
+            for (int j = 0; j < rp.Attributes.length; ++j) {
                 jsonBuilder.field(
                         rp.Attributes[j].AttributeName.toLowerCase(),
                         rp.Attributes[j].AttributeValue);

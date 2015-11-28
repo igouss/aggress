@@ -35,9 +35,9 @@ public class DantesportsProductRawPageParser implements ProductParser{
 
         Document document = Jsoup.parse(webPage.getContent(), webPage.getUrl());
         String productName = document.select(".naitem").text();
-        logger.info("Parsing " + productName + ", page=" + webPage.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPage.getUrl());
 
-        if (document.select(".outofstock").size() != 0) {
+        if (!document.select(".outofstock").isEmpty()) {
             return products;
         }
 

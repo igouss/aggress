@@ -60,7 +60,7 @@ public class ProductService {
             tx.commit();
         } catch (HibernateException e) {
             logger.error("Failed to mark all as indexed", e);
-            if (tx != null) {
+            if (null != tx) {
                 tx.rollback();
             }
         } finally {

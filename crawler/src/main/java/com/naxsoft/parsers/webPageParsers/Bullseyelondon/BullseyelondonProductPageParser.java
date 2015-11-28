@@ -15,7 +15,7 @@ import java.util.concurrent.Future;
 
 public class BullseyelondonProductPageParser implements WebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(BullseyelondonProductPageParser.class);
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
 
     public BullseyelondonProductPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -26,7 +26,7 @@ public class BullseyelondonProductPageParser implements WebPageParser {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
-                    if (resp.getStatusCode() == 200) {
+                    if (200 == resp.getStatusCode()) {
                         WebPageEntity webPageEntity = new WebPageEntity();
                         webPageEntity.setUrl(webPage.getUrl());
                         webPageEntity.setContent(resp.getResponseBody());
@@ -36,7 +36,7 @@ public class BullseyelondonProductPageParser implements WebPageParser {
                         webPageEntity.setType("productPageRaw");
                         webPageEntity.setParent(webPage);
                         result.add(webPageEntity);
-                        logger.info("productPageRaw=" + webPageEntity.getUrl());
+                        logger.info("productPageRaw={}", webPageEntity.getUrl());
                     }
                     return result;
                 }

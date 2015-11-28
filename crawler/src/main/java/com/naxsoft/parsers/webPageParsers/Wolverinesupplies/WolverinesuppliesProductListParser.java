@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class WolverinesuppliesProductListParser implements WebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
 
     public WolverinesuppliesProductListParser(AsyncFetchClient client) {
         this.client = client;
@@ -32,7 +32,7 @@ public class WolverinesuppliesProductListParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
 
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("div[ng-init]");
@@ -76,11 +76,11 @@ public class WolverinesuppliesProductListParser implements WebPageParser {
 
                 if (0 != sb.length()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb.toString());
+                    webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
                     webPageEntity.setParent(parent.getParent().getParent());
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setType("productPage");
-                    logger.info("productPage=" + webPageEntity.getUrl());
+                    logger.info("productPage={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
                 return result;

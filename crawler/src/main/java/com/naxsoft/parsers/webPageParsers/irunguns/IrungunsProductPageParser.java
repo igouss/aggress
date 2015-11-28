@@ -17,7 +17,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class IrungunsProductPageParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(IrungunsProductPageParser.class);
     public IrungunsProductPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -29,7 +29,7 @@ public class IrungunsProductPageParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(webPage.getUrl());
                     webPageEntity.setParent(webPage);
@@ -38,7 +38,7 @@ public class IrungunsProductPageParser implements WebPageParser {
                     webPageEntity.setContent(resp.getResponseBody());
                     webPageEntity.setParent(webPage);
                     result.add(webPageEntity);
-                    logger.info("productPageRaw=" + webPageEntity.getUrl());
+                    logger.info("productPageRaw={}", webPageEntity.getUrl());
                 }
                 return result;
             }

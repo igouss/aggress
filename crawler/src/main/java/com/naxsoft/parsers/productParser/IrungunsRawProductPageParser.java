@@ -12,10 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.text.NumberFormat;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +35,7 @@ public class IrungunsRawProductPageParser implements ProductParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        if (document.select(".saleImage").size() != 0) {
+        if (!document.select(".saleImage").isEmpty()) {
             return products;
         }
 
@@ -47,7 +45,7 @@ public class IrungunsRawProductPageParser implements ProductParser {
             return products;
         }
 
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
         jsonBuilder.field("productName",productName);
         String manufacturer = document.select(".product-details__title .product__manufacturer").text();
         if (!manufacturer.isEmpty()) {
@@ -55,7 +53,7 @@ public class IrungunsRawProductPageParser implements ProductParser {
         }
         String productImage = document.select("div.imgLiquidNoFill a").attr("abs:src");
         if (productImage.isEmpty()) {
-            productImage = document.select(".es-carousel img").attr("abs:src");;
+            productImage = document.select(".es-carousel img").attr("abs:src");
         }
         jsonBuilder.field("productImage", productImage);
         jsonBuilder.field("regularPrice", parsePrice(document.select("#desPrice > li:nth-child(1) > span.pricetag.show").text()));
@@ -84,13 +82,13 @@ public class IrungunsRawProductPageParser implements ProductParser {
 
     }
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             try {
                 return matcher.group(1).replace(",","");
 //                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {

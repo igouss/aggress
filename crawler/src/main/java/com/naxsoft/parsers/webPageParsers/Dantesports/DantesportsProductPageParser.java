@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class DantesportsProductPageParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(DantesportsProductPageParser.class);
 
     public DantesportsProductPageParser(AsyncFetchClient client) {
@@ -38,7 +38,7 @@ public class DantesportsProductPageParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(webPage.getUrl());
                     webPageEntity.setContent(resp.getResponseBody());
@@ -48,7 +48,7 @@ public class DantesportsProductPageParser implements WebPageParser {
                     webPageEntity.setType("productPageRaw");
                     webPageEntity.setParent(webPage);
                     result.add(webPageEntity);
-                    logger.info("productPageRaw=" + webPageEntity.getUrl());
+                    logger.info("productPageRaw={}", webPageEntity.getUrl());
                 }
                 return result;
             }
@@ -56,12 +56,11 @@ public class DantesportsProductPageParser implements WebPageParser {
         return Observable.defer(() -> Observable.from(future2));
     }
 
-    private AsyncCompletionHandler<List<Cookie>> getEngCookiesHandler() {
+    private static AsyncCompletionHandler<List<Cookie>> getEngCookiesHandler() {
         return new AsyncCompletionHandler<List<Cookie>>() {
             @Override
             public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                List<Cookie> cookies = resp.getCookies();
-                return cookies;
+                return resp.getCookies();
 
             }
         };

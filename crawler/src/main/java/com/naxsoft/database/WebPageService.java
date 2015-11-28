@@ -16,21 +16,21 @@ import java.util.Collection;
 
 public class WebPageService {
     private final static Logger logger = LoggerFactory.getLogger(WebPageService.class);
-    private Database database;
-    private ObservableQuery<WebPageEntity> observableQuery;
+    private final Database database;
+    private final ObservableQuery<WebPageEntity> observableQuery;
 
     public WebPageService(Database database) {
         this.database = database;
         observableQuery = new ObservableQuery<>(database);
     }
 
-    public void save(Collection<WebPageEntity> webPageEntitySet) {
-        AsyncTransaction.execute(database, session -> {
+    public boolean save(Collection<WebPageEntity> webPageEntitySet) {
+        return AsyncTransaction.execute(database, session -> {
             int i = 0;
             for (WebPageEntity webPageEntity : webPageEntitySet) {
-                logger.debug("Saving " + webPageEntity);
+                logger.debug("Saving {}", webPageEntity);
                 session.save(webPageEntity);
-                if (++i % 20 == 0) {
+                if (0 == ++i % 20) {
                     session.flush();
                 }
             }
@@ -42,7 +42,7 @@ public class WebPageService {
         AsyncTransaction.execute(database, session -> {
             Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
             int rc = query.setInteger("id", webPageEntity.getId()).executeUpdate();
-            logger.debug("update WebPageEntity set parsed = true where id = " + webPageEntity.getId() + " " + rc + " rows affected");
+            logger.debug("update WebPageEntity set parsed = true where id = {} {} rows affected", webPageEntity.getId(), rc);
             return rc;
         });
     }
@@ -70,7 +70,7 @@ public class WebPageService {
                     }
                     return count;
                 });
-            } while (rc != 0L && !subscriber.isUnsubscribed());
+            } while (0L != rc && !subscriber.isUnsubscribed());
             subscriber.onCompleted();
         });
     }
@@ -80,7 +80,7 @@ public class WebPageService {
         return AsyncTransaction.execute(database, session -> {
             SQLQuery sqlQuery = session.createSQLQuery(queryString);
             int result = sqlQuery.executeUpdate();
-            logger.info("De-dupped " + result + " rows");
+            logger.info("De-dupped {} rows", result);
             return result;
         });
     }

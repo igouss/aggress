@@ -36,13 +36,13 @@ public class CanadaAmmoRawPageParser implements ProductParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        if (document.select(".product-details__add").size() == 0) {
+        if (document.select(".product-details__add").isEmpty()) {
             return products;
         }
 
 
         String productName = document.select(".product-details__title .product__name").text();
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         jsonBuilder.field("productName",productName);
         jsonBuilder.field("category", document.select("div.page.product-details > div.page__header li:nth-child(2) > a").text());
@@ -75,12 +75,12 @@ public class CanadaAmmoRawPageParser implements ProductParser {
         return products;
     }
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             try {
                 return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {

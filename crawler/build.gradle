@@ -18,14 +18,14 @@ dependencies {
     compile group: 'com.internetitem', name: 'logback-elasticsearch-appender', version: '1.2'
 
 
-    compile group: 'io.reactivex', name: 'rxjava', version: '1.0.14'
-    compile group: 'io.reactivex', name: 'rxjava-async-util', version: '0.21.0'
-    compile group: 'io.reactivex', name: 'rxjava-computation-expressions', version: '0.21.0'
-    compile group: 'io.reactivex', name: 'rxjava-debug', version: '1.0.1'
-    compile group: 'io.reactivex', name: 'rxjava-joins', version: '0.22.0'
-    compile group: 'io.reactivex', name: 'rxjava-math', version: '1.0.0'
-    compile group: 'io.reactivex', name: 'rxjava-reactive-streams', version: '1.0.1'
-    compile group: 'io.reactivex', name: 'rxjava-string', version: '1.0.1'
+    compile group: 'io.reactivex', name: 'rxjava', version: '1.0.16'
+//    compile group: 'io.reactivex', name: 'rxjava-async-util', version: '0.21.0'
+//    compile group: 'io.reactivex', name: 'rxjava-computation-expressions', version: '0.21.0'
+//    compile group: 'io.reactivex', name: 'rxjava-debug', version: '1.0.1'
+//    compile group: 'io.reactivex', name: 'rxjava-joins', version: '0.22.0'
+//    compile group: 'io.reactivex', name: 'rxjava-math', version: '1.0.0'
+//    compile group: 'io.reactivex', name: 'rxjava-reactive-streams', version: '1.0.1'
+//    compile group: 'io.reactivex', name: 'rxjava-string', version: '1.0.1'
     compile group: 'org.reflections', name: 'reflections', version: '0.9.10'
     compile group: 'io.dropwizard.metrics', name: 'metrics-core', version: '3.1.2'
     compile group: 'org.elasticsearch', name: 'metrics-elasticsearch-reporter', version: '2.0'
@@ -36,6 +36,8 @@ dependencies {
     compile group: 'com.ning', name: 'async-http-client', version: '1.9.31'
     compile group: 'org.glassfish.grizzly', name: 'grizzly-websockets', version: '2.3.23'
     compile 'junit:junit:4.12'
+    compile 'org.jooq:jooq:3.7.1'
+
 }
 
 test {

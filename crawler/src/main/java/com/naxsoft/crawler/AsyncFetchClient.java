@@ -1,7 +1,9 @@
 package com.naxsoft.crawler;
 
-import com.codahale.metrics.*;
-import com.ning.http.client.*;
+import com.ning.http.client.AsyncHandler;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -21,10 +22,16 @@ import java.util.concurrent.TimeUnit;
 public class AsyncFetchClient implements AutoCloseable, Cloneable {
     public static final int REQUEST_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60);
     private static final Logger logger = LoggerFactory.getLogger(AsyncFetchClient.class);
-    private AsyncHttpClient asyncHttpClient;
+    private final AsyncHttpClient asyncHttpClient;
 
     public AsyncFetchClient(SSLContext sslContext) {
-        AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder().setAcceptAnyCertificate(true).setSSLContext(sslContext).build();
+        AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder()
+                .setAcceptAnyCertificate(true)
+                .setSSLContext(sslContext)
+                .setMaxConnections(10)
+                .setMaxConnectionsPerHost(2)
+                .setAcceptAnyCertificate(true)
+                .build();
         asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
     }
 
@@ -37,7 +44,7 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
     }
 
     public <R> Future<R> get(String url, Collection<Cookie> cookies, AsyncHandler<R> handler, boolean followRedirect)  {
-        logger.trace("Starting async http GET request url = " + url);
+        logger.trace("Starting async http GET request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
@@ -51,7 +58,7 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
     }
 
     public <T> ListenableFuture<T> post(String url, String content, Collection<Cookie> cookies, AsyncHandler<T> handler) {
-        logger.trace("Starting async http POST request url = " + url);
+        logger.trace("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
@@ -62,7 +69,7 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
         return requestBuilder.execute(handler);
     }
     public <T> ListenableFuture<T> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AsyncHandler<T> handler) {
-        logger.trace("Starting async http POST request url = " + url);
+        logger.trace("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);

@@ -21,9 +21,9 @@ import java.util.Set;
 public class WebPageParserFactory {
     private static final Logger logger = LoggerFactory.getLogger(WebPageParserFactory.class);
 
-    private Set<WebPageParser> parsers = new HashSet<>();
-    private AsyncFetchClient client;
-    private MetricRegistry metricRegistry;
+    private final Set<WebPageParser> parsers = new HashSet<>();
+    private final AsyncFetchClient client;
+    private final MetricRegistry metricRegistry;
 
     public WebPageParserFactory(AsyncFetchClient client, MetricRegistry metricRegistry) {
         this.client = client;
@@ -45,7 +45,7 @@ public class WebPageParserFactory {
     private WebPageParser getParser(WebPageEntity webPageEntity) {
         for (WebPageParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
-                logger.debug("Found a parser {} for action = {} url = {}", parser.getClass().toString(), webPageEntity.getType(), webPageEntity.getUrl());
+                logger.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
                 return parser;
             }
         }

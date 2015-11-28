@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.Cabelas;
+package com.naxsoft.parsers.webPageParsers.cabelas;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -31,7 +31,7 @@ public class CabellasProductPageParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(webPage.getUrl());
                     webPageEntity.setContent(resp.getResponseBody());
@@ -41,7 +41,7 @@ public class CabellasProductPageParser implements WebPageParser {
                     webPageEntity.setType("productPageRaw");
                     webPageEntity.setParent(webPage);
                     result.add(webPageEntity);
-                    logger.info("productPageRaw=" + webPageEntity.getUrl());
+                    logger.info("productPageRaw={}", webPageEntity.getUrl());
                 }
                 return result;
             }

@@ -1,6 +1,5 @@
 package com.naxsoft.parsers.productParser;
 
-import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -29,12 +28,12 @@ public class EllwoodeppsRawProductParser implements ProductParser {
         HashSet<ProductEntity> result = new HashSet<>();
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        if (document.select(".firearm-links-sold").size() != 0) {
+        if (!document.select(".firearm-links-sold").isEmpty()) {
             return result;
         }
 
         String productName = document.select(".product-name span").text();
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
@@ -63,7 +62,7 @@ public class EllwoodeppsRawProductParser implements ProductParser {
         return result;
     }
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");

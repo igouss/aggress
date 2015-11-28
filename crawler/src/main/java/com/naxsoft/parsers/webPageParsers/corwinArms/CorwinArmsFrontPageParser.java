@@ -2,7 +2,6 @@ package com.naxsoft.parsers.webPageParsers.corwinArms;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.parsers.webPageParsers.CanadaAmmo.CanadaAmmoProductPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
@@ -25,7 +24,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class CorwinArmsFrontPageParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(CorwinArmsFrontPageParser.class);
     public CorwinArmsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -38,7 +37,7 @@ public class CorwinArmsFrontPageParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("#block-menu-menu-catalogue > div > ul a");
                     for (Element e : elements) {
@@ -51,7 +50,7 @@ public class CorwinArmsFrontPageParser implements WebPageParser {
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productList");
                         webPageEntity.setParent(webPage);
-                        logger.info("Found on front page =" + linkUrl);
+                        logger.info("Found on front page ={}", linkUrl);
                         result.add(webPageEntity);
 
                     }
@@ -67,7 +66,7 @@ public class CorwinArmsFrontPageParser implements WebPageParser {
                             @Override
                             public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                                 HashSet<WebPageEntity> result = new HashSet<>();
-                                if (resp.getStatusCode() == 200) {
+                                if (200 == resp.getStatusCode()) {
                                     Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                                     Elements elements = document.select(".pager li.pager-current");
                                     Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
@@ -81,7 +80,7 @@ public class CorwinArmsFrontPageParser implements WebPageParser {
                                             webPageEntity.setStatusCode(resp.getStatusCode());
                                             webPageEntity.setType("productList");
                                             webPageEntity.setParent(webPage.getParent());
-                                            logger.info("Product page listing=" + webPageEntity.getUrl());
+                                            logger.info("Product page listing={}", webPageEntity.getUrl());
                                             result.add(webPageEntity);
                                         }
                                     } else {
@@ -92,7 +91,7 @@ public class CorwinArmsFrontPageParser implements WebPageParser {
                                         webPageEntity.setStatusCode(resp.getStatusCode());
                                         webPageEntity.setType("productList");
                                         webPageEntity.setParent(webPage.getParent());
-                                        logger.info("Product page listing=" + webPageEntity.getUrl());
+                                        logger.info("Product page listing={}", webPageEntity.getUrl());
                                         result.add(webPageEntity);
                                     }
                                 }

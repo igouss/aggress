@@ -37,19 +37,19 @@ public class ESHelper {
             String source = null;
 
             // Read the mapping json file if exists and use it
-            if (xcontent == null) source = readJsonDefinition(type);
+            if (null == xcontent) source = readJsonDefinition(type);
 
-            if (source != null || xcontent != null) {
+            if (null != source || null != xcontent) {
                 PutMappingRequestBuilder pmrb = client.admin().indices()
                         .preparePutMapping(index)
                         .setType(type);
 
-                if (source != null) {
+                if (null != source) {
                     if (logger.isTraceEnabled()) logger.trace("Mapping for ["+index+"]/["+type+"]="+source);
                     pmrb.setSource(source);
                 }
 
-                if (xcontent != null) {
+                if (null != xcontent) {
                     if (logger.isTraceEnabled()) logger.trace("Mapping for ["+index+"]/["+type+"]="+xcontent.string());
                     pmrb.setSource(xcontent);
                 }
@@ -79,10 +79,7 @@ public class ESHelper {
      */
     public static boolean isMappingExist(Client client, String index, String type) {
         GetMappingsResponse mappingsResponse = client.admin().indices().prepareGetMappings(index).setTypes(type).get();
-        if (mappingsResponse.getMappings().get(index) == null) {
-            return false;
-        }
-        return mappingsResponse.getMappings().get(index).containsKey(type);
+        return null != mappingsResponse.getMappings().get(index) && mappingsResponse.getMappings().get(index).containsKey(type);
     }
 
     /**
@@ -103,25 +100,21 @@ public class ESHelper {
     public static void createIndexIfNeeded(Client client, String index, String type, String analyzer) {
         if (logger.isDebugEnabled()) logger.debug("createIndexIfNeeded({}, {}, {})", index, type, analyzer);
 
-        String indexName = index;
-        String typeName = type;
-        String analyzerName = analyzer == null ? "default" : analyzer;
-
         try {
             // We check first if index already exists
-            if (!isIndexExist(client, indexName)) {
-                if (logger.isDebugEnabled()) logger.debug("Index {} doesn't exist. Creating it.", indexName);
+            if (!isIndexExist(client, index)) {
+                if (logger.isDebugEnabled()) logger.debug("Index {} doesn't exist. Creating it.", index);
 
-                CreateIndexRequestBuilder cirb = client.admin().indices().prepareCreate(indexName);
+                CreateIndexRequestBuilder cirb = client.admin().indices().prepareCreate(index);
 
                 String source = readJsonDefinition("_settings");
-                if (source !=  null) {
-                    if (logger.isTraceEnabled()) logger.trace("Mapping for [{}]={}", indexName, source);
+                if (null != source) {
+                    if (logger.isTraceEnabled()) logger.trace("Mapping for [{}]={}", index, source);
                     cirb.setSettings(source);
                 }
 
                 CreateIndexResponse createIndexResponse = cirb.execute().actionGet();
-                if (!createIndexResponse.isAcknowledged()) throw new Exception("Could not create index ["+indexName+"].");
+                if (!createIndexResponse.isAcknowledged()) throw new Exception("Could not create index ["+ index +"].");
             }
         } catch (Exception e) {
             logger.warn("createIndexIfNeeded() : Exception raised : {}", e.getClass());
@@ -143,7 +136,9 @@ public class ESHelper {
         try {
             // We check first if index already exists
             if (!isIndexExist(client, indexName)) {
-                if (logger.isDebugEnabled()) logger.debug("Index {} doesn't exist. Creating it.", indexName);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Index {} doesn't exist. Creating it.", indexName);
+                }
 
                 CreateIndexRequestBuilder cirb = client.admin().indices().prepareCreate(indexName);
                 CreateIndexResponse createIndexResponse = cirb.execute().actionGet();
@@ -199,7 +194,7 @@ public class ESHelper {
      * @throws Exception
      */
     public static String readFileInClasspath(String url) throws Exception {
-        StringBuffer bufferJSON = new StringBuffer();
+        StringBuilder bufferJSON = new StringBuilder();
 
         try {
             InputStream ips= ESHelper.class.getResourceAsStream(url);
@@ -207,7 +202,7 @@ public class ESHelper {
             BufferedReader br = new BufferedReader(ipsr);
             String line;
 
-            while ((line=br.readLine())!=null){
+            while (null != (line = br.readLine())){
                 bufferJSON.append(line);
             }
             br.close();

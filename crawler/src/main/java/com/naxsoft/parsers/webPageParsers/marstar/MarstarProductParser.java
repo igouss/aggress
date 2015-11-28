@@ -17,7 +17,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class MarstarProductParser implements WebPageParser {
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(MarstarProductParser.class);
     public MarstarProductParser(AsyncFetchClient client) {
         this.client = client;
@@ -30,7 +30,7 @@ public class MarstarProductParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(webPage.getUrl());
                     webPageEntity.setParent(webPage);
@@ -40,9 +40,9 @@ public class MarstarProductParser implements WebPageParser {
                     webPageEntity.setParent(webPage);
                     webPageEntity.setStatusCode(resp.getStatusCode());
                     result.add(webPageEntity);
-                    logger.info("productPageRaw=" + webPageEntity.getUrl());
+                    logger.info("productPageRaw={}", webPageEntity.getUrl());
                 } else {
-                    logger.warn("Failed to open page " + resp.getUri() + " error code: " + resp.getStatusCode());
+                    logger.warn("Failed to open page {} error code: {}", resp.getUri(), resp.getStatusCode());
                 }
                 return result;
             }

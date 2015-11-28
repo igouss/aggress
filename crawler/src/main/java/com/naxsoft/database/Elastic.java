@@ -42,16 +42,16 @@ public class Elastic implements AutoCloseable, Cloneable {
         this.client.addTransportAddress(new InetSocketTransportAddress(hostname, port));
 
         while (true) {
-            this.logger.info("Waiting for elastic to connect to a node...");
+            logger.info("Waiting for elastic to connect to a node...");
             int connectedNodes = this.client.connectedNodes().size();
             if (0 != connectedNodes) {
-                this.logger.info("Connection established");
+                logger.info("Connection established");
                 break;
             }
             try {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
             } catch (InterruptedException e) {
-                this.logger.error("Thread sleep failed", e);
+                logger.error("Thread sleep failed", e);
             }
         }
     }
@@ -77,15 +77,15 @@ public class Elastic implements AutoCloseable, Cloneable {
                     request.setOpType(IndexRequest.OpType.INDEX);
                     bulkRequestBuilder.add(request);
                 } catch (IOException e) {
-                    logger.error("Failed to create JSON generator");
+                    logger.error("Failed to create JSON generator", e);
                 }
             }
             return bulkRequestBuilder.execute();
         }).flatMap(Observable::from).subscribe(bulkResponse -> {
             if (bulkResponse.hasFailures()) {
-                this.logger.error("Failed to index products:" + bulkResponse.buildFailureMessage());
+                logger.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
             } else {
-                this.logger.info("Successfully indexed " + bulkResponse.getItems().length + " in " + bulkResponse.getTookInMillis() + "ms");
+                logger.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
             }
         });
     }
@@ -93,7 +93,7 @@ public class Elastic implements AutoCloseable, Cloneable {
     public Observable<Integer> createIndex(AsyncFetchClient client, String index, String type, String indexSuffix) throws IOException, ExecutionException, InterruptedException {
         String resourceName = "/elastic." + index + "." + type + ".index.json";
         String newIndexName = index + indexSuffix;
-        logger.info("Creating index " + newIndexName + " type " + type + " from " + resourceName);
+        logger.info("Creating index {} type {} from {}", newIndexName, type, resourceName);
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         String indexContent = IOUtils.toString(resourceAsStream);
         String url = "http://127.0.0.1:9200/" + newIndexName;
@@ -101,10 +101,10 @@ public class Elastic implements AutoCloseable, Cloneable {
             @Override
             public Integer onCompleted(Response response) throws Exception {
                 int statusCode = response.getStatusCode();
-                if (statusCode != 200) {
-                    logger.error("Error creating index: " + response.getResponseBody());
+                if (200 != statusCode) {
+                    logger.error("Error creating index: {}", response.getResponseBody());
                 } else {
-                    logger.info("Created index: " + response.getResponseBody());
+                    logger.info("Created index: {}", response.getResponseBody());
                 }
                 return statusCode;
             }
@@ -114,7 +114,7 @@ public class Elastic implements AutoCloseable, Cloneable {
     public Observable<Integer> createMapping(AsyncFetchClient client, String index, String type, String indexSuffix) throws IOException, ExecutionException, InterruptedException {
         String resourceName = "/elastic." + index + "." + type + ".mapping.json";
         String newIndexName = index + indexSuffix;
-        logger.info("Creating mapping for index " + newIndexName + " type " + type + " from " + resourceName);
+        logger.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         String indexContent = IOUtils.toString(resourceAsStream);
         String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
@@ -122,10 +122,10 @@ public class Elastic implements AutoCloseable, Cloneable {
             @Override
             public Integer onCompleted(Response response) throws Exception {
                 int statusCode = response.getStatusCode();
-                if (statusCode != 200) {
-                    logger.error("Error creating mapping: " + response.getResponseBody());
+                if (200 != statusCode) {
+                    logger.error("Error creating mapping: {}", response.getResponseBody());
                 } else {
-                    logger.info("Created mapping: " + response.getResponseBody());
+                    logger.info("Created mapping: {}", response.getResponseBody());
                 }
                 return statusCode;
             }

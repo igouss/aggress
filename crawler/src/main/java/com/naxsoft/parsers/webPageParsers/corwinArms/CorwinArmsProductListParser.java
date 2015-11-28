@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
  */
 public class CorwinArmsProductListParser implements WebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CorwinArmsProductListParser.class);
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
 
     public CorwinArmsProductListParser(AsyncFetchClient client) {
         this.client = client;
@@ -34,7 +34,7 @@ public class CorwinArmsProductListParser implements WebPageParser {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                     Elements elements = document.select("div.field.field-name-title.field-type-ds.field-label-hidden a");
                     for (Element element : elements) {
@@ -45,7 +45,7 @@ public class CorwinArmsProductListParser implements WebPageParser {
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productPage");
                         webPageEntity.setParent(parent.getParent());
-                        logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + parent.getUrl());
+                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                         result.add(webPageEntity);
                     }
                 }

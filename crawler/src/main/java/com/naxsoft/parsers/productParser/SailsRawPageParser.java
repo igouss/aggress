@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class SailsRawPageParser implements ProductParser {
-    private static final Logger logger = LoggerFactory.getLogger(TradeexCanadaRawProductPageParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(SailsRawPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -30,7 +30,7 @@ public class SailsRawPageParser implements ProductParser {
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
         String productName = document.select(".product-shop .brand").text() + " " + document.select(".product-shop .product-name span").text();
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
@@ -65,7 +65,7 @@ public class SailsRawPageParser implements ProductParser {
         return result;
     }
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");

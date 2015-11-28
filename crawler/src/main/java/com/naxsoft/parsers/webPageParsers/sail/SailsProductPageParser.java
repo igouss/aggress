@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 public class SailsProductPageParser  implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(SailsProductPageParser.class);
-    private static Collection<Cookie> cookies;
+    private static final Collection<Cookie> cookies;
 
     static {
         cookies = new ArrayList<>(1);
@@ -36,11 +36,11 @@ public class SailsProductPageParser  implements WebPageParser {
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), cookies, new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
-                if (resp.getStatusCode() == 200) {
+                if (200 == resp.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(webPage.getUrl());
                     webPageEntity.setContent(resp.getResponseBody());
@@ -50,7 +50,7 @@ public class SailsProductPageParser  implements WebPageParser {
                     webPageEntity.setType("productPageRaw");
                     webPageEntity.setParent(webPage);
                     result.add(webPageEntity);
-                    logger.info("productPageRaw=" + webPageEntity.getUrl());
+                    logger.info("productPageRaw={}", webPageEntity.getUrl());
                 }
                 return result;
             }

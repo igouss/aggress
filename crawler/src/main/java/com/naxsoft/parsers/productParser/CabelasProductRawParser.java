@@ -25,11 +25,11 @@ public class CabelasProductRawParser implements ProductParser {
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet result = new HashSet();
+        HashSet<ProductEntity> result = new HashSet<>();
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select("h1.product-heading").text();
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
         ProductEntity product = new ProductEntity();
@@ -51,12 +51,12 @@ public class CabelasProductRawParser implements ProductParser {
         return result;
     }
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             try {
                 return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {

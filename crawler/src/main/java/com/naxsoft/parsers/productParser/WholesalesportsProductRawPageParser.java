@@ -27,9 +27,9 @@ public class WholesalesportsProductRawPageParser implements ProductParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select("h1.product-name").text();
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        if (document.select("div.alert.negative").size() == 2) {
+        if (2 == document.select("div.alert.negative").size()) {
             return result;
         }
 
@@ -42,7 +42,7 @@ public class WholesalesportsProductRawPageParser implements ProductParser {
         jsonBuilder.field("productImage", document.select(".productImagePrimaryLink img").attr("abs:src"));
         jsonBuilder.field("manufacturer", document.select(".product-brand").text());
 
-        if (document.select(".new .price-value").size() == 0) {
+        if (document.select(".new .price-value").isEmpty()) {
             jsonBuilder.field("regularPrice", parsePrice(document.select(".current .price-value").text()));
         } else {
             jsonBuilder.field("regularPrice", parsePrice(document.select(".old .price-value").text()));
@@ -57,7 +57,7 @@ public class WholesalesportsProductRawPageParser implements ProductParser {
         return result;
     }
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");

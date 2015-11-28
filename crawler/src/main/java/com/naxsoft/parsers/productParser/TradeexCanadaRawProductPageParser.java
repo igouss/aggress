@@ -1,6 +1,5 @@
 package com.naxsoft.parsers.productParser;
 
-import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -30,10 +29,10 @@ public class TradeexCanadaRawProductPageParser implements ProductParser {
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
         String productName = document.select("h1.title").text();
-        if (productName.contains("OUT OF STOCK") || productName.contains("Donation to the CSSA")) {
+        if (productName.toUpperCase().contains("OUT OF STOCK") || productName.contains("Donation to the CSSA")) {
             return result;
         }
-        logger.info("Parsing " + productName + ", page=" + webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
@@ -62,7 +61,7 @@ public class TradeexCanadaRawProductPageParser implements ProductParser {
         return result;
     }
 
-    private String parsePrice(String price) {
+    private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");

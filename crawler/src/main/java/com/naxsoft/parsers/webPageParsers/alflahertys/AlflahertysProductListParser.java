@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
  */
 public class AlflahertysProductListParser implements WebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(AlflahertysProductListParser.class);
-    private AsyncFetchClient client;
+    private final AsyncFetchClient client;
 
     public AlflahertysProductListParser(AsyncFetchClient client) {
         this.client = client;
@@ -33,7 +33,7 @@ public class AlflahertysProductListParser implements WebPageParser {
                 @Override
                 public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
-                    if (resp.getStatusCode() == 200) {
+                    if (200 == resp.getStatusCode()) {
                         Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                         Elements elements = document.select("body > div.container.main.content > div:nth-child(3) a:nth-child(1).view_product_info");
 
@@ -45,7 +45,7 @@ public class AlflahertysProductListParser implements WebPageParser {
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productPage");
                             webPageEntity.setParent(webPage);
-                            logger.info("productPageUrl=" + webPageEntity.getUrl() + ", " + "parseUrl=" + webPage.getUrl());
+                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
                             result.add(webPageEntity);
                         }
                     }

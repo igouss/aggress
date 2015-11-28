@@ -11,7 +11,7 @@ import rx.Observable;
  */
 public class ObservableQuery<T> {
     private static final int BATCH_SIZE = 20;
-    private Database database;
+    private final Database database;
 
     public ObservableQuery(Database database) {
         this.database = database;
@@ -33,7 +33,7 @@ public class ObservableQuery<T> {
                 ScrollableResults::close);
     }
 
-    private ScrollableResults getScrollableResults(String queryString, StatelessSession session) {
+    private static ScrollableResults getScrollableResults(String queryString, StatelessSession session) {
         Query query = session.createQuery(queryString);
         query.setCacheable(false);
         query.setReadOnly(true);

@@ -3,7 +3,6 @@ package com.naxsoft.parsers.webPageParsers.wholesalesports;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.naxsoft.parsers.webPageParsers.westrifle.WestrifleProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -17,8 +16,6 @@ import rx.Observable;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
@@ -48,7 +45,7 @@ public class WholesalesportsFrontPageParser implements WebPageParser {
                             @Override
                             public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                                 HashSet<WebPageEntity> result = new HashSet<>();
-                                if (resp.getStatusCode() == 200) {
+                                if (200 == resp.getStatusCode()) {
                                     Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
                                     int max = 1;
                                     Elements elements = document.select(".pagination a");
@@ -58,7 +55,7 @@ public class WholesalesportsFrontPageParser implements WebPageParser {
                                             if (num > max) {
                                                 max = num;
                                             }
-                                        } catch (Exception e) {
+                                        } catch (Exception ignored) {
                                             // ignore
                                         }
                                     }
@@ -71,7 +68,7 @@ public class WholesalesportsFrontPageParser implements WebPageParser {
                                         webPageEntity.setStatusCode(resp.getStatusCode());
                                         webPageEntity.setType("productList");
                                         webPageEntity.setParent(page.getParent());
-                                        logger.info("Product page listing=" + webPageEntity.getUrl());
+                                        logger.info("Product page listing={}", webPageEntity.getUrl());
                                         result.add(webPageEntity);
                                     }
                                 }
@@ -80,7 +77,7 @@ public class WholesalesportsFrontPageParser implements WebPageParser {
                         }))));
     }
 
-    private WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url, WebPageEntity parent) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
