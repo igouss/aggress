@@ -5,6 +5,9 @@ import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
+import com.ning.http.client.filter.FilterContext;
+import com.ning.http.client.filter.FilterException;
+import com.ning.http.client.filter.IOExceptionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +31,13 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
         AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder()
                 .setAcceptAnyCertificate(true)
                 .setSSLContext(sslContext)
-                .setMaxConnections(10)
+//                .setMaxConnections(10)
                 .setMaxConnectionsPerHost(2)
                 .setAcceptAnyCertificate(true)
+                .addIOExceptionFilter(ctx -> {
+                    logger.error("ASyncHttpdClient error", ctx.getIOException());
+                    return ctx;
+                })
                 .build();
         asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
     }

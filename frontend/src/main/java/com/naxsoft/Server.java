@@ -13,6 +13,8 @@ import io.undertow.server.session.InMemorySessionManager;
 import io.undertow.server.session.SessionAttachmentHandler;
 import io.undertow.server.session.SessionCookieConfig;
 import io.undertow.server.session.SessionManager;
+import io.vertx.core.*;
+import io.vertx.core.metrics.*;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
@@ -38,6 +40,12 @@ public class Server {
 
         ApplicationContext context = new ApplicationContext();
         context.setInvalidateTemplateCache(true);
+
+        VertxOptions vertxOptions = new VertxOptions();
+        vertxOptions.setMetricsOptions(new MetricsOptions().setEnabled(true));
+
+        Vertx vertx = Vertx.vertx(vertxOptions);
+        vertx.close(handler -> System.out.println("Vert.x is shutdown"));
 
         PathHandler pathHandler = getPathHandler(templateEngine, esClient, context);
 
@@ -108,5 +116,17 @@ public class Server {
 
         templateEngine.addTemplateResolver(templateResolver);
         return templateEngine;
+    }
+
+    class HttpVertex extends AbstractVerticle {
+        @Override
+        public void start(Future<Void> startFuture) throws Exception {
+            startFuture.complete();
+        }
+
+        @Override
+        public void stop(Future<Void> stopFuture) throws Exception {
+            super.stop(stopFuture);
+        }
     }
 }

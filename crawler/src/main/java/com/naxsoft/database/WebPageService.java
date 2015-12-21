@@ -13,14 +13,19 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class WebPageService {
     private final static Logger logger = LoggerFactory.getLogger(WebPageService.class);
     private final Database database;
     private final ObservableQuery<WebPageEntity> observableQuery;
+    private ThreadPoolExecutor threadPoolExecutor;
 
-    public WebPageService(Database database) {
+    public WebPageService(Database database, ThreadPoolExecutor threadPoolExecutor) {
         this.database = database;
+        this.threadPoolExecutor = threadPoolExecutor;
         observableQuery = new ObservableQuery<>(database);
     }
 
@@ -38,8 +43,8 @@ public class WebPageService {
         });
     }
 
-    public void markParsed(WebPageEntity webPageEntity) {
-        AsyncTransaction.execute(database, session -> {
+    public int markParsed(WebPageEntity webPageEntity) {
+        return AsyncTransaction.execute(database, session -> {
             Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
             int rc = query.setInteger("id", webPageEntity.getId()).executeUpdate();
             logger.debug("update WebPageEntity set parsed = true where id = {} {} rows affected", webPageEntity.getId(), rc);
@@ -55,33 +60,22 @@ public class WebPageService {
      */
     public Observable<Long> getUnparsedCount(String type) {
         return Observable.create(subscriber -> {
-            Long rc = 0L;
-
+            Long rc;
             do {
                 rc = AsyncTransaction.execute(database, session -> {
+                    Long count = 0L;
                     String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
                     Query query = session.createQuery(queryString);
                     query.setString("type", type);
-                    Long count = (Long) query.list().get(0);
-                    if (0 != count) {
-                        subscriber.onNext(count);
-                    } else {
-                        subscriber.onCompleted();
-                    }
+                    count = (Long) query.list().get(0);
                     return count;
                 });
-            } while (0L != rc && !subscriber.isUnsubscribed());
-            subscriber.onCompleted();
-        });
-    }
-
-    public Integer deDup() {
-        final String queryString = "DELETE FROM guns.web_page USING guns.web_page wp2 WHERE guns.web_page.url = wp2.url AND guns.web_page.type = wp2.type AND guns.web_page.id < wp2.id";
-        return AsyncTransaction.execute(database, session -> {
-            SQLQuery sqlQuery = session.createSQLQuery(queryString);
-            int result = sqlQuery.executeUpdate();
-            logger.info("De-dupped {} rows", result);
-            return result;
+                if (0 != rc) {
+                    subscriber.onNext(rc);
+                } else {
+                    subscriber.onCompleted();
+                }
+            } while (0 != rc || !subscriber.isUnsubscribed());
         });
     }
 

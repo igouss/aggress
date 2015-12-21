@@ -15,6 +15,9 @@ import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.util.SslUtils;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
+import io.vertx.core.metrics.MetricsOptions;
 import org.elasticsearch.metrics.ElasticsearchReporter;
 import org.hibernate.Query;
 import org.hibernate.StatelessSession;
@@ -29,8 +32,9 @@ import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class Aggress {
@@ -38,24 +42,23 @@ public class Aggress {
 
     private static final MetricRegistry metrics = new MetricRegistry();
     private static final Database db = new Database();
-    private static ScheduledReporter reporter;
+    private static final Elastic elastic = new Elastic("localhost", 9300);
+    private static ScheduledReporter elasticReporter;
     private static WebPageParserFactory webPageParserFactory;
     private static WebPageService webPageService;
     private static ProductService productService;
     private static SourceService sourceService;
-    private static Elastic elastic = new Elastic("localhost", 9300);
     private static ProductParserFactory productParserFactory;
-
+    private final static int scaleFactor = 1;
+    private static ThreadPoolExecutor threadPoolExecutor;
     public static void main(String[] args) {
         try {
 //        reporter = Slf4jReporter.forRegistry(metrics).outputTo(logger)
 //                .build();
-
-            reporter = ElasticsearchReporter.forRegistry(metrics)
+            elasticReporter = ElasticsearchReporter.forRegistry(metrics)
 //                    .hosts("localhost:9300")
                     .build();
-            reporter.start(1, TimeUnit.SECONDS);
-
+            elasticReporter.start(1, TimeUnit.SECONDS);
         } catch (IOException e) {
             logger.error("Failed to initialize metrics reporter", e);
             return;
@@ -99,16 +102,30 @@ public class Aggress {
             logger.error("Failed to initialize trust manager", e);
             return;
         }
+        int processors = Runtime.getRuntime().availableProcessors();
+        int maxThreads = processors * scaleFactor;
+        maxThreads = (maxThreads > 0 ? maxThreads : 1);
+
+        threadPoolExecutor =
+                new ThreadPoolExecutor(
+                        maxThreads, // core thread pool size
+                        maxThreads, // maximum thread pool size
+                        1, // time to wait before resizing pool
+                        TimeUnit.MINUTES,
+                        new ArrayBlockingQueue<>(maxThreads, true),
+                        new ThreadPoolExecutor.CallerRunsPolicy());
 
         try (AsyncFetchClient asyncFetchClient = new AsyncFetchClient(sc)) {
-            productParserFactory = new ProductParserFactory(metrics);
-            webPageParserFactory = new WebPageParserFactory(asyncFetchClient, metrics);
+            productParserFactory = new ProductParserFactory();
+            webPageParserFactory = new WebPageParserFactory(asyncFetchClient);
             System.setProperty("jsse.enableSNIExtension", "false");
             System.setProperty("jdk.tls.trustNameService", "true");
 
-            webPageService = new WebPageService(db);
+            webPageService = new WebPageService(db, threadPoolExecutor);
             productService = new ProductService(db);
             sourceService = new SourceService(db);
+
+
 
             String indexSuffix = "";//"-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
             elastic.createIndex(asyncFetchClient, "product", "guns", indexSuffix).subscribe();
@@ -135,14 +152,13 @@ public class Aggress {
 //                    map(Aggress::productFromRawPage).
 //                    subscribe(products -> products.subscribe(set -> productService.save(set)));
 
-            populateRoots();
+//            populateRoots();
             process(webPageService.getUnparsedFrontPage());
             process(webPageService.getUnparsedProductList());
             process(webPageService.getUnparsedProductPage());
             logger.info("Fetch & parse complete");
 
             processProducts(webPageService.getUnparsedProductPageRaw());
-//            webPageService.deDup();
             indexProducts(productService.getProducts(), "product" + indexSuffix, "guns");
             productService.markAllAsIndexed();
 
@@ -150,14 +166,17 @@ public class Aggress {
         } catch (Exception e) {
             logger.error("Application failure", e);
         } finally {
-            if (null != reporter) {
-                reporter.stop();
+            if (null != elasticReporter) {
+                elasticReporter.stop();
             }
             if (null != db) {
                 db.close();
             }
             if (null != elastic) {
                 elastic.close();
+            }
+            if (null != threadPoolExecutor) {
+                threadPoolExecutor.shutdown();
             }
         }
     }
@@ -212,54 +231,46 @@ public class Aggress {
     }
 
     private static void save(Collection<WebPageEntity> webPageEntities) {
-        webPageService.save(webPageEntities);
+        boolean rc = webPageService.save(webPageEntities);
+        if (!rc) {
+            logger.error("Failed to save webPageEntities");
+        }
     }
 
     private static void process(Observable<WebPageEntity> parents) {
-//        parents.map(parent -> {
-//            Observable<Set<WebPageEntity>> parsed = webPageParserFactory.parse(parent);
-//            webPageService.markParsed(parent);
-//            return parsed;
-//        }).flatMap(pages -> webPageService::save).subscribe();
-
         parents.flatMap(parent -> {
-            Observable<Set<WebPageEntity>> parsed = null;
+            WebPageParser parser = webPageParserFactory.getParser(parent);
+            Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
+            Timer.Context time = parseTime.time();
+            Observable<Set<WebPageEntity>> result = null;
             try {
-                parsed = webPageParserFactory.parse(parent);
+                result = parser.parse(parent);
             } catch (Exception e) {
                 logger.error("Failed to process source {}", parent.getUrl(), e);
             }
+            time.stop();
             webPageService.markParsed(parent);
-            return parsed;
+            return result;
         }).filter(webPageEntities -> null != webPageEntities)
-                .map(webPageEntities -> webPageService.save(webPageEntities))
+                .map(webPageService::save)
+                .doOnError(error -> logger.error("Failed to process source", error))
                 .subscribe();
-
-//        parents.subscribe(parent -> {
-//            try {
-//                Observable<Set<WebPageEntity>> parsed = webPageParserFactory.parse(parent);
-//                webPageService.markParsed(parent);
-//
-//                parsed.subscribe(webPageService::save, e -> {
-//                    logger.error("Failed to save web-page {}", parent.getUrl(), e);
-//                });
-//            } catch (Exception e) {
-//                logger.error("Failed to process source {}", parent.getUrl(), e);
-//            }
-//        });
     }
 
     private static void processProducts(Observable<WebPageEntity> webPage) {
         webPage.map(webPageEntity -> {
-            Set<ProductEntity> result = new HashSet<>();
+            Set<ProductEntity> result = null;
             try {
-                result.addAll(productParserFactory.parse(webPageEntity));
+                ProductParser parser = productParserFactory.getParser(webPageEntity);
+                Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
+                Timer.Context time = parseTime.time();
+                result = parser.parse(webPageEntity);
+                time.stop();
                 webPageService.markParsed(webPageEntity);
-
             } catch (Exception e) {
                 logger.error("Failed to parse product page {}", webPageEntity.getUrl(), e);
             }
             return result;
-        }).subscribe(productService::save); // filter(data -> !data.isEmpty()).flatMap(Observable::from).toList()
+        }).filter(webPageEntities -> null != webPageEntities).subscribe(productService::save);
     }
 }

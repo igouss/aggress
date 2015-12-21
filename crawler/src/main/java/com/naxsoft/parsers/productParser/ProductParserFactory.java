@@ -23,10 +23,9 @@ import java.util.Set;
 public class ProductParserFactory {
     private final Set<ProductParser> parsers = new HashSet<>();
     private static final Logger logger = LoggerFactory.getLogger(ProductParserFactory.class);
-    private final MetricRegistry metricRegistry;
 
-    public ProductParserFactory(MetricRegistry metricRegistry) {
-        this.metricRegistry = metricRegistry;
+
+    public ProductParserFactory() {
         Reflections reflections = new Reflections("com.naxsoft.parsers.productParser", new Scanner[0]);
         Set classes = reflections.getSubTypesOf(ProductParser.class);
 
@@ -40,7 +39,7 @@ public class ProductParserFactory {
         }
     }
 
-    private ProductParser getParser(WebPageEntity webPageEntity) {
+    public ProductParser getParser(WebPageEntity webPageEntity) {
         for (ProductParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
                 logger.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
@@ -51,13 +50,4 @@ public class ProductParserFactory {
         return new NoopParser();
     }
 
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        ProductParser parser = getParser(webPageEntity);
-        Timer parseTime = metricRegistry.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
-        Timer.Context time = parseTime.time();
-        Set<ProductEntity> result = parser.parse(webPageEntity);
-        time.stop();
-        return result;
-
-    }
 }
