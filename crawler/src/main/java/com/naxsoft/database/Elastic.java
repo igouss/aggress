@@ -33,8 +33,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class Elastic implements AutoCloseable, Cloneable {
-    TransportClient client = null;
     private static final Logger logger = LoggerFactory.getLogger(Elastic.class);
+    TransportClient client = null;
 
     public Elastic(String hostname, int port) {
         Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
@@ -89,8 +89,8 @@ public class Elastic implements AutoCloseable, Cloneable {
                         logger.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
                     } else {
                         logger.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
-            }
-        });
+                    }
+                });
     }
 
     public Observable<Integer> createIndex(AsyncFetchClient client, String index, String type, String indexSuffix) throws IOException, ExecutionException, InterruptedException {

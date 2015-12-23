@@ -44,7 +44,7 @@ public class ProductService {
 
     public Observable<ProductEntity> getProducts() {
         String queryString = "from ProductEntity where indexed=false";
-        return Observable.defer(() -> new ObservableQuery<ProductEntity>(database).execute(queryString));
+        return new ObservableQuery<ProductEntity>(database).execute(queryString);
     }
 
     public void markAllAsIndexed() {

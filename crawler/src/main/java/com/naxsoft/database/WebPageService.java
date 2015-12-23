@@ -7,15 +7,11 @@ package com.naxsoft.database;
 
 import com.naxsoft.entity.WebPageEntity;
 import org.hibernate.Query;
-import org.hibernate.SQLQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class WebPageService {
     private final static Logger logger = LoggerFactory.getLogger(WebPageService.class);
@@ -74,7 +70,7 @@ public class WebPageService {
                     } else {
                         subscriber.onCompleted();
                     }
-                } while (0 != rc || !subscriber.isUnsubscribed());
+                } while (0 != rc && !subscriber.isUnsubscribed());
             } catch (Exception e) {
                 subscriber.onError(e);
             }

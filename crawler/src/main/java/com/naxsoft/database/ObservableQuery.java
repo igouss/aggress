@@ -1,9 +1,6 @@
 package com.naxsoft.database;
 
-import org.hibernate.Query;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.StatelessSession;
+import org.hibernate.*;
 import rx.Observable;
 
 /**
@@ -18,22 +15,24 @@ public class ObservableQuery<T> {
     }
 
     public Observable<T> execute(String queryString) {
-        return Observable.using(this::getStatelessSession,
+        return Observable.using(this::getSession,
                 session -> executeQuery(queryString, session),
-                StatelessSession::close);
+                Session::close);
     }
 
-    private StatelessSession getStatelessSession() {
-        return database.getSessionFactory().openStatelessSession();
-    }
+    private Session getSession() { return database.getSessionFactory().openSession(); }
 
-    private Observable<T> executeQuery(String queryString, StatelessSession session) {
+    private Observable<T> executeQuery(String queryString, Session session) {
         return Observable.using(() -> getScrollableResults(queryString, session),
                 this::scrollResults,
                 ScrollableResults::close);
     }
 
-    private static ScrollableResults getScrollableResults(String queryString, StatelessSession session) {
+    private static ScrollableResults getScrollableResults(String queryString, Session session) {
+        /* hack? */
+        if (!session.isOpen()) {
+            session = session.getSessionFactory().openSession();
+        }
         Query query = session.createQuery(queryString);
         query.setCacheable(false);
         query.setReadOnly(true);
