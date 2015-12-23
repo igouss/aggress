@@ -44,7 +44,8 @@ public class WebPageEntity {
 
     @Basic
     @Column(
-            name = "content"
+            name = "content",
+            columnDefinition="TEXT"
     )
     public String getContent() {
         return this.content;
@@ -105,7 +106,8 @@ public class WebPageEntity {
 
     @Basic
     @Column(
-            name = "url"
+            name = "url",
+            columnDefinition="TEXT"
     )
     public String getUrl() {
         return this.url;

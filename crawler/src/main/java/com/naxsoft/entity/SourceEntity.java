@@ -53,7 +53,8 @@ public class SourceEntity {
 
     @Basic
     @Column(
-            name = "url"
+            name = "url",
+            columnDefinition="TEXT"
     )
     public String getUrl() {
         return this.url;

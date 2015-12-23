@@ -46,7 +46,8 @@ public class ProductEntity {
 
     @Basic
     @Column(
-            name = "json"
+            name = "json",
+            columnDefinition="TEXT"
     )
     public String getJson() {
         return this.json;
@@ -98,7 +99,7 @@ public class ProductEntity {
     }
 
     @Basic
-    @Column(name = "url")
+    @Column(name = "url", columnDefinition="TEXT")
     public String getUrl() {
         return url;
     }
