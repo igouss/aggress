@@ -19,7 +19,6 @@ public class AsyncTransaction {
             tx = session.beginTransaction();
             result = action.call(session);
             tx.commit();
-            return result;
         } catch (Exception e) {
             if (null != tx) {
                 tx.rollback();

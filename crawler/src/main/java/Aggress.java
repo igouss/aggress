@@ -50,7 +50,6 @@ public class Aggress {
     private static SourceService sourceService;
     private static ProductParserFactory productParserFactory;
     private final static int scaleFactor = 1;
-    private static ThreadPoolExecutor threadPoolExecutor;
     public static void main(String[] args) {
         try {
 //        reporter = Slf4jReporter.forRegistry(metrics).outputTo(logger)
@@ -102,18 +101,6 @@ public class Aggress {
             logger.error("Failed to initialize trust manager", e);
             return;
         }
-        int processors = Runtime.getRuntime().availableProcessors();
-        int maxThreads = processors * scaleFactor;
-        maxThreads = (maxThreads > 0 ? maxThreads : 1);
-
-        threadPoolExecutor =
-                new ThreadPoolExecutor(
-                        maxThreads, // core thread pool size
-                        maxThreads, // maximum thread pool size
-                        1, // time to wait before resizing pool
-                        TimeUnit.MINUTES,
-                        new ArrayBlockingQueue<>(maxThreads, true),
-                        new ThreadPoolExecutor.CallerRunsPolicy());
 
         try (AsyncFetchClient asyncFetchClient = new AsyncFetchClient(sc)) {
             productParserFactory = new ProductParserFactory();
@@ -121,15 +108,21 @@ public class Aggress {
             System.setProperty("jsse.enableSNIExtension", "false");
             System.setProperty("jdk.tls.trustNameService", "true");
 
-            webPageService = new WebPageService(db, threadPoolExecutor);
+            webPageService = new WebPageService(db);
             productService = new ProductService(db);
             sourceService = new SourceService(db);
 
 
 
             String indexSuffix = "";//"-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-            elastic.createIndex(asyncFetchClient, "product", "guns", indexSuffix).subscribe();
-            elastic.createMapping(asyncFetchClient, "product", "guns", indexSuffix).subscribe();
+            elastic.createIndex(asyncFetchClient, "product", "guns", indexSuffix)
+                    .retry(3)
+                    .doOnError(ex -> logger.error("Exception", ex))
+                    .subscribe();
+            elastic.createMapping(asyncFetchClient, "product", "guns", indexSuffix)
+                    .retry(3)
+                    .doOnError(ex -> logger.error("Exception", ex))
+                    .subscribe();
 
             metrics.register(MetricRegistry.name(Database.class, "web_pages", "unparsed"), (Gauge<Long>) () -> {
                 Long rc = -1L;
@@ -144,15 +137,8 @@ public class Aggress {
                 return rc;
             });
 
-
-//            webPageService.getUnparsedFrontPage().
-//                    map(Aggress::parseObservableHelper).
-//                    map(Aggress::parseObservable).
-//                    map(Aggress::parseObservable).
-//                    map(Aggress::productFromRawPage).
-//                    subscribe(products -> products.subscribe(set -> productService.save(set)));
-
-//            populateRoots();
+            populateSources();
+            populateRoots();
             process(webPageService.getUnparsedFrontPage());
             process(webPageService.getUnparsedProductList());
             process(webPageService.getUnparsedProductPage());
@@ -175,52 +161,62 @@ public class Aggress {
             if (null != elastic) {
                 elastic.close();
             }
-            if (null != threadPoolExecutor) {
-                threadPoolExecutor.shutdown();
-            }
         }
     }
 
-//    private static Observable<WebPageEntity> parseObservable(Observable<WebPageEntity> webPageEntity) {
-//        return webPageEntity.flatMap(Aggress::parseObservableHelper).filter(result -> null != result);
-//    }
-//
-//    private static Observable<Set<ProductEntity>> productFromRawPage(Observable<WebPageEntity> productPageRaw) {
-//        return productPageRaw.map(Aggress::productFromRawPageHelper).filter(result -> null != result);
-//    }
-//
-//    private static Observable<WebPageEntity> parseObservableHelper(WebPageEntity webPageEntity) {
-//        try {
-//            return webPageParserFactory.parse(webPageEntity).flatMap(Observable::from);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//    private static Set<ProductEntity> productFromRawPageHelper(WebPageEntity webPageEntity) {
-//            try {
-//                return productParserFactory.parse(webPageEntity);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            return null;
-//    }
-//
-//    private static Set<ProductEntity> getWebPageEntitySetFunc1(WebPageEntity webPageEntity) {
-//
-//
-//    }
 
     private static void indexProducts(Observable<ProductEntity> products, String index, String type) {
         elastic.index(products, index, type);
     }
 
+
+    private static void populateSources() {
+        String[] sources = {
+                "http://www.alflahertys.com/",
+                "http://www.bullseyelondon.com/",
+                "http://www.cabelas.ca/",
+                "https://www.canadaammo.com/",
+                "http://www.canadiangunnutz.com/",
+                "https://www.corwin-arms.com/",
+                "http://www.crafm.com/",
+                "http://ctcsupplies.ca/",
+                "https://shop.dantesports.com/",
+                "https://ellwoodepps.com/",
+                "https://www.irunguns.us/",
+                "http://www.marstar.ca/",
+                "http://www.sail.ca/",
+                "http://www.theammosource.com/",
+                "https://www.tradeexcanada.com/",
+                "http://westrifle.com/",
+                "http://www.wholesalesports.com/",
+                "https://www.wolverinesupplies.com/",
+        };
+
+        Observable.from(sources).map(Aggress::from)
+                .retry(3)
+                .doOnError(ex -> logger.error("Exception", ex))
+                .subscribe(Aggress::save);
+    }
+
+
+
     private static void populateRoots() {
         Observable<SourceEntity> sources = sourceService.getSources();
-        sources.map(Aggress::from).toList().subscribe(Aggress::save);
+        sources.map(Aggress::from)
+                .toList()
+                .retry(3)
+                .doOnError(ex -> logger.error("Exception", ex))
+                .subscribe(Aggress::save);
         sourceService.markParsed(sources);
     }
+
+    private static SourceEntity from(String sourceUrl) {
+        SourceEntity sourceEntity = new SourceEntity();
+        sourceEntity.setEnabled(true);
+        sourceEntity.setUrl(sourceUrl);
+        return sourceEntity;
+    }
+
 
     private static WebPageEntity from(SourceEntity sourceEntity) {
         WebPageEntity webPageEntity = new WebPageEntity();
@@ -230,11 +226,20 @@ public class Aggress {
         return webPageEntity;
     }
 
-    private static void save(Collection<WebPageEntity> webPageEntities) {
+    private static boolean save(SourceEntity sourceEntity) {
+        boolean rc =  sourceService.save(sourceEntity);
+        if (!rc) {
+            logger.error("Failed to save sourceEntity");
+        }
+        return rc;
+    }
+
+    private static boolean save(Collection<WebPageEntity> webPageEntities) {
         boolean rc = webPageService.save(webPageEntities);
         if (!rc) {
             logger.error("Failed to save webPageEntities");
         }
+        return rc;
     }
 
     private static void process(Observable<WebPageEntity> parents) {
@@ -253,7 +258,8 @@ public class Aggress {
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
                 .map(webPageService::save)
-                .doOnError(error -> logger.error("Failed to process source", error))
+                .retry(3)
+                .doOnError(ex -> logger.error("Exception", ex))
                 .subscribe();
     }
 
@@ -271,6 +277,9 @@ public class Aggress {
                 logger.error("Failed to parse product page {}", webPageEntity.getUrl(), e);
             }
             return result;
-        }).filter(webPageEntities -> null != webPageEntities).subscribe(productService::save);
+        }).filter(webPageEntities -> null != webPageEntities)
+                .retry(3)
+                .doOnError(ex -> logger.error("Exception", ex))
+                .subscribe(productService::save);
     }
 }

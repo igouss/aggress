@@ -30,33 +30,45 @@ public class SourceService {
     }
 
     public void markParsed(Observable<SourceEntity> sourceEntity) {
-        sourceEntity.toList().subscribe(list -> {
-            Session session = database.getSessionFactory().openSession();
-            Query query = session.createQuery("update WebPageEntity set modificationDate = :modificationDate where id = :id");
-            Transaction tx = null;
-            try {
-                tx = session.beginTransaction();
-                int count = 0;
+        sourceEntity.toList()
+                .retry(3)
+                .doOnError(ex -> logger.error("Exception", ex))
+                .subscribe(list -> {
+                    Session session = database.getSessionFactory().openSession();
+                    Query query = session.createQuery("update WebPageEntity set modificationDate = :modificationDate where id = :id");
+                    Transaction tx = null;
+                    try {
+                        tx = session.beginTransaction();
+                        int count = 0;
 
-                for (SourceEntity entry : list) {
-                    query.setInteger("id", entry.getId());
-                    query.setTimestamp("modificationDate", new Date());
-                    query.executeUpdate();
-                    ++count;
-                    if (0 == count % 20) {
+                        for (SourceEntity entry : list) {
+                            query.setInteger("id", entry.getId());
+                            query.setTimestamp("modificationDate", new Date());
+                            query.executeUpdate();
+                            ++count;
+                            if (0 == count % 20) {
+                                session.flush();
+                            }
+                        }
                         session.flush();
+                        tx.commit();
+                    } catch (Exception e) {
+                        logger.error("Failed to mark as source as parsed", e);
+                        if (null != tx) {
+                            tx.rollback();
+                        }
+                    } finally {
+                        session.close();
                     }
-                }
-                session.flush();
-                tx.commit();
-            } catch (Exception e) {
-                logger.error("Failed to mark as source as parsed", e);
-                if (null != tx) {
-                    tx.rollback();
-                }
-            } finally {
-                session.close();
-            }
+                });
+    }
+
+    public boolean save(SourceEntity sourceEntity) {
+        return AsyncTransaction.execute(database, session -> {
+            logger.debug("Saving {}", sourceEntity);
+            session.save(sourceEntity);
+            return true;
         });
+
     }
 }

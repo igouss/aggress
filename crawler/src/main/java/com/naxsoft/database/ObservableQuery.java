@@ -18,9 +18,9 @@ public class ObservableQuery<T> {
     }
 
     public Observable<T> execute(String queryString) {
-        return Observable.defer(() -> Observable.using(this::getStatelessSession,
+        return Observable.using(this::getStatelessSession,
                 session -> executeQuery(queryString, session),
-                StatelessSession::close));
+                StatelessSession::close);
     }
 
     private StatelessSession getStatelessSession() {

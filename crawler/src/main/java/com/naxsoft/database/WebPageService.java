@@ -21,11 +21,9 @@ public class WebPageService {
     private final static Logger logger = LoggerFactory.getLogger(WebPageService.class);
     private final Database database;
     private final ObservableQuery<WebPageEntity> observableQuery;
-    private ThreadPoolExecutor threadPoolExecutor;
 
-    public WebPageService(Database database, ThreadPoolExecutor threadPoolExecutor) {
+    public WebPageService(Database database) {
         this.database = database;
-        this.threadPoolExecutor = threadPoolExecutor;
         observableQuery = new ObservableQuery<>(database);
     }
 
@@ -60,22 +58,26 @@ public class WebPageService {
      */
     public Observable<Long> getUnparsedCount(String type) {
         return Observable.create(subscriber -> {
-            Long rc;
-            do {
-                rc = AsyncTransaction.execute(database, session -> {
-                    Long count = 0L;
-                    String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
-                    Query query = session.createQuery(queryString);
-                    query.setString("type", type);
-                    count = (Long) query.list().get(0);
-                    return count;
-                });
-                if (0 != rc) {
-                    subscriber.onNext(rc);
-                } else {
-                    subscriber.onCompleted();
-                }
-            } while (0 != rc || !subscriber.isUnsubscribed());
+            Long rc = 0L;
+            try {
+                do {
+                    rc = AsyncTransaction.execute(database, session -> {
+                        Long count = 0L;
+                        String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
+                        Query query = session.createQuery(queryString);
+                        query.setString("type", type);
+                        count = (Long) query.list().get(0);
+                        return count;
+                    });
+                    if (0 != rc) {
+                        subscriber.onNext(rc);
+                    } else {
+                        subscriber.onCompleted();
+                    }
+                } while (0 != rc || !subscriber.isUnsubscribed());
+            } catch (Exception e) {
+                subscriber.onError(e);
+            }
         });
     }
 
