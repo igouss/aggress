@@ -109,3 +109,4 @@ hs_err_pid*
 *.log
 
 config.properties
+aggress.*.db
