@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadiangunnutzRawPageParser {
+public class CanadiangunnutzRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzRawPageParser.class);
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -37,7 +37,10 @@ public class CanadiangunnutzRawPageParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        String productName = document.select("div.postdetails h2").text();
+        String productName = document.select("div.postdetails h2").text().replaceAll("[^\\x00-\\x7F]", "");
+        if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove")) {
+            return products;
+        }
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         jsonBuilder.field("productName",productName);
