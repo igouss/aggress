@@ -31,26 +31,31 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
         AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder()
                 .setAcceptAnyCertificate(true)
                 .setSSLContext(sslContext)
-//                .setMaxConnections(10)
-                .setMaxConnectionsPerHost(2)
+                .setAllowPoolingConnections(false)
+                .setAllowPoolingSslConnections(false)
+                .setMaxRequestRetry(10)
+                .setPooledConnectionIdleTimeout((int) TimeUnit.MILLISECONDS.convert(60, TimeUnit.SECONDS))
                 .setAcceptAnyCertificate(true)
                 .addIOExceptionFilter(ctx -> {
-                    logger.error("ASyncHttpdClient error", ctx.getIOException());
-                    return ctx;
+                    logger.error("ASyncHttpdClient error {} {}", ctx.getRequest().getUrl(), ctx.getIOException().getMessage());
+                    return new FilterContext.FilterContextBuilder(ctx)
+                            .request(ctx.getRequest())
+                            .replayRequest(true)
+                            .build();
                 })
                 .build();
         asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
     }
 
-    public <R> Future<R> get(String url, AsyncHandler<R> handler)  {
-        return get(url, Collections.<Cookie> emptyList(), handler);
+    public <R> ListenableFuture<R> get(String url, AsyncHandler<R> handler) {
+        return get(url, Collections.<Cookie>emptyList(), handler);
     }
 
-    public <R> Future<R> get(String url, Collection<Cookie> cookies, AsyncHandler<R> handler)  {
+    public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AsyncHandler<R> handler) {
         return get(url, cookies, handler, true);
     }
 
-    public <R> Future<R> get(String url, Collection<Cookie> cookies, AsyncHandler<R> handler, boolean followRedirect)  {
+    public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AsyncHandler<R> handler, boolean followRedirect) {
         logger.trace("Starting async http GET request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
@@ -60,7 +65,7 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
         return requestBuilder.execute(handler);
     }
 
-    public <T> Future<T> post(String url, String content, AsyncHandler<T> handler) {
+    public <T> ListenableFuture<T> post(String url, String content, AsyncHandler<T> handler) {
         return post(url, content, Collections.<Cookie>emptyList(), handler);
     }
 
@@ -75,6 +80,7 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
 
         return requestBuilder.execute(handler);
     }
+
     public <T> ListenableFuture<T> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AsyncHandler<T> handler) {
         logger.trace("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
@@ -83,7 +89,7 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
         requestBuilder.setFollowRedirects(true);
 
         Set<Map.Entry<String, String>> entries = formParameters.entrySet();
-        for(Map.Entry<String, String> e : entries) {
+        for (Map.Entry<String, String> e : entries) {
             requestBuilder.addFormParam(e.getKey(), e.getValue());
         }
 

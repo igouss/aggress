@@ -108,4 +108,4 @@ hs_err_pid*
 
 *.log
 
-crawler/src/main/resources/config.properties
+config.properties

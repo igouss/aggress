@@ -26,10 +26,14 @@ import java.util.concurrent.Future;
 public class CanadiangunnutzProductPageParser implements WebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
     private final AsyncFetchClient client;
-    private List<Cookie> cookies;
+    private final List<Cookie> cookies = new LinkedList<>();
 
     public CanadiangunnutzProductPageParser(AsyncFetchClient client) {
         this.client = client;
+        login(client);
+    }
+
+    private void login(AsyncFetchClient client) {
         Map<String, String> formParameters = new HashMap<>();
         formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
         formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
@@ -42,7 +46,8 @@ public class CanadiangunnutzProductPageParser implements WebPageParser {
 
         ListenableFuture<List<Cookie>> futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getEngCookiesHandler());
         try {
-            cookies = futureCookies.get();
+            cookies.clear();
+            cookies.addAll(futureCookies.get());
         } catch (Exception e) {
             logger.error("Failed to login to canadiangunnutz", e);
         }
