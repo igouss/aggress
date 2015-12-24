@@ -18,8 +18,6 @@ import rx.Observable;
 
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015

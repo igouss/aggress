@@ -26,6 +26,7 @@ import java.util.concurrent.Future;
 public class DantesportsFrontPageParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
+
     public DantesportsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }

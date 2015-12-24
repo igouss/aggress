@@ -32,7 +32,7 @@ public class AlflahertysRawPageParser implements ProductParser {
         String productName = document.select(".product_name").text();
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        if(!document.select(".product_section .sold_out").text().equals("Sold Out")) {
+        if (!document.select(".product_section .sold_out").text().equals("Sold Out")) {
             ProductEntity product = new ProductEntity();
             XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
             jsonBuilder.startObject();
@@ -50,7 +50,7 @@ public class AlflahertysRawPageParser implements ProductParser {
             jsonBuilder.field("description", document.select(".product_section .description").text());
             Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
             Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
-            while(labels.hasNext()) {
+            while (labels.hasNext()) {
                 String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
                 String specValue = values.next().text();
                 jsonBuilder.field(specName, specValue);

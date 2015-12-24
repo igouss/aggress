@@ -19,6 +19,7 @@ import java.util.concurrent.Future;
 public class MarstarProductParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(MarstarProductParser.class);
+
     public MarstarProductParser(AsyncFetchClient client) {
         this.client = client;
     }

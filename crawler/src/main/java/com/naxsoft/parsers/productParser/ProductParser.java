@@ -7,6 +7,7 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+
 import java.util.Set;
 
 public interface ProductParser {

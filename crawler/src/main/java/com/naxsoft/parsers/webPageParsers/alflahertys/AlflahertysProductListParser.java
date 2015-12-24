@@ -29,29 +29,29 @@ public class AlflahertysProductListParser implements WebPageParser {
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-                @Override
-                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    HashSet<WebPageEntity> result = new HashSet<>();
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select("body > div.container.main.content > div:nth-child(3) a:nth-child(1).view_product_info");
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            @Override
+            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                HashSet<WebPageEntity> result = new HashSet<>();
+                if (200 == resp.getStatusCode()) {
+                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                    Elements elements = document.select("body > div.container.main.content > div:nth-child(3) a:nth-child(1).view_product_info");
 
-                        for (Element element : elements) {
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(element.attr("abs:href"));
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productPage");
-                            webPageEntity.setParent(webPage);
-                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
-                            result.add(webPageEntity);
-                        }
+                    for (Element element : elements) {
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl(element.attr("abs:href"));
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setStatusCode(resp.getStatusCode());
+                        webPageEntity.setType("productPage");
+                        webPageEntity.setParent(webPage);
+                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
+                        result.add(webPageEntity);
                     }
-                    return result;
                 }
-            });
+                return result;
+            }
+        });
         return Observable.defer(() -> Observable.from(future));
     }
 

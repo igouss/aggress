@@ -1,8 +1,5 @@
 package com.naxsoft;
 
-import static io.undertow.Handlers.path;
-import static io.undertow.Handlers.websocket;
-
 import com.naxsoft.handlers.IndexHandler;
 import com.naxsoft.handlers.SearchHandler;
 import io.undertow.Handlers;
@@ -13,8 +10,8 @@ import io.undertow.server.session.InMemorySessionManager;
 import io.undertow.server.session.SessionAttachmentHandler;
 import io.undertow.server.session.SessionCookieConfig;
 import io.undertow.server.session.SessionManager;
-import io.vertx.core.*;
-import io.vertx.core.metrics.*;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
@@ -24,9 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
-import java.io.File;
 
 /**
  * Copyright NAXSoft 2015
@@ -34,18 +31,22 @@ import java.io.File;
 public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
+
     public static void main(final String[] args) {
+//        startElasticSearch();
+
+
         TemplateEngine templateEngine = getTemplateEngine();
         TransportClient esClient = getTransportClient();
 
         ApplicationContext context = new ApplicationContext();
         context.setInvalidateTemplateCache(true);
 
-        VertxOptions vertxOptions = new VertxOptions();
-        vertxOptions.setMetricsOptions(new MetricsOptions().setEnabled(true));
-
-        Vertx vertx = Vertx.vertx(vertxOptions);
-        vertx.close(handler -> System.out.println("Vert.x is shutdown"));
+//        VertxOptions vertxOptions = new VertxOptions();
+//        vertxOptions.setMetricsOptions(new MetricsOptions().setEnabled(true));
+//
+//        Vertx vertx = Vertx.vertx(vertxOptions);
+//        vertx.close(handler -> System.out.println("Vert.x is shutdown"));
 
         PathHandler pathHandler = getPathHandler(templateEngine, esClient, context);
 
@@ -66,6 +67,19 @@ public class Server {
             // server.stop();
         }
     }
+
+//    private static void startElasticSearch() {
+//        ImmutableSettings.Builder settings =
+//                ImmutableSettings.settingsBuilder();
+//        settings.put("node.name", "orange11-node");
+//        settings.put("path.data", "/data/index");
+//        settings.put("http.enabled", false);
+//        Node node = NodeBuilder.nodeBuilder()
+//                .settings(settings)
+//                .clusterName("orange11-cluster")
+//                .data(true).local(true).node();
+//
+//    }
 
     private static PathHandler getPathHandler(TemplateEngine templateEngine, TransportClient client, ApplicationContext context) {
         PathHandler pathHandler = Handlers.path();

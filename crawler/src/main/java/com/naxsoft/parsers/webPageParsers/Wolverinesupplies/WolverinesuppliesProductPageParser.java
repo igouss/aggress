@@ -21,29 +21,30 @@ import java.util.concurrent.Future;
 public class WolverinesuppliesProductPageParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductPageParser.class);
+
     public WolverinesuppliesProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-                @Override
-                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    HashSet<WebPageEntity> result = new HashSet<>();
-                    if (200 == resp.getStatusCode()) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(webPage.getUrl());
-                        webPageEntity.setParent(webPage);
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setType("productPageRaw");
-                        webPageEntity.setContent(resp.getResponseBody());
-                        webPageEntity.setParent(webPage);
-                        result.add(webPageEntity);
-                        logger.info("productPageRaw={}", webPageEntity.getUrl());
-                    }
-                    return result;
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            @Override
+            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                HashSet<WebPageEntity> result = new HashSet<>();
+                if (200 == resp.getStatusCode()) {
+                    WebPageEntity webPageEntity = new WebPageEntity();
+                    webPageEntity.setUrl(webPage.getUrl());
+                    webPageEntity.setParent(webPage);
+                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                    webPageEntity.setType("productPageRaw");
+                    webPageEntity.setContent(resp.getResponseBody());
+                    webPageEntity.setParent(webPage);
+                    result.add(webPageEntity);
+                    logger.info("productPageRaw={}", webPageEntity.getUrl());
                 }
-            });
+                return result;
+            }
+        });
         return Observable.defer(() -> Observable.from(future));
     }
 

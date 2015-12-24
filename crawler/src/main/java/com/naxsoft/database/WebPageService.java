@@ -65,7 +65,9 @@ public class WebPageService {
                         count = (Long) query.list().get(0);
                         return count;
                     });
-                    if (0 != rc) {
+                    if (null == rc) {
+                        subscriber.onError(new Exception("Could not get unparsed count for " + type));
+                    } else if (0 != rc) {
                         subscriber.onNext(rc);
                     } else {
                         subscriber.onCompleted();
@@ -98,6 +100,8 @@ public class WebPageService {
     }
 
     private Observable<WebPageEntity> executeQuery(String query, String condColumn) {
-        return getUnparsedCount(condColumn).flatMap(count -> observableQuery.execute(query));
+        return getUnparsedCount(condColumn)
+                .doOnError(ex -> logger.error("Exception", ex))
+                .flatMap(count -> observableQuery.execute(query));
     }
 }

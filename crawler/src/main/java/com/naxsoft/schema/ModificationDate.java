@@ -1,9 +1,9 @@
-
 package com.naxsoft.schema;
 
-import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
 public class ModificationDate {
@@ -16,36 +16,28 @@ public class ModificationDate {
     private String format;
 
     /**
-     * 
-     * @return
-     *     The type
+     * @return The type
      */
     public String getType() {
         return type;
     }
 
     /**
-     * 
-     * @param type
-     *     The type
+     * @param type The type
      */
     public void setType(String type) {
         this.type = type;
     }
 
     /**
-     * 
-     * @return
-     *     The format
+     * @return The format
      */
     public String getFormat() {
         return format;
     }
 
     /**
-     * 
-     * @param format
-     *     The format
+     * @param format The format
      */
     public void setFormat(String format) {
         this.format = format;

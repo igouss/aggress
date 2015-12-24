@@ -30,7 +30,7 @@ public class Database implements AutoCloseable, Cloneable {
 
 
     public void close() {
-        if(null != this.sessionFactory) {
+        if (null != this.sessionFactory) {
             this.sessionFactory.close();
         }
 

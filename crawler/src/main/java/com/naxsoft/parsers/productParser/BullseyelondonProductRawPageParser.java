@@ -72,7 +72,7 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
     private static String getFreeShipping(Document document) {
         String raw = document.select(".freeShip").first().text();
         Matcher matcher = Pattern.compile("\\w+|\\s+").matcher(raw);
-        return matcher.find()?"true":"false";
+        return matcher.find() ? "true" : "false";
     }
 
 
@@ -91,7 +91,7 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
 
     private static String getRegularPrice(Document document) {
         String raw = document.select(".regular-price").text().trim();
-        if(raw.isEmpty()) {
+        if (raw.isEmpty()) {
             raw = document.select(".old-price .price").text().trim();
         }
         return parsePrice(raw);
@@ -105,7 +105,7 @@ public class BullseyelondonProductRawPageParser implements ProductParser {
     private static String getUnitsAvailable(Document document) {
         String raw = document.select(".price-box").first().nextElementSibling().text().trim();
         Matcher matcher = Pattern.compile("\\d+").matcher(raw);
-        if(matcher.find()) {
+        if (matcher.find()) {
             return matcher.group(0);
         } else {
             return raw;

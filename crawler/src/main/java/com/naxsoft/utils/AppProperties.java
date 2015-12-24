@@ -1,6 +1,5 @@
 package com.naxsoft.utils;
 
-import com.naxsoft.parsers.webPageParsers.canadiangunnutz.CanadiangunnutzFrontPageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +20,7 @@ public class AppProperties {
             logger.error("Failed to load properties", e);
         }
     }
+
     public static String getProperty(String key) {
         return properties.getProperty(key);
     }

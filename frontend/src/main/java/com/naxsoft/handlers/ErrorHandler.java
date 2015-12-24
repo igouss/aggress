@@ -13,7 +13,7 @@ public class ErrorHandler implements HttpHandler {
         try {
             next.handleRequest(exchange);
         } catch (Exception e) {
-            if(exchange.isResponseChannelAvailable()) {
+            if (exchange.isResponseChannelAvailable()) {
                 exchange.getResponseSender().send(e.toString() + "\n" + e.getCause().toString());
             }
         }

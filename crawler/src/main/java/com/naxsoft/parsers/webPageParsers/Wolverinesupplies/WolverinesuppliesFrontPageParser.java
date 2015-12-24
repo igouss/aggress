@@ -20,36 +20,37 @@ import java.util.concurrent.Future;
 public class WolverinesuppliesFrontPageParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesFrontPageParser.class);
+
     public WolverinesuppliesFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-                @Override
-                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    HashSet<WebPageEntity> result = new HashSet<>();
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select(".mainnav a");
-                        for (Element e : elements) {
-                            String linkUrl = e.attr("abs:href");
-                            if (null != linkUrl && !linkUrl.isEmpty() && linkUrl.contains("Products") && e.siblingElements().isEmpty()) {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl(linkUrl);
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setStatusCode(resp.getStatusCode());
-                                webPageEntity.setType("productList");
-                                webPageEntity.setParent(webPage);
-                                logger.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
-                                result.add(webPageEntity);
-                            }
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            @Override
+            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                HashSet<WebPageEntity> result = new HashSet<>();
+                if (200 == resp.getStatusCode()) {
+                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                    Elements elements = document.select(".mainnav a");
+                    for (Element e : elements) {
+                        String linkUrl = e.attr("abs:href");
+                        if (null != linkUrl && !linkUrl.isEmpty() && linkUrl.contains("Products") && e.siblingElements().isEmpty()) {
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setUrl(linkUrl);
+                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                            webPageEntity.setParsed(false);
+                            webPageEntity.setStatusCode(resp.getStatusCode());
+                            webPageEntity.setType("productList");
+                            webPageEntity.setParent(webPage);
+                            logger.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
+                            result.add(webPageEntity);
                         }
                     }
-                    return result;
                 }
-            });
+                return result;
+            }
+        });
         return Observable.defer(() -> Observable.from(future));
     }
 

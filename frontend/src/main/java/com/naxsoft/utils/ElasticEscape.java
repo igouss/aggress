@@ -14,10 +14,10 @@ public class ElasticEscape {
             int e = 0;
             int length = value.length();
 
-            for(int i = 0; i < length; ++i) {
+            for (int i = 0; i < length; ++i) {
                 char c = value.charAt(i);
 
-                switch(c) {
+                switch (c) {
                     case '\\':
                         e = append(value, writer, e, i, "\\\\");
                         break;
@@ -32,6 +32,7 @@ public class ElasticEscape {
             throw new MustacheException("Failed to encode value: " + value);
         }
     }
+
     private static int append(String value, Writer writer, int position, int i, String replace) throws IOException {
         writer.append(value, position, i);
         writer.append(replace);

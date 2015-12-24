@@ -2,8 +2,8 @@ group 'com.naxsoft'
 version '1.0-SNAPSHOT'
 apply plugin: 'java'
 dependencies {
-    compile project (":crawler")
-    compile project (":frontend")
+    compile project(":crawler")
+    compile project(":frontend")
 }
 
 task wrapper(type: Wrapper) {
@@ -16,7 +16,7 @@ allprojects {
     sourceCompatibility = 1.8
     repositories {
         maven {
-            url  "http://jcenter.bintray.com"
+            url "http://jcenter.bintray.com"
         }
     }
 }

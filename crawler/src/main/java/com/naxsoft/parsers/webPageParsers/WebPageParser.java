@@ -12,5 +12,6 @@ import java.util.Set;
 
 public interface WebPageParser {
     Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception;
+
     boolean canParse(WebPageEntity webPage);
 }

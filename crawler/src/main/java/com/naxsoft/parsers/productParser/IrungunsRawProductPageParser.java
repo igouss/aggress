@@ -46,7 +46,7 @@ public class IrungunsRawProductPageParser implements ProductParser {
         }
 
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-        jsonBuilder.field("productName",productName);
+        jsonBuilder.field("productName", productName);
         String manufacturer = document.select(".product-details__title .product__manufacturer").text();
         if (!manufacturer.isEmpty()) {
             jsonBuilder.field("manufacturer", manufacturer);
@@ -68,7 +68,7 @@ public class IrungunsRawProductPageParser implements ProductParser {
         Iterator<Element> labels = document.select("table.productTbl > tbody > tr > td:nth-child(1)").iterator();
         Iterator<Element> values = document.select("table.productTbl > tbody > tr > td:nth-child(2)").iterator();
 
-        while(labels.hasNext()) {
+        while (labels.hasNext()) {
             String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
             String specValue = values.next().text();
             jsonBuilder.field(specName, specValue);
@@ -86,7 +86,7 @@ public class IrungunsRawProductPageParser implements ProductParser {
         Matcher matcher = Pattern.compile("((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
             try {
-                return matcher.group(1).replace(",","");
+                return matcher.group(1).replace(",", "");
 //                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
             } catch (Exception ignored) {
                 return Double.valueOf(matcher.group(1)).toString();

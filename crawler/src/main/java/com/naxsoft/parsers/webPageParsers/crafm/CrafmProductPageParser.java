@@ -24,6 +24,7 @@ public class CrafmProductPageParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(CrafmProductPageParser.class);
     Collection<Cookie> cookies;
+
     public CrafmProductPageParser(AsyncFetchClient client) {
         this.client = client;
         cookies = new ArrayList<>(1);

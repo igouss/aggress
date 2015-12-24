@@ -19,6 +19,7 @@ import java.util.concurrent.Future;
 public class CorwinArmsProductPageParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(CorwinArmsProductPageParser.class);
+
     public CorwinArmsProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }

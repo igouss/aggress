@@ -17,7 +17,7 @@
     </appender>
 
     <appender name="ASYNC-FILE" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="FILE" />
+        <appender-ref ref="FILE"/>
     </appender>
 
 
@@ -61,15 +61,15 @@
     </appender>
 
 
-    <logger name="org.hibernate" level="INFO" />
-    <logger name="org.elasticsearch" level="INFO" />
-    <logger name="io.netty" level="INFO" />
-    <logger name="org.hibernate.SQL" level="INFO" />
-    <logger name="com.zaxxer.hikari" level="INFO" />
-    <logger name="com.ning.http.client" level="INFO" />
+    <logger name="org.hibernate" level="INFO"/>
+    <logger name="org.elasticsearch" level="INFO"/>
+    <logger name="io.netty" level="INFO"/>
+    <logger name="org.hibernate.SQL" level="INFO"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+    <logger name="com.ning.http.client" level="INFO"/>
     <root level="DEBUG">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="ASYNC-FILE" />
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC-FILE"/>
         <!--<appender-ref ref="ELASTIC" />-->
     </root>
 </configuration>

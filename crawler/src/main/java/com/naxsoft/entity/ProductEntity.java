@@ -5,13 +5,7 @@
 
 package com.naxsoft.entity;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(
@@ -47,7 +41,7 @@ public class ProductEntity {
     @Basic
     @Column(
             name = "json",
-            columnDefinition="TEXT"
+            columnDefinition = "TEXT"
     )
     public String getJson() {
         return this.json;
@@ -99,7 +93,7 @@ public class ProductEntity {
     }
 
     @Basic
-    @Column(name = "url", columnDefinition="TEXT")
+    @Column(name = "url", columnDefinition = "TEXT")
     public String getUrl() {
         return url;
     }

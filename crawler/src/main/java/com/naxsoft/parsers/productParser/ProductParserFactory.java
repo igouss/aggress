@@ -5,19 +5,13 @@
 
 package com.naxsoft.parsers.productParser;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.naxsoft.database.ObservableQuery;
-import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class ProductParserFactory {

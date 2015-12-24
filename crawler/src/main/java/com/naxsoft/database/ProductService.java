@@ -6,7 +6,10 @@
 package com.naxsoft.database;
 
 import com.naxsoft.entity.ProductEntity;
-import org.hibernate.*;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -22,8 +25,10 @@ public class ProductService {
     }
 
     public void save(Collection<ProductEntity> products) {
+        Session session = null;
         Transaction tx = null;
-        try (Session session = database.getSessionFactory().openSession()) {
+        try {
+            session = database.getSessionFactory().openSession();
             tx = session.beginTransaction();
             int i = 0;
             for (ProductEntity productEntity : products) {
@@ -37,9 +42,14 @@ public class ProductService {
         } catch (HibernateException e) {
             logger.error("Failed to save products", e);
             if (null != tx) {
-                tx.commit();
+                tx.rollback();
+            }
+        } finally {
+            if (null != session) {
+                session.close();
             }
         }
+
     }
 
     public Observable<ProductEntity> getProducts() {
@@ -48,12 +58,14 @@ public class ProductService {
     }
 
     public void markAllAsIndexed() {
-        Session session = database.getSessionFactory().openSession();
-        Query query = session.createQuery("update ProductEntity as p set p.indexed = true");
+        Session session = null;
         Transaction tx = null;
 
         try {
+            session = database.getSessionFactory().openSession();
             tx = session.beginTransaction();
+            Query query = session.createQuery("update ProductEntity as p set p.indexed = true");
+
             int rc = query.executeUpdate();
             logger.info("The number of entities affected: {}", rc);
             session.flush();
@@ -64,7 +76,9 @@ public class ProductService {
                 tx.rollback();
             }
         } finally {
-            session.close();
+            if (null != session) {
+                session.close();
+            }
         }
     }
 }

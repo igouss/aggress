@@ -16,7 +16,7 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class TheammosourceProductPageParser  implements WebPageParser {
+public class TheammosourceProductPageParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(TheammosourceProductPageParser.class);
 

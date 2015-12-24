@@ -1,6 +1,9 @@
 package com.naxsoft.database;
 
-import org.hibernate.*;
+import org.hibernate.Query;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 import rx.Observable;
 
 /**
@@ -20,7 +23,9 @@ public class ObservableQuery<T> {
                 Session::close);
     }
 
-    private Session getSession() { return database.getSessionFactory().openSession(); }
+    private Session getSession() {
+        return database.getSessionFactory().openSession();
+    }
 
     private Observable<T> executeQuery(String queryString, Session session) {
         return Observable.using(() -> getScrollableResults(queryString, session),

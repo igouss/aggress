@@ -6,7 +6,6 @@
 package com.naxsoft.database;
 
 import com.naxsoft.entity.SourceEntity;
-import com.naxsoft.entity.WebPageEntity;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -34,11 +33,12 @@ public class SourceService {
                 .retry(3)
                 .doOnError(ex -> logger.error("Exception", ex))
                 .subscribe(list -> {
-                    Session session = database.getSessionFactory().openSession();
-                    Query query = session.createQuery("update WebPageEntity set modificationDate = :modificationDate where id = :id");
+                    Session session = null;
                     Transaction tx = null;
                     try {
+                        session = database.getSessionFactory().openSession();
                         tx = session.beginTransaction();
+                        Query query = session.createQuery("update WebPageEntity set modificationDate = :modificationDate where id = :id");
                         int count = 0;
 
                         for (SourceEntity entry : list) {
@@ -58,7 +58,9 @@ public class SourceService {
                             tx.rollback();
                         }
                     } finally {
-                        session.close();
+                        if (null != session) {
+                            session.close();
+                        }
                     }
                 });
     }
@@ -69,6 +71,5 @@ public class SourceService {
             session.save(sourceEntity);
             return true;
         });
-
     }
 }

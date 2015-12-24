@@ -51,7 +51,7 @@ public class SailsRawPageParser implements ProductParser {
         Iterator<Element> labels = document.select(".spec-row .label").iterator();
         Iterator<Element> values = document.select(".spec-row .data").iterator();
 
-        while(labels.hasNext()) {
+        while (labels.hasNext()) {
             String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
             String specValue = values.next().text();
             jsonBuilder.field(specName, specValue);

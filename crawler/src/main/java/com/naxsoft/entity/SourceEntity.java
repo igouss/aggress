@@ -54,7 +54,7 @@ public class SourceEntity {
     @Basic
     @Column(
             name = "url",
-            columnDefinition="TEXT"
+            columnDefinition = "TEXT"
     )
     public String getUrl() {
         return this.url;
@@ -65,10 +65,10 @@ public class SourceEntity {
     }
 
     public boolean equals(Object o) {
-        if(this == o) {
+        if (this == o) {
             return true;
-        } else if(o != null && this.getClass() == o.getClass()) {
-            SourceEntity that = (SourceEntity)o;
+        } else if (o != null && this.getClass() == o.getClass()) {
+            SourceEntity that = (SourceEntity) o;
             return this.url.equals(that.url);
         } else {
             return false;

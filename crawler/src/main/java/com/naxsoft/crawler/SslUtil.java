@@ -1,13 +1,6 @@
 package com.naxsoft.crawler;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.*;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -25,7 +18,7 @@ public class SslUtil {
     /**
      * Add a certificate to the cacerts keystore if it's not already included
      *
-     * @param alias The alias for the certificate, if added
+     * @param alias           The alias for the certificate, if added
      * @param certInputStream The certificate input stream
      * @throws KeyStoreException
      * @throws NoSuchAlgorithmException
@@ -33,7 +26,7 @@ public class SslUtil {
      * @throws IOException
      */
     public static void ensureSslCertIsInKeystore(String alias, InputStream certInputStream)
-            throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException{
+            throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
         //get default cacerts file
         final File cacertsFile = new File(System.getProperty("java.home") + CACERTS_PATH);
         if (!cacertsFile.exists()) {

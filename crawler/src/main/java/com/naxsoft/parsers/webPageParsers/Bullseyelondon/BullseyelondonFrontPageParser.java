@@ -3,7 +3,6 @@ package com.naxsoft.parsers.webPageParsers.bullseyelondon;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.naxsoft.parsers.webPageParsers.alflahertys.AlflahertysProductPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,29 +26,29 @@ public class BullseyelondonFrontPageParser implements WebPageParser {
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) {
-            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-                @Override
-                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    HashSet<WebPageEntity> result = new HashSet<>();
-                    if (200 == resp.getStatusCode()) {
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            @Override
+            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                HashSet<WebPageEntity> result = new HashSet<>();
+                if (200 == resp.getStatusCode()) {
 
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select(".vertnav-cat a");
-                        for (Element element : elements) {
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(element.attr("abs:href") + "?limit=all");
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productList");
-                            webPageEntity.setParent(webPage);
-                            logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), webPage.getUrl());
-                            result.add(webPageEntity);
-                        }
+                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                    Elements elements = document.select(".vertnav-cat a");
+                    for (Element element : elements) {
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl(element.attr("abs:href") + "?limit=all");
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setStatusCode(resp.getStatusCode());
+                        webPageEntity.setType("productList");
+                        webPageEntity.setParent(webPage);
+                        logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), webPage.getUrl());
+                        result.add(webPageEntity);
                     }
-                    return result;
                 }
-            });
+                return result;
+            }
+        });
         return Observable.defer(() -> Observable.from(future));
 
     }

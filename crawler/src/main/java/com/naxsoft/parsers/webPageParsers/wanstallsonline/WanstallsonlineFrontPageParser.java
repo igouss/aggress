@@ -44,7 +44,7 @@ public class WanstallsonlineFrontPageParser implements WebPageParser {
                             Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
                             int max = 1;
                             Elements elements = document.select(".navigationtable td[valign=middle] > a");
-                            for(Element el : elements) {
+                            for (Element el : elements) {
                                 try {
                                     Matcher matcher = Pattern.compile("\\d+").matcher(el.text());
                                     if (matcher.find()) {

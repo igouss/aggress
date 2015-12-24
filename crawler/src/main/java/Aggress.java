@@ -3,7 +3,10 @@
 // (powered by Fernflower decompiler)
 //
 
-import com.codahale.metrics.*;
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.ScheduledReporter;
+import com.codahale.metrics.Timer;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.database.*;
 import com.naxsoft.entity.ProductEntity;
@@ -15,15 +18,13 @@ import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.util.SslUtils;
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
-import io.vertx.core.metrics.MetricsOptions;
 import org.elasticsearch.metrics.ElasticsearchReporter;
 import org.hibernate.Query;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -33,8 +34,6 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class Aggress {
@@ -50,6 +49,7 @@ public class Aggress {
     private static SourceService sourceService;
     private static ProductParserFactory productParserFactory;
     private final static int scaleFactor = 1;
+
     public static void main(String[] args) {
         try {
 //        reporter = Slf4jReporter.forRegistry(metrics).outputTo(logger)
@@ -113,7 +113,6 @@ public class Aggress {
             sourceService = new SourceService(db);
 
 
-
             String indexSuffix = "";//"-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
             elastic.createIndex(asyncFetchClient, "product", "guns", indexSuffix)
                     .retry(3)
@@ -136,9 +135,9 @@ public class Aggress {
                 }
                 return rc;
             });
-
-            populateSources();
-            populateRoots();
+//
+//            populateSources();
+//            populateRoots();
             process(webPageService.getUnparsedFrontPage());
             process(webPageService.getUnparsedProductList());
             process(webPageService.getUnparsedProductPage());
@@ -199,7 +198,6 @@ public class Aggress {
     }
 
 
-
     private static void populateRoots() {
         Observable<SourceEntity> sources = sourceService.getSources();
         sources.map(Aggress::from)
@@ -227,7 +225,7 @@ public class Aggress {
     }
 
     private static boolean save(SourceEntity sourceEntity) {
-        boolean rc =  sourceService.save(sourceEntity);
+        boolean rc = sourceService.save(sourceEntity);
         if (!rc) {
             logger.error("Failed to save sourceEntity");
         }
@@ -279,6 +277,8 @@ public class Aggress {
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
                 .retry(3)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .doOnError(ex -> logger.error("Exception", ex))
                 .subscribe(productService::save);
     }

@@ -20,19 +20,21 @@ public class ESHelper {
 
     /**
      * Define a type for a given index and if exists with its mapping definition (loaded in classloader)
-     * @param client Elasticsearch client
-     * @param index Index name
-     * @param type Type name
+     *
+     * @param client   Elasticsearch client
+     * @param index    Index name
+     * @param type     Type name
      * @param xcontent If you give an xcontent, it will be used to define the mapping
      * @throws Exception
      */
     public static void pushMapping(Client client, String index, String type, XContentBuilder xcontent) throws Exception {
-        if (logger.isTraceEnabled()) logger.trace("pushMapping("+index+","+type+")");
+        if (logger.isTraceEnabled()) logger.trace("pushMapping(" + index + "," + type + ")");
 
         // If type does not exist, we create it
         boolean mappingExist = isMappingExist(client, index, type);
         if (!mappingExist) {
-            if (logger.isDebugEnabled()) logger.debug("Mapping ["+index+"]/["+type+"] doesn't exist. Creating it.");
+            if (logger.isDebugEnabled())
+                logger.debug("Mapping [" + index + "]/[" + type + "] doesn't exist. Creating it.");
 
             String source = null;
 
@@ -45,36 +47,40 @@ public class ESHelper {
                         .setType(type);
 
                 if (null != source) {
-                    if (logger.isTraceEnabled()) logger.trace("Mapping for ["+index+"]/["+type+"]="+source);
+                    if (logger.isTraceEnabled()) logger.trace("Mapping for [" + index + "]/[" + type + "]=" + source);
                     pmrb.setSource(source);
                 }
 
                 if (null != xcontent) {
-                    if (logger.isTraceEnabled()) logger.trace("Mapping for ["+index+"]/["+type+"]="+xcontent.string());
+                    if (logger.isTraceEnabled())
+                        logger.trace("Mapping for [" + index + "]/[" + type + "]=" + xcontent.string());
                     pmrb.setSource(xcontent);
                 }
 
                 // Create type and mapping
                 PutMappingResponse response = pmrb.execute().actionGet();
                 if (!response.isAcknowledged()) {
-                    throw new Exception("Could not define mapping for type ["+index+"]/["+type+"].");
+                    throw new Exception("Could not define mapping for type [" + index + "]/[" + type + "].");
                 } else {
-                    if (logger.isDebugEnabled()) logger.debug("Mapping definition for ["+index+"]/["+type+"] succesfully created.");
+                    if (logger.isDebugEnabled())
+                        logger.debug("Mapping definition for [" + index + "]/[" + type + "] succesfully created.");
                 }
             } else {
-                if (logger.isDebugEnabled()) logger.debug("No mapping definition for ["+index+"]/["+type+"]. Ignoring.");
+                if (logger.isDebugEnabled())
+                    logger.debug("No mapping definition for [" + index + "]/[" + type + "]. Ignoring.");
             }
         } else {
-            if (logger.isDebugEnabled()) logger.debug("Mapping ["+index+"]/["+type+"] already exists.");
+            if (logger.isDebugEnabled()) logger.debug("Mapping [" + index + "]/[" + type + "] already exists.");
         }
-        if (logger.isTraceEnabled()) logger.trace("/pushMapping("+index+","+type+")");
+        if (logger.isTraceEnabled()) logger.trace("/pushMapping(" + index + "," + type + ")");
     }
 
     /**
      * Check if a mapping (aka a type) already exists in an index
+     *
      * @param client Elasticsearch client
-     * @param index Index name
-     * @param type Mapping name
+     * @param index  Index name
+     * @param type   Mapping name
      * @return true if mapping exists
      */
     public static boolean isMappingExist(Client client, String index, String type) {
@@ -84,6 +90,7 @@ public class ESHelper {
 
     /**
      * Create a default index with our default settings (shortcut to {@link #createIndexIfNeeded(Client, String, String, String)})
+     *
      * @param client Elasticsearch client
      */
     public static void createIndexIfNeeded(Client client) {
@@ -92,9 +99,10 @@ public class ESHelper {
 
     /**
      * Create an index with our default settings
-     * @param client Elasticsearch client
-     * @param index Index name : default to SMDSearchProperties.INDEX_NAME
-     * @param type Type name : SMDSearchProperties.INDEX_TYPE_DOC
+     *
+     * @param client   Elasticsearch client
+     * @param index    Index name : default to SMDSearchProperties.INDEX_NAME
+     * @param type     Type name : SMDSearchProperties.INDEX_TYPE_DOC
      * @param analyzer Analyzer to apply : default to "default"
      */
     public static void createIndexIfNeeded(Client client, String index, String type, String analyzer) {
@@ -114,7 +122,8 @@ public class ESHelper {
                 }
 
                 CreateIndexResponse createIndexResponse = cirb.execute().actionGet();
-                if (!createIndexResponse.isAcknowledged()) throw new Exception("Could not create index ["+ index +"].");
+                if (!createIndexResponse.isAcknowledged())
+                    throw new Exception("Could not create index [" + index + "].");
             }
         } catch (Exception e) {
             logger.warn("createIndexIfNeeded() : Exception raised : {}", e.getClass());
@@ -126,9 +135,9 @@ public class ESHelper {
 
     /**
      * Create an index without pushing the mapping
-     * @param client Elasticsearch client
-     * @param indexName Index name
      *
+     * @param client    Elasticsearch client
+     * @param indexName Index name
      */
     public static void createIndexIfNeededNoMapping(Client client, String indexName) {
         if (logger.isDebugEnabled()) logger.debug("createIndexIfNeeded({})", indexName);
@@ -142,7 +151,8 @@ public class ESHelper {
 
                 CreateIndexRequestBuilder cirb = client.admin().indices().prepareCreate(indexName);
                 CreateIndexResponse createIndexResponse = cirb.execute().actionGet();
-                if (!createIndexResponse.isAcknowledged()) throw new Exception("Could not create index ["+indexName+"].");
+                if (!createIndexResponse.isAcknowledged())
+                    throw new Exception("Could not create index [" + indexName + "].");
             }
 
         } catch (Exception e) {
@@ -155,8 +165,9 @@ public class ESHelper {
 
     /**
      * Check if an index already exists
+     *
      * @param client Elasticsearch client
-     * @param index Index name
+     * @param index  Index name
      * @return true if index already exists
      * @throws Exception
      */
@@ -166,9 +177,10 @@ public class ESHelper {
 
     /**
      * Check if a type already exists
+     *
      * @param client Elasticsearch client
-     * @param index Index name
-     * @param type Type name
+     * @param index  Index name
+     * @param type   Type name
      * @return true if index already exists
      * @throws Exception
      */
@@ -179,6 +191,7 @@ public class ESHelper {
     /**
      * Read the mapping for a type.<br>
      * Shortcut to readFileInClasspath("/estemplate/" + type + ".json");
+     *
      * @param type Type name
      * @return Mapping if exists. Null otherwise.
      * @throws Exception
@@ -189,6 +202,7 @@ public class ESHelper {
 
     /**
      * Read a file in classpath and return its content
+     *
      * @param url File URL Example : /es/twitter/_settings.json
      * @return File content or null if file doesn't exist
      * @throws Exception
@@ -197,16 +211,16 @@ public class ESHelper {
         StringBuilder bufferJSON = new StringBuilder();
 
         try {
-            InputStream ips= ESHelper.class.getResourceAsStream(url);
+            InputStream ips = ESHelper.class.getResourceAsStream(url);
             InputStreamReader ipsr = new InputStreamReader(ips);
             BufferedReader br = new BufferedReader(ipsr);
             String line;
 
-            while (null != (line = br.readLine())){
+            while (null != (line = br.readLine())) {
                 bufferJSON.append(line);
             }
             br.close();
-        } catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
 

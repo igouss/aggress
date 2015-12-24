@@ -19,6 +19,7 @@ import java.util.concurrent.Future;
 public class IrungunsProductPageParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(IrungunsProductPageParser.class);
+
     public IrungunsProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }

@@ -25,41 +25,42 @@ import java.util.regex.Pattern;
 public class DantesportsProductListParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(DantesportsProductListParser.class);
+
     public DantesportsProductListParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-            Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-                @Override
-                public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    HashSet<WebPageEntity> result = new HashSet<>();
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select("#store div.listItem");
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            @Override
+            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
+                HashSet<WebPageEntity> result = new HashSet<>();
+                if (200 == resp.getStatusCode()) {
+                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                    Elements elements = document.select("#store div.listItem");
 
-                        for (Element element : elements) {
-                            String onclick = element.attr("onclick");
-                            Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
-                            if (matcher.find()) {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl("https://shop.dantesports.com/items_detail.php?iid=" + matcher.group());
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setStatusCode(resp.getStatusCode());
-                                webPageEntity.setType("productPage");
-                                webPageEntity.setParent(webPage);
-                                logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
-                                result.add(webPageEntity);
-                            } else {
-                                logger.info("Product id not found: {}", webPage);
-                            }
+                    for (Element element : elements) {
+                        String onclick = element.attr("onclick");
+                        Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
+                        if (matcher.find()) {
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setUrl("https://shop.dantesports.com/items_detail.php?iid=" + matcher.group());
+                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                            webPageEntity.setParsed(false);
+                            webPageEntity.setStatusCode(resp.getStatusCode());
+                            webPageEntity.setType("productPage");
+                            webPageEntity.setParent(webPage);
+                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
+                            result.add(webPageEntity);
+                        } else {
+                            logger.info("Product id not found: {}", webPage);
                         }
                     }
-                    return result;
                 }
-            });
+                return result;
+            }
+        });
         return Observable.defer(() -> Observable.from(future));
 
     }

@@ -3,7 +3,6 @@ package com.naxsoft.parsers.webPageParsers.irunguns;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.naxsoft.parsers.webPageParsers.ellwoodepps.EllwoodeppsProductParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,6 +23,7 @@ import java.util.concurrent.Future;
 public class IrungunsFrontPageParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(IrungunsFrontPageParser.class);
+
     public IrungunsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }

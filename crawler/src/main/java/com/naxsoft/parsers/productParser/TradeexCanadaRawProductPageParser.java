@@ -47,7 +47,7 @@ public class TradeexCanadaRawProductPageParser implements ProductParser {
         Iterator<Element> labels = document.select(".product-additional .field-label").iterator();
         Iterator<Element> values = document.select(".product-additional .field-items").iterator();
 
-        while(labels.hasNext()) {
+        while (labels.hasNext()) {
             String specName = labels.next().text().replace(":", "").trim();
             String specValue = values.next().text();
             jsonBuilder.field(specName, specValue);

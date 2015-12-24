@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 public class CorwinArmsFrontPageParser implements WebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(CorwinArmsFrontPageParser.class);
+
     public CorwinArmsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }

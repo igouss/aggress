@@ -44,7 +44,7 @@ public class CanadaAmmoRawPageParser implements ProductParser {
         String productName = document.select(".product-details__title .product__name").text();
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        jsonBuilder.field("productName",productName);
+        jsonBuilder.field("productName", productName);
         jsonBuilder.field("category", document.select("div.page.product-details > div.page__header li:nth-child(2) > a").text());
         jsonBuilder.field("manufacturer", document.select(".product-details__title .product__manufacturer").text());
 
@@ -62,7 +62,7 @@ public class CanadaAmmoRawPageParser implements ProductParser {
         Iterator<Element> labels = document.select(".product-details__spec-label").iterator();
         Iterator<Element> values = document.select(".product-details__spec-value").iterator();
 
-        while(labels.hasNext()) {
+        while (labels.hasNext()) {
             String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_'));
             String specValue = values.next().text();
             jsonBuilder.field(specName, specValue);

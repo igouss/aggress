@@ -40,41 +40,41 @@ public class WholesalesportsFrontPageParser implements WebPageParser {
         webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Range-Accessories/c/range-accessories?viewPageSize=72", parent));
         webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Black-Powder/c/black-powder?viewPageSize=72", parent));
         return Observable.defer(() -> Observable.just(webPageEntities).
-                        flatMap(Observable::from).
-                        flatMap(page -> Observable.from(client.get(page.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
-                            @Override
-                            public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
-                                HashSet<WebPageEntity> result = new HashSet<>();
-                                if (200 == resp.getStatusCode()) {
-                                    Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                                    int max = 1;
-                                    Elements elements = document.select(".pagination a");
-                                    for(Element el : elements) {
-                                        try {
-                                            int num = Integer.parseInt(el.text());
-                                            if (num > max) {
-                                                max = num;
-                                            }
-                                        } catch (Exception ignored) {
-                                            // ignore
-                                        }
+                flatMap(Observable::from).
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                    @Override
+                    public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
+                        HashSet<WebPageEntity> result = new HashSet<>();
+                        if (200 == resp.getStatusCode()) {
+                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
+                            int max = 1;
+                            Elements elements = document.select(".pagination a");
+                            for (Element el : elements) {
+                                try {
+                                    int num = Integer.parseInt(el.text());
+                                    if (num > max) {
+                                        max = num;
                                     }
-
-                                    for (int i = 0; i < max; i++) {
-                                        WebPageEntity webPageEntity = new WebPageEntity();
-                                        webPageEntity.setUrl(page.getUrl() + "&page=" + i);
-                                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                        webPageEntity.setParsed(false);
-                                        webPageEntity.setStatusCode(resp.getStatusCode());
-                                        webPageEntity.setType("productList");
-                                        webPageEntity.setParent(page.getParent());
-                                        logger.info("Product page listing={}", webPageEntity.getUrl());
-                                        result.add(webPageEntity);
-                                    }
+                                } catch (Exception ignored) {
+                                    // ignore
                                 }
-                                return result;
                             }
-                        }))));
+
+                            for (int i = 0; i < max; i++) {
+                                WebPageEntity webPageEntity = new WebPageEntity();
+                                webPageEntity.setUrl(page.getUrl() + "&page=" + i);
+                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                webPageEntity.setParsed(false);
+                                webPageEntity.setStatusCode(resp.getStatusCode());
+                                webPageEntity.setType("productList");
+                                webPageEntity.setParent(page.getParent());
+                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                result.add(webPageEntity);
+                            }
+                        }
+                        return result;
+                    }
+                }))));
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {
