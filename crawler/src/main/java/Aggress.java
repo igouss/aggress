@@ -20,6 +20,7 @@ import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.util.SslUtils;
 import org.elasticsearch.metrics.ElasticsearchReporter;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,7 +127,7 @@ public class Aggress {
             metrics.register(MetricRegistry.name(Database.class, "web_pages", "unparsed"), (Gauge<Long>) () -> {
                 Long rc = -1L;
                 try {
-                    StatelessSession session = db.getSessionFactory().openStatelessSession();
+                    Session session = db.getSessionFactory().openSession();
                     Query query = session.createQuery("select count(id) from WebPageEntity where parsed = false");
                     rc = (Long) query.uniqueResult();
                     session.close();
@@ -136,8 +137,8 @@ public class Aggress {
                 return rc;
             });
 //
-//            populateSources();
-//            populateRoots();
+            populateSources();
+            populateRoots();
             process(webPageService.getUnparsedFrontPage());
             process(webPageService.getUnparsedProductList());
             process(webPageService.getUnparsedProductPage());
@@ -277,8 +278,6 @@ public class Aggress {
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
                 .retry(3)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
                 .doOnError(ex -> logger.error("Exception", ex))
                 .subscribe(productService::save);
     }

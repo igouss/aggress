@@ -74,7 +74,9 @@ public class WebPageService {
                     }
                 } while (0 != rc && !subscriber.isUnsubscribed());
             } catch (Exception e) {
-                subscriber.onError(e);
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onError(e);
+                }
             }
         });
     }

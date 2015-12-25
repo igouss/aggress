@@ -17,6 +17,18 @@ public class ObservableQuery<T> {
         this.database = database;
     }
 
+    private static ScrollableResults getScrollableResults(String queryString, Session session) {
+        /* hack? */
+        if (!session.isOpen()) {
+            session = session.getSessionFactory().openSession();
+        }
+        Query query = session.createQuery(queryString);
+        query.setCacheable(false);
+        query.setReadOnly(true);
+        query.setFetchSize(BATCH_SIZE);
+        return query.scroll(ScrollMode.FORWARD_ONLY);
+    }
+
     public Observable<T> execute(String queryString) {
         return Observable.using(this::getSession,
                 session -> executeQuery(queryString, session),
@@ -33,22 +45,15 @@ public class ObservableQuery<T> {
                 ScrollableResults::close);
     }
 
-    private static ScrollableResults getScrollableResults(String queryString, Session session) {
-        /* hack? */
-        if (!session.isOpen()) {
-            session = session.getSessionFactory().openSession();
-        }
-        Query query = session.createQuery(queryString);
-        query.setCacheable(false);
-        query.setReadOnly(true);
-        query.setFetchSize(BATCH_SIZE);
-        return query.scroll(ScrollMode.FORWARD_ONLY);
-    }
-
     private Observable<T> scrollResults(ScrollableResults result) {
         return Observable.<T>create(subscriber -> {
             while (!subscriber.isUnsubscribed() && result.next()) {
-                subscriber.onNext((T) result.get(0));
+                T t = (T) result.get(0);
+                if (null == t) {
+                    subscriber.onError(new Exception("Unexpected result"));
+                } else {
+                    subscriber.onNext(t);
+                }
             }
             if (!subscriber.isUnsubscribed()) {
                 subscriber.onCompleted();

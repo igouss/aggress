@@ -6,6 +6,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,16 @@ public class CanadiangunnutzRawPageParser implements ProductParser {
         Elements images = document.select(".content blockquote img");
         if (!images.isEmpty()) {
             jsonBuilder.field("productImage", images.first().attr("abs:src"));
+        } else {
+            images = document.select(".content blockquote a[href]");
+            if (!images.isEmpty()) {
+                for (Element el : images) {
+                    if (el.attr("href").endsWith("jpg")) {
+                        jsonBuilder.field("productImage", el.attr("href"));
+                        break;
+                    }
+                }
+            }
         }
         jsonBuilder.field("description", document.select(".content blockquote").text());
 
