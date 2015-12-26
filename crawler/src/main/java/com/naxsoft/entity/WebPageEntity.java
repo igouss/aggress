@@ -12,7 +12,11 @@ import java.sql.Timestamp;
 @Table(
         name = "web_page",
         schema = "guns",
-        catalog = "aggress"
+        catalog = "aggress",
+        indexes = {
+                @Index(name = "WebPageEntity_type_idx", columnList = "type"),
+                @Index(name = "WebPageEntity_parsed_idx", columnList = "parsed")
+        }
 )
 public class WebPageEntity {
     private int id;

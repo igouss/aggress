@@ -41,7 +41,7 @@ public class DantesportsProductRawPageParser implements ProductParser {
         jsonBuilder.field("productName", productName);
         jsonBuilder.field("productImage", document.select(".itemImgDiv img.itemDetailImg").attr("abs:src"));
 
-        String priceText = document.select(".itemDetailPrice").text().replace("•", " ");
+        String priceText = document.select(".itemDetailPrice").text().replace("\\xEF\\xBF\\xBD", " ");
         Matcher matcher = Pattern.compile("(\\d+|,+)+\\.\\d\\d").matcher(priceText);
         if (matcher.find()) {
             jsonBuilder.field("regularPrice", matcher.group().replace(",", ""));

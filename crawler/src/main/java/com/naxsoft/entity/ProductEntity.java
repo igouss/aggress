@@ -11,7 +11,10 @@ import javax.persistence.*;
 @Table(
         name = "product",
         schema = "guns",
-        catalog = "aggress"
+        catalog = "aggress",
+        indexes = {
+                @Index(name = "ProductEntity_indexed_idx", columnList = "indexed")
+        }
 )
 public class ProductEntity {
     private int id;
