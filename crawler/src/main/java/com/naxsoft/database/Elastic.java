@@ -17,7 +17,6 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -28,6 +27,7 @@ import rx.Observable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.UnknownHostException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -35,10 +35,10 @@ public class Elastic implements AutoCloseable, Cloneable {
     private static final Logger logger = LoggerFactory.getLogger(Elastic.class);
     TransportClient client = null;
 
-    public Elastic(String hostname, int port) {
-        Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
-        this.client = new TransportClient(settings);
-        this.client.addTransportAddress(new InetSocketTransportAddress(hostname, port));
+    public Elastic(String hostname, int port) throws UnknownHostException {
+        Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
+        this.client = new TransportClient.Builder().settings(settings).build();
+        this.client.addTransportAddress(new InetSocketTransportAddress(java.net.InetAddress.getByName(hostname), port));
 
         while (true) {
             logger.info("Waiting for elastic to connect to a node...");

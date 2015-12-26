@@ -21,17 +21,16 @@ import com.ning.http.util.SslUtils;
 import org.elasticsearch.metrics.ElasticsearchReporter;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.Set;
@@ -42,7 +41,7 @@ public class Aggress {
 
     private static final MetricRegistry metrics = new MetricRegistry();
     private static final Database db = new Database();
-    private static final Elastic elastic = new Elastic("localhost", 9300);
+    private static Elastic elastic;
     private static ScheduledReporter elasticReporter;
     private static WebPageParserFactory webPageParserFactory;
     private static WebPageService webPageService;
@@ -51,7 +50,8 @@ public class Aggress {
     private static ProductParserFactory productParserFactory;
     private final static int scaleFactor = 1;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
+        elastic = new Elastic("localhost", 9300);
         try {
 //        reporter = Slf4jReporter.forRegistry(metrics).outputTo(logger)
 //                .build();

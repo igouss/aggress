@@ -1,7 +1,5 @@
 package com.naxsoft.utils;
 
-import org.elasticsearch.common.mustache.MustacheException;
-
 import java.io.IOException;
 import java.io.Writer;
 
@@ -9,7 +7,7 @@ import java.io.Writer;
  * Copyright NAXSoft 2015
  */
 public class ElasticEscape {
-    public static void escape(String value, Writer writer) {
+    public static void escape(String value, Writer writer) throws Exception {
         try {
             int e = 0;
             int length = value.length();
@@ -29,7 +27,7 @@ public class ElasticEscape {
 
             writer.append(value, e, length);
         } catch (IOException var7) {
-            throw new MustacheException("Failed to encode value: " + value);
+            throw new Exception("Failed to encode value: " + value);
         }
     }
 

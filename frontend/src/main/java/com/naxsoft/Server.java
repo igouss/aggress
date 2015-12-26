@@ -13,7 +13,6 @@ import io.undertow.server.session.SessionManager;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.slf4j.Logger;
@@ -22,6 +21,8 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +33,7 @@ public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
 
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws UnknownHostException {
 //        startElasticSearch();
 
 
@@ -102,10 +103,10 @@ public class Server {
         return pathHandler;
     }
 
-    private static TransportClient getTransportClient() {
-        Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
-        TransportClient client = new TransportClient(settings);
-        client.addTransportAddress(new InetSocketTransportAddress("localhost", 9300));
+    private static TransportClient getTransportClient() throws UnknownHostException {
+        Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
+        TransportClient client = new TransportClient.Builder().settings(settings).build();
+        client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
 
         while (true) {
             logger.info("Waiting for elastic to connect to a node...");
