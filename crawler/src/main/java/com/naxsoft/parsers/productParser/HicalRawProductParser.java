@@ -67,6 +67,6 @@ public class HicalRawProductParser implements ProductParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://ellwoodepps.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().startsWith("http://www.hical.ca/") && webPage.getType().equals("productPageRaw");
     }
 }
