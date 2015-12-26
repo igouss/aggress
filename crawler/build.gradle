@@ -56,3 +56,9 @@ task copyLibs(type: Copy, dependsOn: clean) {
 task buildscriptDependencies << {
     buildscript.configurations.classpath.each { println it }
 }
+
+task crawler(type:JavaExec) {
+   main = "Aggress"
+   classpath = sourceSets.main.runtimeClasspath
+}
+
