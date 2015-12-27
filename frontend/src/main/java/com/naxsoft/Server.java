@@ -15,6 +15,8 @@ import io.vertx.core.Future;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
@@ -23,6 +25,7 @@ import org.thymeleaf.templateresolver.FileTemplateResolver;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
-
+    static Node node;
 
     public static void main(final String[] args) throws UnknownHostException {
 //        startElasticSearch();
@@ -70,15 +73,20 @@ public class Server {
     }
 
 //    private static void startElasticSearch() {
-//        ImmutableSettings.Builder settings =
-//                ImmutableSettings.settingsBuilder();
-//        settings.put("node.name", "orange11-node");
-//        settings.put("path.data", "/data/index");
+//        Path currentRelativePath = Paths.get("");
+//        String s = currentRelativePath.toAbsolutePath().toString();
+//
+//        Settings.Builder settings =
+//                Settings.settingsBuilder();
+//        settings.put("path.home", s);
+//        settings.put("path.data", "index");
 //        settings.put("http.enabled", false);
-//        Node node = NodeBuilder.nodeBuilder()
+//
+//
+//        node = NodeBuilder.nodeBuilder()
 //                .settings(settings)
-//                .clusterName("orange11-cluster")
-//                .data(true).local(true).node();
+//                .clusterName("elasticsearch")
+//                .data(true).local(false).node();
 //
 //    }
 
@@ -88,11 +96,11 @@ public class Server {
         pathHandler.addExactPath("/search", new SearchHandler(client));
 
         String baseDir = Paths.get("").toAbsolutePath().toString();
-        String relPath = "\\frontend\\basedir\\thymeleaf";
-        pathHandler.addPrefixPath("/css", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\css\\"), 100)));
-        pathHandler.addPrefixPath("/fonts", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\fonts\\"), 100)));
-        pathHandler.addPrefixPath("/js", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\js\\"), 100)));
-        pathHandler.addPrefixPath("/img", Handlers.resource(new FileResourceManager(new File(baseDir + relPath + "\\img\\"), 100)));
+        String relPath = baseDir + "/basedir/thymeleaf";
+        pathHandler.addPrefixPath("/css", Handlers.resource(new FileResourceManager(new File(relPath + "/css/"), 100)));
+        pathHandler.addPrefixPath("/fonts", Handlers.resource(new FileResourceManager(new File(relPath + "/fonts/"), 100)));
+        pathHandler.addPrefixPath("/js", Handlers.resource(new FileResourceManager(new File(relPath + "/js/"), 100)));
+        pathHandler.addPrefixPath("/img", Handlers.resource(new FileResourceManager(new File(relPath + "/img/"), 100)));
 
 //                .setHandler(sessionAttachmentHandler)
 //                .setHandler(Handlers.path()
