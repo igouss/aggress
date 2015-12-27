@@ -57,7 +57,7 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
             window.history.pushState(searchData, title, pageName);
 
             searchData.searchKey = inputField.val();
-            $.getJSON("http://localhost:8080/search", searchData, function(data) {
+            $.getJSON("/search", searchData, function(data) {
                 if (searchData.startFrom != 0 && data.length == 0) {
                     if (onFailure) {
                         onFailure();
