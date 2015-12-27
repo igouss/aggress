@@ -14,7 +14,7 @@ import java.util.Locale;
  * Copyright NAXSoft 2015
  */
 public class IndexHandler implements HttpHandler {
-    public static final String TEMPLATE_NAME = Paths.get("").toAbsolutePath() + "\\frontend\\basedir\\thymeleaf\\layout.html";
+    public static final String TEMPLATE_NAME = Paths.get("").toAbsolutePath() + "/basedir/thymeleaf/layout.html";
     private ApplicationContext context;
     private TemplateEngine templateEngine;
 

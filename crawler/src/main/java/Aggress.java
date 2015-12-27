@@ -3,10 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.ScheduledReporter;
-import com.codahale.metrics.Timer;
+import com.codahale.metrics.*;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.database.*;
 import com.naxsoft.entity.ProductEntity;
@@ -50,19 +47,14 @@ public class Aggress {
     private static ProductParserFactory productParserFactory;
     private final static int scaleFactor = 1;
 
-    public static void main(String[] args) throws UnknownHostException {
+    public static void main(String[] args) throws IOException {
         elastic = new Elastic("localhost", 9300);
-        try {
-//        reporter = Slf4jReporter.forRegistry(metrics).outputTo(logger)
-//                .build();
-            elasticReporter = ElasticsearchReporter.forRegistry(metrics)
+            elasticReporter = Slf4jReporter.forRegistry(metrics).outputTo(logger)
+                .build();
+//            elasticReporter = ElasticsearchReporter.forRegistry(metrics)
 //                    .hosts("localhost:9300")
-                    .build();
-            elasticReporter.start(1, TimeUnit.SECONDS);
-        } catch (IOException e) {
-            logger.error("Failed to initialize metrics reporter", e);
-            return;
-        }
+//                    .build();
+//            elasticReporter.start(1, TimeUnit.SECONDS);
 
         SSLContext sc;
         try {
@@ -203,7 +195,6 @@ public class Aggress {
         Observable<SourceEntity> sources = sourceService.getSources();
         sources.map(Aggress::from)
                 .toList()
-                .retry(3)
                 .doOnError(ex -> logger.error("Exception", ex))
                 .subscribe(Aggress::save);
         sourceService.markParsed(sources);
