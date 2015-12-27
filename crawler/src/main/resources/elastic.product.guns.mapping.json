@@ -47,7 +47,6 @@
         "index": "not_analyzed"
       },
       "productName": {
-        "boost": 2,
         "type": "string",
         "analyzer": "my_analyzer",
         "store": false,
