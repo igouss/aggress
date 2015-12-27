@@ -6,10 +6,7 @@
 package com.naxsoft.database;
 
 import com.naxsoft.entity.ProductEntity;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -58,17 +55,16 @@ public class ProductService {
     }
 
     public void markAllAsIndexed() {
-        Session session = null;
+        StatelessSession session = null;
         Transaction tx = null;
 
         try {
-            session = database.getSessionFactory().openSession();
+            session = database.getSessionFactory().openStatelessSession();
             tx = session.beginTransaction();
             Query query = session.createQuery("update ProductEntity as p set p.indexed = true");
 
             int rc = query.executeUpdate();
             logger.info("The number of entities affected: {}", rc);
-            session.flush();
             tx.commit();
         } catch (HibernateException e) {
             logger.error("Failed to mark all as indexed", e);

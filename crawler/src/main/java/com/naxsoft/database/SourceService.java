@@ -8,6 +8,7 @@ package com.naxsoft.database;
 import com.naxsoft.entity.SourceEntity;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,24 +34,19 @@ public class SourceService {
                 .retry(3)
                 .doOnError(ex -> logger.error("Exception", ex))
                 .subscribe(list -> {
-                    Session session = null;
+                    StatelessSession session = null;
                     Transaction tx = null;
                     try {
-                        session = database.getSessionFactory().openSession();
+                        session = database.getSessionFactory().openStatelessSession();
                         tx = session.beginTransaction();
                         Query query = session.createQuery("update WebPageEntity set modificationDate = :modificationDate where id = :id");
-                        int count = 0;
+
 
                         for (SourceEntity entry : list) {
                             query.setInteger("id", entry.getId());
                             query.setTimestamp("modificationDate", new Date());
                             query.executeUpdate();
-                            ++count;
-                            if (0 == count % 20) {
-                                session.flush();
-                            }
                         }
-                        session.flush();
                         tx.commit();
                     } catch (Exception e) {
                         logger.error("Failed to mark as source as parsed", e);
