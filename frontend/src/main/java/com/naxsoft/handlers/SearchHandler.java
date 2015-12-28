@@ -10,6 +10,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -41,7 +42,8 @@ public class SearchHandler implements HttpHandler {
             startFrom = Integer.parseInt(exchange.getQueryParameters().get("startFrom").getFirst());
         }
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        QueryBuilder queryBuilder = QueryBuilders.queryStringQuery(searchKey);
+//        QueryBuilder queryBuilder = QueryBuilders.queryStringQuery(searchKey);
+        MultiMatchQueryBuilder queryBuilder = new MultiMatchQueryBuilder(searchKey, "productName^2");
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product" + indexSuffix);
         searchRequestBuilder.setTypes("guns");
         searchRequestBuilder.setSearchType(SearchType.DEFAULT);
