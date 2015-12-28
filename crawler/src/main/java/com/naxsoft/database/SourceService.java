@@ -64,7 +64,7 @@ public class SourceService {
     public boolean save(SourceEntity sourceEntity) {
         return AsyncTransaction.execute(database, session -> {
             logger.debug("Saving {}", sourceEntity);
-            session.save(sourceEntity);
+            session.insert(sourceEntity);
             return true;
         });
     }

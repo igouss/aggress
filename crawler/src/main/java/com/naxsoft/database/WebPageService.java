@@ -28,10 +28,7 @@ public class WebPageService {
             int i = 0;
             for (WebPageEntity webPageEntity : webPageEntitySet) {
                 logger.debug("Saving {}", webPageEntity);
-                session.save(webPageEntity);
-                if (0 == ++i % 20) {
-                    session.flush();
-                }
+                session.insert(webPageEntity);
             }
             return true;
         });

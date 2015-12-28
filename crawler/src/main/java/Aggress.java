@@ -19,6 +19,7 @@ import org.elasticsearch.metrics.ElasticsearchReporter;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -134,6 +135,7 @@ public class Aggress {
                 return rc;
             });
 //
+            deleteOldData();
             populateSources();
             populateRoots();
             process(webPageService.getUnparsedFrontPage());
@@ -212,6 +214,27 @@ public class Aggress {
         return sourceEntity;
     }
 
+
+    private static void deleteOldData() {
+        String[] tables = {
+                "SourceEntity",
+                "WebPageEntity",
+                "ProductEntity"
+        };
+        hqlTruncate(tables);
+    }
+
+    public static void hqlTruncate(String[] tables){
+        StatelessSession statelessSession = db.getSessionFactory().openStatelessSession();
+        Transaction tx = statelessSession.beginTransaction();
+        for(String table : tables) {
+            String hql = String.format("delete from %s", table);
+            Query query = statelessSession.createQuery(hql);
+            query.executeUpdate();
+        }
+        tx.commit();
+        statelessSession.close();
+    }
 
     private static WebPageEntity from(SourceEntity sourceEntity) {
         WebPageEntity webPageEntity = new WebPageEntity();

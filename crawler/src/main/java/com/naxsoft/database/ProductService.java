@@ -22,19 +22,15 @@ public class ProductService {
     }
 
     public void save(Collection<ProductEntity> products) {
-        Session session = null;
+        StatelessSession session = null;
         Transaction tx = null;
         try {
-            session = database.getSessionFactory().openSession();
+            session = database.getSessionFactory().openStatelessSession();
             tx = session.beginTransaction();
             int i = 0;
             for (ProductEntity productEntity : products) {
-                session.save(productEntity);
-                if (0 == (++i % 20)) {
-                    session.flush();
-                }
+                session.insert(productEntity);
             }
-            session.flush();
             tx.commit();
         } catch (HibernateException e) {
             logger.error("Failed to save products", e);
