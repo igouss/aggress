@@ -110,3 +110,6 @@ hs_err_pid*
 
 config.properties
 aggress.*.db
+
+*.st
+*.lock

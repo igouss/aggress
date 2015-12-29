@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.css"/>
+    <link rel="stylesheet" type="text/css" href="css/application.css"/>
     <link rel="icon" type="image/x-icon" href="img/favicon.ico"/>
 </head>
 
@@ -28,9 +29,56 @@
             </div>
         </div>
     </div>
+<!--
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default" id="panel1">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-target="#collapseOne"
+                       href="#collapseOne">
+                        Collapsible Group Item #1
+                    </a>
+                </h4>
+
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
+                    richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck
+                    quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
+                    single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore
+                    wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings
+                    occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of
+                    them accusamus labore sustainable VHS.
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="panel2">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-target="#collapseTwo"
+                       href="#collapseTwo" class="collapsed">
+                        Collapsible Group Item #2
+                    </a>
+                </h4>
+
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+                <div class="panel-body">Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
+                    richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck
+                    quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
+                    single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore
+                    wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings
+                    occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of
+                    them accusamus labore sustainable VHS.
+                </div>
+            </div>
+        </div>
+    </div>
+-->
     <div class="media row" id="searchResults">
     </div>
 </div>
+<!--
 <div>
     <ul>
         <li>
@@ -46,6 +94,7 @@
         </li>
     </ul>
 </div>
+-->
 <div id="navigation">
 </div>
 
@@ -58,10 +107,9 @@
                 <li><a id="next" href="#" data-role="ajax">Next</a></li>
             </ul>
         </nav>
-
 </script>
 <script id="itemTemplate" type="text/x-tmpl-mustache">
-        <div class="renderedItem">
+        <div class="media">
           <div class="media-left">
             <a href="{{url}}">
               <img class="media-object"  src="{{productImage}}" alt="{{productName}}"  height="128" width="128"/>
@@ -76,7 +124,6 @@
             <p><a href="{{url}}" class="btn btn-primary " role="button">Visit</a><a href="https://www.youtube.com/results?search_query={{productName}}" class="btn btn-primary " role="button">Youtube</a></p>
           </div>
         </div>
-
 </script>
 </body>
 </html>
