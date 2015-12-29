@@ -58,7 +58,8 @@ public class FrontierfirearmsRawPageParser  implements ProductParser {
             jsonBuilder.field("specialPrice", parsePrice(specialPrice));
             jsonBuilder.field("regularPrice", parsePrice(document.select(".old-price .price").text()));
         }
-        jsonBuilder.field("description", document.select(".short-description").text());
+//        jsonBuilder.field("description", document.select(".short-description").text());
+        jsonBuilder.field("description", document.select("#product_tabs_description_tabbed_contents > div").text());
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setJson(jsonBuilder.string());
