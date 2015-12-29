@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class IrungunsRawProductPageParser implements ProductParser {
+public class IrungunsRawProductPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(IrungunsRawProductPageParser.class);
 
     @Override

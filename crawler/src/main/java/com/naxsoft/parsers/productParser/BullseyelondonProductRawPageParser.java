@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BullseyelondonProductRawPageParser implements ProductParser {
+public class BullseyelondonProductRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(BullseyelondonProductRawPageParser.class);
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {

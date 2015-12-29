@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class TradeexCanadaRawProductPageParser implements ProductParser {
+public class TradeexCanadaRawProductPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(TradeexCanadaRawProductPageParser.class);
 
     @Override

@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class DantesportsProductRawPageParser implements ProductParser {
+public class DantesportsProductRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(DantesportsProductRawPageParser.class);
 
     @Override

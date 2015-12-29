@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class HicalRawProductParser implements ProductParser {
+public class HicalRawProductParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(HicalRawProductParser.class);
 
     @Override

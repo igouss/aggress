@@ -11,7 +11,7 @@ import com.naxsoft.entity.WebPageEntity;
 import java.util.HashSet;
 import java.util.Set;
 
-public class NoopParser implements ProductParser {
+public class NoopParser extends AbstractRawPageParser implements ProductParser {
     public NoopParser() {
     }
 

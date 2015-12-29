@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadaAmmoRawPageParser implements ProductParser {
+public class CanadaAmmoRawPageParser extends AbstractRawPageParser  implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadaAmmoRawPageParser.class);
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {

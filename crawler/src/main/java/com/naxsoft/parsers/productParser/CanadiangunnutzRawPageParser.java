@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadiangunnutzRawPageParser implements ProductParser {
+public class CanadiangunnutzRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzRawPageParser.class);
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -31,7 +31,7 @@ public class CanadiangunnutzRawPageParser implements ProductParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        String productName = document.select("div.postdetails h2").text().replaceAll("[^\\x00-\\x7F]", "");
+        String productName = removeNonASCII(document.select("div.postdetails h2").text());
         if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove")) {
             return products;
         }

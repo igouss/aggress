@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class CorwinArmsProductRawPageParser implements ProductParser {
+public class CorwinArmsProductRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(CorwinArmsProductRawPageParser.class);
 
     @Override

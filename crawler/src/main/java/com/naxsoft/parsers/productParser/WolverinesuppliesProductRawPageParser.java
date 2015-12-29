@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
-public class WolverinesuppliesProductRawPageParser implements ProductParser {
+public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {

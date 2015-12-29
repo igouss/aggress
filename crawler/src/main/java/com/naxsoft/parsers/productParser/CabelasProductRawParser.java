@@ -6,6 +6,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class CabelasProductRawParser implements ProductParser {
+public class CabelasProductRawParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(CabelasProductRawParser.class);
 
     @Override
@@ -40,8 +41,15 @@ public class CabelasProductRawParser implements ProductParser {
         jsonBuilder.field("productName", productName);
         jsonBuilder.field("category", document.select(".breadcrumbs").text());
         jsonBuilder.field("productImage", document.select("#product-image img").attr("src"));
-        jsonBuilder.field("regularPrice", parsePrice(document.select(".productDetails-secondary .price-primary").text()));
-        jsonBuilder.field("specialPrice", parsePrice(document.select(".productDetails-secondary .price-secondary").text()));
+
+        Elements specialPrice = document.select(".productDetails-secondary .price-secondary");
+        Elements regularPrice = document.select(".productDetails-secondary .price-primary");
+        if (!specialPrice.isEmpty()) {
+            jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
+            jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
+        } else {
+            jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
+        }
         jsonBuilder.field("description", document.select(".productDetails-section .row").text());
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());

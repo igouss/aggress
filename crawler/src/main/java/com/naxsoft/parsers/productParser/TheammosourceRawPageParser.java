@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class TheammosourceRawPageParser implements ProductParser {
+public class TheammosourceRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(TheammosourceRawPageParser.class);
 
     @Override
