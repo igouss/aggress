@@ -64,7 +64,7 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
                     }
                     return false;
                 }
-                $(".renderedItem").remove();
+                $(".media").remove();
 
                 if(0 != data.length) {
                     if ($("nav").length == 0) {
