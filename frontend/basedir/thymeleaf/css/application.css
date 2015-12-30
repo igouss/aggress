@@ -7,3 +7,14 @@
 .panel-heading a.collapsed:after {
     content:"\e080";
 }
+
+table {
+    table-layout: fixed;
+}
+
+td:first-child {
+    width: 30%;
+}
+td:last-child {
+    width: 70%;
+}

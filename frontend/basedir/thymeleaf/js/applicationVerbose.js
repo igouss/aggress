@@ -57,7 +57,7 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
             window.history.pushState(searchData, title, pageName);
 
             searchData.searchKey = inputField.val();
-            $.getJSON("/search", searchData, function(data) {
+            $.getJSON("/searchVerbose", searchData, function(data) {
                 if (searchData.startFrom != 0 && data.length == 0) {
                     if (onFailure) {
                         onFailure();
@@ -88,19 +88,11 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
                         if (key == "productImage" || key == "url" || value=="") {
 
                         } else {
-                            if (key != "productName") {
-                                var rowHtml = "";
-                                if (key == "specialPrice") {
-                                    rowHtml = "<tr class='info'><td>{{key}}</td><td>{{value}}</td></tr>";
-                                } else {
-                                    rowHtml = "<tr><td>{{key}}</td><td>{{value}}</td></tr>";
-                                }
-                                var row = $(m.render(rowHtml, {
-                                    "key": toCapitalizedWords(key),
-                                    "value": value
-                                }));
-                                tbody.append(row);
-                            }
+                            var row = $(m.render("<tr><td>{{key}}</td><td>{{value}}</td></tr>", {
+                                "key": toCapitalizedWords(key),
+                                "value": value
+                            }));
+                            tbody.append(row);
                         }
                     });
 

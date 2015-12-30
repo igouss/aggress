@@ -15,31 +15,30 @@
 
 <body>
 <div class="container">
-    <div class="row col-md-12 page-header">
+    <div class="starter-template">
         <h1>Canadian Guns &amp; Ammo Search</h1>
-    </div>
 
-    <div class="row col-md-12">
-        <div class="col-sm-12 col-md-12 col-lg-12">
-            <div class="input-group">
-                <input id="searchInput" type="text" class="form-control" placeholder="Search for..."/>
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" id="searchBtn" type="button">Go!</button>
-                    </span>
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                <div class="input-group">
+                    <input id="searchInput" type="text" class="form-control" placeholder="Search for..."/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" id="searchBtn" type="button">Go!</button>
+                        </span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="media row col-md-12" id="searchResults">
+        <div class="media row" id="searchResults">
+        </div>
     </div>
-
 
     <div id="navigation">
     </div>
 </div>
 
 <script src="js/require.js" data-main="js/require-setup.js"></script>
-<script src="js/application.js"></script>
+<script src="js/applicationVerbose.js"></script>
 <script id="navTemplate" type="text/x-tmpl-mustache">
         <nav>
             <ul class="pager">
@@ -59,14 +58,11 @@
           </div>
           <div class="media-body">
             <h4 class="media-heading">{{productName}}</h4>
-            <table class="table table-condensed">
+            <table class="table">
                 <tbody>
                 </tbody>
             </table>
-            <p>
-                <a href="{{url}}" class="btn btn-primary " role="button">Visit</a>
-                <a href="https://www.youtube.com/results?search_query={{productName}}" class="btn btn-danger" role="button">Youtube</a>
-            </p>
+            <p><a href="{{url}}" class="btn btn-primary " role="button">Visit</a><a href="https://www.youtube.com/results?search_query={{productName}}" class="btn btn-primary " role="button">Youtube</a></p>
           </div>
         </div>
 </script>

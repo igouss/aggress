@@ -2,6 +2,7 @@ package com.naxsoft;
 
 import com.naxsoft.handlers.IndexHandler;
 import com.naxsoft.handlers.SearchHandler;
+import com.naxsoft.handlers.SearchVerboseHandler;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;
@@ -92,8 +93,10 @@ public class Server {
 
     private static PathHandler getPathHandler(TemplateEngine templateEngine, TransportClient client, ApplicationContext context) {
         PathHandler pathHandler = Handlers.path();
-        pathHandler.addExactPath("/", new IndexHandler(context, templateEngine));
+        pathHandler.addExactPath("/", new IndexHandler(context, templateEngine, false));
+        pathHandler.addExactPath("/verbose", new IndexHandler(context, templateEngine, true));
         pathHandler.addExactPath("/search", new SearchHandler(client));
+        pathHandler.addExactPath("/searchVerbose", new SearchVerboseHandler(client));
 
         String baseDir = Paths.get("").toAbsolutePath().toString();
         String relPath = baseDir + "/basedir/thymeleaf";
