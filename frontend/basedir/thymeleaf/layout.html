@@ -20,7 +20,7 @@
     </div>
 
     <div class="row col-md-12">
-        <div class="col-sm-12 col-md-12 col-lg-12">
+        <div class="col-md-12">
             <div class="input-group">
                 <input id="searchInput" type="text" class="form-control" placeholder="Search for..."/>
                     <span class="input-group-btn">
@@ -43,12 +43,14 @@
 <script id="navTemplate" type="text/x-tmpl-mustache">
         <nav>
             <ul class="pager">
-                <li><a id="prev" href="#" data-role="ajax">Previous</a></li>
-                <li><a id="next" href="#" data-role="ajax">Next</a></li>
+                <li>
+                    <a id="prev" href="#" data-role="ajax">Previous</a>
+                </li>
+                <li>
+                    <a id="next" href="#" data-role="ajax">Next</a>
+                </li>
             </ul>
         </nav>
-
-
 </script>
 <script id="itemTemplate" type="text/x-tmpl-mustache">
         <div class="renderedItem">

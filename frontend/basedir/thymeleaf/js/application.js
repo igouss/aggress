@@ -95,7 +95,7 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
                                 } else {
                                     rowHtml = "<tr><td>{{key}}</td><td>{{value}}</td></tr>";
                                 }
-                                var row = $(m.render(rowHtml, {
+                                var row = $(m.render("<tr><td>{{key}}</td><td>{{value}}</td></tr>", {
                                     "key": toCapitalizedWords(key),
                                     "value": value
                                 }));
