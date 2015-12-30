@@ -31,21 +31,18 @@ public class HicalFrontPageParser implements WebPageParser {
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.hical.ca/handguns/", parent));
-        webPageEntities.add(create("http://www.hical.ca/rifles-restricted/", parent));
-        webPageEntities.add(create("http://www.hical.ca/rifles-non-restricted/", parent));
-        webPageEntities.add(create("http://www.hical.ca/rimfire/", parent));
-        webPageEntities.add(create("http://www.hical.ca/shotguns/", parent));
-        webPageEntities.add(create("http://www.hical.ca/used-firearms/", parent));
-        webPageEntities.add(create("http://www.hical.ca/binoculars-spotting-scopes/", parent));
-        webPageEntities.add(create("http://www.hical.ca/optic-accessories/", parent));
-        webPageEntities.add(create("http://www.hical.ca/red-green-dot-sights/", parent));
-        webPageEntities.add(create("http://www.hical.ca/scope-rings/", parent));
-        webPageEntities.add(create("http://www.hical.ca/scope/", parent));
-        webPageEntities.add(create("http://www.hical.ca/sights/", parent));
-        webPageEntities.add(create("http://www.hical.ca/pistol-magazines/", parent));
-        webPageEntities.add(create("http://www.hical.ca/rifle-magazines/", parent));
-        return Observable.defer(() -> Observable.just(webPageEntities).
+        if (parent.getUrl().equals("http://www.hical.ca/")) {
+            webPageEntities.add(create("http://www.hical.ca/new-category/", parent));
+            webPageEntities.add(create("http://www.hical.ca/firearm-accessories/", parent));
+            webPageEntities.add(create("http://www.hical.ca/magazines/", parent));
+            webPageEntities.add(create("http://www.hical.ca/stocks/", parent));
+            webPageEntities.add(create("http://www.hical.ca/tools/", parent));
+            webPageEntities.add(create("http://www.hical.ca/sights-optics/", parent));
+            webPageEntities.add(create("http://www.hical.ca/soft-goods/", parent));
+        } else {
+            webPageEntities.add(parent);
+        }
+        return Observable.just(webPageEntities).
                 flatMap(Observable::from).
                 flatMap(page -> Observable.from(client.get(page.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                     @Override
@@ -53,23 +50,50 @@ public class HicalFrontPageParser implements WebPageParser {
                         HashSet<WebPageEntity> result = new HashSet<>();
                         if (200 == resp.getStatusCode()) {
                             Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                            Elements elements = document.select("#frmCompare .ProductDetails a");
+                            Elements elements;
 
-                            for (Element el : elements) {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl(el.attr("abs:href"));
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setStatusCode(resp.getStatusCode());
-                                webPageEntity.setType("productPage");
-                                webPageEntity.setParent(page.getParent());
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
-                                result.add(webPageEntity);
+                            // Add sub categories
+                            if (!resp.getUri().toString().contains("page=")) {
+                                elements = document.select(".SubCategoryList a");
+                                for (Element el : elements) {
+                                    WebPageEntity webPageEntity = new WebPageEntity();
+                                    webPageEntity.setUrl(el.attr("abs:href"));
+                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                    webPageEntity.setParsed(false);
+                                    webPageEntity.setStatusCode(resp.getStatusCode());
+                                    webPageEntity.setType("frontPage");
+                                    webPageEntity.setParent(parent);
+                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    result.add(webPageEntity);
+                                }
+                                // add subpages
+                                elements = document.select("#CategoryPagingTop > div > ul > li > a");
+                                for (Element el : elements) {
+                                    WebPageEntity webPageEntity = new WebPageEntity();
+                                    webPageEntity.setUrl(el.attr("abs:href"));
+                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                    webPageEntity.setParsed(false);
+                                    webPageEntity.setStatusCode(resp.getStatusCode());
+                                    webPageEntity.setType("productList");
+                                    webPageEntity.setParent(parent);
+                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    result.add(webPageEntity);
+                                }
                             }
+                            // add current page
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setUrl(resp.getUri().toString() + "?sort=featured&page=1");
+                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                            webPageEntity.setParsed(false);
+                            webPageEntity.setStatusCode(resp.getStatusCode());
+                            webPageEntity.setType("productList");
+                            webPageEntity.setParent(parent);
+                            logger.info("Product page listing={}", webPageEntity.getUrl());
+                            result.add(webPageEntity);
                         }
                         return result;
                     }
-                }))));
+                })));
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {

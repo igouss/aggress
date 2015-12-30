@@ -191,6 +191,7 @@ public class Aggress {
                 "https://www.wolverinesupplies.com/",
                 "http://www.firearmsoutletcanada.com/",
                 "http://frontierfirearms.ca/",
+                  "http://www.hical.ca/"
         };
 
         Observable.from(sources).map(Aggress::from)
