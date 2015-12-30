@@ -27,7 +27,7 @@ public class ProductParserFactory {
         for (Class clazz : (Iterable<Class>) classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
-                    logger.info("Instantiating " + clazz.getName());
+                    logger.info("Instantiating {}", clazz.getName());
                     ProductParser e = (ProductParser) clazz.getConstructor(new Class[0]).newInstance(new Object[0]);
                     parsers.add(e);
                 } catch (Exception e) {

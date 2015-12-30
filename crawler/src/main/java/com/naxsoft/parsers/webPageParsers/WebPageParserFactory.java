@@ -30,6 +30,7 @@ public class WebPageParserFactory {
         for (Class<? extends WebPageParser> clazz : classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
+                    logger.info("Instantiating {}", clazz.getName());
                     WebPageParser webPageParser = clazz.getConstructor(client.getClass()).newInstance(client);
                     this.parsers.add(webPageParser);
                 } catch (Exception e) {
