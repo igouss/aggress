@@ -11,12 +11,13 @@ import org.reflections.scanners.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ProductParserFactory {
-    private final Set<ProductParser> parsers = new HashSet<>();
     private static final Logger logger = LoggerFactory.getLogger(ProductParserFactory.class);
+    private final Set<ProductParser> parsers = new HashSet<>();
 
 
     public ProductParserFactory() {
@@ -24,11 +25,14 @@ public class ProductParserFactory {
         Set classes = reflections.getSubTypesOf(ProductParser.class);
 
         for (Class clazz : (Iterable<Class>) classes) {
-            try {
-                ProductParser e = (ProductParser) clazz.getConstructor(new Class[0]).newInstance(new Object[0]);
-                parsers.add(e);
-            } catch (Exception e) {
-                logger.error("Failed to create a new product parser", e);
+            if (!Modifier.isAbstract(clazz.getModifiers())) {
+                try {
+                    logger.info("Instantiating " + clazz.getName());
+                    ProductParser e = (ProductParser) clazz.getConstructor(new Class[0]).newInstance(new Object[0]);
+                    parsers.add(e);
+                } catch (Exception e) {
+                    logger.error("Failed to create a new product parser", e);
+                }
             }
         }
     }

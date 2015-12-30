@@ -11,6 +11,7 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,11 +28,13 @@ public class WebPageParserFactory {
         Set<Class<? extends WebPageParser>> classes = reflections.getSubTypesOf(WebPageParser.class);
 
         for (Class<? extends WebPageParser> clazz : classes) {
-            try {
-                WebPageParser webPageParser = clazz.getConstructor(client.getClass()).newInstance(client);
-                this.parsers.add(webPageParser);
-            } catch (Exception e) {
-                logger.error("Failed to instantiate WebPage parser {}", clazz, e);
+            if (!Modifier.isAbstract(clazz.getModifiers())) {
+                try {
+                    WebPageParser webPageParser = clazz.getConstructor(client.getClass()).newInstance(client);
+                    this.parsers.add(webPageParser);
+                } catch (Exception e) {
+                    logger.error("Failed to instantiate WebPage parser {}", clazz, e);
+                }
             }
         }
     }
