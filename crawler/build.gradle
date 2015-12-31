@@ -62,3 +62,16 @@ task crawler(type:JavaExec) {
    classpath = sourceSets.main.runtimeClasspath
 }
 
+task crawlerjar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Aggress crawler',
+                'Implementation-Version': version,
+                'Built-By': System.getProperty('user.name'),
+                'Built-Date': new Date(),
+                'Built-JDK': System.getProperty('java.version'),
+                'Main-Class': 'Aggress'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}

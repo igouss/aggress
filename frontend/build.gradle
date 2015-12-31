@@ -20,3 +20,16 @@ task frontend(type:JavaExec) {
    classpath = sourceSets.main.runtimeClasspath
 }
 
+task serverJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Aggress server',
+                'Implementation-Version': version,
+                'Built-By': System.getProperty('user.name'),
+                'Built-Date': new Date(),
+                'Built-JDK': System.getProperty('java.version'),
+                'Main-Class': 'com.naxsoft.Server'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
