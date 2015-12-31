@@ -20,7 +20,7 @@ task frontend(type:JavaExec) {
    classpath = sourceSets.main.runtimeClasspath
 }
 
-task serverJar(type: Jar) {
+task serverjar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'Aggress server',
                 'Implementation-Version': version,
