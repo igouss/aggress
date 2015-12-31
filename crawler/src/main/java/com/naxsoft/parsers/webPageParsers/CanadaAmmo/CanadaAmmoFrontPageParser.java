@@ -49,7 +49,7 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
             }
         });
 
-        return Observable.defer(() -> Observable.from(future).flatMap(Observable::from).flatMap(url -> {
+        return Observable.from(future).flatMap(Observable::from).flatMap(url -> {
                     Future<Set<WebPageEntity>> setFuture = client.get(url, new AsyncCompletionHandler<Set<WebPageEntity>>() {
                         @Override
                         public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
@@ -84,7 +84,7 @@ public class CanadaAmmoFrontPageParser implements WebPageParser {
                     });
                     return Observable.from(setFuture);
                 }
-        ));
+        );
     }
 
     @Override

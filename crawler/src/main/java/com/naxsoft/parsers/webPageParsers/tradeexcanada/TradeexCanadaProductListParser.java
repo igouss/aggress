@@ -60,7 +60,7 @@ public class TradeexCanadaProductListParser implements WebPageParser {
                 return result;
             }
         });
-        return Observable.defer(() -> Observable.from(future));
+        return Observable.from(future);
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {

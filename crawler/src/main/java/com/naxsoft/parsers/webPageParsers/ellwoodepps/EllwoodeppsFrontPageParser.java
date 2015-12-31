@@ -32,7 +32,7 @@ public class EllwoodeppsFrontPageParser implements WebPageParser {
     public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("https://ellwoodepps.com/hunting/firearms.html?limit=100&no_cache=true", parent));
-        return Observable.defer(() -> Observable.just(webPageEntities).
+        return Observable.just(webPageEntities).
                 flatMap(Observable::from).
                 flatMap(page -> Observable.from(client.get(page.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                     @Override
@@ -64,7 +64,7 @@ public class EllwoodeppsFrontPageParser implements WebPageParser {
                         }
                         return result;
                     }
-                }))));
+                })));
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {

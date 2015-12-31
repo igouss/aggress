@@ -60,8 +60,7 @@ public class CorwinArmsFrontPageParser implements WebPageParser {
             }
         });
 
-        return Observable.defer(() ->
-                Observable.from(future).
+        return Observable.from(future).
                         flatMap(Observable::from).
                         flatMap(parent -> Observable.from(client.get(parent.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                             @Override
@@ -98,7 +97,7 @@ public class CorwinArmsFrontPageParser implements WebPageParser {
                                 }
                                 return result;
                             }
-                        }))));
+                        })));
     }
 
     @Override

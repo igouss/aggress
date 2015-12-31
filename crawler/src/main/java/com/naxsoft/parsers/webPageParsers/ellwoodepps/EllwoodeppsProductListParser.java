@@ -52,7 +52,7 @@ public class EllwoodeppsProductListParser implements WebPageParser {
                 return result;
             }
         });
-        return Observable.defer(() -> Observable.from(future));
+        return Observable.from(future);
     }
 
     @Override

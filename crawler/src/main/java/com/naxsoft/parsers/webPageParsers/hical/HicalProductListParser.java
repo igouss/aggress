@@ -36,7 +36,7 @@ public class HicalProductListParser implements WebPageParser {
                 HashSet<WebPageEntity> result = new HashSet<>();
                 if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                    Elements elements = elements = document.select("#frmCompare .ProductDetails a");
+                    Elements elements = document.select("#frmCompare .ProductDetails a");
                     for (Element el : elements) {
                         WebPageEntity webPageEntity = new WebPageEntity();
                         webPageEntity.setUrl(el.attr("abs:href"));
@@ -52,7 +52,7 @@ public class HicalProductListParser implements WebPageParser {
                 return result;
             }
         });
-        return Observable.defer(() -> Observable.from(future));
+        return Observable.from(future);
     }
 
     @Override

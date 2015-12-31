@@ -32,7 +32,7 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser implemen
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
         String productName = removeNonASCII(document.select("div.postdetails h2").text());
-        if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove")) {
+        if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove") || productName.toLowerCase().contains("delete")) {
             return products;
         }
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());

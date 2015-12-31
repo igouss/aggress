@@ -51,7 +51,7 @@ public class CrafmProductPageParser implements WebPageParser {
                 return result;
             }
         });
-        return Observable.defer(() -> Observable.from(future));
+        return Observable.from(future);
     }
 
     @Override

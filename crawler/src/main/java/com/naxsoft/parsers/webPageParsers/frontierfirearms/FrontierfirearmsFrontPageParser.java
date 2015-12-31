@@ -35,7 +35,7 @@ public class FrontierfirearmsFrontPageParser implements WebPageParser {
         webPageEntities.add(create("http://frontierfirearms.ca/ammunition-reloading.html", parent));
         webPageEntities.add(create("http://frontierfirearms.ca/shooting-accessories.html", parent));
         webPageEntities.add(create("http://frontierfirearms.ca/optics.html", parent));
-        return Observable.defer(() -> Observable.just(webPageEntities).
+        return Observable.just(webPageEntities).
                 flatMap(Observable::from).
                 flatMap(page -> Observable.from(client.get(page.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                     @Override
@@ -67,7 +67,7 @@ public class FrontierfirearmsFrontPageParser implements WebPageParser {
                         }
                         return result;
                     }
-                }))));
+                })));
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {

@@ -31,7 +31,7 @@ public class WestrifleFrontPageParser implements WebPageParser {
     public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://westrifle.com/wrstore/index.php?main_page=products_all&disp_order=1", parent));
-        return Observable.defer(() -> Observable.just(webPageEntities).
+        return Observable.just(webPageEntities).
                 flatMap(Observable::from).
                 flatMap(page -> Observable.from(client.get(page.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                     @Override
@@ -57,7 +57,7 @@ public class WestrifleFrontPageParser implements WebPageParser {
                         }
                         return result;
                     }
-                }))));
+                })));
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {

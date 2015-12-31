@@ -46,7 +46,7 @@ public class CanadaAmmoProductPageParser implements WebPageParser {
                 return result;
             }
         });
-        return Observable.defer(() -> Observable.from(future));
+        return Observable.from(future);
     }
 
     @Override

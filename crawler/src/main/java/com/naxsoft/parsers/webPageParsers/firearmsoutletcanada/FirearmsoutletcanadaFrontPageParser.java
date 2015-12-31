@@ -56,7 +56,7 @@ public class FirearmsoutletcanadaFrontPageParser implements WebPageParser {
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/sights-optics.html?limit=all&stock_status=64", parent));
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/consignment.html?limit=all&stock_status=64", parent));
         webPageEntities.add(create("", parent));
-        return Observable.defer(() -> Observable.just(webPageEntities).
+        return Observable.just(webPageEntities).
                 flatMap(Observable::from).
                 flatMap(page -> Observable.from(client.get(page.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                     @Override
@@ -80,7 +80,7 @@ public class FirearmsoutletcanadaFrontPageParser implements WebPageParser {
                         }
                         return result;
                     }
-                }))));
+                })));
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {

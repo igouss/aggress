@@ -32,7 +32,7 @@ public class CtcsuppliesFrontPageParser implements WebPageParser {
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
         Future<Set<WebPageEntity>> future = client.get("http://ctcsupplies.ca/collections/all", new Handler(parent));
-        return Observable.defer(() -> Observable.from(future));
+        return Observable.from(future);
     }
 
     @Override

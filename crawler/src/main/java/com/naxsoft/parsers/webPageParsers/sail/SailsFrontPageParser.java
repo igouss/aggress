@@ -44,7 +44,7 @@ public class SailsFrontPageParser implements WebPageParser {
         webPageEntities.add(create("http://www.sail.ca/en/hunting/firearms", parent));
 //        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearm-accessories", parent));
 //        webPageEntities.add(create("http://www.sail.ca/en/hunting/ammunition", parent));
-        return Observable.defer(() -> Observable.just(webPageEntities).
+        return Observable.just(webPageEntities).
                 flatMap(Observable::from).
                 flatMap(page -> Observable.from(client.get(page.getUrl(), cookies, new AsyncCompletionHandler<Set<WebPageEntity>>() {
                     @Override
@@ -68,7 +68,7 @@ public class SailsFrontPageParser implements WebPageParser {
                         }
                         return result;
                     }
-                }))));
+                })));
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {

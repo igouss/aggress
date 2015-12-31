@@ -63,7 +63,7 @@ public class DantesportsFrontPageParser implements WebPageParser {
                 return result;
             }
         });
-        return Observable.defer(() -> Observable.from(future2));
+        return Observable.from(future2);
     }
 
     private static AsyncCompletionHandler<List<Cookie>> getEngCookiesHandler() {

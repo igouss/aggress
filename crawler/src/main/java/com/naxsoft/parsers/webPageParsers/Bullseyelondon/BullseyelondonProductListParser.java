@@ -49,7 +49,7 @@ public class BullseyelondonProductListParser implements WebPageParser {
                 return result;
             }
         });
-        return Observable.defer(() -> Observable.from(future));
+        return Observable.from(future);
     }
 
     public boolean canParse(WebPageEntity webPage) {

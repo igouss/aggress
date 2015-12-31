@@ -33,7 +33,7 @@ public class TheammosourceFrontPageParser implements WebPageParser {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=1", parent)); // Ammo
         webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=2", parent)); // FIREARMS
-        return Observable.defer(() -> Observable.just(webPageEntities).
+        return Observable.just(webPageEntities).
                 flatMap(Observable::from).
                 flatMap(page -> Observable.from(client.get(page.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                     @Override
@@ -57,7 +57,7 @@ public class TheammosourceFrontPageParser implements WebPageParser {
                         }
                         return result;
                     }
-                }))));
+                })));
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {

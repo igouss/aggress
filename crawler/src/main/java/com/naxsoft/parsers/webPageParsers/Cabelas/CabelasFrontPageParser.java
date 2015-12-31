@@ -28,7 +28,7 @@ public class CabelasFrontPageParser implements WebPageParser {
     }
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) {
-        return Observable.defer(() -> Observable.from(client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+        return Observable.from(client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
@@ -51,7 +51,7 @@ public class CabelasFrontPageParser implements WebPageParser {
                 }
                 return result;
             }
-        })));
+        }));
     }
 
     public boolean canParse(WebPageEntity webPage) {

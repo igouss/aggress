@@ -61,3 +61,30 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
         return webPage.getUrl().startsWith("https://www.wolverinesupplies.com/") && webPage.getType().equals("productPageRaw");
     }
 }
+
+class RawProduct {
+    Attributes[] Attributes;
+    String ItemNumber;
+    int StockAmount;
+    double ListPrice;
+    String RenderedListPrice;
+    double Price;
+    String RenderedPrice;
+    String ImageFile;
+    String ImageExtension;
+    String ImageSize;
+    String ExtendedDescription;
+    String Title;
+
+    RawProduct() {
+    }
+}
+
+class Attributes {
+    String SearchType;
+    String AttributeName;
+    String AttributeValue;
+
+    Attributes() {
+    }
+}

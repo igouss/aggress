@@ -34,7 +34,7 @@ public class WanstallsonlineFrontPageParser implements WebPageParser {
     public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://www.wanstallsonline.com/firearms/", parent));
-        return Observable.defer(() -> Observable.just(webPageEntities).
+        return Observable.just(webPageEntities).
                 flatMap(Observable::from).
                 flatMap(page -> Observable.from(client.get(page.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
                     @Override
@@ -76,7 +76,7 @@ public class WanstallsonlineFrontPageParser implements WebPageParser {
                         }
                         return result;
                     }
-                }))));
+                })));
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {
