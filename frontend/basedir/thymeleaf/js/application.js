@@ -22,7 +22,7 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
             , startFrom: 0
         };
         var prev = function(e) {
-            searchData.startFrom -= 10;
+            searchData.startFrom -= 30;
             if (searchData.startFrom < 0) {
                 searchData.startFrom = 0;
             }
@@ -30,9 +30,9 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
             search();
         };
         var next = function(e) {
-            searchData.startFrom += 10;
+            searchData.startFrom += 30;
             e.preventDefault();
-            search(function() { searchData.startFrom -= 10;});
+            search(function() { searchData.startFrom -= 30;});
         };
         var itemTemplate = $('#itemTemplate').html();
         var navTemplate = $('#navTemplate').html();
@@ -124,7 +124,7 @@ require(['jquery', 'bootstrap', "mustache"], function($, bootStrap, m){
         });
         searchData.searchKey = getUrlParameter("search");
         inputField.val(searchData.searchKey);
-        searchData.startFrom = parseInt(getUrlParameter("startFrom"), 10);
+        searchData.startFrom = parseInt(getUrlParameter("startFrom"), 30);
         if (searchData.searchKey) {
             if (!searchData.startFrom) {
                 searchData.startFrom = 0;
