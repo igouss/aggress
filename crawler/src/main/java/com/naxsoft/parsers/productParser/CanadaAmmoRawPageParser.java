@@ -31,10 +31,15 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser  implements P
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
         jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
+        String webPageEntityUrl = webPageEntity.getUrl();
+        if (webPageEntityUrl.contains("&zenid=")) {
+            int zenIndex = webPageEntityUrl.indexOf("&zenid=");
+            webPageEntityUrl = webPageEntityUrl.substring(0, zenIndex);
+        }
+        jsonBuilder.field("url", webPageEntityUrl);
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntityUrl);
 
         if (document.select(".product-details__add").isEmpty()) {
             return products;
@@ -42,7 +47,7 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser  implements P
 
 
         String productName = document.select(".product-details__title .product__name").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntityUrl);
 
         jsonBuilder.field("productName", productName);
         jsonBuilder.field("category", document.select("div.page.product-details > div.page__header li:nth-child(2) > a").text());
@@ -68,7 +73,7 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser  implements P
             jsonBuilder.field(specName, specValue);
         }
         jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
+        product.setUrl(webPageEntityUrl);
         product.setWebpageId(webPageEntity.getId());
         product.setJson(jsonBuilder.string());
         products.add(product);
