@@ -181,6 +181,10 @@ public class Aggress {
                 "http://ctcsupplies.ca/",
                 "https://shop.dantesports.com/",
                 "https://ellwoodepps.com/",
+                "http://www.firearmsoutletcanada.com/",
+                "https://fishingworld.ca/",
+                "http://frontierfirearms.ca/",
+                "http://www.hical.ca/",
                 "https://www.irunguns.us/",
                 "http://www.marstar.ca/",
                 "http://www.sail.ca/",
@@ -189,9 +193,6 @@ public class Aggress {
                 "http://westrifle.com/",
                 "http://www.wholesalesports.com/",
                 "https://www.wolverinesupplies.com/",
-                "http://www.firearmsoutletcanada.com/",
-                "http://frontierfirearms.ca/",
-                  "http://www.hical.ca/"
         };
 
         Observable.from(sources).map(Aggress::from)
