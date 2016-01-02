@@ -39,6 +39,7 @@ dependencies {
     compile 'org.jooq:jooq:3.7.1'
     compile 'io.vertx:vertx-core:3.1.0'
     compile 'com.h2database:h2:1.4.190'
+    compile 'net.sf.jopt-simple:jopt-simple:4.9'
 }
 
 test {
