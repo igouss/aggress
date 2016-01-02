@@ -24,7 +24,7 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
 
         HashSet<ProductEntity> result = new HashSet<>();
         Gson gson = new Gson();
-        RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
+        RawProduct[] rawProducts = gson.fromJson(fromZip(webPageEntity.getContent()), RawProduct[].class);
 
         for (RawProduct rp : rawProducts) {
             logger.info("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
