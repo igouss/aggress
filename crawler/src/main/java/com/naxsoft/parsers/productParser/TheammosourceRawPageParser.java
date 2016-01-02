@@ -24,7 +24,7 @@ public class TheammosourceRawPageParser extends AbstractRawPageParser implements
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+        Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntity.getUrl());
 
         String productName = document.select("#productListHeading").text();
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());

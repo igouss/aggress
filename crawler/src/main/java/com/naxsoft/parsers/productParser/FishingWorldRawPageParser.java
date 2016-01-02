@@ -34,7 +34,7 @@ public class FishingWorldRawPageParser extends AbstractRawPageParser  implements
         jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+        Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntity.getUrl());
 
         String productName = document.select("#product > h1").text();
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());

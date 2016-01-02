@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.AsyncCompletionHandler;
@@ -24,7 +25,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadiangunnutzFrontPageParser implements WebPageParser {
+public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzFrontPageParser.class);
     private static final String[] categories = {
             "Precision and Target Rifles",

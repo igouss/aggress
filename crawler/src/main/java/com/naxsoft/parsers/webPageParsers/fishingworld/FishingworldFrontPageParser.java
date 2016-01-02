@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.fishingworld;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
@@ -21,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class FishingworldFrontPageParser implements WebPageParser {
+public class FishingworldFrontPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(FishingworldFrontPageParser.class);
     private final AsyncFetchClient client;
 

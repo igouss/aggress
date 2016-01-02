@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.irunguns;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class IrungunsProductPageParser implements WebPageParser {
+public class IrungunsProductPageParser extends AbstractWebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(IrungunsProductPageParser.class);
 
@@ -36,7 +37,7 @@ public class IrungunsProductPageParser implements WebPageParser {
                     webPageEntity.setParent(webPage);
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setType("productPageRaw");
-                    webPageEntity.setContent(resp.getResponseBody());
+                    webPageEntity.setContent(toZip(resp.getResponseBody()));
                     webPageEntity.setParent(webPage);
                     result.add(webPageEntity);
                     logger.info("productPageRaw={}", webPageEntity.getUrl());

@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.bullseyelondon;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
@@ -17,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-public class BullseyelondonProductListParser implements WebPageParser {
+public class BullseyelondonProductListParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(BullseyelondonProductListParser.class);
     private final AsyncFetchClient client;
 

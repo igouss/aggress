@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.irunguns;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
@@ -20,7 +21,7 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class IrungunsFrontPageParser implements WebPageParser {
+public class IrungunsFrontPageParser extends AbstractWebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(IrungunsFrontPageParser.class);
 

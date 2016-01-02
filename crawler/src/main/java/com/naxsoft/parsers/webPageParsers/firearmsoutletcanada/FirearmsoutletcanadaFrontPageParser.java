@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.firearmsoutletcanada;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.AsyncCompletionHandler;
@@ -24,7 +25,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class FirearmsoutletcanadaFrontPageParser implements WebPageParser {
+public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(FirearmsoutletcanadaFrontPageParser.class);
     private static final String[] categories = {
             "Precision and Target Rifles",

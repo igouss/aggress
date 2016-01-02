@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.AsyncCompletionHandler;
@@ -18,7 +19,7 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadiangunnutzProductPageParser implements WebPageParser {
+public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
     private final AsyncFetchClient client;
     private final List<Cookie> cookies = new LinkedList<>();
@@ -71,7 +72,7 @@ public class CanadiangunnutzProductPageParser implements WebPageParser {
                 if (200 == resp.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(webPage.getUrl());
-                    webPageEntity.setContent(resp.getResponseBody());
+                    webPageEntity.setContent(toZip(resp.getResponseBody()));
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setStatusCode(resp.getStatusCode());

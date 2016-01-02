@@ -33,7 +33,7 @@ public class IrungunsRawProductPageParser extends AbstractRawPageParser implemen
         jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+        Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntity.getUrl());
 
         if (!document.select(".saleImage").isEmpty()) {
             return products;

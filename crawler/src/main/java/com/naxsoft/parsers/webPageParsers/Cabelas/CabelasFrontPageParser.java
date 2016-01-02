@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.cabelas;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
@@ -19,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class CabelasFrontPageParser implements WebPageParser {
+public class CabelasFrontPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CabelasFrontPageParser.class);
     private final AsyncFetchClient client;
 

@@ -11,7 +11,7 @@ import rx.Observable;
 
 import java.util.Set;
 
-public class NoopParser implements WebPageParser {
+public class NoopParser extends AbstractWebPageParser {
     public NoopParser(AsyncFetchClient client) {
     }
 

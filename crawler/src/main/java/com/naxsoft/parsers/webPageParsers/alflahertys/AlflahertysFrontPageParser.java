@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.alflahertys;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
@@ -21,7 +22,7 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class AlflahertysFrontPageParser implements WebPageParser {
+public class AlflahertysFrontPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(AlflahertysFrontPageParser.class);
 
     private final AsyncFetchClient client;

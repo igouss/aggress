@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.bullseyelondon;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.slf4j.Logger;
@@ -13,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-public class BullseyelondonProductPageParser implements WebPageParser {
+public class BullseyelondonProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(BullseyelondonProductPageParser.class);
     private final AsyncFetchClient client;
 
@@ -29,7 +30,7 @@ public class BullseyelondonProductPageParser implements WebPageParser {
                 if (200 == resp.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(webPage.getUrl());
-                    webPageEntity.setContent(resp.getResponseBody());
+                    webPageEntity.setContent(toZip(resp.getResponseBody()));
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setStatusCode(resp.getStatusCode());

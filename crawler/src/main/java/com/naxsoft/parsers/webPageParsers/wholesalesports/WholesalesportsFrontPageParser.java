@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.wholesalesports;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
@@ -20,7 +21,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class WholesalesportsFrontPageParser implements WebPageParser {
+public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(WholesalesportsFrontPageParser.class);
 

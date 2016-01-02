@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.theammosource;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
@@ -20,7 +21,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class TheammosourceFrontPageParser implements WebPageParser {
+public class TheammosourceFrontPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(TheammosourceFrontPageParser.class);
     private final AsyncFetchClient client;
 

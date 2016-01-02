@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.marstar;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import rx.Observable;
 
@@ -12,7 +13,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class MarstarFrontPageParser implements WebPageParser {
+public class MarstarFrontPageParser extends AbstractWebPageParser {
     private final AsyncFetchClient client;
 
     public MarstarFrontPageParser(AsyncFetchClient client) {

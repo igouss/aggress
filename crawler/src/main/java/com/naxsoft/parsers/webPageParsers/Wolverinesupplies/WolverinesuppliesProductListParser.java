@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
@@ -19,7 +20,7 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WolverinesuppliesProductListParser implements WebPageParser {
+public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
     private final AsyncFetchClient client;
 

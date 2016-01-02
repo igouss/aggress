@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.dantesports;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.cookie.Cookie;
@@ -23,7 +24,7 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class DantesportsFrontPageParser implements WebPageParser {
+public class DantesportsFrontPageParser extends AbstractWebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
 

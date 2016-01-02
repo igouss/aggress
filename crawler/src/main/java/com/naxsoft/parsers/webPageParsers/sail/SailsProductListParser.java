@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.sail;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.cookie.Cookie;
@@ -23,7 +24,7 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class SailsProductListParser implements WebPageParser {
+public class SailsProductListParser extends AbstractWebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(SailsProductListParser.class);
     private static final Collection<Cookie> cookies;

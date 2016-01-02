@@ -28,7 +28,7 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser implements P
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
 
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+        Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntity.getUrl());
         String productName = document.select(".product_name").text();
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 

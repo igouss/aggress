@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.wanstallsonline;
 
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
@@ -20,7 +21,7 @@ import java.util.concurrent.Future;
 /**
  * Copyright NAXSoft 2015
  */
-public class WanstallsonlineProductListParser implements WebPageParser {
+public class WanstallsonlineProductListParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(WanstallsonlineProductListParser.class);
     private final AsyncFetchClient client;
 
