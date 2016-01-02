@@ -51,6 +51,11 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser implemen
                         break;
                     }
                 }
+            } else {
+                images = document.select(".content img.attach");
+                if (!images.isEmpty()){
+                    jsonBuilder.field("productImage", images.first().attr("abs:src"));
+                }
             }
         }
         jsonBuilder.field("description", document.select(".content blockquote").text());

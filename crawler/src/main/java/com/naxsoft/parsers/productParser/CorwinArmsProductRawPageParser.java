@@ -36,9 +36,9 @@ public class CorwinArmsProductRawPageParser extends AbstractRawPageParser implem
         jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
         jsonBuilder.field("productName", productName);
-        String img = document.select("div.field-type-image > div > div:nth-child(1) > a > img").attr("src");
+        String img = document.select("div.field-type-image img").attr("abs:src");
         if (img.isEmpty()) {
-            img = document.select("div.field-name-field-product-mag-image > div > div > img").attr("src");
+            img = document.select("div.field-name-field-product-mag-image > div > div > img").attr("abs:src");
         }
         jsonBuilder.field("productImage", img);
         jsonBuilder.field("regularPrice", parsePrice(document.select(".field-name-commerce-price").text()));
