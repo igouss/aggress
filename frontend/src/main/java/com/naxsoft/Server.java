@@ -100,7 +100,7 @@ public class Server {
                 new EncodingHandler(new ContentEncodingRepository()
                         .addEncodingHandler("gzip",
                                 new GzipEncodingProvider(), 50,
-                                Predicates.parse("max-content-size[5]")))
+                                Predicates.truePredicate()))
                         .setNext(pathHandler);
 
         pathHandler.addExactPath("/", new IndexHandler(context, templateEngine, false));
