@@ -25,7 +25,7 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
-            return matcher.group(1);
+            return matcher.group(1).replace(",", "");
         } else {
             return price;
         }
