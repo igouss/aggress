@@ -19,9 +19,9 @@ import java.util.Set;
 public class CrawlCommand implements Command {
     private final static Logger logger = LoggerFactory.getLogger(CrawlCommand.class);
 
-    private WebPageService webPageService;
-    private WebPageParserFactory webPageParserFactory;
-    private MetricRegistry metrics;
+    private WebPageService webPageService = null;
+    private WebPageParserFactory webPageParserFactory = null;
+    private MetricRegistry metrics = null;
 
     @Override
     public void setUp(ExecutionContext context) throws CLIException {
@@ -46,25 +46,28 @@ public class CrawlCommand implements Command {
         metrics = null;
     }
 
-    private void process(Observable<WebPageEntity> parents) {
-        parents.flatMap(parent -> {
-            WebPageParser parser = webPageParserFactory.getParser(parent);
-            Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
-            Timer.Context time = parseTime.time();
+    private void process(Observable<WebPageEntity> pagesToParse) {
+        pagesToParse.flatMap(pageToParse -> {
             Observable<Set<WebPageEntity>> result = null;
             try {
-                result = parser.parse(parent);
+                WebPageParser parser = webPageParserFactory.getParser(pageToParse);
+                Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
+                Timer.Context time = parseTime.time();
+                result = parser.parse(pageToParse);
+                time.stop();
+
+                pageToParse.setParsed(true);
+                if (0 == webPageService.markParsed(pageToParse)) {
+                    logger.error("Failed to make page as parsed {}", pageToParse);
+                    result = null;
+                }
             } catch (Exception e) {
-                logger.error("Failed to process source {}", parent.getUrl(), e);
+                logger.error("Failed to process source {}", pageToParse.getUrl(), e);
             }
-            time.stop();
-            webPageService.markParsed(parent);
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
-                .map(webPageService::save)
                 .retry(3)
                 .doOnError(ex -> logger.error("Exception", ex))
-                .subscribe();
+                .subscribe(webPageService::save);
     }
-
 }

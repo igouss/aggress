@@ -8,6 +8,7 @@ package com.naxsoft.database;
 import com.naxsoft.entity.WebPageEntity;
 import org.hibernate.Query;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.mapping.PrimaryKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -42,12 +43,12 @@ public class WebPageService {
     }
 
     public int markParsed(WebPageEntity webPageEntity) {
+        if (0 == webPageEntity.getId()) {
+            return 0;
+        }
         return AsyncTransaction.execute(database, session -> {
             Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
-            int rc = query.setInteger("id", webPageEntity.getId()).executeUpdate();
-//            logger.debug("update WebPageEntity set parsed = true where id = {} {} rows affected", webPageEntity.getId(), rc);
-            webPageEntity.setParsed(true);
-            return rc;
+            return query.setInteger("id", webPageEntity.getId()).executeUpdate();
         });
     }
 

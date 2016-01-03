@@ -21,12 +21,12 @@ import java.util.Set;
  */
 public class ParseCommand implements Command {
     private final static Logger logger = LoggerFactory.getLogger(ParseCommand.class);
-    private WebPageService webPageService;
-    private ProductService productService;
-    private Elastic elastic;
-    private ProductParserFactory productParserFactory;
-    private MetricRegistry metrics;
-    private String indexSuffix;
+    private WebPageService webPageService = null;
+    private ProductService productService = null;
+    private Elastic elastic = null;
+    private ProductParserFactory productParserFactory = null;
+    private MetricRegistry metrics = null;
+    private String indexSuffix = null;
 
     @Override
     public void setUp(ExecutionContext context) throws CLIException {
@@ -60,18 +60,23 @@ public class ParseCommand implements Command {
         elastic.index(products, index, type);
     }
 
-    private void processProducts(Observable<WebPageEntity> webPage) {
-        webPage.map(webPageEntity -> {
+    private void processProducts(Observable<WebPageEntity> pagesToParse) {
+        pagesToParse.map(pageToParse -> {
             Set<ProductEntity> result = null;
             try {
-                ProductParser parser = productParserFactory.getParser(webPageEntity);
+                ProductParser parser = productParserFactory.getParser(pageToParse);
                 Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
                 Timer.Context time = parseTime.time();
-                result = parser.parse(webPageEntity);
+                result = parser.parse(pageToParse);
                 time.stop();
-                webPageService.markParsed(webPageEntity);
+
+                pageToParse.setParsed(true);
+                if (0 == webPageService.markParsed(pageToParse)) {
+                    logger.error("Failed to make page as parsed {}", pageToParse);
+                    result = null;
+                }
             } catch (Exception e) {
-                logger.error("Failed to parse product page {}", webPageEntity.getUrl(), e);
+                logger.error("Failed to parse product page {}", pageToParse.getUrl(), e);
             }
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
