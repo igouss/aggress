@@ -5,7 +5,12 @@ import com.naxsoft.handlers.SearchHandler;
 import com.naxsoft.handlers.SearchVerboseHandler;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
+import io.undertow.predicate.Predicates;
+import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.PathHandler;
+import io.undertow.server.handlers.encoding.ContentEncodingRepository;
+import io.undertow.server.handlers.encoding.EncodingHandler;
+import io.undertow.server.handlers.encoding.GzipEncodingProvider;
 import io.undertow.server.handlers.resource.FileResourceManager;
 import io.undertow.server.session.InMemorySessionManager;
 import io.undertow.server.session.SessionAttachmentHandler;
@@ -17,7 +22,6 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
@@ -26,7 +30,6 @@ import org.thymeleaf.templateresolver.FileTemplateResolver;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +56,7 @@ public class Server {
 //        Vertx vertx = Vertx.vertx(vertxOptions);
 //        vertx.close(handler -> System.out.println("Vert.x is shutdown"));
 
-        PathHandler pathHandler = getPathHandler(templateEngine, esClient, context);
+        HttpHandler pathHandler = getPathHandler(templateEngine, esClient, context);
 
         SessionManager sessionManager = new InMemorySessionManager("SESSION_MANAGER");
         SessionCookieConfig sessionConfig = new SessionCookieConfig();
@@ -91,8 +94,15 @@ public class Server {
 //
 //    }
 
-    private static PathHandler getPathHandler(TemplateEngine templateEngine, TransportClient client, ApplicationContext context) {
+    private static HttpHandler getPathHandler(TemplateEngine templateEngine, TransportClient client, ApplicationContext context) {
         PathHandler pathHandler = Handlers.path();
+        final EncodingHandler handler =
+                new EncodingHandler(new ContentEncodingRepository()
+                        .addEncodingHandler("gzip",
+                                new GzipEncodingProvider(), 50,
+                                Predicates.parse("max-content-size[5]")))
+                        .setNext(pathHandler);
+
         pathHandler.addExactPath("/", new IndexHandler(context, templateEngine, false));
         pathHandler.addExactPath("/verbose", new IndexHandler(context, templateEngine, true));
         pathHandler.addExactPath("/search", new SearchHandler(client));
@@ -111,7 +121,7 @@ public class Server {
 //                        .addPrefixPath("/api/rest", new RestHandler()))
 
 
-        return pathHandler;
+        return handler;
     }
 
     private static TransportClient getTransportClient() throws UnknownHostException {
