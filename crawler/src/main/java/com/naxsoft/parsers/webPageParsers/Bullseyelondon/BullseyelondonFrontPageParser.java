@@ -42,7 +42,6 @@ public class BullseyelondonFrontPageParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productList");
-                        webPageEntity.setParent(webPage);
                         logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), webPage.getUrl());
                         result.add(webPageEntity);
                     }

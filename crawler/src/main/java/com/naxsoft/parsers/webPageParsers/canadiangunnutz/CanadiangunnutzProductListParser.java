@@ -85,7 +85,6 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setType("productPage");
-                                    webPageEntity.setParent(webPage);
                                     webPageEntity.setStatusCode(resp.getStatusCode());
                                     logger.info("productPage={}", webPageEntity.getUrl());
                                     result.add(webPageEntity);

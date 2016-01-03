@@ -59,7 +59,6 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                             Elements elements = document.select("div.clearfix span.pagination a.nav-page");
                             if (elements.isEmpty()) {
                                 WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setParent(webPage);
                                 webPageEntity.setUrl(url);
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPage.setStatusCode(resp.getStatusCode());
@@ -71,7 +70,6 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                                 int end = Integer.parseInt(elements.last().text());
                                 for (; i <= end; i++) {
                                     WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setParent(webPage);
                                     webPageEntity.setUrl(url + "&page=" + i);
                                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                     webPage.setStatusCode(resp.getStatusCode());

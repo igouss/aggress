@@ -48,7 +48,6 @@ public class SailsProductPageParser extends AbstractWebPageParser {
                     webPageEntity.setParsed(false);
                     webPageEntity.setStatusCode(resp.getStatusCode());
                     webPageEntity.setType("productPageRaw");
-                    webPageEntity.setParent(webPage);
                     result.add(webPageEntity);
                     logger.info("productPageRaw={}", webPageEntity.getUrl());
                 }

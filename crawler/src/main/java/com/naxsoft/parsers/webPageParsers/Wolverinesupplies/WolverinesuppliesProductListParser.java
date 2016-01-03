@@ -46,7 +46,6 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                             String productCategory = categoryMatcher.group();
                             String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
                             WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setParent(webPage);
                             webPageEntity.setType("tmp");
                             webPageEntity.setUrl(productDetailsUrl);
                             result.add(webPageEntity);
@@ -78,7 +77,6 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                 if (0 != sb.length()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
-                    webPageEntity.setParent(parent.getParent().getParent());
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setType("productPage");
                     logger.info("productPage={}", webPageEntity.getUrl());

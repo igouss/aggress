@@ -71,7 +71,6 @@ public class MarstarProductListParser extends AbstractWebPageParser {
                 webPageEntity.setParsed(false);
                 webPageEntity.setStatusCode(resp.getStatusCode());
                 webPageEntity.setType("productList");
-                webPageEntity.setParent(webPage);
                 logger.info("Found product list page {} url={}", e.text(), linkUrl);
                 return webPageEntity;
             }
@@ -84,7 +83,6 @@ public class MarstarProductListParser extends AbstractWebPageParser {
                 webPageEntity.setParsed(false);
                 webPageEntity.setStatusCode(resp.getStatusCode());
                 webPageEntity.setType("productPage");
-                webPageEntity.setParent(webPage);
                 logger.info("Found product {} url={}", e.text(), linkUrl);
                 return webPageEntity;
             }

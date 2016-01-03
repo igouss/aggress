@@ -7,6 +7,7 @@ package com.naxsoft.database;
 
 import com.naxsoft.entity.WebPageEntity;
 import org.hibernate.Query;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -24,14 +25,20 @@ public class WebPageService {
     }
 
     public boolean save(Collection<WebPageEntity> webPageEntitySet) {
-        return AsyncTransaction.execute(database, session -> {
-            int i = 0;
-            for (WebPageEntity webPageEntity : webPageEntitySet) {
-                logger.debug("Saving {}", webPageEntity);
-                session.insert(webPageEntity);
-            }
-            return true;
-        });
+        Boolean rc = false;
+        try {
+            rc = AsyncTransaction.execute(database, session -> {
+                int i = 0;
+                for (WebPageEntity webPageEntity : webPageEntitySet) {
+                    logger.debug("Saving {}", webPageEntity);
+                    session.insert(webPageEntity);
+                }
+                return true;
+            });
+        } catch (ConstraintViolationException ex) {
+            logger.info("A duplicate URL found, ignore", ex);
+        }
+        return rc;
     }
 
     public int markParsed(WebPageEntity webPageEntity) {

@@ -51,7 +51,6 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productList");
-                        webPageEntity.setParent(webPage);
                         logger.info("Found on front page ={}", linkUrl);
                         result.add(webPageEntity);
 
@@ -80,7 +79,6 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                                             webPageEntity.setParsed(false);
                                             webPageEntity.setStatusCode(resp.getStatusCode());
                                             webPageEntity.setType("productList");
-                                            webPageEntity.setParent(webPage.getParent());
                                             logger.info("Product page listing={}", webPageEntity.getUrl());
                                             result.add(webPageEntity);
                                         }
@@ -91,7 +89,6 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                                         webPageEntity.setParsed(false);
                                         webPageEntity.setStatusCode(resp.getStatusCode());
                                         webPageEntity.setType("productList");
-                                        webPageEntity.setParent(webPage.getParent());
                                         logger.info("Product page listing={}", webPageEntity.getUrl());
                                         result.add(webPageEntity);
                                     }

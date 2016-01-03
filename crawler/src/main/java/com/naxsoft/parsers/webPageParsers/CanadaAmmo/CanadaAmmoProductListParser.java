@@ -45,7 +45,6 @@ public class CanadaAmmoProductListParser extends AbstractWebPageParser {
                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
-                        webPageEntity.setParent(webPage);
                         logger.info("productPage={}", webPageEntity.getUrl());
                         result.add(webPageEntity);
                     }

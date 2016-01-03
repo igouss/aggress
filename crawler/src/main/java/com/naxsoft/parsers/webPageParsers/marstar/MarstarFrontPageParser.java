@@ -37,7 +37,6 @@ public class MarstarFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setParsed(false);
         webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
-        webPageEntity.setParent(parent);
         return webPageEntity;
     }
 

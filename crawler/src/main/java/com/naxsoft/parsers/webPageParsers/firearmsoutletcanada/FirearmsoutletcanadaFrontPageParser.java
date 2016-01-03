@@ -74,7 +74,6 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setStatusCode(resp.getStatusCode());
                                 webPageEntity.setType("productPage");
-                                webPageEntity.setParent(page.getParent());
                                 logger.info("Product page listing={}", webPageEntity.getUrl());
                                 result.add(webPageEntity);
                             }
@@ -91,7 +90,6 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setParsed(false);
         webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
-        webPageEntity.setParent(parent);
         return webPageEntity;
     }
 

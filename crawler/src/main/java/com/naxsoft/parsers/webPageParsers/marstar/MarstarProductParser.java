@@ -35,11 +35,9 @@ public class MarstarProductParser extends AbstractWebPageParser {
                 if (200 == resp.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(webPage.getUrl());
-                    webPageEntity.setParent(webPage);
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setType("productPageRaw");
                     webPageEntity.setContent(toZip(resp.getResponseBody()));
-                    webPageEntity.setParent(webPage);
                     webPageEntity.setStatusCode(resp.getStatusCode());
                     result.add(webPageEntity);
                     logger.info("productPageRaw={}", webPageEntity.getUrl());

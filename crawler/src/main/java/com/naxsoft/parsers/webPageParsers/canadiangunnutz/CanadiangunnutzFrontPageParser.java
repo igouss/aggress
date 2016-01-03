@@ -93,7 +93,6 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setStatusCode(resp.getStatusCode());
                                     webPageEntity.setType("productList");
-                                    webPageEntity.setParent(parent);
                                     logger.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
                                     result.add(webPageEntity);
                                     break;
@@ -127,7 +126,6 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                             webPageEntity.setParsed(false);
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productList");
-                            webPageEntity.setParent(parent);
                             logger.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
                             result.add(webPageEntity);
                         }

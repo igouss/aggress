@@ -63,7 +63,6 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setStatusCode(resp.getStatusCode());
                                     webPageEntity.setType("frontPage");
-                                    webPageEntity.setParent(parent);
                                     logger.info("Product page listing={}", webPageEntity.getUrl());
                                     result.add(webPageEntity);
                                 }
@@ -76,7 +75,6 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setStatusCode(resp.getStatusCode());
                                     webPageEntity.setType("productList");
-                                    webPageEntity.setParent(parent);
                                     logger.info("Product page listing={}", webPageEntity.getUrl());
                                     result.add(webPageEntity);
                                 }
@@ -88,7 +86,6 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
                             webPageEntity.setParsed(false);
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productList");
-                            webPageEntity.setParent(parent);
                             logger.info("Product page listing={}", webPageEntity.getUrl());
                             result.add(webPageEntity);
                         }
@@ -104,7 +101,6 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setParsed(false);
         webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
-        webPageEntity.setParent(parent);
         return webPageEntity;
     }
 

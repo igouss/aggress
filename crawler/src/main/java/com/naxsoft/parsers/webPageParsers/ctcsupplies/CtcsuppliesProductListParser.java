@@ -49,7 +49,6 @@ public class CtcsuppliesProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setStatusCode(resp.getStatusCode());
                         webPageEntity.setType("productPage");
-                        webPageEntity.setParent(webPage);
                         logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
                         result.add(webPageEntity);
                     }

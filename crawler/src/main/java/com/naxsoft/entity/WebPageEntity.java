@@ -14,10 +14,13 @@ import java.sql.Timestamp;
         schema = "guns",
         catalog = "aggress",
         indexes = {
-                @Index(name = "WebPageEntity_type_idx", columnList = "type"),
-                @Index(name = "WebPageEntity_parsed_idx", columnList = "parsed")
+                @Index(columnList = "type"),
+                @Index(columnList = "parsed"),
+                @Index(columnList = "url,type", unique = true)
+
         }
 )
+
 public class WebPageEntity {
     private int id;
     private String content;
@@ -26,7 +29,6 @@ public class WebPageEntity {
     private String type;
     private boolean parsed;
     private String url;
-    private WebPageEntity parent;
 
     public WebPageEntity() {
     }
@@ -110,8 +112,9 @@ public class WebPageEntity {
 
     @Basic
     @Column(
-            name = "url",
-            columnDefinition = "TEXT"
+            name = "url"
+            , length = 2048
+//            , columnDefinition = "TEXT"
     )
     public String getUrl() {
         return this.url;
@@ -140,15 +143,6 @@ public class WebPageEntity {
         return result;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent", referencedColumnName = "id")
-    public WebPageEntity getParent() {
-        return parent;
-    }
-
-    public void setParent(WebPageEntity parent) {
-        this.parent = parent;
-    }
 
     @Override
     public String toString() {
