@@ -46,20 +46,18 @@ public class PopulateDBCommand implements Command {
             "https://www.wolverinesupplies.com/",
             "http://www.leverarms.com/",
     };
-    private static void populateSources() {
-        Observable.from(sources).map(PopulateDBCommand::from)
-                .retry(3)
-                .doOnError(ex -> logger.error("Exception", ex))
-                .subscribe(PopulateDBCommand::save);
-    }
+//    private static void populateSources() {
+//        Observable.from(sources).map(PopulateDBCommand::from)
+//                .retry(3)
+//                .doOnError(ex -> logger.error("Exception", ex))
+//                .subscribe(PopulateDBCommand::save);
+//    }
 
     private static void populateRoots() {
-        Observable<SourceEntity> sources = sourceService.getSources();
-        sources.map(PopulateDBCommand::from)
+        Observable.from(sources).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
                 .toList()
                 .doOnError(ex -> logger.error("Exception", ex))
                 .subscribe(PopulateDBCommand::save);
-        sourceService.markParsed(sources);
     }
 
     private static SourceEntity from(String sourceUrl) {
@@ -101,7 +99,7 @@ public class PopulateDBCommand implements Command {
 
     @Override
     public void run() throws CLIException {
-        populateSources();
+//        populateSources();
         populateRoots();
     }
 
