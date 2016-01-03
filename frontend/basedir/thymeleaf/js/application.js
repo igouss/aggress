@@ -97,22 +97,20 @@ require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
                     var tbody = rendered.find("tbody");
 
                     $.each(element, function(key, value) {
-                        if (key == "productImage" || key == "url" || value=="") {
+                        if (key == "productImage" || key == "productName" || key == "url" || value=="") {
 
                         } else {
-                            if (key != "productName") {
                                 var rowHtml = "";
                                 if (key == "specialPrice") {
                                     rowHtml = "<tr class='info'><td>{{key}}</td><td>{{value}}</td></tr>";
                                 } else {
                                     rowHtml = "<tr><td>{{key}}</td><td>{{value}}</td></tr>";
                                 }
-                                var row = $(m.render("<tr><td>{{key}}</td><td>{{value}}</td></tr>", {
+                                var row = $(m.render(rowHtml, {
                                     "key": toCapitalizedWords(key),
                                     "value": value
                                 }));
                                 tbody.append(row);
-                            }
                         }
                     });
 

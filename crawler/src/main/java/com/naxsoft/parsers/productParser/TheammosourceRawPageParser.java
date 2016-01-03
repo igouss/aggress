@@ -6,6 +6,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +43,10 @@ public class TheammosourceRawPageParser extends AbstractRawPageParser implements
         jsonBuilder.field("productImage", document.select("#productMainImage img").attr("abs:src"));
         jsonBuilder.field("description", document.select("#productDescription").text());
 
-        if (!document.select("#productPrices .productSpecialPrice").isEmpty()) {
+        Elements specialPrice = document.select("#productPrices .productSpecialPrice");
+        if (!specialPrice.isEmpty()) {
             jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices .normalprice").text()));
-            jsonBuilder.field("specialPrice", parsePrice(document.select("#productPrices .productSpecialPrice").text()));
+            jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
         } else {
             jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices #retail").text()));
         }

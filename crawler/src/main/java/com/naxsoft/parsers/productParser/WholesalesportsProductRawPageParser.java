@@ -6,6 +6,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,13 @@ public class WholesalesportsProductRawPageParser extends AbstractRawPageParser i
         jsonBuilder.field("manufacturer", document.select(".product-brand").text());
 
         if (document.select(".new .price-value").isEmpty()) {
-            jsonBuilder.field("regularPrice", parsePrice(document.select(".current .price-value").text()));
+            Elements price = document.select(".current .price-value");
+            if (!price.isEmpty()) {
+                jsonBuilder.field("regularPrice", parsePrice(price.text()));
+            } else {
+                price = document.select("div.productDescription span.price-value");
+                jsonBuilder.field("regularPrice", parsePrice(price.text()));
+            }
         } else {
             jsonBuilder.field("regularPrice", parsePrice(document.select(".old .price-value").text()));
             jsonBuilder.field("specialPrice", parsePrice(document.select(".new .price-value").text()));
