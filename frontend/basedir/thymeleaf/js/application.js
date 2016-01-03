@@ -134,7 +134,7 @@ require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
         });
         searchData.searchKey = getUrlParameter("search");
         inputField.val(searchData.searchKey);
-        searchData.startFrom = parseInt(getUrlParameter("startFrom"), 30);
+        searchData.startFrom = parseInt(getUrlParameter("startFrom"), 10);
         if (searchData.searchKey) {
             if (!searchData.startFrom) {
                 searchData.startFrom = 0;
