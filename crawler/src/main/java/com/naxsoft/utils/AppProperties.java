@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -15,8 +16,10 @@ public class AppProperties {
 
     static {
         try {
-            properties.load(AppProperties.class.getClassLoader().getResourceAsStream("config.properties"));
-        } catch (IOException e) {
+            InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream("config.properties");
+            properties.load(resourceAsStream);
+            logger.debug("App properties {}" , properties);
+        } catch (Exception e) {
             logger.error("Failed to load properties", e);
         }
     }

@@ -3,7 +3,6 @@ package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.ListenableFuture;
@@ -22,14 +21,10 @@ import java.util.concurrent.Future;
 public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
     private final AsyncFetchClient client;
-    private final List<Cookie> cookies = new LinkedList<>();
+    private List<Cookie> cookies;
 
     public CanadiangunnutzProductPageParser(AsyncFetchClient client) {
         this.client = client;
-        login(client);
-    }
-
-    private void login(AsyncFetchClient client) {
         Map<String, String> formParameters = new HashMap<>();
         formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
         formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
@@ -42,8 +37,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
 
         ListenableFuture<List<Cookie>> futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getEngCookiesHandler());
         try {
-            cookies.clear();
-            cookies.addAll(futureCookies.get());
+            cookies = futureCookies.get();
         } catch (Exception e) {
             logger.error("Failed to login to canadiangunnutz", e);
         }
@@ -60,7 +54,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        if (cookies.isEmpty()) {
+        if (null == cookies || cookies.isEmpty()) {
             logger.warn("No login cookies");
             return Observable.empty();
         }

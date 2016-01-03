@@ -3,7 +3,6 @@ package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.ListenableFuture;
@@ -59,7 +58,7 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        if (cookies.isEmpty()) {
+        if (null == cookies || cookies.isEmpty()) {
             logger.warn("No login cookies");
             return Observable.empty();
         }
