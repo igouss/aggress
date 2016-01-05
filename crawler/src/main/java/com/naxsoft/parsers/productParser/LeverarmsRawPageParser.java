@@ -41,7 +41,7 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
 
         Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntity.getUrl());
 
-        String productName = document.select(".product-name").text();
+        String productName = document.select(".product-shop .product-name").text();
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         if (document.select("p.availability.in-stock").isEmpty()) {
