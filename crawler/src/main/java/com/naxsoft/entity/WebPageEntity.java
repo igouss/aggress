@@ -29,6 +29,7 @@ public class WebPageEntity {
     private String type;
     private boolean parsed;
     private String url;
+    private String category;
 
     public WebPageEntity() {
     }
@@ -122,6 +123,20 @@ public class WebPageEntity {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    @Basic
+    @Column(
+            name = "category"
+            , length = 128
+//            , columnDefinition = "TEXT"
+    )
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     @Override
