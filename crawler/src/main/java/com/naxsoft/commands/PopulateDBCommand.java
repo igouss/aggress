@@ -45,6 +45,7 @@ public class PopulateDBCommand implements Command {
             "http://www.wholesalesports.com/",
             "https://www.wolverinesupplies.com/",
             "http://www.leverarms.com/",
+            "http://gun-shop.ca/",
     };
 //    private static void populateSources() {
 //        Observable.from(sources).map(PopulateDBCommand::from)
