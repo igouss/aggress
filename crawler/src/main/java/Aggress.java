@@ -131,12 +131,18 @@ public class Aggress {
 
             elastic.createIndex(asyncFetchClient, "product", "guns", indexSuffix)
                     .retry(3)
-                    .doOnError(ex -> logger.error("Exception", ex))
-                    .subscribe();
+                    .subscribe(rc -> {
+                        logger.info("Elastic create index rc = {}", rc);
+                    }, ex -> {
+                        logger.error("CreateIndex Exception", ex);
+                    });
             elastic.createMapping(asyncFetchClient, "product", "guns", indexSuffix)
                     .retry(3)
-                    .doOnError(ex -> logger.error("Exception", ex))
-                    .subscribe();
+                    .subscribe(rc -> {
+                        logger.info("Elastic create mapping rc = {}", rc);
+                    }, ex -> {
+                        logger.error("CreateMapping Exception", ex);
+                    });
 
             metrics.register(MetricRegistry.name(Database.class, "web_pages", "unparsed"), (Gauge<Long>) () -> {
                 Long rc = -1L;

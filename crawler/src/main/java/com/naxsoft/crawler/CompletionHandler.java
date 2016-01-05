@@ -8,10 +8,15 @@ import org.slf4j.LoggerFactory;
  * Copyright NAXSoft 2015
  */
 public abstract class CompletionHandler<R> extends AsyncCompletionHandler<R> {
-    private static final Logger logger = LoggerFactory.getLogger(AsyncFetchClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(CompletionHandler.class);
 
     @Override
     public void onThrowable(Throwable t) {
-        logger.error("HTTP Error", t);
+        if (t instanceof java.util.concurrent.CancellationException) {
+            // ignore
+            logger.debug("HTTP Request canceled");
+        } else {
+            logger.error("HTTP Error", t);
+        }
     }
 }

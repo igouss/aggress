@@ -81,7 +81,6 @@ public class ParseCommand implements Command {
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
                 .retry(3)
-                .doOnError(ex -> logger.error("Exception", ex))
-                .subscribe(productService::save);
+                .subscribe(productService::save, ex -> logger.error("Parser Process Exception", ex));
     }
 }

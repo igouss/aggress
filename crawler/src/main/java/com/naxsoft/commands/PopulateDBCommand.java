@@ -57,8 +57,7 @@ public class PopulateDBCommand implements Command {
     private static void populateRoots() {
         Observable.from(sources).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
                 .toList()
-                .doOnError(ex -> logger.error("Exception", ex))
-                .subscribe(PopulateDBCommand::save);
+                .subscribe(PopulateDBCommand::save, ex -> logger.error("PopulateRoots Exception", ex));
     }
 
     private static SourceEntity from(String sourceUrl) {

@@ -83,14 +83,13 @@ public class Elastic implements AutoCloseable, Cloneable {
             return bulkRequestBuilder.execute();
         }).flatMap(Observable::from)
                 .retry(3)
-                .doOnError(ex -> logger.error("Exception", ex))
                 .subscribe(bulkResponse -> {
                     if (bulkResponse.hasFailures()) {
                         logger.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
                     } else {
                         logger.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
                     }
-                });
+                }, ex -> logger.error("Index Exception", ex));
     }
 
     public Observable<Integer> createIndex(AsyncFetchClient client, String index, String type, String indexSuffix) throws IOException, ExecutionException, InterruptedException {

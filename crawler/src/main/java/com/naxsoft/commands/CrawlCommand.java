@@ -67,7 +67,6 @@ public class CrawlCommand implements Command {
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
                 .retry(3)
-                .doOnError(ex -> logger.error("Exception", ex))
-                .subscribe(webPageService::save);
+                .subscribe(webPageService::save, ex -> logger.error("Crawler Process Exception", ex));
     }
 }

@@ -32,7 +32,6 @@ public class SourceService {
     public void markParsed(Observable<SourceEntity> sourceEntity) {
         sourceEntity.toList()
                 .retry(3)
-                .doOnError(ex -> logger.error("Exception", ex))
                 .subscribe(list -> {
                     StatelessSession session = null;
                     Transaction tx = null;
@@ -58,7 +57,7 @@ public class SourceService {
                             session.close();
                         }
                     }
-                });
+                }, ex -> logger.error("MarkParsed Exception", ex));
     }
 
     public boolean save(SourceEntity sourceEntity) {
