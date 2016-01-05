@@ -27,7 +27,7 @@ public class AsyncTransaction {
             if (null != tx) {
                 tx.rollback();
             }
-            logger.error("Transaction failed", e);
+            logger.error("AsyncTransaction failed", e);
             throw e;
         } finally {
             if (null != session) {
