@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.canadaAmmo;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
@@ -32,7 +33,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Future<Set<String>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<String>>() {
+        Future<Set<String>> future = client.get(webPage.getUrl(), new CompletionHandler<Set<String>>() {
             @Override
             public HashSet<String> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<String> result = new HashSet<>();
@@ -51,7 +52,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
         });
 
         return Observable.from(future).flatMap(Observable::from).flatMap(url -> {
-                    Future<Set<WebPageEntity>> setFuture = client.get(url, new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                    Future<Set<WebPageEntity>> setFuture = client.get(url, new CompletionHandler<Set<WebPageEntity>>() {
                         @Override
                         public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                             HashSet<WebPageEntity> subResult = new HashSet<>();

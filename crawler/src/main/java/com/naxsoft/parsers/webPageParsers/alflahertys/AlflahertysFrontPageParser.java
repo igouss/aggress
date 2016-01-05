@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.alflahertys;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
@@ -42,7 +43,7 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("frontPage");
     }
 
-    private static class Handler extends AsyncCompletionHandler<Set<WebPageEntity>> {
+    private static class Handler extends CompletionHandler<Set<WebPageEntity>> {
         private final WebPageEntity parent;
 
         public Handler(WebPageEntity parent) {

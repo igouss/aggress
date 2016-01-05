@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.utils.AppProperties;
@@ -43,8 +44,8 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
         }
     }
 
-    private static AsyncCompletionHandler<List<Cookie>> getEngCookiesHandler() {
-        return new AsyncCompletionHandler<List<Cookie>>() {
+    private static CompletionHandler<List<Cookie>> getEngCookiesHandler() {
+        return new CompletionHandler<List<Cookie>>() {
             @Override
             public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 return resp.getCookies();
@@ -59,7 +60,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
             return Observable.empty();
         }
 
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), cookies, new AsyncCompletionHandler<Set<WebPageEntity>>() {
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), cookies, new CompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();

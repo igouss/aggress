@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.gunshop;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
@@ -30,7 +31,7 @@ public class GunshopProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
-        Future<Set<WebPageEntity>> future = client.get(parent.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+        Future<Set<WebPageEntity>> future = client.get(parent.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();

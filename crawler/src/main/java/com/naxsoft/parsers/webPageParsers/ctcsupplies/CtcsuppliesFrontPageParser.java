@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.ctcsupplies;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
@@ -41,7 +42,7 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://ctcsupplies.ca/") && webPage.getType().equals("frontPage");
     }
 
-    private class Handler extends AsyncCompletionHandler<Set<WebPageEntity>> {
+    private class Handler extends CompletionHandler<Set<WebPageEntity>> {
 
         private final WebPageEntity parent;
 

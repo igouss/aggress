@@ -1,6 +1,5 @@
 package com.naxsoft.crawler;
 
-import com.ning.http.client.AsyncHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ListenableFuture;
@@ -44,29 +43,31 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
         asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
     }
 
-    public <R> ListenableFuture<R> get(String url, AsyncHandler<R> handler) {
+    public <R> ListenableFuture<R> get(String url, CompletionHandler<R> handler) {
         return get(url, Collections.<Cookie>emptyList(), handler);
     }
 
-    public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AsyncHandler<R> handler) {
+    public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, CompletionHandler<R> handler) {
         return get(url, cookies, handler, true);
     }
 
-    public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AsyncHandler<R> handler, boolean followRedirect) {
+    public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, CompletionHandler<R> handler, boolean followRedirect) {
         logger.trace("Starting async http GET request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirects(followRedirect);
 
-        return requestBuilder.execute(handler);
+        ListenableFuture<R> result = requestBuilder.execute(handler);
+
+        return result;
     }
 
-    public <T> ListenableFuture<T> post(String url, String content, AsyncHandler<T> handler) {
+    public <T> ListenableFuture<T> post(String url, String content, CompletionHandler<T> handler) {
         return post(url, content, Collections.<Cookie>emptyList(), handler);
     }
 
-    public <T> ListenableFuture<T> post(String url, String content, Collection<Cookie> cookies, AsyncHandler<T> handler) {
+    public <T> ListenableFuture<T> post(String url, String content, Collection<Cookie> cookies, CompletionHandler<T> handler) {
         logger.trace("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
@@ -78,7 +79,7 @@ public class AsyncFetchClient implements AutoCloseable, Cloneable {
         return requestBuilder.execute(handler);
     }
 
-    public <T> ListenableFuture<T> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AsyncHandler<T> handler) {
+    public <T> ListenableFuture<T> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, CompletionHandler<T> handler) {
         logger.trace("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);

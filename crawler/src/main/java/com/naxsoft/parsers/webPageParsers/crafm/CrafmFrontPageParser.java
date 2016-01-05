@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.crafm;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
@@ -32,7 +33,7 @@ public class CrafmFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
 
-        Future<Set<WebPageEntity>> future = client.get("http://www.crafm.com/firearms.html?limit=all", new AsyncCompletionHandler<Set<WebPageEntity>>() {
+        Future<Set<WebPageEntity>> future = client.get("http://www.crafm.com/firearms.html?limit=all", new CompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();

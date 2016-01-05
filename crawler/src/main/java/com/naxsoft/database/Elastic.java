@@ -6,6 +6,7 @@
 package com.naxsoft.database;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.ProductEntity;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
@@ -99,7 +100,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         String indexContent = IOUtils.toString(resourceAsStream);
         String url = "http://127.0.0.1:9200/" + newIndexName;
-        return Observable.from(client.post(url, indexContent, new AsyncCompletionHandler<Integer>() {
+        return Observable.from(client.post(url, indexContent, new CompletionHandler<Integer>() {
             @Override
             public Integer onCompleted(Response response) throws Exception {
                 int statusCode = response.getStatusCode();
@@ -120,7 +121,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         String indexContent = IOUtils.toString(resourceAsStream);
         String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
-        return Observable.from(client.post(url, indexContent, new AsyncCompletionHandler<Integer>() {
+        return Observable.from(client.post(url, indexContent, new CompletionHandler<Integer>() {
             @Override
             public Integer onCompleted(Response response) throws Exception {
                 int statusCode = response.getStatusCode();

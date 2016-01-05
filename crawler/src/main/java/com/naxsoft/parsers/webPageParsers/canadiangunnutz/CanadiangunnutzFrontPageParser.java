@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
@@ -44,8 +45,8 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static AsyncCompletionHandler<List<Cookie>> getEngCookiesHandler() {
-        return new AsyncCompletionHandler<List<Cookie>>() {
+    private static CompletionHandler<List<Cookie>> getEngCookiesHandler() {
+        return new CompletionHandler<List<Cookie>>() {
             @Override
             public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 return resp.getCookies();
@@ -69,7 +70,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         Future<List<Cookie>> futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, cookies, getEngCookiesHandler());
 
         return Observable.from(futureCookies).map(cookies::addAll).map(success -> {
-            return client.get("http://www.canadiangunnutz.com/forum/forum.php", cookies, new AsyncCompletionHandler<Set<WebPageEntity>>() {
+            return client.get("http://www.canadiangunnutz.com/forum/forum.php", cookies, new CompletionHandler<Set<WebPageEntity>>() {
                 @Override
                 public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                     HashSet<WebPageEntity> result = new HashSet<>();
@@ -106,7 +107,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                     return result;
                 }
             });
-        }).flatMap(Observable::from).flatMap(Observable::from).map(forumPage -> client.get(forumPage.getUrl(), cookies, new AsyncCompletionHandler<Set<WebPageEntity>>() {
+        }).flatMap(Observable::from).flatMap(Observable::from).map(forumPage -> client.get(forumPage.getUrl(), cookies, new CompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();

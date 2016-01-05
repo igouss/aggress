@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.corwinArms;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
@@ -35,7 +36,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
 
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
@@ -62,7 +63,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
 
         return Observable.from(future).
                         flatMap(Observable::from).
-                        flatMap(parent -> Observable.from(client.get(parent.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                        flatMap(parent -> Observable.from(client.get(parent.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
                             @Override
                             public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                                 HashSet<WebPageEntity> result = new HashSet<>();

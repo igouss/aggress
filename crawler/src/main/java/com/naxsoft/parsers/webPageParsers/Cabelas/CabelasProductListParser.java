@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.cabelas;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.ning.http.client.AsyncCompletionHandler;
@@ -56,7 +57,7 @@ public class CabelasProductListParser extends AbstractWebPageParser {
 
     public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
 
-        Future<Set<Document>> future = client.get(webPage.getUrl(), new AsyncCompletionHandler<Set<Document>>() {
+        Future<Set<Document>> future = client.get(webPage.getUrl(), new CompletionHandler<Set<Document>>() {
             @Override
             public Set<Document> onCompleted(Response resp) throws Exception {
                 HashSet<Document> result = new HashSet<>();

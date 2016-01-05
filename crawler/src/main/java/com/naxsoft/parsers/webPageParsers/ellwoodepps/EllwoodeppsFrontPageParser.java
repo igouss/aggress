@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.ellwoodepps;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
@@ -35,7 +36,7 @@ public class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("https://ellwoodepps.com/hunting/firearms.html?limit=100&no_cache=true", parent));
         return Observable.just(webPageEntities).
                 flatMap(Observable::from).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new AsyncCompletionHandler<Set<WebPageEntity>>() {
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
                     @Override
                     public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
                         HashSet<WebPageEntity> result = new HashSet<>();

@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.dantesports;
 
 import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
@@ -40,7 +41,7 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
         cookies.addAll(future.get());
 
 
-        Future<Set<WebPageEntity>> future2 = client.get(webPage.getUrl(), cookies, new AsyncCompletionHandler<Set<WebPageEntity>>() {
+        Future<Set<WebPageEntity>> future2 = client.get(webPage.getUrl(), cookies, new CompletionHandler<Set<WebPageEntity>>() {
             @Override
             public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 HashSet<WebPageEntity> result = new HashSet<>();
@@ -66,8 +67,8 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
         return Observable.from(future2);
     }
 
-    private static AsyncCompletionHandler<List<Cookie>> getEngCookiesHandler() {
-        return new AsyncCompletionHandler<List<Cookie>>() {
+    private static CompletionHandler<List<Cookie>> getEngCookiesHandler() {
+        return new CompletionHandler<List<Cookie>>() {
             @Override
             public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 return resp.getCookies();
