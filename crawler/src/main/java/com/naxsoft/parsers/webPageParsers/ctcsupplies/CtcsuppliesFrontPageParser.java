@@ -4,8 +4,6 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,9 +14,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
@@ -32,9 +27,41 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
-        Future<Set<WebPageEntity>> future = client.get("http://ctcsupplies.ca/collections/all", new Handler(parent));
-        return Observable.from(future);
+    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+        return Observable.create(subscriber -> {
+            client.get("http://ctcsupplies.ca/collections/all", new CompletionHandler<Void>() {
+                @Override
+                public Void onCompleted(Response resp) throws Exception {
+                    if (200 == resp.getStatusCode()) {
+                        Document document = Jsoup.parse(resp.getResponseBody(), resp.getUri().toString());
+                        Elements elements = document.select("ul.pagination-custom  a");
+                        int max = 0;
+                        for (Element element : elements) {
+                            try {
+                                int tmp = Integer.parseInt(element.text());
+                                if (tmp > max) {
+                                    max = tmp;
+                                }
+                            } catch (NumberFormatException ignored) {
+                                // ignore
+                            }
+                        }
+                        for (int i = 1; i <= max; i++) {
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setUrl("http://ctcsupplies.ca/collections/all?page=" + i);
+                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                            webPageEntity.setParsed(false);
+                            webPageEntity.setStatusCode(resp.getStatusCode());
+                            webPageEntity.setType("productList");
+                            logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), parent.getUrl());
+                            subscriber.onNext(webPageEntity);
+                        }
+                    }
+                    subscriber.onCompleted();
+                    return null;
+                }
+            });
+        });
     }
 
     @Override
@@ -42,44 +69,6 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://ctcsupplies.ca/") && webPage.getType().equals("frontPage");
     }
 
-    private class Handler extends CompletionHandler<Set<WebPageEntity>> {
 
-        private final WebPageEntity parent;
-
-        public Handler(WebPageEntity parent) {
-            this.parent = parent;
-        }
-
-        @Override
-        public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
-            HashSet<WebPageEntity> result = new HashSet<>();
-            if (200 == resp.getStatusCode()) {
-                Document document = Jsoup.parse(resp.getResponseBody(), resp.getUri().toString());
-                Elements elements = document.select("ul.pagination-custom  a");
-                int max = 0;
-                for (Element element : elements) {
-                    try {
-                        int tmp = Integer.parseInt(element.text());
-                        if (tmp > max) {
-                            max = tmp;
-                        }
-                    } catch (NumberFormatException ignored) {
-                        // ignore
-                    }
-                }
-                for (int i = 1; i <= max; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl("http://ctcsupplies.ca/collections/all?page=" + i);
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                    webPageEntity.setParsed(false);
-                    webPageEntity.setStatusCode(resp.getStatusCode());
-                    webPageEntity.setType("productList");
-                    logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), parent.getUrl());
-                    result.add(webPageEntity);
-                }
-            }
-            return result;
-        }
-    }
 }
 

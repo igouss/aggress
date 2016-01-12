@@ -4,8 +4,6 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -34,7 +32,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
 
         Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
             @Override
@@ -62,41 +60,45 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
         });
 
         return Observable.from(future).
-                        flatMap(Observable::from).
-                        flatMap(parent -> Observable.from(client.get(parent.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
-                            @Override
-                            public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
-                                HashSet<WebPageEntity> result = new HashSet<>();
-                                if (200 == resp.getStatusCode()) {
-                                    Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                                    Elements elements = document.select(".pager li.pager-current");
-                                    Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
-                                    if (matcher.find()) {
-                                        int max = Integer.parseInt(matcher.group(2));
-                                        for (int i = 1; i <= max; i++) {
-                                            WebPageEntity webPageEntity = new WebPageEntity();
-                                            webPageEntity.setUrl(parent.getUrl() + "?page=" + i);
-                                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                            webPageEntity.setParsed(false);
-                                            webPageEntity.setStatusCode(resp.getStatusCode());
-                                            webPageEntity.setType("productList");
-                                            logger.info("Product page listing={}", webPageEntity.getUrl());
-                                            result.add(webPageEntity);
-                                        }
-                                    } else {
+                flatMap(Observable::from).
+                flatMap(parent -> Observable.create(subscriber -> {
+                    client.get(parent.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
+                        @Override
+                        public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
+
+                            if (200 == resp.getStatusCode()) {
+                                Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
+                                Elements elements = document.select(".pager li.pager-current");
+                                Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
+                                if (matcher.find()) {
+                                    int max = Integer.parseInt(matcher.group(2));
+                                    for (int i = 1; i <= max; i++) {
                                         WebPageEntity webPageEntity = new WebPageEntity();
-                                        webPageEntity.setUrl(parent.getUrl());
+                                        webPageEntity.setUrl(parent.getUrl() + "?page=" + i);
                                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                         webPageEntity.setParsed(false);
                                         webPageEntity.setStatusCode(resp.getStatusCode());
                                         webPageEntity.setType("productList");
                                         logger.info("Product page listing={}", webPageEntity.getUrl());
-                                        result.add(webPageEntity);
+                                        subscriber.onNext(webPageEntity);
                                     }
+                                } else {
+                                    WebPageEntity webPageEntity = new WebPageEntity();
+                                    webPageEntity.setUrl(parent.getUrl());
+                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                    webPageEntity.setParsed(false);
+                                    webPageEntity.setStatusCode(resp.getStatusCode());
+                                    webPageEntity.setType("productList");
+                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    subscriber.onNext(webPageEntity);
                                 }
-                                return result;
                             }
-                        })));
+                            subscriber.onCompleted();
+                            return null;
+                        }
+                    });
+
+                }));
     }
 
     @Override

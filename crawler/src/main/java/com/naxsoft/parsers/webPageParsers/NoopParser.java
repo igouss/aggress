@@ -9,13 +9,11 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import rx.Observable;
 
-import java.util.Set;
-
 public class NoopParser extends AbstractWebPageParser {
     public NoopParser(AsyncFetchClient client) {
     }
 
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.empty();
     }
 

@@ -4,8 +4,6 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,36 +15,45 @@ import rx.Observable;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
  */
 public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(WholesalesportsFrontPageParser.class);
+    private final AsyncFetchClient client;
 
     public WholesalesportsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
+    private static WebPageEntity create(String url) {
+        WebPageEntity webPageEntity = new WebPageEntity();
+        webPageEntity.setUrl(url);
+        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+        webPageEntity.setParsed(false);
+        webPageEntity.setStatusCode(200);
+        webPageEntity.setType("productList");
+        return webPageEntity;
+    }
+
     @Override
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Firearms/c/firearms?viewPageSize=72", parent));
-        webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Reloading/c/reloading?viewPageSize=72", parent));
-        webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Ammunition/c/ammunition?viewPageSize=72", parent));
-        webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Firearm-%26-Ammunition-Storage/c/Firearm%20%26%20Ammunition%20Storage?viewPageSize=72", parent));
-        webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Optics/c/optics?viewPageSize=72", parent));
-        webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Firearm-Accessories/c/firearm-accessories?viewPageSize=72", parent));
-        webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Range-Accessories/c/range-accessories?viewPageSize=72", parent));
-        webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Black-Powder/c/black-powder?viewPageSize=72", parent));
-        return Observable.just(webPageEntities).
-                flatMap(Observable::from).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+        return Observable.create(subscriber -> {
+            HashSet<WebPageEntity> webPageEntities = new HashSet<>();
+            webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Firearms/c/firearms?viewPageSize=72"));
+            webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Reloading/c/reloading?viewPageSize=72"));
+            webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Ammunition/c/ammunition?viewPageSize=72"));
+            webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Firearm-%26-Ammunition-Storage/c/Firearm%20%26%20Ammunition%20Storage?viewPageSize=72"));
+            webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Optics/c/optics?viewPageSize=72"));
+            webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Firearm-Accessories/c/firearm-accessories?viewPageSize=72"));
+            webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Range-Accessories/c/range-accessories?viewPageSize=72"));
+            webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Black-Powder/c/black-powder?viewPageSize=72"));
+
+            for (WebPageEntity page : webPageEntities) {
+                client.get(page.getUrl(), new CompletionHandler<Void>() {
                     @Override
-                    public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
-                        HashSet<WebPageEntity> result = new HashSet<>();
+                    public Void onCompleted(Response resp) throws Exception {
                         if (200 == resp.getStatusCode()) {
                             Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
                             int max = 1;
@@ -70,22 +77,16 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setStatusCode(resp.getStatusCode());
                                 webPageEntity.setType("productList");
                                 logger.info("Product page listing={}", webPageEntity.getUrl());
-                                result.add(webPageEntity);
+                                subscriber.onNext(webPageEntity);
                             }
                         }
-                        return result;
+                        subscriber.onCompleted();
+                        return null;
                     }
-                })));
-    }
+                });
+            }
 
-    private static WebPageEntity create(String url, WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-        webPageEntity.setParsed(false);
-        webPageEntity.setStatusCode(200);
-        webPageEntity.setType("productList");
-        return webPageEntity;
+        });
     }
 
     @Override

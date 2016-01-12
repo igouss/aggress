@@ -40,7 +40,7 @@ public class ParseCommand implements Command {
 
     @Override
     public void run() throws CLIException {
-        processProducts(webPageService.getUnparsedProductPageRaw());
+        processProducts(webPageService.getUnparsedByType("productPageRaw"));
         indexProducts(productService.getProducts(), "product" + indexSuffix, "guns");
         productService.markAllAsIndexed();
         logger.info("Parsing complete");

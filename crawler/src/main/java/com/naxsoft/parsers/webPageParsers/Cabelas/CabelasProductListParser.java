@@ -4,7 +4,6 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,9 +14,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
@@ -55,59 +51,53 @@ public class CabelasProductListParser extends AbstractWebPageParser {
         return productPage;
     }
 
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-
-        Future<Set<Document>> future = client.get(webPage.getUrl(), new CompletionHandler<Set<Document>>() {
-            @Override
-            public Set<Document> onCompleted(Response resp) throws Exception {
-                HashSet<Document> result = new HashSet<>();
-                if (200 == resp.getStatusCode()) {
-                    webPage.setParsed(true);
-                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    result.add(document);
-                }
-                return result;
-            }
-        });
-        return Observable.from(future).map(documents -> {
-            HashSet<WebPageEntity> result = new HashSet<>();
-            for (Document document : documents) {
-                if (isTerminalSubcategory(document)) {
-                    if (document.baseUri().contains("pagenumber")) {
-                        Elements elements = document.select(".productCard-heading a");
-                        for (Element element : elements) {
-                            result.add(productPage(200, element.attr("abs:href")));
-                        }
-                    } else {
-                        Elements subPages = document.select("#main footer > nav span, #main footer > nav a");
-                        if (!subPages.isEmpty()) {
-                            int max = 1;
-                            for (Element subpage : subPages) {
-                                try {
-                                    int page = Integer.parseInt(subpage.text());
-                                    if (page > max) {
-                                        max = page;
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+        return Observable.create(subscriber -> {
+            client.get(webPage.getUrl(), new CompletionHandler<Void>() {
+                @Override
+                public Void onCompleted(Response resp) throws Exception {
+                    if (200 == resp.getStatusCode()) {
+                        webPage.setParsed(true);
+                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        if (isTerminalSubcategory(document)) {
+                            if (document.baseUri().contains("pagenumber")) {
+                                Elements elements = document.select(".productCard-heading a");
+                                for (Element element : elements) {
+                                    subscriber.onNext(productPage(200, element.attr("abs:href")));
+                                }
+                            } else {
+                                Elements subPages = document.select("#main footer > nav span, #main footer > nav a");
+                                if (!subPages.isEmpty()) {
+                                    int max = 1;
+                                    for (Element subpage : subPages) {
+                                        try {
+                                            int page = Integer.parseInt(subpage.text());
+                                            if (page > max) {
+                                                max = page;
+                                            }
+                                        } catch (Exception ignored) {
+                                            // ignore
+                                        }
                                     }
-                                } catch (Exception ignored) {
-                                    // ignore
+                                    for (int i = 1; i <= max; i++) {
+                                        subscriber.onNext(getProductList(webPage, 200, webPage.getUrl() + "?pagenumber=" + i));
+                                    }
+                                } else {
+                                    subscriber.onNext(getProductList(webPage, 200, webPage.getUrl() + "?pagenumber=" + 1));
                                 }
                             }
-                            for (int i = 1; i <= max; i++) {
-                                result.add(getProductList(webPage, 200, webPage.getUrl() + "?pagenumber=" + i));
-                            }
                         } else {
-                            result.add(getProductList(webPage, 200, webPage.getUrl() + "?pagenumber=" + 1));
+                            Elements subPages = document.select("#categories > ul > li > a");
+                            for (Element element : subPages) {
+                                WebPageEntity subCategoryPage = getProductList(webPage, 200, element.attr("abs:href"));
+                                subscriber.onNext(subCategoryPage);
+                            }
                         }
                     }
-                } else {
-                    Elements subPages = document.select("#categories > ul > li > a");
-                    for (Element element : subPages) {
-                        WebPageEntity subCategoryPage = getProductList(webPage, 200, element.attr("abs:href"));
-                        result.add(subCategoryPage);
-                    }
+                    subscriber.onCompleted();
+                    return null;
                 }
-            }
-            return result;
+            });
         });
     }
 

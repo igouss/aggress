@@ -4,8 +4,6 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.ning.http.client.AsyncCompletionHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,9 +13,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,37 +28,37 @@ public class DantesportsProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
-            @Override
-            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                HashSet<WebPageEntity> result = new HashSet<>();
-                if (200 == resp.getStatusCode()) {
-                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    Elements elements = document.select("#store div.listItem");
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+        return Observable.create(subscriber -> {
+            client.get(webPage.getUrl(), new CompletionHandler<Void>() {
+                @Override
+                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
+                    if (200 == resp.getStatusCode()) {
+                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Elements elements = document.select("#store div.listItem");
 
-                    for (Element element : elements) {
-                        String onclick = element.attr("onclick");
-                        Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
-                        if (matcher.find()) {
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl("https://shop.dantesports.com/items_detail.php?iid=" + matcher.group());
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productPage");
-                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
-                            result.add(webPageEntity);
-                        } else {
-                            logger.info("Product id not found: {}", webPage);
+                        for (Element element : elements) {
+                            String onclick = element.attr("onclick");
+                            Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
+                            if (matcher.find()) {
+                                WebPageEntity webPageEntity = new WebPageEntity();
+                                webPageEntity.setUrl("https://shop.dantesports.com/items_detail.php?iid=" + matcher.group());
+                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                webPageEntity.setParsed(false);
+                                webPageEntity.setStatusCode(resp.getStatusCode());
+                                webPageEntity.setType("productPage");
+                                logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
+                                subscriber.onNext(webPageEntity);
+                            } else {
+                                logger.info("Product id not found: {}", webPage);
+                            }
                         }
                     }
+                    subscriber.onCompleted();
+                    return null;
                 }
-                return result;
-            }
+            });
         });
-        return Observable.from(future);
-
     }
 
     @Override

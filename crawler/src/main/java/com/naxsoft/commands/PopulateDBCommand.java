@@ -10,17 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.util.Collection;
-
 /**
  * Copyright NAXSoft 2015
  */
 public class PopulateDBCommand implements Command {
     private final static Logger logger = LoggerFactory.getLogger(PopulateDBCommand.class);
-
-    private static WebPageService webPageService;
-    private static SourceService sourceService;
-
     private final static String[] sources = {
             "http://www.alflahertys.com/",
             "http://www.bullseyelondon.com/",
@@ -46,7 +40,10 @@ public class PopulateDBCommand implements Command {
             "https://www.wolverinesupplies.com/",
             "http://www.leverarms.com/",
             "http://gun-shop.ca/",
+            "https://shopquestar.com/",
     };
+    private static WebPageService webPageService;
+    private static SourceService sourceService;
 //    private static void populateSources() {
 //        Observable.from(sources).map(PopulateDBCommand::from)
 //                .retry(3)
@@ -56,7 +53,6 @@ public class PopulateDBCommand implements Command {
 
     private static void populateRoots() {
         Observable.from(sources).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
-                .toList()
                 .subscribe(PopulateDBCommand::save, ex -> logger.error("PopulateRoots Exception", ex));
     }
 
@@ -75,7 +71,7 @@ public class PopulateDBCommand implements Command {
         return rc;
     }
 
-    private static boolean save(Collection<WebPageEntity> webPageEntities) {
+    private static boolean save(WebPageEntity webPageEntities) {
         boolean rc = webPageService.save(webPageEntities);
         if (!rc) {
             logger.error("Failed to save webPageEntities");

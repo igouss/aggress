@@ -4,11 +4,7 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.naxsoft.utils.AppProperties;
-import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
-import com.ning.http.client.cookie.Cookie;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,10 +14,7 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.sql.Timestamp;
-import java.util.*;
-import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashSet;
 
 /**
  * Copyright NAXSoft 2015
@@ -46,7 +39,7 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/pistols.html?limit=all&stock_status=64", parent));
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/rifles.html?limit=all&stock_status=64", parent));
@@ -58,30 +51,31 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/sights-optics.html?limit=all&stock_status=64", parent));
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/consignment.html?limit=all&stock_status=64", parent));
         webPageEntities.add(create("", parent));
-        return Observable.just(webPageEntities).
-                flatMap(Observable::from).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
-                    @Override
-                    public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
-                        HashSet<WebPageEntity> result = new HashSet<>();
-                        if (200 == resp.getStatusCode()) {
-                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                            Elements elements = document.select(".products-grid .product-name > a");
+        return Observable.create(subscriber -> {
+            Observable.from(webPageEntities).
+                    flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
+                        @Override
+                        public Void onCompleted(Response resp) throws Exception {
+                            if (200 == resp.getStatusCode()) {
+                                Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
+                                Elements elements = document.select(".products-grid .product-name > a");
 
-                            for (Element el : elements) {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl(el.attr("abs:href"));
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setStatusCode(resp.getStatusCode());
-                                webPageEntity.setType("productPage");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
-                                result.add(webPageEntity);
+                                for (Element el : elements) {
+                                    WebPageEntity webPageEntity = new WebPageEntity();
+                                    webPageEntity.setUrl(el.attr("abs:href"));
+                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                    webPageEntity.setParsed(false);
+                                    webPageEntity.setStatusCode(resp.getStatusCode());
+                                    webPageEntity.setType("productPage");
+                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    subscriber.onNext(webPageEntity);
+                                }
                             }
+                            subscriber.onCompleted();
+                            return null;
                         }
-                        return result;
-                    }
-                })));
+                    })));
+        });
     }
 
     private static WebPageEntity create(String url, WebPageEntity parent) {

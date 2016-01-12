@@ -3,12 +3,10 @@ package com.naxsoft.parsers.webPageParsers.marstar;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import rx.Observable;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -21,13 +19,13 @@ public class MarstarFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=1", parent)); // firearms
         webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=3", parent)); // ammo
         webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=81526", parent)); // Firearms
 
-        return Observable.just(webPageEntities);
+        return Observable.from(webPageEntities);
     }
 
     private WebPageEntity create(String url, WebPageEntity parent) {

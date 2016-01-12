@@ -32,11 +32,13 @@ public class CrawlCommand implements Command {
 
     @Override
     public void run() throws CLIException {
-        process(webPageService.getUnparsedFrontPage());
-        process(webPageService.getUnparsedProductList());
-        process(webPageService.getUnparsedProductPage());
+        process(webPageService.getUnparsedByType("frontPage"));
+        process(webPageService.getUnparsedByType("productList"));
+        process(webPageService.getUnparsedByType("productPage"));
+        webPageService.getUnparsedCount("frontPage").subscribe(value -> logger.info("Unparsed frontPage = {}", value));
+        webPageService.getUnparsedCount("productList").subscribe(value -> logger.info("Unparsed productList = {}", value));
+        webPageService.getUnparsedCount("productPage").subscribe(value -> logger.info("Unparsed productPage = {}", value));
         logger.info("Fetch & parse complete");
-
     }
 
     @Override
@@ -48,7 +50,7 @@ public class CrawlCommand implements Command {
 
     private void process(Observable<WebPageEntity> pagesToParse) {
         pagesToParse.flatMap(pageToParse -> {
-            Observable<Set<WebPageEntity>> result = null;
+            Observable<WebPageEntity> result = null;
             try {
                 WebPageParser parser = webPageParserFactory.getParser(pageToParse);
                 Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));

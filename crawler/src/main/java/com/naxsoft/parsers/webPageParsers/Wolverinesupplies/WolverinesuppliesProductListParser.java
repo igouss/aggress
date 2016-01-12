@@ -4,8 +4,7 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
-import com.ning.http.client.AsyncCompletionHandler;
+import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,9 +14,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,62 +25,65 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
-            @Override
-            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                HashSet<WebPageEntity> result = new HashSet<>();
-                if (200 == resp.getStatusCode()) {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+        Observable<WebPageEntity> tmp = Observable.create(subscriber -> {
+            client.get(webPage.getUrl(), new CompletionHandler<Void>() {
+                @Override
+                public Void onCompleted(Response resp) throws Exception {
+                    if (200 == resp.getStatusCode()) {
 
-                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    Elements elements = document.select("div[ng-init]");
+                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Elements elements = document.select("div[ng-init]");
 
-                    for (Element e : elements) {
-                        String linkUrl = e.attr("ng-init");
-                        Matcher categoryMatcher = Pattern.compile("\'\\d+\'").matcher(linkUrl);
+                        for (Element e : elements) {
+                            String linkUrl = e.attr("ng-init");
+                            Matcher categoryMatcher = Pattern.compile("\'\\d+\'").matcher(linkUrl);
 
-                        if (categoryMatcher.find()) {
-                            String productCategory = categoryMatcher.group();
-                            String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setType("tmp");
-                            webPageEntity.setUrl(productDetailsUrl);
-                            result.add(webPageEntity);
+                            if (categoryMatcher.find()) {
+                                String productCategory = categoryMatcher.group();
+                                String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
+                                WebPageEntity webPageEntity = new WebPageEntity();
+                                webPageEntity.setType("tmp");
+                                webPageEntity.setUrl(productDetailsUrl);
+                                subscriber.onNext(webPageEntity);
+                            }
                         }
                     }
+                    subscriber.onCompleted();
+                    return null;
                 }
-                return result;
-            }
+            });
         });
-
-        return Observable.from(future).flatMap(Observable::from).map(this::getItemsData).flatMap(Observable::from);
+        return tmp.flatMap(page -> getItemsData(page));
     }
 
-    private Future<Set<WebPageEntity>> getItemsData(WebPageEntity parent) {
-        return client.get(parent.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
-            @Override
-            public Set<WebPageEntity> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                HashSet<WebPageEntity> result = new HashSet<>();
+    private Observable<WebPageEntity> getItemsData(WebPageEntity parent) {
+        return Observable.create(subscriber -> {
+            client.get(parent.getUrl(), new CompletionHandler<Void>() {
+                @Override
+                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
 
-                String productDetailsJson = resp.getResponseBody();
-                Matcher itemNumberMatcher = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"").matcher(productDetailsJson);
-                StringBuilder sb = new StringBuilder();
+                    String productDetailsJson = resp.getResponseBody();
+                    Matcher itemNumberMatcher = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"").matcher(productDetailsJson);
+                    StringBuilder sb = new StringBuilder();
 
-                while (itemNumberMatcher.find()) {
-                    sb.append(itemNumberMatcher.group(1));
-                    sb.append(',');
+                    while (itemNumberMatcher.find()) {
+                        sb.append(itemNumberMatcher.group(1));
+                        sb.append(',');
+                    }
+
+                    if (0 != sb.length()) {
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setType("productPage");
+                        logger.info("productPage={}", webPageEntity.getUrl());
+                        subscriber.onNext(webPageEntity);
+                    }
+                    subscriber.onCompleted();
+                    return null;
                 }
-
-                if (0 != sb.length()) {
-                    WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                    webPageEntity.setType("productPage");
-                    logger.info("productPage={}", webPageEntity.getUrl());
-                    result.add(webPageEntity);
-                }
-                return result;
-            }
+            });
         });
     }
 

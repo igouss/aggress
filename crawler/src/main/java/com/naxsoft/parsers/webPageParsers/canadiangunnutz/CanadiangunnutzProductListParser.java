@@ -5,7 +5,6 @@ import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.utils.AppProperties;
-import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 import com.ning.http.client.cookie.Cookie;
@@ -18,7 +17,10 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Copyright NAXSoft 2015
@@ -58,47 +60,49 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<Set<WebPageEntity>> parse(WebPageEntity webPage) throws Exception {
-        if (null == cookies || cookies.isEmpty()) {
-            logger.warn("No login cookies");
-            return Observable.empty();
-        }
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+        return Observable.create(subscriber -> {
+            if (null == cookies || cookies.isEmpty()) {
+                logger.warn("No login cookies");
+                subscriber.onCompleted();
+                return;
+            }
 
-        return Observable.from(client.get(webPage.getUrl(), cookies, new CompletionHandler<Set<WebPageEntity>>() {
-            @Override
-            public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
-                HashSet<WebPageEntity> result = new HashSet<>();
-                if (200 == resp.getStatusCode()) {
-                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    Elements elements = document.select("#threads .threadtitle");
-                    if (elements.isEmpty()) {
-                        logger.error("No results on page");
-                    }
-                    for (Element element : elements) {
-                        Elements select = element.select(".prefix");
-                        if (!select.isEmpty()) {
-                            if (select.first().text().contains("WTS")) {
-                                element = element.select("a.title").first();
-                                if (!element.text().toLowerCase().contains("remove")) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setUrl(element.attr("abs:href"));
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPageEntity.setParsed(false);
-                                    webPageEntity.setType("productPage");
-                                    webPageEntity.setStatusCode(resp.getStatusCode());
-                                    logger.info("productPage={}", webPageEntity.getUrl());
-                                    result.add(webPageEntity);
+            client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
+                @Override
+                public Void onCompleted(Response resp) throws Exception {
+                    if (200 == resp.getStatusCode()) {
+                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Elements elements = document.select("#threads .threadtitle");
+                        if (elements.isEmpty()) {
+                            logger.error("No results on page");
+                        }
+                        for (Element element : elements) {
+                            Elements select = element.select(".prefix");
+                            if (!select.isEmpty()) {
+                                if (select.first().text().contains("WTS")) {
+                                    element = element.select("a.title").first();
+                                    if (!element.text().toLowerCase().contains("remove")) {
+                                        WebPageEntity webPageEntity = new WebPageEntity();
+                                        webPageEntity.setUrl(element.attr("abs:href"));
+                                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                        webPageEntity.setParsed(false);
+                                        webPageEntity.setType("productPage");
+                                        webPageEntity.setStatusCode(resp.getStatusCode());
+                                        logger.info("productPage={}", webPageEntity.getUrl());
+                                        subscriber.onNext(webPageEntity);
+                                    }
                                 }
                             }
                         }
+                    } else {
+                        logger.error("Failed to load page {}", webPage.getUrl());
                     }
-                } else {
-                    logger.error("Failed to load page {}", webPage.getUrl());
+                    subscriber.onCompleted();
+                    return null;
                 }
-                return result;
-            }
-        }));
-
+            });
+        });
     }
 
     @Override

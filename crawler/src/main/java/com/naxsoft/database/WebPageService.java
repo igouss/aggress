@@ -8,12 +8,11 @@ package com.naxsoft.database;
 import com.naxsoft.entity.WebPageEntity;
 import org.hibernate.Query;
 import org.hibernate.exception.ConstraintViolationException;
-import org.hibernate.mapping.PrimaryKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.util.Collection;
+import static java.lang.System.out;
 
 public class WebPageService {
     private final static Logger logger = LoggerFactory.getLogger(WebPageService.class);
@@ -25,15 +24,12 @@ public class WebPageService {
         observableQuery = new ObservableQuery<>(database);
     }
 
-    public boolean save(Collection<WebPageEntity> webPageEntitySet) {
+    public boolean save(WebPageEntity webPageEntity) {
         Boolean rc = false;
         try {
             rc = AsyncTransaction.execute(database, session -> {
-                int i = 0;
-                for (WebPageEntity webPageEntity : webPageEntitySet) {
-                    logger.debug("Saving {}", webPageEntity);
-                    session.insert(webPageEntity);
-                }
+                logger.debug("Saving {}", webPageEntity);
+                session.insert(webPageEntity);
                 return true;
             });
         } catch (ConstraintViolationException ex) {
@@ -78,7 +74,7 @@ public class WebPageService {
                     } else {
                         subscriber.onCompleted();
                     }
-                } while (0 != rc && !subscriber.isUnsubscribed());
+                } while ((0L != rc) && !subscriber.isUnsubscribed());
             } catch (Exception e) {
                 if (!subscriber.isUnsubscribed()) {
                     subscriber.onError(e);
@@ -87,28 +83,10 @@ public class WebPageService {
         });
     }
 
-    public Observable<WebPageEntity> getUnparsedProductList() {
-        final String queryString = "from WebPageEntity where type = 'productList' and parsed = false order by rand()";
-        return executeQuery(queryString, "productList");
-    }
-
-    public Observable<WebPageEntity> getUnparsedProductPage() {
-        final String queryString = "from WebPageEntity where type = 'productPage' and parsed = false order by rand()";
-        return executeQuery(queryString, "productPage");
-    }
-
-    public Observable<WebPageEntity> getUnparsedProductPageRaw() {
-        final String queryString = "from WebPageEntity where type = 'productPageRaw' and parsed = false order by rand()";
-        return executeQuery(queryString, "productPageRaw");
-    }
-
-    public Observable<WebPageEntity> getUnparsedFrontPage() {
-        final String queryString = "from WebPageEntity where type = 'frontPage' and parsed = false order by rand()";
-        return executeQuery(queryString, "frontPage");
-    }
-
-    private Observable<WebPageEntity> executeQuery(String query, String condColumn) {
-        return getUnparsedCount(condColumn)
+    public Observable<WebPageEntity> getUnparsedByType(String type) {
+        final String query = "from WebPageEntity where type = '" + type + "' and parsed = false order by rand()";
+        return getUnparsedCount(type)
+                .doOnNext(value -> out.println("Found " + value + " unparsed webpages of type " + type))
                 .doOnError(ex -> logger.error("Exception", ex))
                 .flatMap(count -> observableQuery.execute(query));
     }
