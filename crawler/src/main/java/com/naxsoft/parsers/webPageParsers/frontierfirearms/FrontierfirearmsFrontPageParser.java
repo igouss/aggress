@@ -28,7 +28,7 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://frontierfirearms.ca/firearms.html", parent));
         webPageEntities.add(create("http://frontierfirearms.ca/ammunition-reloading.html", parent));

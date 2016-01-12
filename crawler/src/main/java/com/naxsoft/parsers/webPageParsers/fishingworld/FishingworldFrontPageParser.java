@@ -39,7 +39,7 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("https://fishingworld.ca/hunting/66-guns", parent));
         webPageEntities.add(create("https://fishingworld.ca/hunting/67-ammunition", parent));

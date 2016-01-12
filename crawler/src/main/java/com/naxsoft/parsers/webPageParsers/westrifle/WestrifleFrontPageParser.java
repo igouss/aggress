@@ -27,7 +27,7 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://westrifle.com/wrstore/index.php?main_page=products_all&disp_order=1", parent));
         return Observable.create(subscriber -> {

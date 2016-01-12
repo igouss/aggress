@@ -16,51 +16,16 @@ import rx.Observable;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
  */
 public class DantesportsFrontPageParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
+    private final AsyncFetchClient client;
 
     public DantesportsFrontPageParser(AsyncFetchClient client) {
         this.client = client;
-    }
-
-    @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
-        List<Cookie> cookies = new LinkedList<>();
-
-        Future<List<Cookie>> future = client.get("https://shop.dantesports.com/set_lang.php?lang=EN", cookies, getEngCookiesHandler(), false);
-        cookies.addAll(future.get());
-
-        return Observable.create(subscriber -> {
-            client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select("#scol1 > div.scell_menu > li > a");
-
-                        for (Element element : elements) {
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(element.attr("abs:href") + "&paging=0");
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productList");
-                            logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
-                            subscriber.onNext(webPageEntity);
-                        }
-
-                    }
-                    subscriber.onCompleted();
-                    return null;
-                }
-            });
-        });
     }
 
     private static CompletionHandler<List<Cookie>> getEngCookiesHandler() {
@@ -68,9 +33,38 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
             @Override
             public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
                 return resp.getCookies();
-
             }
         };
+    }
+
+    @Override
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+        return Observable.create(subscriber -> {
+            Observable.from(client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getEngCookiesHandler(), false)).subscribe(cookies -> {
+                client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
+                    @Override
+                    public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
+                        if (200 == resp.getStatusCode()) {
+                            Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                            Elements elements = document.select("#scol1 > div.scell_menu > li > a");
+
+                            for (Element element : elements) {
+                                WebPageEntity webPageEntity = new WebPageEntity();
+                                webPageEntity.setUrl(element.attr("abs:href") + "&paging=0");
+                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                webPageEntity.setParsed(false);
+                                webPageEntity.setStatusCode(resp.getStatusCode());
+                                webPageEntity.setType("productList");
+                                logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                                subscriber.onNext(webPageEntity);
+                            }
+                        }
+                        subscriber.onCompleted();
+                        return null;
+                    }
+                });
+            });
+        });
     }
 
     @Override

@@ -32,7 +32,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
 
         Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new CompletionHandler<Set<WebPageEntity>>() {
             @Override

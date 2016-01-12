@@ -30,7 +30,7 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://www.wanstallsonline.com/firearms/", parent));
         return Observable.create(subscriber -> {

@@ -22,7 +22,7 @@ public class BullseyelondonProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.create(subscriber -> {
             client.get(webPage.getUrl(), new CompletionHandler<Void>() {
                 @Override

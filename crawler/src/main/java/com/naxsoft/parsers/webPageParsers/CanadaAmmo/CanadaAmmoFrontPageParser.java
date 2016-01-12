@@ -29,7 +29,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.create(subscriber -> client.get(webPage.getUrl(), new CompletionHandler<Void>() {
             @Override
             public Void onCompleted(com.ning.http.client.Response resp) throws Exception {

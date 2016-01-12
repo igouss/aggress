@@ -27,7 +27,7 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return Observable.create(subscriber -> {
             client.get("http://ctcsupplies.ca/collections/all", new CompletionHandler<Void>() {
                 @Override

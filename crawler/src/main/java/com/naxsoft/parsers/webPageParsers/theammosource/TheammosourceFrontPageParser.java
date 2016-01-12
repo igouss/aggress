@@ -28,7 +28,7 @@ public class TheammosourceFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=1", parent)); // Ammo
         webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=2", parent)); // FIREARMS

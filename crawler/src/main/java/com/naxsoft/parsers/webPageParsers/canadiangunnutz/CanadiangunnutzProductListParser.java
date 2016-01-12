@@ -60,7 +60,7 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.create(subscriber -> {
             if (null == cookies || cookies.isEmpty()) {
                 logger.warn("No login cookies");

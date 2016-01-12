@@ -27,7 +27,7 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return Observable.create(subscriber -> {
             client.get("http://www.alflahertys.com/collections/all/", new CompletionHandler<Void>() {
                 @Override

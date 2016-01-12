@@ -38,7 +38,7 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return Observable.create(subscriber -> {
             HashSet<WebPageEntity> webPageEntities = new HashSet<>();
             webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Firearms/c/firearms?viewPageSize=72"));

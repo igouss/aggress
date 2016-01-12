@@ -38,7 +38,7 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://www.sail.ca/en/hunting/firearms", parent));
 //        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearm-accessories", parent));

@@ -29,7 +29,7 @@ public class CrafmProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.create(subscriber -> {
             client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
                 @Override

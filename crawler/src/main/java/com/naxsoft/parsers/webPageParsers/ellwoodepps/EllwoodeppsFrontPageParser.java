@@ -28,7 +28,7 @@ public class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("https://ellwoodepps.com/hunting/firearms.html?limit=100&no_cache=true", parent));
 

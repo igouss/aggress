@@ -26,7 +26,7 @@ public class IrungunsFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.create(subscriber -> {
             client.get("https://www.irunguns.us/product_categories.php", new CompletionHandler<Void>() {
                 @Override

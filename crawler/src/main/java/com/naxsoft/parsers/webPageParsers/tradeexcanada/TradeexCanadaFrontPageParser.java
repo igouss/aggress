@@ -28,7 +28,7 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("https://www.tradeexcanada.com/products_list", parent));
         return Observable.create(subscriber -> {

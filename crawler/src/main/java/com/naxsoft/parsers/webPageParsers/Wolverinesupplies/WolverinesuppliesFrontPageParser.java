@@ -15,14 +15,14 @@ import rx.Observable;
 import java.sql.Timestamp;
 
 public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesFrontPageParser.class);
+    private final AsyncFetchClient client;
 
     public WolverinesuppliesFrontPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.create(subscriber -> {
             client.get(webPage.getUrl(), new CompletionHandler<Void>() {
                 @Override

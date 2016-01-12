@@ -26,7 +26,7 @@ public class CrafmFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.create(subscriber -> {
             client.get("http://www.crafm.com/firearms.html?limit=all", new CompletionHandler<Void>() {
                 @Override

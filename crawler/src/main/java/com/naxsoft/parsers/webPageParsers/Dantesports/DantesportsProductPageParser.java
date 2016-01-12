@@ -33,7 +33,7 @@ public class DantesportsProductPageParser extends AbstractWebPageParser {
         };
     }
 
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity webPage)  {
         return Observable.create(subscriber -> {
             Observable.from(client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getEngCookiesHandler(), false)).subscribe(cookies -> {
                 client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {

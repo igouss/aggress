@@ -28,7 +28,7 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) throws Exception {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         if (parent.getUrl().equals("http://www.hical.ca/")) {
             webPageEntities.add(create("http://www.hical.ca/new-category/", parent));
