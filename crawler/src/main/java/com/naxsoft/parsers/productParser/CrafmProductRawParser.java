@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class CrafmProductRawParser extends AbstractRawPageParser implements ProductParser {
+public class CrafmProductRawParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CrafmProductRawParser.class);
 
     @Override

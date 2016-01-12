@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class WholesalesportsProductRawPageParser extends AbstractRawPageParser implements ProductParser {
+public class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(WholesalesportsProductRawPageParser.class);
 
     @Override

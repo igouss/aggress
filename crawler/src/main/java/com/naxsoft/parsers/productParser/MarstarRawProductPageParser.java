@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class MarstarRawProductPageParser extends AbstractRawPageParser implements ProductParser {
+public class MarstarRawProductPageParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(MarstarRawProductPageParser.class);
 
     @Override

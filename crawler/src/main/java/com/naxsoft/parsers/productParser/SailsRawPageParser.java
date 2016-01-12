@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class SailsRawPageParser extends AbstractRawPageParser  implements ProductParser {
+public class SailsRawPageParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(SailsRawPageParser.class);
 
     @Override

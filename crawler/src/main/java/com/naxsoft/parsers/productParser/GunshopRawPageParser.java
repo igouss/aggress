@@ -18,8 +18,8 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class GunshopRawPageParser extends AbstractRawPageParser implements ProductParser {
-    private static final Logger logger = LoggerFactory.getLogger(FrontierfirearmsRawPageParser.class);
+public class GunshopRawPageParser extends AbstractRawPageParser {
+    private static final Logger logger = LoggerFactory.getLogger(GunshopRawPageParser.class);
 
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
@@ -55,7 +55,6 @@ public class GunshopRawPageParser extends AbstractRawPageParser implements Produ
             jsonBuilder.field("specialPrice", parsePrice(specialPrice));
             jsonBuilder.field("regularPrice", parsePrice(document.select(".price .amount").text()));
         }
-
 
 
         jsonBuilder.field("description", document.select(".tagged_as a").text());

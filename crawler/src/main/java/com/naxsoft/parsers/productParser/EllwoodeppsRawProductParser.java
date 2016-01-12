@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class EllwoodeppsRawProductParser extends AbstractRawPageParser implements ProductParser {
+public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(EllwoodeppsRawProductParser.class);
 
     @Override

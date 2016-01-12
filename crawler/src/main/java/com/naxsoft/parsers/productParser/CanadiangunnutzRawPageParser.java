@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadiangunnutzRawPageParser extends AbstractRawPageParser implements ProductParser {
+public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzRawPageParser.class);
 
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -53,7 +53,7 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser implemen
                 }
             } else {
                 images = document.select(".content img.attach");
-                if (!images.isEmpty()){
+                if (!images.isEmpty()) {
                     jsonBuilder.field("productImage", images.first().attr("abs:src"));
                 }
             }

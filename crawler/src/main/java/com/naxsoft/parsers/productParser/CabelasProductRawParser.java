@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class CabelasProductRawParser extends AbstractRawPageParser implements ProductParser {
+public class CabelasProductRawParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CabelasProductRawParser.class);
 
     @Override

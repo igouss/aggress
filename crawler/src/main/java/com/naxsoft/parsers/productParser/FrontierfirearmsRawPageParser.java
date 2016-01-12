@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class FrontierfirearmsRawPageParser extends AbstractRawPageParser implements ProductParser {
+public class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(FrontierfirearmsRawPageParser.class);
 
     private static String parsePrice(String price) {
