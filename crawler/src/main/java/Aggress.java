@@ -12,7 +12,7 @@ import com.naxsoft.commands.CleanDBCommand;
 import com.naxsoft.commands.CrawlCommand;
 import com.naxsoft.commands.ParseCommand;
 import com.naxsoft.commands.PopulateDBCommand;
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.AsyncFetchClientImpl;
 import com.naxsoft.database.*;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
@@ -38,12 +38,16 @@ import static java.lang.System.setProperty;
 public class Aggress {
     private static final Logger logger = LoggerFactory.getLogger(Aggress.class);
 
-    private static MetricRegistry metrics;
-    private static Database db;
-    private static Elastic elastic;
-    private static ScheduledReporter elasticReporter;
 
     public static void main(String[] args) throws IOException {
+        final MetricRegistry metrics = new MetricRegistry();
+        final Database db = new Database();
+        final Elastic elastic = new Elastic("localhost", 9300);
+        final ScheduledReporter elasticReporter = Slf4jReporter.forRegistry(metrics).outputTo(logger).build();
+
+        AsyncFetchClientImpl asyncFetchClient = null;
+
+
         ExecutionContext context = new ExecutionContext();
         OptionParser parser = new OptionParser();
         parser.accepts("help");
@@ -60,24 +64,17 @@ public class Aggress {
         }
 
         context.setOptions(options);
-
-        db = new Database();
         context.setDb(db);
-
-        metrics = new MetricRegistry();
         context.setMetrics(metrics);
-
-        elastic = new Elastic("localhost", 9300);
         context.setElastic(elastic);
 
-        elasticReporter = Slf4jReporter.forRegistry(metrics).outputTo(logger)
-                .build();
 //            elasticReporter = ElasticsearchReporter.forRegistry(metrics)
 //                    .hosts("localhost:9300")
 //                    .build();
 //            elasticReporter.start(1, TimeUnit.SECONDS);
 
-        SSLContext sc;
+
+
         try {
             // Create a trust manager that does not validate certificate chains
             TrustManager[] trustAllCerts = new TrustManager[]{
@@ -101,7 +98,7 @@ public class Aggress {
             };
             // Install the all-trusting trust manager
 
-            sc = SSLContext.getInstance("SSL");
+            SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
@@ -111,12 +108,8 @@ public class Aggress {
             AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
             builder.setAcceptAnyCertificate(true);
             instance.getSSLContext(builder.build()).init(null, trustAllCerts, new java.security.SecureRandom());
-        } catch (java.security.GeneralSecurityException e) {
-            logger.error("Failed to initialize trust manager", e);
-            return;
-        }
+            asyncFetchClient = new AsyncFetchClientImpl(sc);
 
-        try (AsyncFetchClient asyncFetchClient = new AsyncFetchClient(sc)) {
             context.setProductParserFactory(new ProductParserFactory());
             context.setWebPageParserFactory(new WebPageParserFactory(asyncFetchClient));
             setProperty("jsse.enableSNIExtension", "false");
@@ -199,6 +192,9 @@ public class Aggress {
             }
             if (null != elastic) {
                 elastic.close();
+            }
+            if (null != asyncFetchClient) {
+                asyncFetchClient.close();
             }
         }
     }

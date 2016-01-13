@@ -8,7 +8,6 @@ package com.naxsoft.database;
 import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.ProductEntity;
-import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.ListenableActionFuture;
