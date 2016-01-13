@@ -30,10 +30,10 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://frontierfirearms.ca/firearms.html", parent));
-        webPageEntities.add(create("http://frontierfirearms.ca/ammunition-reloading.html", parent));
-        webPageEntities.add(create("http://frontierfirearms.ca/shooting-accessories.html", parent));
-        webPageEntities.add(create("http://frontierfirearms.ca/optics.html", parent));
+        webPageEntities.add(create("http://frontierfirearms.ca/firearms.html"));
+        webPageEntities.add(create("http://frontierfirearms.ca/ammunition-reloading.html"));
+        webPageEntities.add(create("http://frontierfirearms.ca/shooting-accessories.html"));
+        webPageEntities.add(create("http://frontierfirearms.ca/optics.html"));
         return Observable.create(subscriber -> {
             Observable.from(webPageEntities).
                     flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
@@ -70,7 +70,7 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         });
     }
 
-    private static WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

@@ -30,7 +30,7 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("https://www.tradeexcanada.com/products_list", parent));
+        webPageEntities.add(create("https://www.tradeexcanada.com/products_list"));
         return Observable.create(subscriber -> {
             Observable.from(webPageEntities).
                     flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
@@ -57,7 +57,7 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
         });
     }
 
-    private static WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

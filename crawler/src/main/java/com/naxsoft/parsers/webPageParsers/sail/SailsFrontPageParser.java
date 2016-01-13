@@ -40,7 +40,7 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearms", parent));
+        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearms"));
 //        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearm-accessories", parent));
 //        webPageEntities.add(create("http://www.sail.ca/en/hunting/ammunition", parent));
         return Observable.create(subscriber -> {
@@ -70,7 +70,7 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
         });
     }
 
-    private static WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

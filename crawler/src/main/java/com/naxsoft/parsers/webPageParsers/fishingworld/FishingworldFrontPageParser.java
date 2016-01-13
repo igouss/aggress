@@ -28,7 +28,7 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
@@ -41,12 +41,12 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("https://fishingworld.ca/hunting/66-guns", parent));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/67-ammunition", parent));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/66-guns", parent));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/146-optics", parent));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/144-shooting-accesories", parent));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/185-tree-stands", parent));
+        webPageEntities.add(create("https://fishingworld.ca/hunting/66-guns"));
+        webPageEntities.add(create("https://fishingworld.ca/hunting/67-ammunition"));
+        webPageEntities.add(create("https://fishingworld.ca/hunting/66-guns"));
+        webPageEntities.add(create("https://fishingworld.ca/hunting/146-optics"));
+        webPageEntities.add(create("https://fishingworld.ca/hunting/144-shooting-accesories"));
+        webPageEntities.add(create("https://fishingworld.ca/hunting/185-tree-stands"));
         return Observable.create(subscriber -> {
             Observable.from(webPageEntities).
                     flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {

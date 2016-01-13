@@ -42,21 +42,12 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
         formParameters.put("vb_login_md5password", "");
         formParameters.put("vb_login_md5password_utf", "");
 
-        ListenableFuture<List<Cookie>> futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getEngCookiesHandler());
+        ListenableFuture<List<Cookie>> futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
         try {
             cookies = futureCookies.get();
         } catch (Exception e) {
             logger.error("Failed to login to canadiangunnutz", e);
         }
-    }
-
-    private static CompletionHandler<List<Cookie>> getEngCookiesHandler() {
-        return new CompletionHandler<List<Cookie>>() {
-            @Override
-            public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                return resp.getCookies();
-            }
-        };
     }
 
     @Override

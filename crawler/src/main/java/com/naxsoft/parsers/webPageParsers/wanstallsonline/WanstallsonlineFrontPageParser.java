@@ -32,7 +32,7 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.wanstallsonline.com/firearms/", parent));
+        webPageEntities.add(create("http://www.wanstallsonline.com/firearms/"));
         return Observable.create(subscriber -> {
             Observable.from(webPageEntities).
                     flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
@@ -78,7 +78,7 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
         });
     }
 
-    private static WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

@@ -45,14 +45,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static CompletionHandler<List<Cookie>> getEngCookiesHandler() {
-        return new CompletionHandler<List<Cookie>>() {
-            @Override
-            public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                return resp.getCookies();
-            }
-        };
-    }
+
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
@@ -67,7 +60,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         formParameters.put("vb_login_md5password_utf", "");
 
         try {
-            List<Cookie> cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getEngCookiesHandler()).get();
+            List<Cookie> cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).get();
             Observable<WebPageEntity> productList = Observable.create(subscriber -> {
                 client.get("http://www.canadiangunnutz.com/forum/forum.php", cookies, new CompletionHandler<Void>() {
                     @Override

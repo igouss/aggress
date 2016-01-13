@@ -21,14 +21,14 @@ public class MarstarFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=1", parent)); // firearms
-        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=3", parent)); // ammo
-        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=81526", parent)); // Firearms
+        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=1")); // firearms
+        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=3")); // ammo
+        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=81526")); // Firearms
 
         return Observable.from(webPageEntities);
     }
 
-    private WebPageEntity create(String url, WebPageEntity parent) {
+    private WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

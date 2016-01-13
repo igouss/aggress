@@ -48,9 +48,9 @@ public class TradeexCanadaProductListParser extends AbstractWebPageParser {
                         } else {
                             Elements subPages = document.select(".pager a");
                             for (Element subPage : subPages) {
-                                subscriber.onNext(create(subPage.attr("abs:href"), parent));
+                                subscriber.onNext(create(subPage.attr("abs:href")));
                             }
-                            subscriber.onNext(create(parent.getUrl() + "?page=0", parent));
+                            subscriber.onNext(create(parent.getUrl() + "?page=0"));
                         }
                     }
                     subscriber.onCompleted();
@@ -60,7 +60,7 @@ public class TradeexCanadaProductListParser extends AbstractWebPageParser {
         });
     }
 
-    private static WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

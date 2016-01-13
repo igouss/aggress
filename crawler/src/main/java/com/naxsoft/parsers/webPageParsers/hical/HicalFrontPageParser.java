@@ -31,13 +31,13 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         if (parent.getUrl().equals("http://www.hical.ca/")) {
-            webPageEntities.add(create("http://www.hical.ca/new-category/", parent));
-            webPageEntities.add(create("http://www.hical.ca/firearm-accessories/", parent));
-            webPageEntities.add(create("http://www.hical.ca/magazines/", parent));
-            webPageEntities.add(create("http://www.hical.ca/stocks/", parent));
-            webPageEntities.add(create("http://www.hical.ca/tools/", parent));
-            webPageEntities.add(create("http://www.hical.ca/sights-optics/", parent));
-            webPageEntities.add(create("http://www.hical.ca/soft-goods/", parent));
+            webPageEntities.add(create("http://www.hical.ca/new-category/"));
+            webPageEntities.add(create("http://www.hical.ca/firearm-accessories/"));
+            webPageEntities.add(create("http://www.hical.ca/magazines/"));
+            webPageEntities.add(create("http://www.hical.ca/stocks/"));
+            webPageEntities.add(create("http://www.hical.ca/tools/"));
+            webPageEntities.add(create("http://www.hical.ca/sights-optics/"));
+            webPageEntities.add(create("http://www.hical.ca/soft-goods/"));
         } else {
             webPageEntities.add(parent);
         }
@@ -94,7 +94,7 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
         });
     }
 
-    private static WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));

@@ -28,19 +28,11 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static CompletionHandler<List<Cookie>> getEngCookiesHandler() {
-        return new CompletionHandler<List<Cookie>>() {
-            @Override
-            public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
-                return resp.getCookies();
-            }
-        };
-    }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.create(subscriber -> {
-            Observable.from(client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getEngCookiesHandler(), false)).subscribe(cookies -> {
+            Observable.from(client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false)).subscribe(cookies -> {
                 client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
                     @Override
                     public Void onCompleted(com.ning.http.client.Response resp) throws Exception {

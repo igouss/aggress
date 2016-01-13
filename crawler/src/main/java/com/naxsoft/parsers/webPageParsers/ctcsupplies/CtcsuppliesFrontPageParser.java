@@ -53,7 +53,7 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
                             webPageEntity.setParsed(false);
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productList");
-                            logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), parent.getUrl());
+                            logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), resp.getUri());
                             subscriber.onNext(webPageEntity);
                         }
                     }
