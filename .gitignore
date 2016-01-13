@@ -113,3 +113,6 @@ aggress.*.db
 
 *.st
 *.lock
+
+# junit optomization
+maxCore
