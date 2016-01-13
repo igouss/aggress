@@ -5,3 +5,8 @@
 canadiangunnutzLogin=
 canadiangunnutzPassword=
 ```
+
+2) Import startssl certificates
+crawler\src\main\resources\startssl-java-master\run.bat
+or
+crawler/src/main/resources/startssl-java-master/run.sh
