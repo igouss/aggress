@@ -27,7 +27,7 @@ public class WebPageService {
     public boolean save(WebPageEntity webPageEntity) {
         Boolean rc = false;
         try {
-            rc = AsyncTransaction.execute(database, session -> {
+            rc = Transaction.execute(database, session -> {
                 logger.debug("Saving {}", webPageEntity);
                 session.insert(webPageEntity);
                 return true;
@@ -42,7 +42,7 @@ public class WebPageService {
         if (0 == webPageEntity.getId()) {
             return 0;
         }
-        return AsyncTransaction.execute(database, session -> {
+        return Transaction.execute(database, session -> {
             Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
             return query.setInteger("id", webPageEntity.getId()).executeUpdate();
         });
@@ -59,7 +59,7 @@ public class WebPageService {
             Long rc = 0L;
             try {
                 do {
-                    rc = AsyncTransaction.execute(database, session -> {
+                    rc = Transaction.execute(database, session -> {
                         Long count = 0L;
                         String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
                         Query query = session.createQuery(queryString);

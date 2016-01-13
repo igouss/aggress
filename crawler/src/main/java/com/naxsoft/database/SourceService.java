@@ -7,9 +7,7 @@ package com.naxsoft.database;
 
 import com.naxsoft.entity.SourceEntity;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.hibernate.StatelessSession;
-import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -34,7 +32,7 @@ public class SourceService {
                 .retry(3)
                 .subscribe(list -> {
                     StatelessSession session = null;
-                    Transaction tx = null;
+                    org.hibernate.Transaction tx = null;
                     try {
                         session = database.getSessionFactory().openStatelessSession();
                         tx = session.beginTransaction();
@@ -61,7 +59,7 @@ public class SourceService {
     }
 
     public boolean save(SourceEntity sourceEntity) {
-        return AsyncTransaction.execute(database, session -> {
+        return Transaction.execute(database, session -> {
             logger.debug("Saving {}", sourceEntity);
             session.insert(sourceEntity);
             return true;
