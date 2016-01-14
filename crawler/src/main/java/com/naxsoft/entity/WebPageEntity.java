@@ -114,7 +114,12 @@ public class WebPageEntity {
             columnDefinition = "TEXT"
     )
     public String getContent() {
-        return decompress(this.content);
+        try {
+            return decompress(this.content);
+        } catch (IOException e) {
+            logger.error("Failed to decompress", e);
+        }
+        return "";
     }
 
     public void setContent(String content) {
