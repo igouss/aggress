@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import java.security.InvalidParameterException;
+import java.util.InvalidPropertiesFormatException;
 import java.util.Set;
 
 /**
@@ -67,6 +69,17 @@ public class ParseCommand implements Command {
                 ProductParser parser = productParserFactory.getParser(pageToParse);
                 Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
                 Timer.Context time = parseTime.time();
+
+
+                String webPageEntityCategory = pageToParse.getCategory();
+                if (null == webPageEntityCategory || webPageEntityCategory.isEmpty()) {
+                    throw new InvalidPropertiesFormatException("Category not set");
+                }
+
+                if (!pageToParse.getCategory().toLowerCase().equals("N/A") || !pageToParse.getCategory().toLowerCase().equals("Firearms") || !pageToParse.getCategory().toLowerCase().equals("Ammo") || !pageToParse.getCategory().toLowerCase().equals("Misc")) {
+                    throw new InvalidParameterException("Invalid category name");
+                }
+
                 result = parser.parse(pageToParse);
                 time.stop();
 
