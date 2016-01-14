@@ -40,23 +40,14 @@ public class Aggress {
 
 
     public static void main(String[] args) throws IOException {
+        final ExecutionContext context = new ExecutionContext();
         final MetricRegistry metrics = new MetricRegistry();
         final Database db = new Database();
         final Elastic elastic = new Elastic("localhost", 9300);
         final ScheduledReporter elasticReporter = Slf4jReporter.forRegistry(metrics).outputTo(logger).build();
+        final OptionSet options = parseCommandLineArguments(args);
 
         AsyncFetchClientImpl asyncFetchClient = null;
-
-
-        ExecutionContext context = new ExecutionContext();
-        OptionParser parser = new OptionParser();
-        parser.accepts("help");
-        parser.accepts("populate");
-        parser.accepts("clean");
-        parser.accepts("crawl");
-        parser.accepts("parse");
-
-        OptionSet options = parser.parse(args);
 
         if (!options.hasOptions() || options.has("help")) {
             showHelp();
@@ -197,6 +188,17 @@ public class Aggress {
                 asyncFetchClient.close();
             }
         }
+    }
+
+    private static OptionSet parseCommandLineArguments(String[] args) {
+        OptionParser parser = new OptionParser();
+        parser.accepts("help");
+        parser.accepts("populate");
+        parser.accepts("clean");
+        parser.accepts("crawl");
+        parser.accepts("parse");
+
+        return parser.parse(args);
     }
 
     private static void showHelp() {
