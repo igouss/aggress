@@ -23,7 +23,7 @@ public class ProductService {
 
     public void save(Collection<ProductEntity> products) {
         StatelessSession session = null;
-        Transaction tx = null;
+        org.hibernate.Transaction tx = null;
         try {
             session = database.getSessionFactory().openStatelessSession();
             tx = session.beginTransaction();
@@ -52,7 +52,7 @@ public class ProductService {
 
     public void markAllAsIndexed() {
         StatelessSession session = null;
-        Transaction tx = null;
+        org.hibernate.Transaction tx = null;
 
         try {
             session = database.getSessionFactory().openStatelessSession();
