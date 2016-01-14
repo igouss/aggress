@@ -44,8 +44,8 @@ public class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
 
 
         jsonBuilder.field("regularPrice", parsePrice(document.select("#ProductPrice").text()));
-
         jsonBuilder.field("description", document.select(".product-description p").text());
+        jsonBuilder.field("category", webPageEntity.getCategory());
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setJson(jsonBuilder.string());

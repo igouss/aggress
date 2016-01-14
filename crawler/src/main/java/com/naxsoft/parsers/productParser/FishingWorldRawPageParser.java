@@ -65,8 +65,8 @@ public class FishingWorldRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("regularPrice", parsePrice(document.select("#details > div.column1.float-right > div > div.price.blue").text()));
         }
 
-        jsonBuilder.field("description", removeNonASCII(document.select("#details > div.column2.float-left").text()));
-
+        jsonBuilder.field("description", document.select("#details > div.column2.float-left").text());
+        jsonBuilder.field("category", webPageEntity.getCategory());
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setWebpageId(webPageEntity.getId());

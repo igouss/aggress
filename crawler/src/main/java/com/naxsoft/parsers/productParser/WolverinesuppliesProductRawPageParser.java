@@ -40,6 +40,7 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
             jsonBuilder.field("specialPrice", rp.Price);
             jsonBuilder.field("unitsAvailable", rp.StockAmount);
             jsonBuilder.field("description", rp.ExtendedDescription);
+            jsonBuilder.field("category", webPageEntity.getCategory());
 
             for (int j = 0; j < rp.Attributes.length; ++j) {
                 jsonBuilder.field(

@@ -53,6 +53,7 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
 
         jsonBuilder.field("unitsAvailable", BullseyelondonProductRawPageParser.getUnitsAvailable(document));
         jsonBuilder.field("description", document.select(".short-description").text().trim());
+        jsonBuilder.field("category", webPageEntity.getCategory());
         Elements table = document.select("#product_tabs_additional_contents");
 
         for (Element row : table.select("tr")) {

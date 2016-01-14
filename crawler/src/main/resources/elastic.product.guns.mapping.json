@@ -60,7 +60,10 @@
         "type": "string",
         "store": false,
         "index": "analyzed",
-        "analyzer": "my_analyzer"
+        "analyzer": "my_analyzer",
+        "copy_to": [
+          "meta_data"
+        ]
       },
       "productImage": {
         "type": "string",

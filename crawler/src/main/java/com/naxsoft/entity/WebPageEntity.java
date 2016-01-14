@@ -89,6 +89,9 @@ public class WebPageEntity {
             IOUtils.closeQuietly(zi);
         }
     }
+    private static String removeNonASCII(String text) {
+        return text.replaceAll("[^\\x00-\\x7F]", "");
+    }
 
     @Id
     @Column(
@@ -115,7 +118,7 @@ public class WebPageEntity {
     }
 
     public void setContent(String content) {
-        this.content = compress(content);
+        this.content = compress(removeNonASCII(content));
     }
 
     @Basic

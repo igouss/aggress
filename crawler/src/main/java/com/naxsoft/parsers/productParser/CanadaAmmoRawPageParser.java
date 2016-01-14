@@ -63,7 +63,7 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
         }
 
         jsonBuilder.field("description", document.select("div.product-details__meta-wrap > div > div > div:nth-child(1) > section span").text());
-
+        jsonBuilder.field("category", webPageEntity.getCategory());
         Iterator<Element> labels = document.select(".product-details__spec-label").iterator();
         Iterator<Element> values = document.select(".product-details__spec-value").iterator();
 

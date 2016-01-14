@@ -31,7 +31,7 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        String productName = removeNonASCII(document.select("div.postdetails h2").text());
+        String productName = document.select("div.postdetails h2").text();
         if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove") || productName.toLowerCase().contains("delete")) {
             return products;
         }
@@ -59,7 +59,7 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
             }
         }
         jsonBuilder.field("description", document.select(".content blockquote").text());
-
+        jsonBuilder.field("category", webPageEntity.getCategory());
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setWebpageId(webPageEntity.getId());

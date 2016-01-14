@@ -60,6 +60,7 @@ public class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
         }
 //        jsonBuilder.field("description", document.select(".short-description").text());
         jsonBuilder.field("description", document.select("#product_tabs_description_tabbed_contents > div").text());
+        jsonBuilder.field("category", webPageEntity.getCategory());
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setJson(jsonBuilder.string());

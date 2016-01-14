@@ -52,6 +52,7 @@ public class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
         jsonBuilder.field("productImage", document.select("img#image-main").attr("src"));
         jsonBuilder.field("regularPrice", parsePrice(document.select(".regular-price span").text()));
         jsonBuilder.field("description", document.select("#product-tabs > div > div:nth-child(2)").text());
+        jsonBuilder.field("category", webPageEntity.getCategory());
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setJson(jsonBuilder.string());

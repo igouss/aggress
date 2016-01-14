@@ -51,6 +51,7 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
             jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
         }
         jsonBuilder.field("description", document.select(".productDetails-section .row").text());
+        jsonBuilder.field("category", webPageEntity.getCategory());
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setJson(jsonBuilder.string());

@@ -59,6 +59,7 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
 
         jsonBuilder.field("description", document.select(".tagged_as a").text());
 //        jsonBuilder.field("description", document.select("#tab-description").text());
+        jsonBuilder.field("category", webPageEntity.getCategory());
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setJson(jsonBuilder.string());

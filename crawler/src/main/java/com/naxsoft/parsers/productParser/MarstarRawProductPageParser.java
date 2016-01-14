@@ -40,7 +40,7 @@ public class MarstarRawProductPageParser extends AbstractRawPageParser {
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
         jsonBuilder.field("productName", productName);
         jsonBuilder.field("productImage", document.select("img[id=mainPic]").attr("abs:src"));
-
+        jsonBuilder.field("category", webPageEntity.getCategory());
         ArrayList<String> price = parsePrice(document.select(".priceAvail").text());
         if (price.isEmpty()) {
             return products; // ignore

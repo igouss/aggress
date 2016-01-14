@@ -61,8 +61,8 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("regularPrice", parsePrice(document.select(".regular-price .price").text()));
         }
 
-        jsonBuilder.field("description", removeNonASCII(document.select(".product-collateral").text() + " " + document.select(".short-description").text()));
-
+        jsonBuilder.field("description", document.select(".product-collateral").text() + " " + document.select(".short-description").text());
+        jsonBuilder.field("category", webPageEntity.getCategory());
         jsonBuilder.endObject();
         product.setUrl(webPageEntity.getUrl());
         product.setWebpageId(webPageEntity.getId());

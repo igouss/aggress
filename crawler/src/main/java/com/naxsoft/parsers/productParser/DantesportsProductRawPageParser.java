@@ -22,17 +22,17 @@ public class DantesportsProductRawPageParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(DantesportsProductRawPageParser.class);
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPage) throws Exception {
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
         jsonBuilder.startObject();
-        jsonBuilder.field("url", webPage.getUrl());
+        jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(webPage.getContent(), webPage.getUrl());
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select(".naitem").text();
-        logger.info("Parsing {}, page={}", productName, webPage.getUrl());
+        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         if (!document.select(".outofstock").isEmpty()) {
             return products;
@@ -47,6 +47,7 @@ public class DantesportsProductRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("regularPrice", matcher.group().replace(",", ""));
         }
         jsonBuilder.field("description", document.select(".itemDescription").text());
+        jsonBuilder.field("category", webPageEntity.getCategory());
 //        Iterator<Element> labels = document.select("table tr span.lang-en").iterator();
 //        Iterator<Element> values = document.select("table td span.lang-en").iterator();
 //        while(labels.hasNext()) {
@@ -55,8 +56,8 @@ public class DantesportsProductRawPageParser extends AbstractRawPageParser {
 //            jsonBuilder.field(specName, specValue);
 //        }
         jsonBuilder.endObject();
-        product.setUrl(webPage.getUrl());
-        product.setWebpageId(webPage.getId());
+        product.setUrl(webPageEntity.getUrl());
+        product.setWebpageId(webPageEntity.getId());
         product.setJson(jsonBuilder.string());
         products.add(product);
         return products;
