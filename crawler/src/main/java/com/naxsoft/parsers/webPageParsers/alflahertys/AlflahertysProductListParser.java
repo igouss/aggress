@@ -25,13 +25,13 @@ public class AlflahertysProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return Observable.create(subscriber -> {
-            client.get(webPage.getUrl(), new CompletionHandler<Void>() {
+            client.get(parent.getUrl(), new CompletionHandler<Void>() {
                 @Override
                 public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
                     if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                         Elements elements = document.select("body > div.container.main.content > div:nth-child(3) a:nth-child(1).view_product_info");
 
                         for (Element element : elements) {
@@ -41,7 +41,8 @@ public class AlflahertysProductListParser extends AbstractWebPageParser {
                             webPageEntity.setParsed(false);
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productPage");
-                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
+                            webPageEntity.setCategory(parent.getCategory());
+                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                             subscriber.onNext(webPageEntity);
                         }
                     }

@@ -51,7 +51,7 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return Observable.create(subscriber -> {
             if (null == cookies || cookies.isEmpty()) {
                 logger.warn("No login cookies");
@@ -59,11 +59,11 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                 return;
             }
 
-            client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
+            client.get(parent.getUrl(), cookies, new CompletionHandler<Void>() {
                 @Override
                 public Void onCompleted(Response resp) throws Exception {
                     if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                         Elements elements = document.select("#threads .threadtitle");
                         if (elements.isEmpty()) {
                             logger.error("No results on page");
@@ -80,6 +80,7 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                                         webPageEntity.setParsed(false);
                                         webPageEntity.setType("productPage");
                                         webPageEntity.setStatusCode(resp.getStatusCode());
+                                        webPageEntity.setCategory(parent.getCategory());
                                         logger.info("productPage={}", webPageEntity.getUrl());
                                         subscriber.onNext(webPageEntity);
                                     }
@@ -87,7 +88,7 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                             }
                         }
                     } else {
-                        logger.error("Failed to load page {}", webPage.getUrl());
+                        logger.error("Failed to load page {}", parent.getUrl());
                     }
                     subscriber.onCompleted();
                     return null;

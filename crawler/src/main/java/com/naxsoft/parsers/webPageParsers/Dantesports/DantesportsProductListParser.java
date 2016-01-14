@@ -28,13 +28,13 @@ public class DantesportsProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return Observable.create(subscriber -> {
-            client.get(webPage.getUrl(), new CompletionHandler<Void>() {
+            client.get(parent.getUrl(), new CompletionHandler<Void>() {
                 @Override
                 public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
                     if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                         Elements elements = document.select("#store div.listItem");
 
                         for (Element element : elements) {
@@ -47,10 +47,11 @@ public class DantesportsProductListParser extends AbstractWebPageParser {
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setStatusCode(resp.getStatusCode());
                                 webPageEntity.setType("productPage");
-                                logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), webPage.getUrl());
+                                webPageEntity.setCategory(parent.getCategory());
+                                logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                                 subscriber.onNext(webPageEntity);
                             } else {
-                                logger.info("Product id not found: {}", webPage);
+                                logger.info("Product id not found: {}", parent);
                             }
                         }
                     }

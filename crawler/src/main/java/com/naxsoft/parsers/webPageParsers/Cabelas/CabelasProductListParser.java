@@ -33,6 +33,7 @@ public class CabelasProductListParser extends AbstractWebPageParser {
         webPageEntity.setParsed(false);
         webPageEntity.setStatusCode(statusCode);
         webPageEntity.setType("productList");
+        webPageEntity.setCategory(parent.getCategory());
         logger.info("productList=" + webPageEntity.getUrl() + ", parent=" + parent.getUrl());
         return webPageEntity;
     }

@@ -26,7 +26,10 @@ public class DantesportsProductPageParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPage)  {
-        return PageDownloader.download(client, webPage.getUrl());
+        return Observable.from(PageDownloader.download(client, webPage.getUrl())).map(webPageEntity -> {
+            webPageEntity.setCategory(webPage.getCategory());
+            return webPageEntity;
+        });
     }
 
     public boolean canParse(WebPageEntity webPage) {

@@ -41,6 +41,7 @@ public class FishingworldProductListParser extends AbstractWebPageParser {
                             webPageEntity.setParsed(false);
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productPage");
+                            webPageEntity.setCategory(parent.getCategory());
                             logger.info("Product page listing={}", webPageEntity.getUrl());
                             subscriber.onNext(webPageEntity);
                         }

@@ -26,13 +26,13 @@ public class CanadaAmmoProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return Observable.create(subscriber -> {
-            client.get(webPage.getUrl(), new CompletionHandler<Void>() {
+            client.get(parent.getUrl(), new CompletionHandler<Void>() {
                 @Override
                 public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
                     if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                         Elements elements = document.select("a.product__link");
                         for (Element element : elements) {
                             WebPageEntity webPageEntity = new WebPageEntity();
@@ -40,6 +40,7 @@ public class CanadaAmmoProductListParser extends AbstractWebPageParser {
                             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                             webPageEntity.setParsed(false);
                             webPageEntity.setType("productPage");
+                            webPageEntity.setCategory(parent.getCategory());
                             logger.info("productPage={}", webPageEntity.getUrl());
                             subscriber.onNext(webPageEntity);
                         }

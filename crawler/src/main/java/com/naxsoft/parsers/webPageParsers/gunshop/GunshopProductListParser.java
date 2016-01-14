@@ -44,6 +44,7 @@ public class GunshopProductListParser extends AbstractWebPageParser {
                             webPageEntity.setParsed(false);
                             webPageEntity.setStatusCode(resp.getStatusCode());
                             webPageEntity.setType("productPage");
+                            webPageEntity.setCategory(parent.getCategory());
                             logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), resp.getUri());
                             subscriber.onNext(webPageEntity);
                         }

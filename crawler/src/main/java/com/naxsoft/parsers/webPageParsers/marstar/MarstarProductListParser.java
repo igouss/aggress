@@ -27,13 +27,13 @@ public class MarstarProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return Observable.create(subscriber -> {
-            client.get(webPage.getUrl(), new CompletionHandler<Void>() {
+            client.get(parent.getUrl(), new CompletionHandler<Void>() {
                 @Override
                 public Void onCompleted(Response resp) throws Exception {
                     if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                         logger.info("Parsing {}", document.select("h1").text());
                         Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
                         for (Element e : elements) {
@@ -48,6 +48,7 @@ public class MarstarProductListParser extends AbstractWebPageParser {
                         elements = document.select("div.subcategoryName a");
                         for (Element e : elements) {
                             WebPageEntity webPageEntity = getProductList(resp, e);
+                            webPageEntity.setCategory(parent.getCategory());
                             subscriber.onNext(webPageEntity);
                         }
 //                    if (result.isEmpty()) {

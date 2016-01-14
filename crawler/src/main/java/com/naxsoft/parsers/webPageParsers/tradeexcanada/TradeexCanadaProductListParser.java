@@ -42,6 +42,7 @@ public class TradeexCanadaProductListParser extends AbstractWebPageParser {
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setStatusCode(resp.getStatusCode());
                                 webPageEntity.setType("productPage");
+                                webPageEntity.setCategory(parent.getCategory());
                                 logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }

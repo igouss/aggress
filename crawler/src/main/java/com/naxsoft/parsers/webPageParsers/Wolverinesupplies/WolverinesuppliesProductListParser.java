@@ -25,14 +25,14 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         Observable<WebPageEntity> tmp = Observable.create(subscriber -> {
-            client.get(webPage.getUrl(), new CompletionHandler<Void>() {
+            client.get(parent.getUrl(), new CompletionHandler<Void>() {
                 @Override
                 public Void onCompleted(Response resp) throws Exception {
                     if (200 == resp.getStatusCode()) {
 
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                         Elements elements = document.select("div[ng-init]");
 
                         for (Element e : elements) {
@@ -45,6 +45,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                                 WebPageEntity webPageEntity = new WebPageEntity();
                                 webPageEntity.setType("tmp");
                                 webPageEntity.setUrl(productDetailsUrl);
+                                webPageEntity.setCategory(parent.getCategory());
                                 subscriber.onNext(webPageEntity);
                             }
                         }
