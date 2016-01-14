@@ -46,7 +46,6 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     }
 
 
-
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         Map<String, String> formParameters = new HashMap<>();

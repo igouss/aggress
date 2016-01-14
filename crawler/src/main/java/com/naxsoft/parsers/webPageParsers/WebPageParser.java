@@ -11,6 +11,7 @@ import rx.Observable;
 public interface WebPageParser {
     /**
      * Parse given webPage and return all child pages
+     *
      * @param webPage Page to parse
      * @return All sub-pages
      * @throws Exception
@@ -19,6 +20,7 @@ public interface WebPageParser {
 
     /**
      * Can this class parse webPage?
+     *
      * @param webPage webPage to parse
      * @return True is this parser can parse this page, false otherwise
      */

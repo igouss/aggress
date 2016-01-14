@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.sail;
 
 import com.naxsoft.crawler.AsyncFetchClient;
-import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
@@ -10,16 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
  * Copyright NAXSoft 2015
  */
 public class SailsProductPageParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(SailsProductPageParser.class);
     private static final List<Cookie> cookies;
 
@@ -28,16 +24,26 @@ public class SailsProductPageParser extends AbstractWebPageParser {
         cookies.add(Cookie.newValidCookie("store_language", "english", false, null, null, Long.MAX_VALUE, false, false));
     }
 
+    private final AsyncFetchClient client;
+
     public SailsProductPageParser(AsyncFetchClient client) {
         this.client = client;
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, cookies, webPage.getUrl())).map(webPageEntity -> {
-            webPageEntity.setCategory(webPage.getCategory());
-            return webPageEntity;
-        });
+        return Observable.from(PageDownloader.download(client, cookies, webPage.getUrl()))
+                .filter(data -> {
+                    if (null != data) {
+                        return true;
+                    } else {
+                        logger.error("failed to download web page {}" + webPage.getUrl());
+                        return false;
+                    }
+                }).map(webPageEntity -> {
+                    webPageEntity.setCategory(webPage.getCategory());
+                    return webPageEntity;
+                });
     }
 
     @Override

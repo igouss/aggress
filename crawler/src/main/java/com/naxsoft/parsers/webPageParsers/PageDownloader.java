@@ -6,13 +6,10 @@ import com.naxsoft.entity.WebPageEntity;
 import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.sql.Timestamp;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Future;
 
 /**
@@ -26,7 +23,7 @@ public class PageDownloader {
      * Download page from the url.
      *
      * @param client HTTPClient
-     * @param url  URL of pages to download
+     * @param url    URL of pages to download
      * @return Stream of downloaded pages.
      */
     public static Future<WebPageEntity> download(AsyncFetchClient client, String url) {
@@ -36,7 +33,7 @@ public class PageDownloader {
     /**
      * Download page from the url.
      *
-     * @param url  URL of pages to download
+     * @param url     URL of pages to download
      * @param client  HTTPClient
      * @param cookies HTML cookies
      * @return Stream of downloaded pages.
