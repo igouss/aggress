@@ -39,7 +39,7 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
         jsonBuilder.field("url", webPageEntityUrl);
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntityUrl);
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntityUrl);
 
         if (document.select(".product-details__add").isEmpty()) {
             return products;

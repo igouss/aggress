@@ -4,6 +4,7 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
@@ -47,32 +48,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> {
-            if (null == cookies || cookies.isEmpty()) {
-                logger.warn("No login cookies");
-                subscriber.onCompleted();
-                return;
-            }
-
-            client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(webPage.getUrl());
-                        webPageEntity.setContent(compress(resp.getResponseBody()));
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setParsed(false);
-                        webPageEntity.setStatusCode(resp.getStatusCode());
-                        webPageEntity.setType("productPageRaw");
-                        subscriber.onNext(webPageEntity);
-                        logger.info("productPageRaw={}", webPageEntity.getUrl());
-                    }
-                    subscriber.onCompleted();
-                    return null;
-                }
-            });
-        });
+        return PageDownloader.download(client, cookies, webPage.getUrl());
     }
 
     @Override

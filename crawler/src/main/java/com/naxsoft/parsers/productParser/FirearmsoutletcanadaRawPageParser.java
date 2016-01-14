@@ -33,7 +33,7 @@ public class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntity.getUrl());
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
         if (!document.select(".firearm-links-sold").isEmpty()) {
             return result;

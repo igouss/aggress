@@ -28,7 +28,7 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
 
-        Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntity.getUrl());
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select("h1.product-heading").text();
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 

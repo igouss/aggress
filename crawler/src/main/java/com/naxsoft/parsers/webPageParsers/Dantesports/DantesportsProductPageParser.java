@@ -4,6 +4,7 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,28 +26,7 @@ public class DantesportsProductPageParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPage)  {
-        return Observable.create(subscriber -> {
-            Observable.from(client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false)).subscribe(cookies -> {
-                client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
-                    @Override
-                    public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                        if (200 == resp.getStatusCode()) {
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(webPage.getUrl());
-                            webPageEntity.setContent(compress(resp.getResponseBody()));
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productPageRaw");
-                            logger.info("productPageRaw={}", webPageEntity.getUrl());
-                            subscriber.onNext(webPageEntity);
-                        }
-                        subscriber.onCompleted();
-                        return null;
-                    }
-                });
-            });
-        });
+        return PageDownloader.download(client, webPage.getUrl());
     }
 
     public boolean canParse(WebPageEntity webPage) {

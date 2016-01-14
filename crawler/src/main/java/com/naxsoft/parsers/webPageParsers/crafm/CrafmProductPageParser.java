@@ -4,6 +4,7 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import com.ning.http.client.Response;
 import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import rx.Observable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Copyright NAXSoft 2015
@@ -20,7 +22,7 @@ import java.util.Collection;
 public class CrafmProductPageParser extends AbstractWebPageParser {
     private final AsyncFetchClient client;
     private static final Logger logger = LoggerFactory.getLogger(CrafmProductPageParser.class);
-    Collection<Cookie> cookies;
+    List<Cookie> cookies;
 
     public CrafmProductPageParser(AsyncFetchClient client) {
         this.client = client;
@@ -30,24 +32,7 @@ public class CrafmProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> {
-            client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(webPage.getUrl());
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setType("productPageRaw");
-                        webPageEntity.setContent(compress(resp.getResponseBody()));
-                        subscriber.onNext(webPageEntity);
-                        logger.info("productPageRaw={}", webPageEntity.getUrl());
-                    }
-                    subscriber.onCompleted();
-                    return null;
-                }
-            });
-        });
+        return PageDownloader.download(client, cookies, webPage.getUrl());
     }
 
     @Override

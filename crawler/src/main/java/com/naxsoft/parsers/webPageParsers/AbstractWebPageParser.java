@@ -21,27 +21,6 @@ public abstract class AbstractWebPageParser implements WebPageParser {
         }
     };
 
-    /**
-     * ZIP the string and return Base64 representation
-     *
-     * @param text
-     * @return
-     * @throws IOException
-     */
-    protected static String compress(String text) throws IOException {
-        ByteArrayOutputStream rstBao = new ByteArrayOutputStream();
-        GZIPOutputStream zos = new GZIPOutputStream(rstBao);
-        zos.write(text.getBytes());
-        IOUtils.closeQuietly(zos);
-
-        byte[] bytes = rstBao.toByteArray();
-        // In my solr project, I use org.apache.solr.co mmon.util.Base64.
-        // return = org.apache.solr.common.util.Base64.byteArrayToBase64(bytes, 0,
-        // bytes.length);
-        return Base64.getEncoder().encodeToString(bytes);
-
-    }
-
     protected static CompletionHandler<List<Cookie>> getCookiesHandler() {
         return cookieHandler;
     }

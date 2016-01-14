@@ -24,7 +24,7 @@ public class WestrifleProductRawParser extends AbstractRawPageParser {
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntity.getUrl());
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
         if (document.select("#productDetailsList > li").text().equals("0 Units in Stock")) {
             return result;

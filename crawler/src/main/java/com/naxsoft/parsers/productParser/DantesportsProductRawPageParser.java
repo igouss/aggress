@@ -30,7 +30,7 @@ public class DantesportsProductRawPageParser extends AbstractRawPageParser {
         jsonBuilder.field("url", webPage.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(fromZip(webPage.getContent()), webPage.getUrl());
+        Document document = Jsoup.parse(webPage.getContent(), webPage.getUrl());
         String productName = document.select(".naitem").text();
         logger.info("Parsing {}, page={}", productName, webPage.getUrl());
 

@@ -5,8 +5,18 @@
 
 package com.naxsoft.entity;
 
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.persistence.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Base64;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 @Entity
 @Table(
@@ -22,6 +32,8 @@ import java.sql.Timestamp;
 )
 
 public class WebPageEntity {
+    private static final Logger logger = LoggerFactory.getLogger(WebPageEntity.class);
+
     private int id;
     private String content;
     private Timestamp modificationDate;
@@ -32,6 +44,50 @@ public class WebPageEntity {
     private String category;
 
     public WebPageEntity() {
+    }
+
+    /**
+     * ZIP the string and return Base64 representation
+     *
+     * @param text
+     * @return
+     * @throws IOException
+     */
+    private static String compress(String text) {
+        ByteArrayOutputStream rstBao = new ByteArrayOutputStream();
+        GZIPOutputStream zos = null;
+        try {
+            zos = new GZIPOutputStream(rstBao);
+            zos.write(text.getBytes());
+            IOUtils.closeQuietly(zos);
+
+            byte[] bytes = rstBao.toByteArray();
+            // In my solr project, I use org.apache.solr.co mmon.util.Base64.
+            // return = org.apache.solr.common.util.Base64.byteArrayToBase64(bytes, 0,
+            // bytes.length);
+            return Base64.getEncoder().encodeToString(bytes);
+        } catch (IOException e) {
+            logger.error("Failed to compress", e);
+        }
+        return "";
+    }
+
+    /**
+     * Unzip a BASE64 string
+     *
+     * @param zippedBase64Str
+     * @return
+     * @throws IOException
+     */
+    private static String decompress(String zippedBase64Str) throws IOException {
+        byte[] bytes = Base64.getDecoder().decode(zippedBase64Str);
+        GZIPInputStream zi = null;
+        try {
+            zi = new GZIPInputStream(new ByteArrayInputStream(bytes));
+            return IOUtils.toString(zi);
+        } finally {
+            IOUtils.closeQuietly(zi);
+        }
     }
 
     @Id
@@ -55,11 +111,11 @@ public class WebPageEntity {
             columnDefinition = "TEXT"
     )
     public String getContent() {
-        return this.content;
+        return decompress(this.content);
     }
 
     public void setContent(String content) {
-        this.content = content;
+        this.content = compress(content);
     }
 
     @Basic
@@ -110,7 +166,6 @@ public class WebPageEntity {
         this.parsed = parsed;
     }
 
-
     @Basic
     @Column(
             name = "url"
@@ -157,7 +212,6 @@ public class WebPageEntity {
         result = 31 * result + url.hashCode();
         return result;
     }
-
 
     @Override
     public String toString() {

@@ -9,6 +9,7 @@ import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -24,24 +25,7 @@ public class WolverinesuppliesProductPageParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> {
-            client.get(webPage.getUrl(), new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(webPage.getUrl());
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setType("productPageRaw");
-                        webPageEntity.setContent(compress(resp.getResponseBody()));
-                        subscriber.onNext(webPageEntity);
-                        logger.info("productPageRaw={}", webPageEntity.getUrl());
-                    }
-                    subscriber.onCompleted();
-                    return null;
-                }
-            });
-        });
+        return PageDownloader.download(client, webPage.getUrl());
     }
 
     public boolean canParse(WebPageEntity webPage) {

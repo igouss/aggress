@@ -29,7 +29,7 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
         jsonBuilder.field("url", webPageEntity.getUrl());
         jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntity.getUrl());
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
         String productName = removeNonASCII(document.select("div.postdetails h2").text());
         if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove") || productName.toLowerCase().contains("delete")) {

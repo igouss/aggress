@@ -27,7 +27,7 @@ public class SailsRawPageParser extends AbstractRawPageParser {
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(fromZip(webPageEntity.getContent()), webPageEntity.getUrl());
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
         String productName = document.select(".product-shop .brand").text() + " " + document.select(".product-shop .product-name span").text();
         logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
