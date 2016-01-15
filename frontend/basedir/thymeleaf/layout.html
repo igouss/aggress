@@ -6,8 +6,10 @@
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
+          integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous"/>
     <link rel="stylesheet" type="text/css" href="css/application.css"/>
     <link rel="icon" type="image/x-icon" href="img/favicon.ico"/>
 </head>
@@ -21,12 +23,28 @@
 
     <div class="row col-md-12">
         <div class="col-md-12">
-            <div class="input-group">
-                <input id="searchInput" type="text" class="form-control" placeholder="Search for..."/>
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" id="searchBtn" type="button">Go!</button>
-                    </span>
-            </div>
+            <form>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input id="searchInput" type="search" class="form-control" placeholder="Search for..."/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" id="searchBtn" type="button">Go!</button>
+                        </span>
+                    </div>
+                </div>
+                <div >
+                    <fieldset>
+                        <label for="category" class="sr-only">Select category</label>
+                        <select class="form-control" id="category">
+                            <option value="firearms">Firearms</option>
+                            <option value="optics">Optics</option>
+                            <option value="ammo">Ammo</option>
+                            <option value="reloading">Reloading Components</option>
+                            <option value="misc">Misc</option>
+                        </select>
+                    </fieldset>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -54,6 +72,7 @@
                 </li>
             </ul>
         </nav>
+
 </script>
 <script id="itemTemplate" type="text/x-tmpl-mustache">
         <div class="renderedItem">
@@ -74,6 +93,7 @@
             </p>
           </div>
         </div>
+
 </script>
 </body>
 </html>

@@ -18,20 +18,5 @@ public class SearchVerboseHandler extends AbstractSearchHandler {
     public SearchVerboseHandler(TransportClient client) {
         super(client);
     }
-
-    @Override
-    protected ListenableActionFuture<SearchResponse> runSearch(String searchKey, int startFrom) {
-        String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-//        QueryBuilder queryBuilder = QueryBuilders.queryStringQuery(searchKey);
-        MultiMatchQueryBuilder queryBuilder = new MultiMatchQueryBuilder(searchKey, "productName^2");
-        SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product" + indexSuffix);
-        searchRequestBuilder.setTypes("guns");
-        searchRequestBuilder.setSearchType(SearchType.DEFAULT);
-        searchRequestBuilder.setQuery(queryBuilder);
-        searchRequestBuilder.setFrom(startFrom).setSize(10).setExplain(true);
-
-        return searchRequestBuilder.execute();
-    }
-
 }
 

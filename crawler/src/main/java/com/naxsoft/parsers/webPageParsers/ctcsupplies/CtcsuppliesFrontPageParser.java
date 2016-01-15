@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.ctcsupplies;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -19,10 +19,10 @@ import java.sql.Timestamp;
  * Copyright NAXSoft 2015
  */
 public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
+    private final HttpClient client;
     private static final Logger logger = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
 
-    public CtcsuppliesFrontPageParser(AsyncFetchClient client) {
+    public CtcsuppliesFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

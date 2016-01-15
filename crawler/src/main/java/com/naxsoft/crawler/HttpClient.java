@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Copyright NAXSoft 2015
  */
-public interface AsyncFetchClient {
+public interface HttpClient {
     /**
      * Perform an HTTP GET request
      * @param url Page address

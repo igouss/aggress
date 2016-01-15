@@ -153,16 +153,4 @@ public class Server {
         templateEngine.addTemplateResolver(templateResolver);
         return templateEngine;
     }
-
-    class HttpVertex extends AbstractVerticle {
-        @Override
-        public void start(Future<Void> startFuture) throws Exception {
-            startFuture.complete();
-        }
-
-        @Override
-        public void stop(Future<Void> stopFuture) throws Exception {
-            super.stop(stopFuture);
-        }
-    }
 }

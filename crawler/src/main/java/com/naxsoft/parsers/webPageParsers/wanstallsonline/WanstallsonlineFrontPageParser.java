@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.wanstallsonline;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -22,10 +22,10 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
+    private final HttpClient client;
     private static final Logger logger = LoggerFactory.getLogger(WanstallsonlineFrontPageParser.class);
 
-    public WanstallsonlineFrontPageParser(AsyncFetchClient client) {
+    public WanstallsonlineFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

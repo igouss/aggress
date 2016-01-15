@@ -5,7 +5,7 @@
 
 package com.naxsoft.parsers.webPageParsers;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -20,9 +20,9 @@ public class WebPageParserFactory {
     private static final Logger logger = LoggerFactory.getLogger(WebPageParserFactory.class);
 
     private final Set<WebPageParser> parsers = new HashSet<>();
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public WebPageParserFactory(AsyncFetchClient client) {
+    public WebPageParserFactory(HttpClient client) {
         this.client = client;
 
         Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
@@ -35,12 +35,12 @@ public class WebPageParserFactory {
                     Class<?>[] interfaces = client.getClass().getInterfaces();
                     Class<?> asyncFetchClient = null;
                     for (Class iface : interfaces) {
-                        if (iface.getCanonicalName().equals("com.naxsoft.crawler.AsyncFetchClient")) {
+                        if (iface.getCanonicalName().equals("com.naxsoft.crawler.HttpClient")) {
                             asyncFetchClient = iface;
                         }
                     }
                     if (null == asyncFetchClient) {
-                        throw new InvalidClassException("Class " + clazz.getCanonicalName() + "should implement com.naxsoft.crawler.AsyncFetchClient");
+                        throw new InvalidClassException("Class " + clazz.getCanonicalName() + "should implement com.naxsoft.crawler.HttpClient");
                     }
                     WebPageParser webPageParser = clazz.getConstructor(asyncFetchClient).newInstance(client);
                     this.parsers.add(webPageParser);

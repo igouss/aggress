@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.theammosource;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
@@ -13,9 +13,9 @@ import rx.Observable;
  */
 public class TheammosourceProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(TheammosourceProductPageParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public TheammosourceProductPageParser(AsyncFetchClient client) {
+    public TheammosourceProductPageParser(HttpClient client) {
         this.client = client;
     }
 

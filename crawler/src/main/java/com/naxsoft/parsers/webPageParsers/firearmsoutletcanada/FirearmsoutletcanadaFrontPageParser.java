@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.firearmsoutletcanada;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -32,9 +32,9 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
             "Optics and Sights",
             "Factory Ammo and Reloading Equipment",
     };
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public FirearmsoutletcanadaFrontPageParser(AsyncFetchClient client) {
+    public FirearmsoutletcanadaFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

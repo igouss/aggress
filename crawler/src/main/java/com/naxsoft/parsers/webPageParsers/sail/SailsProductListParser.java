@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.sail;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -21,7 +21,7 @@ import java.util.Collection;
  * Copyright NAXSoft 2015
  */
 public class SailsProductListParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
+    private final HttpClient client;
     private static final Logger logger = LoggerFactory.getLogger(SailsProductListParser.class);
     private static final Collection<Cookie> cookies;
 
@@ -30,7 +30,7 @@ public class SailsProductListParser extends AbstractWebPageParser {
         cookies.add(Cookie.newValidCookie("store_language", "english", false, null, null, Long.MAX_VALUE, false, false));
     }
 
-    public SailsProductListParser(AsyncFetchClient client) {
+    public SailsProductListParser(HttpClient client) {
         this.client = client;
     }
 

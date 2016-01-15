@@ -2,6 +2,7 @@ package com.naxsoft;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.database.*;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
@@ -24,6 +25,15 @@ public class ExecutionContext extends HashMap<String, Object> {
     private ProductParserFactory productParserFactory;
     private MetricRegistry metrics;
     private String indexSuffix;
+    private HttpClient fetchClient;
+
+    public HttpClient getHTTPClient() {
+        return fetchClient;
+    }
+
+    public void setFetchClient(HttpClient fetchClient) {
+        this.fetchClient = fetchClient;
+    }
 
     public String getIndexSuffix() {
         return indexSuffix;

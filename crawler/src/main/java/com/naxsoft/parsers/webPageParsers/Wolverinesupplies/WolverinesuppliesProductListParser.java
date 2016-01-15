@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -19,9 +19,9 @@ import java.util.regex.Pattern;
 
 public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public WolverinesuppliesProductListParser(AsyncFetchClient client) {
+    public WolverinesuppliesProductListParser(HttpClient client) {
         this.client = client;
     }
 

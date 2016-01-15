@@ -5,8 +5,8 @@
 
 package com.naxsoft.database;
 
-import com.naxsoft.crawler.AsyncFetchClient;
 import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.ProductEntity;
 import com.ning.http.client.Response;
 import org.apache.commons.io.IOUtils;
@@ -24,6 +24,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscription;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,28 +36,33 @@ public class Elastic implements AutoCloseable, Cloneable {
     private static final Logger logger = LoggerFactory.getLogger(Elastic.class);
     TransportClient client = null;
 
-    public Elastic(String hostname, int port) throws UnknownHostException {
-        Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
-        this.client = new TransportClient.Builder().settings(settings).build();
-        this.client.addTransportAddress(new InetSocketTransportAddress(java.net.InetAddress.getByName(hostname), port));
+    public void connect(String hostname, int port) throws UnknownHostException {
+        if (null == client) {
+            Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
+            this.client = new TransportClient.Builder().settings(settings).build();
+            this.client.addTransportAddress(new InetSocketTransportAddress(java.net.InetAddress.getByName(hostname), port));
 
-        while (true) {
-            logger.info("Waiting for elastic to connect to a node...");
-            int connectedNodes = this.client.connectedNodes().size();
-            if (0 != connectedNodes) {
-                logger.info("Connection established");
-                break;
-            }
-            try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
-            } catch (InterruptedException e) {
-                logger.error("Thread sleep failed", e);
+            while (true) {
+                logger.info("Waiting for elastic to connect to a node...");
+                int connectedNodes = this.client.connectedNodes().size();
+                if (0 != connectedNodes) {
+                    logger.info("Connection established");
+                    break;
+                }
+                try {
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
+                } catch (InterruptedException e) {
+                    logger.error("Thread sleep failed", e);
+                }
             }
         }
+
     }
 
     public void close() {
-        this.client.close();
+        if (null != client) {
+            this.client.close();
+        }
     }
 
     public Client getClient() {
@@ -64,8 +70,8 @@ public class Elastic implements AutoCloseable, Cloneable {
     }
 
 
-    public void index(Observable<ProductEntity> products, String index, String type) {
-        products.buffer(200).map(list -> {
+    public Subscription index(Observable<ProductEntity> products, String index, String type) {
+        return products.buffer(200).map(list -> {
             BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
             for (ProductEntity p : list) {
                 try {
@@ -91,46 +97,64 @@ public class Elastic implements AutoCloseable, Cloneable {
                 }, ex -> logger.error("Index Exception", ex));
     }
 
-    public Observable<Integer> createIndex(AsyncFetchClient client, String index, String type, String indexSuffix) throws IOException, ExecutionException, InterruptedException {
-        String resourceName = "/elastic." + index + "." + type + ".index.json";
-        String newIndexName = index + indexSuffix;
-        logger.info("Creating index {} type {} from {}", newIndexName, type, resourceName);
-        InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
-        String indexContent = IOUtils.toString(resourceAsStream);
-        String url = "http://127.0.0.1:9200/" + newIndexName;
-        return Observable.from(client.post(url, indexContent, new CompletionHandler<Integer>() {
-            @Override
-            public Integer onCompleted(Response response) throws Exception {
-                int statusCode = response.getStatusCode();
-                if (200 != statusCode) {
-                    logger.error("Error creating index: {}", response.getResponseBody());
-                } else {
-                    logger.info("Created index: {}", response.getResponseBody());
-                }
-                return statusCode;
+    public Observable<Integer> createIndex(HttpClient client, String index, String type, String indexSuffix) {
+        return Observable.create(subscriber -> {
+            try {
+                String resourceName = "/elastic." + index + "." + type + ".index.json";
+                String newIndexName = index + indexSuffix;
+                logger.info("Creating index {} type {} from {}", newIndexName, type, resourceName);
+                InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
+                String indexContent = null;
+                indexContent = IOUtils.toString(resourceAsStream);
+                String url = "http://127.0.0.1:9200/" + newIndexName;
+                client.post(url, indexContent, new CompletionHandler<Void>() {
+                    @Override
+                    public Void onCompleted(Response response) throws Exception {
+                        int statusCode = response.getStatusCode();
+                        if (200 != statusCode) {
+                            logger.error("Error creating index: {}", response.getResponseBody());
+                        } else {
+                            logger.info("Created index: {}", response.getResponseBody());
+                        }
+                        subscriber.onNext(statusCode);
+                        subscriber.onCompleted();
+                        return null;
+                    }
+                });
+            } catch (IOException e) {
+                subscriber.onError(e);
             }
-        }));
+        });
     }
 
-    public Observable<Integer> createMapping(AsyncFetchClient client, String index, String type, String indexSuffix) throws IOException, ExecutionException, InterruptedException {
-        String resourceName = "/elastic." + index + "." + type + ".mapping.json";
-        String newIndexName = index + indexSuffix;
-        logger.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
-        InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
-        String indexContent = IOUtils.toString(resourceAsStream);
-        String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
-        return Observable.from(client.post(url, indexContent, new CompletionHandler<Integer>() {
-            @Override
-            public Integer onCompleted(Response response) throws Exception {
-                int statusCode = response.getStatusCode();
-                if (200 != statusCode) {
-                    logger.error("Error creating mapping: {}", response.getResponseBody());
-                } else {
-                    logger.info("Created mapping: {}", response.getResponseBody());
-                }
-                return statusCode;
+    public Observable<Integer> createMapping(HttpClient client, String index, String type, String indexSuffix) {
+        return Observable.create(subscriber -> {
+            try {
+                String resourceName = "/elastic." + index + "." + type + ".mapping.json";
+                String newIndexName = index + indexSuffix;
+                logger.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
+                InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
+                String indexContent = IOUtils.toString(resourceAsStream);
+                String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
+
+                client.post(url, indexContent, new CompletionHandler<Integer>() {
+                    @Override
+                    public Integer onCompleted(Response response) throws Exception {
+                        int statusCode = response.getStatusCode();
+                        if (200 != statusCode) {
+                            logger.error("Error creating mapping: {}", response.getResponseBody());
+                        } else {
+                            logger.info("Created mapping: {}", response.getResponseBody());
+                        }
+                        subscriber.onNext(statusCode);
+                        subscriber.onCompleted();
+                        return null;
+                    }
+                });
+            } catch (IOException e) {
+                subscriber.onError(e);
             }
-        }));
+        });
     }
 
 

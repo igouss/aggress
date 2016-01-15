@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.leverarms;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,10 +20,10 @@ import java.util.HashSet;
  * Copyright NAXSoft 2015
  */
 public class LeverarmsFrontPageParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
+    private final HttpClient client;
     private static final Logger logger = LoggerFactory.getLogger(LeverarmsFrontPageParser.class);
 
-    public LeverarmsFrontPageParser(AsyncFetchClient client) {
+    public LeverarmsFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

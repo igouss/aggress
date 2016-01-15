@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.fishingworld;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -22,9 +22,9 @@ import java.util.regex.Pattern;
  */
 public class FishingworldFrontPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(FishingworldFrontPageParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public FishingworldFrontPageParser(AsyncFetchClient client) {
+    public FishingworldFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.marstar;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -19,10 +19,10 @@ import java.sql.Timestamp;
  * Copyright NAXSoft 2015
  */
 public class MarstarProductListParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
+    private final HttpClient client;
     private static final Logger logger = LoggerFactory.getLogger(MarstarProductListParser.class);
 
-    public MarstarProductListParser(AsyncFetchClient client) {
+    public MarstarProductListParser(HttpClient client) {
         this.client = client;
     }
 

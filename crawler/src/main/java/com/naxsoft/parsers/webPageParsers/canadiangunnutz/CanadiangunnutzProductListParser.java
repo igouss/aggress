@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -27,10 +27,11 @@ import java.util.Map;
  */
 public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzProductListParser.class);
-    private final AsyncFetchClient client;
-    private List<Cookie> cookies;
+    private final HttpClient client;
+    ListenableFuture<List<Cookie>> futureCookies;
 
-    public CanadiangunnutzProductListParser(AsyncFetchClient client) {
+
+    public CanadiangunnutzProductListParser(HttpClient client) {
         this.client = client;
         Map<String, String> formParameters = new HashMap<>();
         formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
@@ -42,59 +43,60 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
         formParameters.put("vb_login_md5password", "");
         formParameters.put("vb_login_md5password_utf", "");
 
-        ListenableFuture<List<Cookie>> futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
-        try {
-            cookies = futureCookies.get();
-        } catch (Exception e) {
-            logger.error("Failed to login to canadiangunnutz", e);
-        }
+        futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.create(subscriber -> {
-            if (null == cookies || cookies.isEmpty()) {
-                logger.warn("No login cookies");
-                subscriber.onCompleted();
-                return;
-            }
-
-            client.get(parent.getUrl(), cookies, new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                        Elements elements = document.select("#threads .threadtitle");
-                        if (elements.isEmpty()) {
-                            logger.error("No results on page");
-                        }
-                        for (Element element : elements) {
-                            Elements select = element.select(".prefix");
-                            if (!select.isEmpty()) {
-                                if (select.first().text().contains("WTS")) {
-                                    element = element.select("a.title").first();
-                                    if (!element.text().toLowerCase().contains("remove")) {
-                                        WebPageEntity webPageEntity = new WebPageEntity();
-                                        webPageEntity.setUrl(element.attr("abs:href"));
-                                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                        webPageEntity.setParsed(false);
-                                        webPageEntity.setType("productPage");
-                                        webPageEntity.setStatusCode(resp.getStatusCode());
-                                        webPageEntity.setCategory(parent.getCategory());
-                                        logger.info("productPage={}", webPageEntity.getUrl());
-                                        subscriber.onNext(webPageEntity);
+        Observable<WebPageEntity> result = Observable.create(subscriber -> {
+            try {
+                List<Cookie> cookies = futureCookies.get();
+                if (null == cookies || cookies.isEmpty()) {
+                    logger.warn("No login cookies");
+                    subscriber.onCompleted();
+                    return;
+                }
+                client.get(parent.getUrl(), cookies, new CompletionHandler<Void>() {
+                    @Override
+                    public Void onCompleted(Response resp) throws Exception {
+                        if (200 == resp.getStatusCode()) {
+                            Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
+                            Elements elements = document.select("#threads .threadtitle");
+                            if (elements.isEmpty()) {
+                                logger.error("No results on page");
+                            }
+                            for (Element element : elements) {
+                                Elements select = element.select(".prefix");
+                                if (!select.isEmpty()) {
+                                    if (select.first().text().contains("WTS")) {
+                                        element = element.select("a.title").first();
+                                        if (!element.text().toLowerCase().contains("remove")) {
+                                            WebPageEntity webPageEntity = new WebPageEntity();
+                                            webPageEntity.setUrl(element.attr("abs:href"));
+                                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                            webPageEntity.setParsed(false);
+                                            webPageEntity.setType("productPage");
+                                            webPageEntity.setStatusCode(resp.getStatusCode());
+                                            webPageEntity.setCategory(parent.getCategory());
+                                            logger.info("productPage={}", webPageEntity.getUrl());
+                                            subscriber.onNext(webPageEntity);
+                                        }
                                     }
                                 }
                             }
+                        } else {
+                            logger.error("Failed to load page {}", parent.getUrl());
                         }
-                    } else {
-                        logger.error("Failed to load page {}", parent.getUrl());
+                        subscriber.onCompleted();
+                        return null;
                     }
-                    subscriber.onCompleted();
-                    return null;
-                }
-            });
+                });
+            } catch (Exception e) {
+                logger.error("Failed to login to canadiangunnutz", e);
+            }
+
         });
+        return result;
     }
 
     @Override

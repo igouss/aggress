@@ -1,8 +1,6 @@
 package com.naxsoft.crawler;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.ListenableFuture;
+import com.ning.http.client.*;
 import com.ning.http.client.cookie.Cookie;
 import com.ning.http.client.extra.ThrottleRequestFilter;
 import com.ning.http.client.filter.FilterContext;
@@ -19,13 +17,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * Copyright NAXSoft 2015
  */
-public class AsyncFetchClientImpl implements AutoCloseable, Cloneable, AsyncFetchClient {
+public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
     public static final int REQUEST_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60);
-    private static final Logger logger = LoggerFactory.getLogger(AsyncFetchClientImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientImpl.class);
     private final AsyncHttpClient asyncHttpClient;
     private final int maxConnections = 1;
 
-    public AsyncFetchClientImpl(SSLContext sslContext) {
+    public HttpClientImpl(SSLContext sslContext) {
         AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder()
                 .setAcceptAnyCertificate(true)
                 .setSSLContext(sslContext)
@@ -63,10 +61,8 @@ public class AsyncFetchClientImpl implements AutoCloseable, Cloneable, AsyncFetc
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirects(followRedirect);
-
-        ListenableFuture<R> result = requestBuilder.execute(handler);
-
-        return result;
+        Request request = requestBuilder.build();
+        return asyncHttpClient.executeRequest(request, handler);
     }
 
     @Override
@@ -82,9 +78,8 @@ public class AsyncFetchClientImpl implements AutoCloseable, Cloneable, AsyncFetc
         requestBuilder.setCookies(cookies);
         requestBuilder.setBody(content);
         requestBuilder.setFollowRedirects(true);
-
-
-        return requestBuilder.execute(handler);
+        Request request = requestBuilder.build();
+        return asyncHttpClient.executeRequest(request, handler);
     }
 
     @Override
@@ -94,13 +89,14 @@ public class AsyncFetchClientImpl implements AutoCloseable, Cloneable, AsyncFetc
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirects(true);
+        Request request = requestBuilder.build();
 
         Set<Map.Entry<String, String>> entries = formParameters.entrySet();
         for (Map.Entry<String, String> e : entries) {
             requestBuilder.addFormParam(e.getKey(), e.getValue());
         }
 
-        return requestBuilder.execute(handler);
+        return asyncHttpClient.executeRequest(request, handler);
     }
 
     public void close() {

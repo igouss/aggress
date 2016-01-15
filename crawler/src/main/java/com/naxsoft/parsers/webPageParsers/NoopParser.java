@@ -5,12 +5,12 @@
 
 package com.naxsoft.parsers.webPageParsers;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import rx.Observable;
 
 public class NoopParser extends AbstractWebPageParser {
-    public NoopParser(AsyncFetchClient client) {
+    public NoopParser(HttpClient client) {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {

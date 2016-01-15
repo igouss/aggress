@@ -13,9 +13,9 @@ import com.naxsoft.parsers.productParser.ProductParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscription;
 
 import java.security.InvalidParameterException;
-import java.util.InvalidPropertiesFormatException;
 import java.util.Set;
 
 /**
@@ -58,8 +58,8 @@ public class ParseCommand implements Command {
         indexSuffix = null;
     }
 
-    private void indexProducts(Observable<ProductEntity> products, String index, String type) {
-        elastic.index(products, index, type);
+    private Subscription indexProducts(Observable<ProductEntity> products, String index, String type) {
+        return elastic.index(products, index, type);
     }
 
     private void processProducts(Observable<WebPageEntity> pagesToParse) {
@@ -72,21 +72,25 @@ public class ParseCommand implements Command {
 
 
                 String webPageEntityCategory = pageToParse.getCategory();
-                if (null == webPageEntityCategory || webPageEntityCategory.isEmpty()) {
-                    throw new InvalidPropertiesFormatException("Category not set");
-                }
-
-                if (!pageToParse.getCategory().toLowerCase().equals("N/A") || !pageToParse.getCategory().toLowerCase().equals("Firearms") || !pageToParse.getCategory().toLowerCase().equals("Ammo") || !pageToParse.getCategory().toLowerCase().equals("Misc")) {
-                    throw new InvalidParameterException("Invalid category name");
-                }
-
-                result = parser.parse(pageToParse);
-                time.stop();
-
-                pageToParse.setParsed(true);
-                if (0 == webPageService.markParsed(pageToParse)) {
-                    logger.error("Failed to make page as parsed {}", pageToParse);
-                    result = null;
+                // Check is category is set and has valid name
+                if (null != webPageEntityCategory && !webPageEntityCategory.isEmpty()) {
+                    if (pageToParse.getCategory().toLowerCase().equals("N/A") && pageToParse.getCategory().toLowerCase().equals("Firearms") && pageToParse.getCategory().toLowerCase().equals("Ammo") && pageToParse.getCategory().toLowerCase().equals("Misc")) {
+                        result = parser.parse(pageToParse);
+                        time.stop();
+                        if (null != result) {
+                            pageToParse.setParsed(true);
+                            if (0 == webPageService.markParsed(pageToParse)) {
+                                logger.error("Failed to make page as parsed {}", pageToParse);
+                                result = null;
+                            }
+                        } else {
+                            logger.error("failed to parse {}", pageToParse.getUrl());
+                        }
+                    } else {
+                        throw new InvalidParameterException("Invalid category name");
+                    }
+                } else {
+                    throw new InvalidParameterException("Category not set");
                 }
             } catch (Exception e) {
                 logger.error("Failed to parse product page {}", pageToParse.getUrl(), e);

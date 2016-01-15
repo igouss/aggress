@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
@@ -21,10 +21,10 @@ import java.util.Map;
  */
 public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
-    private final AsyncFetchClient client;
-    private List<Cookie> cookies;
+    private final HttpClient client;
+    private ListenableFuture<List<Cookie>> futureCookies;
 
-    public CanadiangunnutzProductPageParser(AsyncFetchClient client) {
+    public CanadiangunnutzProductPageParser(HttpClient client) {
         this.client = client;
         Map<String, String> formParameters = new HashMap<>();
         formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
@@ -36,29 +36,38 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
         formParameters.put("vb_login_md5password", "");
         formParameters.put("vb_login_md5password_utf", "");
 
-        ListenableFuture<List<Cookie>> futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
-        try {
-            cookies = futureCookies.get();
-        } catch (Exception e) {
-            logger.error("Failed to login to canadiangunnutz", e);
-        }
+        futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, cookies, webPage.getUrl()))
-                .filter(data -> {
-                    if (null != data) {
-                        return true;
-                    } else {
-                        logger.error("failed to download web page {}" + webPage.getUrl());
-                        return false;
-                    }
-                })
-                .map(webPageEntity -> {
-                    webPageEntity.setCategory(webPage.getCategory());
-                    return webPageEntity;
-                });
+        return Observable.create(subscriber -> {
+            try {
+                List<Cookie> cookies = futureCookies.get();
+                if (null == cookies || cookies.isEmpty()) {
+                    logger.warn("No login cookies");
+                    subscriber.onCompleted();
+                    return;
+                }
+
+                Observable.from(PageDownloader.download(client, cookies, webPage.getUrl()))
+                        .filter(data -> {
+                            if (null != data) {
+                                return true;
+                            } else {
+                                logger.error("failed to download web page {}" + webPage.getUrl());
+                                return false;
+                            }
+                        })
+                        .map(webPageEntity -> {
+                            webPageEntity.setCategory(webPage.getCategory());
+                            return webPageEntity;
+                        }).subscribe(subscriber::onNext, subscriber::onError, subscriber::onCompleted);
+            } catch (Exception e) {
+                logger.error("Failed to login to canadiangunnutz", e);
+            }
+        });
+
     }
 
     @Override

@@ -8,14 +8,10 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
 import com.naxsoft.ExecutionContext;
-import com.naxsoft.commands.CleanDBCommand;
-import com.naxsoft.commands.CrawlCommand;
-import com.naxsoft.commands.ParseCommand;
-import com.naxsoft.commands.PopulateDBCommand;
-import com.naxsoft.crawler.AsyncFetchClientImpl;
+import com.naxsoft.commands.*;
+import com.naxsoft.crawler.HttpClientImpl;
 import com.naxsoft.database.*;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
-import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.util.SslUtils;
 import joptsimple.OptionParser;
@@ -43,16 +39,17 @@ public class Aggress {
         final ExecutionContext context = new ExecutionContext();
         final MetricRegistry metrics = new MetricRegistry();
         final Database db = new Database();
-        final Elastic elastic = new Elastic("localhost", 9300);
+        final Elastic elastic = new Elastic();
         final ScheduledReporter elasticReporter = Slf4jReporter.forRegistry(metrics).outputTo(logger).build();
         final OptionSet options = parseCommandLineArguments(args);
 
-        AsyncFetchClientImpl asyncFetchClient = null;
+        HttpClientImpl asyncFetchClient = null;
 
         if (!options.hasOptions() || options.has("help")) {
             showHelp();
             return;
         }
+        elastic.connect("localhost", 9300);
 
         context.setOptions(options);
         context.setDb(db);
@@ -99,10 +96,11 @@ public class Aggress {
             AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
             builder.setAcceptAnyCertificate(true);
             instance.getSSLContext(builder.build()).init(null, trustAllCerts, new java.security.SecureRandom());
-            asyncFetchClient = new AsyncFetchClientImpl(sc);
+            asyncFetchClient = new HttpClientImpl(sc);
 
+            context.setFetchClient(asyncFetchClient);
             context.setProductParserFactory(new ProductParserFactory());
-            context.setWebPageParserFactory(new WebPageParserFactory(asyncFetchClient));
+
             setProperty("jsse.enableSNIExtension", "false");
             setProperty("jdk.tls.trustNameService", "true");
 
@@ -110,23 +108,11 @@ public class Aggress {
             context.setProductService(new ProductService(db));
             context.setSourceService(new SourceService(db));
 
+
             String indexSuffix = "";//"-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
             context.setIndexSuffix(indexSuffix);
 
-            elastic.createIndex(asyncFetchClient, "product", "guns", indexSuffix)
-                    .retry(3)
-                    .subscribe(rc -> {
-                        logger.info("Elastic create index rc = {}", rc);
-                    }, ex -> {
-                        logger.error("CreateIndex Exception", ex);
-                    });
-            elastic.createMapping(asyncFetchClient, "product", "guns", indexSuffix)
-                    .retry(3)
-                    .subscribe(rc -> {
-                        logger.info("Elastic create mapping rc = {}", rc);
-                    }, ex -> {
-                        logger.error("CreateMapping Exception", ex);
-                    });
+
 
             metrics.register(MetricRegistry.name(Database.class, "web_pages", "unparsed"), (Gauge<Long>) () -> {
                 Long rc = -1L;
@@ -145,6 +131,21 @@ public class Aggress {
                 return rc;
             });
 //
+
+            if (options.has("createESIndex")) {
+                CreateESIndexCommand command = new CreateESIndexCommand();
+                command.setUp(context);;
+                command.run();
+                command.tearDown();
+            }
+
+            if (options.has("createESMappings")) {
+                CreateESMappingCommand command = new CreateESMappingCommand();
+                command.setUp(context);;
+                command.run();
+                command.tearDown();
+            }
+
             if (options.has("clean")) {
                 CleanDBCommand cleanDBCommand = new CleanDBCommand();
                 cleanDBCommand.setUp(context);
@@ -197,11 +198,13 @@ public class Aggress {
         parser.accepts("clean");
         parser.accepts("crawl");
         parser.accepts("parse");
+        parser.accepts("createESIndex");
+        parser.accepts("createESMappings");
 
         return parser.parse(args);
     }
 
     private static void showHelp() {
-        out.println("Aggress [-populate] [-clean] [-crawl] [-parse]");
+        out.println("Aggress [-populate] [-clean] [-crawl] [-parse] [-createESIndex] [-createESMappings]");
     }
 }

@@ -11,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.util.Set;
-
 /**
  * Copyright NAXSoft 2015
  */
@@ -26,7 +24,7 @@ public class CrawlCommand implements Command {
     @Override
     public void setUp(ExecutionContext context) throws CLIException {
         webPageService = context.getWebPageService();
-        webPageParserFactory = context.getWebPageParserFactory();
+        webPageParserFactory = new WebPageParserFactory(context.getHTTPClient());
         metrics = context.getMetrics();
     }
 
@@ -35,9 +33,15 @@ public class CrawlCommand implements Command {
         process(webPageService.getUnparsedByType("frontPage"));
         process(webPageService.getUnparsedByType("productList"));
         process(webPageService.getUnparsedByType("productPage"));
-        webPageService.getUnparsedCount("frontPage").subscribe(value -> logger.info("Unparsed frontPage = {}", value));
-        webPageService.getUnparsedCount("productList").subscribe(value -> logger.info("Unparsed productList = {}", value));
-        webPageService.getUnparsedCount("productPage").subscribe(value -> logger.info("Unparsed productPage = {}", value));
+        webPageService.getUnparsedCount("frontPage").take(1).subscribe(value -> {
+            logger.info("Unparsed frontPage = {}", value);
+        });
+        webPageService.getUnparsedCount("productList").take(1).subscribe(value -> {
+            logger.info("Unparsed productList = {}", value);
+        });
+        webPageService.getUnparsedCount("productPage").take(1).subscribe(value -> {
+            logger.info("Unparsed productPage = {}", value);
+        });
         logger.info("Fetch & parse complete");
     }
 

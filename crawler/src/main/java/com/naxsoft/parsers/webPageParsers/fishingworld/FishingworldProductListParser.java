@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.fishingworld;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -18,10 +18,10 @@ import java.sql.Timestamp;
  * Copyright NAXSoft 2015
  */
 public class FishingworldProductListParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
+    private final HttpClient client;
     private static final Logger logger = LoggerFactory.getLogger(FishingworldProductListParser.class);
 
-    public FishingworldProductListParser(AsyncFetchClient client) {
+    public FishingworldProductListParser(HttpClient client) {
         this.client = client;
     }
 

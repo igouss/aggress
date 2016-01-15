@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.ning.http.client.cookie.Cookie;
@@ -26,7 +26,7 @@ public class PageDownloader {
      * @param url    URL of pages to download
      * @return Stream of downloaded pages.
      */
-    public static Future<WebPageEntity> download(AsyncFetchClient client, String url) {
+    public static Future<WebPageEntity> download(HttpClient client, String url) {
         return download(client, Collections.EMPTY_LIST, url);
     }
 
@@ -38,7 +38,7 @@ public class PageDownloader {
      * @param cookies HTML cookies
      * @return Stream of downloaded pages.
      */
-    public static Future<WebPageEntity> download(AsyncFetchClient client, List<Cookie> cookies, String url) {
+    public static Future<WebPageEntity> download(HttpClient client, List<Cookie> cookies, String url) {
         return client.get(url, cookies, new CompletionHandler<WebPageEntity>() {
             @Override
             public WebPageEntity onCompleted(com.ning.http.client.Response resp) throws Exception {

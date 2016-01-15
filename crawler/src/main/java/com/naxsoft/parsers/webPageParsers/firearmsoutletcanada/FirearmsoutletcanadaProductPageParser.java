@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.firearmsoutletcanada;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
@@ -13,9 +13,9 @@ import rx.Observable;
  */
 public class FirearmsoutletcanadaProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(FirearmsoutletcanadaProductPageParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public FirearmsoutletcanadaProductPageParser(AsyncFetchClient client) {
+    public FirearmsoutletcanadaProductPageParser(HttpClient client) {
         this.client = client;
     }
 

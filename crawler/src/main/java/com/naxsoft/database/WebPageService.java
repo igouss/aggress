@@ -86,8 +86,8 @@ public class WebPageService {
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         final String query = "from WebPageEntity where type = '" + type + "' and parsed = false order by rand()";
         return getUnparsedCount(type)
-                .doOnNext(value -> out.println("Found " + value + " unparsed webpages of type " + type))
-                .doOnError(ex -> logger.error("Exception", ex))
-                .flatMap(count -> observableQuery.execute(query));
+                .flatMap(count -> observableQuery.execute(query))
+                .doOnNext(value -> logger.info("Found unparsed WebPageEntity url = {} type {}", value.getUrl(), type))
+                .doOnError(ex -> logger.error("Exception", ex));
     }
 }

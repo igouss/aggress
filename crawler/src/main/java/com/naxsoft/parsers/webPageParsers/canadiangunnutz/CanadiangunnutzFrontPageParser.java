@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -39,9 +39,9 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
             "Optics and Sights",
             "Factory Ammo and Reloading Equipment",
     };
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public CanadiangunnutzFrontPageParser(AsyncFetchClient client) {
+    public CanadiangunnutzFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

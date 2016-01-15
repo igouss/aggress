@@ -30,7 +30,8 @@ require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
 
 
         var searchData = {
-            searchKey: null
+            searchKey: null,
+            categoryKey: null
             , startFrom: 0
         };
         var prev = function(e) {
@@ -58,17 +59,21 @@ require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
             return word.charAt(0).toUpperCase() + word.substring(1);
         }
 
-        var inputField = $("input");
+        var inputField = $("input#searchInput");
+        var categoryField = $("select#category");
+
         var search = function(onFailure) {
             if (inputField.val() != searchData.searchKey) {
                 searchData.startFrom = 0;
             }
-            var searchField = $("#searchInput");
-            var pageName = "?search=" + encodeURIComponent(searchField.val()) + "&startFrom=" + searchData.startFrom;
-            var title = searchField.val() + " " + searchData.startFrom;
-            window.history.pushState(searchData, title, pageName);
 
             searchData.searchKey = inputField.val();
+            searchData.categoryKey = categoryField.val();
+
+            var pageName = "?search=" + encodeURIComponent(searchData.searchKey) + "&category=" + searchData.categoryKey + "&startFrom=" + searchData.startFrom;
+            var title = searchData.categoryKey + ": " + searchData.searchKey;
+            window.history.pushState(searchData, title, pageName);
+
             $.getJSON("/search", searchData, function(data) {
                 if (searchData.startFrom != 0 && data.length == 0) {
                     if (onFailure) {
@@ -133,7 +138,9 @@ require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
             }
         });
         searchData.searchKey = getUrlParameter("search");
+        searchData.categoryKey = getUrlParameter("category");
         inputField.val(searchData.searchKey);
+        categoryField.val(searchData.categoryKey);
         searchData.startFrom = parseInt(getUrlParameter("startFrom"), 10);
         if (searchData.searchKey) {
             if (!searchData.startFrom) {

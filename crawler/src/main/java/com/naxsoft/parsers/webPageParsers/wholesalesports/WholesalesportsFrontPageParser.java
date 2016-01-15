@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.wholesalesports;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -21,9 +21,9 @@ import java.util.HashSet;
  */
 public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(WholesalesportsFrontPageParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public WholesalesportsFrontPageParser(AsyncFetchClient client) {
+    public WholesalesportsFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

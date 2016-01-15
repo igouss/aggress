@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.wanstallsonline;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -19,9 +19,9 @@ import java.sql.Timestamp;
  */
 public class WanstallsonlineProductListParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(WanstallsonlineProductListParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public WanstallsonlineProductListParser(AsyncFetchClient client) {
+    public WanstallsonlineProductListParser(HttpClient client) {
         this.client = client;
     }
 

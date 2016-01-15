@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.cabelas;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,9 +20,9 @@ import java.sql.Timestamp;
  */
 public class CabelasProductListParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CabelasProductListParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public CabelasProductListParser(AsyncFetchClient client) {
+    public CabelasProductListParser(HttpClient client) {
         this.client = client;
     }
 

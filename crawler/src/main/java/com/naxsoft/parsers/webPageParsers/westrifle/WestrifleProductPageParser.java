@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.westrifle;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
@@ -13,9 +13,9 @@ import rx.Observable;
  */
 public class WestrifleProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(WestrifleProductPageParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public WestrifleProductPageParser(AsyncFetchClient client) {
+    public WestrifleProductPageParser(HttpClient client) {
         this.client = client;
     }
 

@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -16,9 +16,9 @@ import java.sql.Timestamp;
 
 public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesFrontPageParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public WolverinesuppliesFrontPageParser(AsyncFetchClient client) {
+    public WolverinesuppliesFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

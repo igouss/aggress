@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.dantesports;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,10 +20,10 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class DantesportsProductListParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
+    private final HttpClient client;
     private static final Logger logger = LoggerFactory.getLogger(DantesportsProductListParser.class);
 
-    public DantesportsProductListParser(AsyncFetchClient client) {
+    public DantesportsProductListParser(HttpClient client) {
         this.client = client;
     }
 

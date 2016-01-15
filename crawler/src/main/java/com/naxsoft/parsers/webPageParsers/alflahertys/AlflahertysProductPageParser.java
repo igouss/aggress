@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.alflahertys;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
@@ -13,9 +13,9 @@ import rx.Observable;
  */
 public class AlflahertysProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(AlflahertysProductPageParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public AlflahertysProductPageParser(AsyncFetchClient client) {
+    public AlflahertysProductPageParser(HttpClient client) {
         this.client = client;
     }
 

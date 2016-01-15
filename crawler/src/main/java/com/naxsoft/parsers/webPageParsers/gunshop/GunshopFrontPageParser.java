@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.gunshop;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -21,10 +21,10 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class GunshopFrontPageParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
+    private final HttpClient client;
     private static final Logger logger = LoggerFactory.getLogger(GunshopFrontPageParser.class);
 
-    public GunshopFrontPageParser(AsyncFetchClient client) {
+    public GunshopFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

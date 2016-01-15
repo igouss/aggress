@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.marstar;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import rx.Observable;
@@ -12,9 +12,9 @@ import java.util.HashSet;
  * Copyright NAXSoft 2015
  */
 public class MarstarFrontPageParser extends AbstractWebPageParser {
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public MarstarFrontPageParser(AsyncFetchClient client) {
+    public MarstarFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

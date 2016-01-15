@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.sail;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -31,9 +31,9 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
         cookies.add(Cookie.newValidCookie("store_language", "english", false, null, null, Long.MAX_VALUE, false, false));
     }
 
-    private final AsyncFetchClient client;
+    private final HttpClient client;
 
-    public SailsFrontPageParser(AsyncFetchClient client) {
+    public SailsFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

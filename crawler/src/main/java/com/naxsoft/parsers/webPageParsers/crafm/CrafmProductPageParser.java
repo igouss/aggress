@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.crafm;
 
-import com.naxsoft.crawler.AsyncFetchClient;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
@@ -17,10 +17,10 @@ import java.util.List;
  */
 public class CrafmProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CrafmProductPageParser.class);
-    private final AsyncFetchClient client;
+    private final HttpClient client;
     List<Cookie> cookies;
 
-    public CrafmProductPageParser(AsyncFetchClient client) {
+    public CrafmProductPageParser(HttpClient client) {
         this.client = client;
         cookies = new ArrayList<>(1);
         cookies.add(Cookie.newValidCookie("store", "english", false, null, null, Long.MAX_VALUE, false, false));
