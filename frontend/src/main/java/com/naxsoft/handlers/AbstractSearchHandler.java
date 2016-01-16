@@ -40,8 +40,8 @@ public abstract class AbstractSearchHandler implements HttpHandler {
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
-        String searchKey = getSearchKey(exchange);
-        String categoryKey = getCategoryKey(exchange);
+        String searchKey = getSearchKey(exchange, "searchKey");
+        String categoryKey = getSearchKey(exchange, "categoryKey");
         int startFrom = getStartFrom(exchange);
 
         ListenableActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
@@ -79,16 +79,9 @@ public abstract class AbstractSearchHandler implements HttpHandler {
         return startFrom;
     }
 
-    private String getSearchKey(HttpServerExchange exchange) throws Exception {
+    private String getSearchKey(HttpServerExchange exchange, String paremeter) throws Exception {
         StringWriter sw = new StringWriter();
-        String val = exchange.getQueryParameters().get("searchKey").getFirst();
-        ElasticEscape.escape(val, sw);
-        return sw.toString();
-    }
-
-    private String getCategoryKey(HttpServerExchange exchange) throws Exception {
-        StringWriter sw = new StringWriter();
-        String val = exchange.getQueryParameters().get("categoryKey").getFirst();
+        String val = exchange.getQueryParameters().get(paremeter).getFirst();
         ElasticEscape.escape(val, sw);
         return sw.toString();
     }
