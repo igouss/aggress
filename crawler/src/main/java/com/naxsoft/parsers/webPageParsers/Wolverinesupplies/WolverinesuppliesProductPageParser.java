@@ -27,7 +27,7 @@ public class WolverinesuppliesProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}" + webPage.getUrl());
+                        logger.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 }).map(webPageEntity -> {
