@@ -146,7 +146,7 @@ require(['jquery', 'bootstrap', 'mustache'], function ($, bootStrap, m) {
             }
         });
 
-        $("#category").select()
+        $("#category").select();
 
         searchData.searchKey = getUrlParameter("search");
         searchData.categoryKey = getUrlParameter("category");
