@@ -5,15 +5,18 @@ requirejs.config({
         }
     },
     paths: {
-        "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min",
-        "bootstrap": "//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min"
+        "jquery": "/js/jquery-2.1.4.min",
+        "bootstrap": "/js/bootstrap.min"
     }
+    //"jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min",
+    //"bootstrap": "//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min"
+
 });
 
-require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
+require(['jquery', 'bootstrap', 'mustache'], function ($, bootStrap, m) {
 
     // DOM ready
-    $(function(){
+    $(function () {
         var getUrlParameter = function getUrlParameter(sParam) {
             var sURLVariables = window.location.search.substring(1).split('&'),
                 sParameterName,
@@ -34,7 +37,7 @@ require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
             categoryKey: null
             , startFrom: 0
         };
-        var prev = function(e) {
+        var prev = function (e) {
             searchData.startFrom -= 30;
             if (searchData.startFrom < 0) {
                 searchData.startFrom = 0;
@@ -42,10 +45,12 @@ require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
             e.preventDefault();
             search();
         };
-        var next = function(e) {
+        var next = function (e) {
             searchData.startFrom += 30;
             e.preventDefault();
-            search(function() { searchData.startFrom -= 30;});
+            search(function () {
+                searchData.startFrom -= 30;
+            });
         };
         var itemTemplate = $('#itemTemplate').html();
         var navTemplate = $('#navTemplate').html();
@@ -62,19 +67,22 @@ require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
         var inputField = $("input#searchInput");
         var categoryField = $("select#category");
 
-        var search = function(onFailure) {
+        var search = function (onFailure) {
             if (inputField.val() != searchData.searchKey) {
                 searchData.startFrom = 0;
             }
 
             searchData.searchKey = inputField.val();
+            if (searchData.categoryKey != categoryField.val()) {
+                searchData.startFrom = 0;
+            }
             searchData.categoryKey = categoryField.val();
 
             var pageName = "?search=" + encodeURIComponent(searchData.searchKey) + "&category=" + searchData.categoryKey + "&startFrom=" + searchData.startFrom;
             var title = searchData.categoryKey + ": " + searchData.searchKey;
             window.history.pushState(searchData, title, pageName);
 
-            $.getJSON("/search", searchData, function(data) {
+            $.getJSON("/search", searchData, function (data) {
                 if (searchData.startFrom != 0 && data.length == 0) {
                     if (onFailure) {
                         onFailure();
@@ -83,7 +91,7 @@ require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
                 }
                 $(".renderedItem").remove();
 
-                if(0 != data.length) {
+                if (0 != data.length) {
                     if ($("nav").length == 0) {
                         $("#navigation").append(m.render(navTemplate, {}));
                         $("#prev").on("click", prev);
@@ -96,51 +104,58 @@ require(['jquery', 'bootstrap', 'mustache'], function($, bootStrap, m){
                     $("nav").remove();
                 }
 
-                $.map(data, function(element) {
+                $.map(data, function (element) {
                     //console.info(element);
                     var rendered = $(m.render(itemTemplate, element));
                     var tbody = rendered.find("tbody");
 
-                    $.each(element, function(key, value) {
-                        if (key == "productImage" || key == "productName" || key == "url" || value=="") {
+                    $.each(element, function (key, value) {
+                        if (key == "productImage" || key == "productName" || key == "url" || value == "") {
 
                         } else {
-                                var rowHtml = "";
-                                if (key == "specialPrice") {
-                                    rowHtml = "<tr class='info'><td>{{key}}</td><td>{{value}}</td></tr>";
-                                } else {
-                                    rowHtml = "<tr><td>{{key}}</td><td>{{value}}</td></tr>";
-                                }
-                                var row = $(m.render(rowHtml, {
-                                    "key": toCapitalizedWords(key),
-                                    "value": value
-                                }));
-                                tbody.append(row);
+                            var rowHtml = "";
+                            if (key == "specialPrice") {
+                                rowHtml = "<tr class='info'><td>{{key}}</td><td>{{value}}</td></tr>";
+                            } else {
+                                rowHtml = "<tr><td>{{key}}</td><td>{{value}}</td></tr>";
+                            }
+                            var row = $(m.render(rowHtml, {
+                                "key": toCapitalizedWords(key),
+                                "value": value
+                            }));
+                            tbody.append(row);
                         }
                     });
 
                     $('#searchResults').append(rendered);
                 });
-                $("html, body").animate({ scrollTop: 0 }, "slow");
+                $("html, body").animate({scrollTop: 0}, "slow");
                 return true;
             })
         };
 
         m.parse(itemTemplate);
-        $("#searchBtn").on("click", function() {
+        $("#searchBtn").on("click", function () {
             searchData.startFrom = 0;
             search();
         });
-        inputField.keypress(function(e) {
-            if(e.which == 13) {
+        inputField.keypress(function (e) {
+            if (e.which == 13) {
                 searchData.startFrom = 0;
                 search();
             }
         });
+
+        $("#category").select()
+
         searchData.searchKey = getUrlParameter("search");
         searchData.categoryKey = getUrlParameter("category");
-        inputField.val(searchData.searchKey);
-        categoryField.val(searchData.categoryKey);
+        if (searchData.searchKey) {
+            inputField.val(searchData.searchKey);
+        }
+        if (searchData.categoryKey) {
+            categoryField.val(searchData.categoryKey);
+        }
         searchData.startFrom = parseInt(getUrlParameter("startFrom"), 10);
         if (searchData.searchKey) {
             if (!searchData.startFrom) {

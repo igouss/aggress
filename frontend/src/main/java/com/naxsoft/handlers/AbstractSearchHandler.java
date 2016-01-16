@@ -32,6 +32,7 @@ public abstract class AbstractSearchHandler implements HttpHandler {
             "regularPrice",
             "specialPrice",
             "productName",
+            "category",
     };
 
     public AbstractSearchHandler(TransportClient client) {
@@ -53,7 +54,7 @@ public abstract class AbstractSearchHandler implements HttpHandler {
         exchange.getResponseSender().send(result);
     }
 
-    private String searchResultToJson(SearchResponse searchResponse) {
+    private static String searchResultToJson(SearchResponse searchResponse) {
         logger.debug(searchResponse.toString());
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         StringBuilder builder = new StringBuilder();
@@ -71,7 +72,7 @@ public abstract class AbstractSearchHandler implements HttpHandler {
         return builder.toString();
     }
 
-    private int getStartFrom(HttpServerExchange exchange) {
+    private static int getStartFrom(HttpServerExchange exchange) {
         int startFrom = 0;
         if (exchange.getQueryParameters().containsKey("startFrom")) {
             startFrom = Integer.parseInt(exchange.getQueryParameters().get("startFrom").getFirst());
@@ -79,7 +80,7 @@ public abstract class AbstractSearchHandler implements HttpHandler {
         return startFrom;
     }
 
-    private String getSearchKey(HttpServerExchange exchange, String paremeter) throws Exception {
+    private static String getSearchKey(HttpServerExchange exchange, String paremeter) throws Exception {
         StringWriter sw = new StringWriter();
         String val = exchange.getQueryParameters().get(paremeter).getFirst();
         ElasticEscape.escape(val, sw);
