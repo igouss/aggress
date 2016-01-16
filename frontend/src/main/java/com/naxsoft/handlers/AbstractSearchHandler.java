@@ -26,84 +26,12 @@ public abstract class AbstractSearchHandler implements HttpHandler {
     private static final Logger logger = LoggerFactory.getLogger(AbstractSearchHandler.class);
     protected TransportClient client;
 
-    private static final String[] includeFields = new String[]{
-            "url",
-            "productImage",
-            "regularPrice",
-            "specialPrice",
-            "productName",
-            "category",
-    };
 
     public AbstractSearchHandler(TransportClient client) {
         this.client = client;
     }
 
     @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
-        String searchKey = getSearchKey(exchange, "searchKey");
-        String categoryKey = getSearchKey(exchange, "categoryKey");
-        int startFrom = getStartFrom(exchange);
+    public abstract void handleRequest(HttpServerExchange exchange) throws Exception;
 
-        ListenableActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
-        SearchResponse searchResponse = future.actionGet();
-        String result = searchResultToJson(searchResponse);
-
-        exchange.getResponseHeaders().add(HttpString.tryFromString("Access-Control-Allow-Origin"), "*");
-        exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "application/json;");
-        exchange.getResponseSender().send(result);
-    }
-
-    private static String searchResultToJson(SearchResponse searchResponse) {
-        logger.debug(searchResponse.toString());
-        SearchHit[] searchHits = searchResponse.getHits().getHits();
-        StringBuilder builder = new StringBuilder();
-        int length = searchHits.length;
-        builder.append("[");
-        for (int i = 0; i < length; i++) {
-            if (i == length - 1) {
-                builder.append(searchHits[i].getSourceAsString());
-            } else {
-                builder.append(searchHits[i].getSourceAsString());
-                builder.append(",");
-            }
-        }
-        builder.append("]");
-        return builder.toString();
-    }
-
-    private static int getStartFrom(HttpServerExchange exchange) {
-        int startFrom = 0;
-        if (exchange.getQueryParameters().containsKey("startFrom")) {
-            startFrom = Integer.parseInt(exchange.getQueryParameters().get("startFrom").getFirst());
-        }
-        return startFrom;
-    }
-
-    private static String getSearchKey(HttpServerExchange exchange, String paremeter) throws Exception {
-        StringWriter sw = new StringWriter();
-        String val = exchange.getQueryParameters().get(paremeter).getFirst();
-        ElasticEscape.escape(val, sw);
-        return sw.toString();
-    }
-
-    protected ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
-        String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-
-        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-        boolQueryBuilder.should(QueryBuilders.multiMatchQuery(searchKey, "productName^3", "description", "category"));
-        boolQueryBuilder.filter(QueryBuilders.existsQuery("category"));
-        boolQueryBuilder.must(QueryBuilders.matchQuery("category", category).type(MatchQueryBuilder.Type.PHRASE));
-
-        logger.info("{}", boolQueryBuilder);
-
-        SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product" + indexSuffix);
-        searchRequestBuilder.setQuery(boolQueryBuilder);
-        searchRequestBuilder.setTypes("guns");
-        searchRequestBuilder.setSearchType(SearchType.DEFAULT);
-        searchRequestBuilder.setFetchSource(includeFields, null);
-        searchRequestBuilder.setFrom(startFrom).setSize(30).setExplain(true);
-
-        return searchRequestBuilder.execute();
-    }
 }
