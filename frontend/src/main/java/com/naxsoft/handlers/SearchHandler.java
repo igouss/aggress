@@ -73,6 +73,7 @@ public class SearchHandler extends AbstractSearchHandler {
         String searchKey = getSearchKey(exchange, "searchKey");
         String categoryKey = getSearchKey(exchange, "categoryKey");
         int startFrom = getStartFrom(exchange);
+        logger.info("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
 
         ListenableActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
         SearchResponse searchResponse = future.actionGet();
