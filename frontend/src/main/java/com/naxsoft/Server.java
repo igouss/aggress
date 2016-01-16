@@ -2,7 +2,6 @@ package com.naxsoft;
 
 import com.naxsoft.handlers.IndexHandler;
 import com.naxsoft.handlers.SearchHandler;
-import com.naxsoft.handlers.SearchVerboseHandler;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.predicate.Predicates;
@@ -19,7 +18,6 @@ import io.undertow.server.session.SessionManager;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
@@ -36,23 +34,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
-    static Node node;
 
     public static void main(final String[] args) throws UnknownHostException {
-//        startElasticSearch();
-
-
         TemplateEngine templateEngine = getTemplateEngine();
         TransportClient esClient = getTransportClient();
 
         ApplicationContext context = new ApplicationContext();
         context.setInvalidateTemplateCache(true);
-
-//        VertxOptions vertxOptions = new VertxOptions();
-//        vertxOptions.setMetricsOptions(new MetricsOptions().setEnabled(true));
-//
-//        Vertx vertx = Vertx.vertx(vertxOptions);
-//        vertx.close(handler -> System.out.println("Vert.x is shutdown"));
 
         HttpHandler pathHandler = getPathHandler(templateEngine, esClient, context);
 
@@ -69,42 +57,19 @@ public class Server {
             server.start();
         } catch (RuntimeException e) {
             logger.error("Server error", e);
-        } finally {
-            // server.stop();
         }
     }
 
-//    private static void startElasticSearch() {
-//        Path currentRelativePath = Paths.get("");
-//        String s = currentRelativePath.toAbsolutePath().toString();
-//
-//        Settings.Builder settings =
-//                Settings.settingsBuilder();
-//        settings.put("path.home", s);
-//        settings.put("path.data", "index");
-//        settings.put("http.enabled", false);
-//
-//
-//        node = NodeBuilder.nodeBuilder()
-//                .settings(settings)
-//                .clusterName("elasticsearch")
-//                .data(true).local(false).node();
-//
-//    }
-
     private static HttpHandler getPathHandler(TemplateEngine templateEngine, TransportClient client, ApplicationContext context) {
         PathHandler pathHandler = Handlers.path();
-        final EncodingHandler handler =
-                new EncodingHandler(new ContentEncodingRepository()
-                        .addEncodingHandler("gzip",
-                                new GzipEncodingProvider(), 50,
-                                Predicates.truePredicate()))
-                        .setNext(pathHandler);
+        ContentEncodingRepository contentEncodingRepository = new ContentEncodingRepository();
+        contentEncodingRepository.addEncodingHandler("gzip", new GzipEncodingProvider(), 50, Predicates.truePredicate());
+        final EncodingHandler handler = new EncodingHandler(contentEncodingRepository);
+        handler.setNext(pathHandler);
 
-        pathHandler.addExactPath("/", new IndexHandler(context, templateEngine, false));
-        pathHandler.addExactPath("/verbose", new IndexHandler(context, templateEngine, true));
+        pathHandler.addExactPath("/", new IndexHandler(context, templateEngine));
+        pathHandler.addExactPath("/verbose", new IndexHandler(context, templateEngine));
         pathHandler.addExactPath("/search", new SearchHandler(client));
-        pathHandler.addExactPath("/searchVerbose", new SearchVerboseHandler(client));
 
         String baseDir = Paths.get("").toAbsolutePath().toString();
         String relPath = baseDir + "/basedir/thymeleaf";
@@ -117,8 +82,6 @@ public class Server {
 //                .setHandler(Handlers.path()
 //                        .addPrefixPath("/api/ws", websocket(new WebSocketHandler()))
 //                        .addPrefixPath("/api/rest", new RestHandler()))
-
-
         return handler;
     }
 
