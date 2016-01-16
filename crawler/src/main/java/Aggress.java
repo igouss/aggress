@@ -130,7 +130,6 @@ public class Aggress {
                 }
                 return rc;
             });
-//
 
             if (options.has("createESIndex")) {
                 CreateESIndexCommand command = new CreateESIndexCommand();
