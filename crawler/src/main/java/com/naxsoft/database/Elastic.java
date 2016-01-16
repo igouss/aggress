@@ -29,7 +29,6 @@ import rx.Subscription;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class Elastic implements AutoCloseable, Cloneable {

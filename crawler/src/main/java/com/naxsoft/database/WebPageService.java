@@ -12,8 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import static java.lang.System.out;
-
 public class WebPageService {
     private final static Logger logger = LoggerFactory.getLogger(WebPageService.class);
     private final Database database;

@@ -1,7 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
 
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.ning.http.client.Response;

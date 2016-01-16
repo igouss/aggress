@@ -1,7 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.gunshop;
 
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import org.jsoup.Jsoup;

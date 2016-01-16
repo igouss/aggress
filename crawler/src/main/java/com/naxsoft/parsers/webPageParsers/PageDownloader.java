@@ -1,7 +1,7 @@
 package com.naxsoft.parsers.webPageParsers;
 
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;

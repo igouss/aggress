@@ -1,9 +1,10 @@
 package com.naxsoft.database;
 
-import org.hibernate.*;
+import org.hibernate.Query;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.StatelessSession;
 import rx.Observable;
-
-import java.sql.SQLException;
 
 /**
  * Copyright NAXSoft 2015

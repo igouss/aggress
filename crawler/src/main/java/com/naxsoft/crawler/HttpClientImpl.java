@@ -1,6 +1,9 @@
 package com.naxsoft.crawler;
 
-import com.ning.http.client.*;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.ListenableFuture;
+import com.ning.http.client.Request;
 import com.ning.http.client.cookie.Cookie;
 import com.ning.http.client.extra.ThrottleRequestFilter;
 import com.ning.http.client.filter.FilterContext;

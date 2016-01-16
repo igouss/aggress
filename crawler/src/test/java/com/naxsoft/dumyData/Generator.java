@@ -1,18 +1,12 @@
 package com.naxsoft.dumyData;
 
-import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.Iterator;
 
 /**
  * Copyright NAXSoft 2015

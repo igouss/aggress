@@ -6,7 +6,9 @@
 package com.naxsoft.database;
 
 import com.naxsoft.entity.ProductEntity;
-import org.hibernate.*;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
