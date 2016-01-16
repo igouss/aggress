@@ -13,6 +13,10 @@ import rx.Observable;
 
 /**
  * Copyright NAXSoft 2015
+ *
+ * Crawl pages from initial dataset walking breath first. For each page generate one or more sub-pages to parse.
+ * Stop at leafs.
+ *
  */
 public class CrawlCommand implements Command {
     private final static Logger logger = LoggerFactory.getLogger(CrawlCommand.class);
@@ -52,6 +56,10 @@ public class CrawlCommand implements Command {
         metrics = null;
     }
 
+    /**
+     *
+     * @param pagesToParse
+     */
     private void process(Observable<WebPageEntity> pagesToParse) {
         pagesToParse.flatMap(pageToParse -> {
             Observable<WebPageEntity> result = null;

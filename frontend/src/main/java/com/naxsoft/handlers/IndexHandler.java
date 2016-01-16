@@ -12,17 +12,29 @@ import java.util.Locale;
 
 /**
  * Copyright NAXSoft 2015
+ *
+ * 
  */
 public class IndexHandler implements HttpHandler {
     public static final String REGULAR_NAME = Paths.get("").toAbsolutePath() + "/basedir/thymeleaf/layout.html";
     private final ApplicationContext context;
     private final TemplateEngine templateEngine;
 
+    /**
+     *
+     * @param context
+     * @param templateEngine
+     */
     public IndexHandler(ApplicationContext context, TemplateEngine templateEngine) {
         this.context = context;
         this.templateEngine = templateEngine;
     }
 
+    /**
+     *
+     * @param exchange
+     * @throws Exception
+     */
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         if (context.isInvalidateTemplateCache()) {

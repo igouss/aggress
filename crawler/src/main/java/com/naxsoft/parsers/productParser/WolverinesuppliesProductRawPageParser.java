@@ -20,8 +20,8 @@ import java.util.Set;
 public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
 
+    @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-
         HashSet<ProductEntity> result = new HashSet<>();
         Gson gson = new Gson();
         RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
@@ -58,11 +58,15 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
         return result;
     }
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("https://www.wolverinesupplies.com/") && webPage.getType().equals("productPageRaw");
     }
 }
 
+/**
+ *
+ */
 class RawProduct {
     Attributes[] Attributes;
     String ItemNumber;
@@ -81,6 +85,9 @@ class RawProduct {
     }
 }
 
+/**
+ *
+ */
 class Attributes {
     String SearchType;
     String AttributeName;

@@ -13,10 +13,16 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ */
 public class Database implements AutoCloseable, Cloneable {
     private final static Logger logger = LoggerFactory.getLogger(Database.class);
     private final SessionFactory sessionFactory;
 
+    /**
+     *
+     */
     public Database() {
         try {
             StandardServiceRegistry e = (new StandardServiceRegistryBuilder()).configure().build();
@@ -28,7 +34,9 @@ public class Database implements AutoCloseable, Cloneable {
         }
     }
 
-
+    /**
+     *
+     */
     public void close() {
         if (null != this.sessionFactory) {
             this.sessionFactory.close();
@@ -36,6 +44,10 @@ public class Database implements AutoCloseable, Cloneable {
 
     }
 
+    /**
+     *
+     * @return
+     */
     public SessionFactory getSessionFactory() {
         return this.sessionFactory;
     }

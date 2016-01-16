@@ -21,6 +21,7 @@ import java.util.Set;
 public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzRawPageParser.class);
 
+    @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
@@ -69,6 +70,7 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
     }
 
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.canadiangunnutz.com/") && webPage.getType().equals("productPageRaw");
     }

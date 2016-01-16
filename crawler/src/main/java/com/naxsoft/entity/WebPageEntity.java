@@ -18,6 +18,9 @@ import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+/**
+ * Web page that can either be leaf (with produce data) or be used to find subpages
+ */
 @Entity
 @Table(
         name = "web_page",
@@ -30,17 +33,47 @@ import java.util.zip.GZIPOutputStream;
 
         }
 )
-
 public class WebPageEntity {
     private static final Logger logger = LoggerFactory.getLogger(WebPageEntity.class);
 
+    /**
+     *
+     */
     private int id;
+
+    /**
+     *
+     */
     private String content;
+
+    /**
+     *
+     */
     private Timestamp modificationDate;
+
+    /**
+     *
+     */
     private Integer statusCode;
+
+    /**
+     *
+     */
     private String type;
+
+    /**
+     *
+     */
     private boolean parsed;
+
+    /**
+     *
+     */
     private String url;
+
+    /**
+     *
+     */
     private String category;
 
     public WebPageEntity() {
@@ -89,6 +122,7 @@ public class WebPageEntity {
             IOUtils.closeQuietly(zi);
         }
     }
+
     private static String removeNonASCII(String text) {
         return text.replaceAll("[^\\x00-\\x7F]", "");
     }
@@ -113,6 +147,10 @@ public class WebPageEntity {
             name = "content",
             columnDefinition = "TEXT"
     )
+
+    /**
+     * Get pages's HTML
+     */
     public String getContent() {
         if (null != this.content) {
             try {
@@ -126,6 +164,10 @@ public class WebPageEntity {
         return "";
     }
 
+    /**
+     * Set page HTML
+     * @param content HTML content
+     */
     public void setContent(String content) {
         if (null != content) {
             this.content = compress(removeNonASCII(content));
@@ -201,7 +243,6 @@ public class WebPageEntity {
     @Column(
             name = "category"
             , length = 128
-//            , columnDefinition = "TEXT"
     )
     public String getCategory() {
         return category;

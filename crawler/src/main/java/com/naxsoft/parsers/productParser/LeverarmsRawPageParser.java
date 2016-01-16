@@ -31,6 +31,7 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
         }
     }
 
+    @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
@@ -71,6 +72,7 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
         return products;
     }
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.leverarms.com/") && webPage.getType().equals("productPageRaw");
     }

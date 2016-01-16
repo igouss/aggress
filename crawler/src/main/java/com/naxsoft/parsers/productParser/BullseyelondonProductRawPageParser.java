@@ -28,8 +28,8 @@ import java.util.regex.Pattern;
 public class BullseyelondonProductRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(BullseyelondonProductRawPageParser.class);
 
+    @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
@@ -70,6 +70,11 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
         return products;
     }
 
+    /**
+     *
+     * @param document
+     * @return
+     */
     private static String getFreeShipping(Document document) {
         String raw = document.select(".freeShip").first().text();
         Matcher matcher = Pattern.compile("\\w+|\\s+").matcher(raw);
@@ -77,6 +82,11 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
     }
 
 
+    /**
+     *
+     * @param price
+     * @return
+     */
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
@@ -90,6 +100,11 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
         }
     }
 
+    /**
+     *
+     * @param document
+     * @return
+     */
     private static String getRegularPrice(Document document) {
         String raw = document.select(".regular-price").text().trim();
         if (raw.isEmpty()) {
@@ -98,11 +113,21 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
         return parsePrice(raw);
     }
 
+    /**
+     *
+     * @param document
+     * @return
+     */
     private static String getSpecialPrice(Document document) {
         String raw = document.select(".special-price .price").text().trim();
         return parsePrice(raw);
     }
 
+    /**
+     *
+     * @param document
+     * @return
+     */
     private static String getUnitsAvailable(Document document) {
         String raw = document.select(".price-box").first().nextElementSibling().text().trim();
         Matcher matcher = Pattern.compile("\\d+").matcher(raw);
@@ -113,6 +138,7 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
         }
     }
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.bullseyelondon.com/") && webPage.getType().equals("productPageRaw");
     }

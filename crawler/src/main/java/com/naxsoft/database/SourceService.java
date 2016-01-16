@@ -14,19 +14,34 @@ import rx.Observable;
 
 import java.util.Date;
 
+/**
+ *
+ */
 public class SourceService {
     private final static Logger logger = LoggerFactory.getLogger(SourceService.class);
     private final Database database;
 
+    /**
+     *
+     * @param database
+     */
     public SourceService(Database database) {
         this.database = database;
     }
 
+    /**
+     *
+     * @return
+     */
     public Observable<SourceEntity> getSources() {
         String queryString = "from SourceEntity as s where s.enabled = true order by rand()";
         return Observable.defer(() -> new ObservableQuery<SourceEntity>(database).execute(queryString));
     }
 
+    /**
+     *
+     * @param sourceEntity
+     */
     public void markParsed(Observable<SourceEntity> sourceEntity) {
         sourceEntity.toList()
                 .retry(3)
@@ -58,6 +73,11 @@ public class SourceService {
                 }, ex -> logger.error("MarkParsed Exception", ex));
     }
 
+    /**
+     *
+     * @param sourceEntity
+     * @return
+     */
     public boolean save(SourceEntity sourceEntity) {
         return Transaction.execute(database, session -> {
             logger.debug("Saving {}", sourceEntity);

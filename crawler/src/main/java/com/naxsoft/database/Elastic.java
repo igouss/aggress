@@ -31,10 +31,19 @@ import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
+/**
+ *
+ */
 public class Elastic implements AutoCloseable, Cloneable {
     private static final Logger logger = LoggerFactory.getLogger(Elastic.class);
     TransportClient client = null;
 
+    /**
+     *
+     * @param hostname
+     * @param port
+     * @throws UnknownHostException
+     */
     public void connect(String hostname, int port) throws UnknownHostException {
         if (null == client) {
             Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
@@ -58,17 +67,31 @@ public class Elastic implements AutoCloseable, Cloneable {
 
     }
 
+    /**
+     *
+     */
     public void close() {
         if (null != client) {
             this.client.close();
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Client getClient() {
         return this.client;
     }
 
 
+    /**
+     *
+     * @param products
+     * @param index
+     * @param type
+     * @return
+     */
     public Subscription index(Observable<ProductEntity> products, String index, String type) {
         return products.buffer(200).map(list -> {
             BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
@@ -96,6 +119,14 @@ public class Elastic implements AutoCloseable, Cloneable {
                 }, ex -> logger.error("Index Exception", ex));
     }
 
+    /**
+     *
+     * @param client
+     * @param index
+     * @param type
+     * @param indexSuffix
+     * @return
+     */
     public Observable<Integer> createIndex(HttpClient client, String index, String type, String indexSuffix) {
         return Observable.create(subscriber -> {
             try {
@@ -126,6 +157,14 @@ public class Elastic implements AutoCloseable, Cloneable {
         });
     }
 
+    /**
+     *
+     * @param client
+     * @param index
+     * @param type
+     * @param indexSuffix
+     * @return
+     */
     public Observable<Integer> createMapping(HttpClient client, String index, String type, String indexSuffix) {
         return Observable.create(subscriber -> {
             try {
@@ -156,7 +195,13 @@ public class Elastic implements AutoCloseable, Cloneable {
         });
     }
 
-
+    /**
+     *
+     * @param index
+     * @param newAlias
+     * @param oldAlias
+     * @return
+     */
     public ListenableActionFuture<IndicesAliasesResponse> updateAlias(String index, String newAlias, String oldAlias) {
         return client.admin().indices().prepareAliases().addAlias(index, newAlias).removeAlias(index, oldAlias).execute();
     }

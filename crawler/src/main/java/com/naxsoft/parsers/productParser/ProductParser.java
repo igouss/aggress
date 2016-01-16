@@ -10,8 +10,22 @@ import com.naxsoft.entity.WebPageEntity;
 
 import java.util.Set;
 
+/**
+ *
+ */
 public interface ProductParser {
+    /**
+     *
+     * @param webPage
+     * @return
+     * @throws Exception
+     */
     Set<ProductEntity> parse(WebPageEntity webPage) throws Exception;
 
+    /**
+     *
+     * @param webPage
+     * @return
+     */
     boolean canParse(WebPageEntity webPage);
 }

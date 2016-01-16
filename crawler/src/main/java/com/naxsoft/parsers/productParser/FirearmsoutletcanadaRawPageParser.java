@@ -21,6 +21,11 @@ import java.util.regex.Pattern;
 public class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(FirearmsoutletcanadaRawPageParser.class);
 
+    /**
+     *
+     * @param price
+     * @return
+     */
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {

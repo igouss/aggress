@@ -11,14 +11,30 @@ import com.naxsoft.entity.WebPageEntity;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ *
+ */
 public class NoopParser extends AbstractRawPageParser {
+    /**
+     *
+     */
     public NoopParser() {
     }
 
+    /**
+     *
+     * @param webPageEntity
+     * @return
+     */
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) {
         return new HashSet<>();
     }
 
+    /**
+     *
+     * @param webPage
+     * @return
+     */
     public boolean canParse(WebPageEntity webPage) {
         return false;
     }

@@ -56,6 +56,11 @@ public class HicalRawProductParser extends AbstractRawPageParser {
         return result;
     }
 
+    /**
+     *
+     * @param price
+     * @return
+     */
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {

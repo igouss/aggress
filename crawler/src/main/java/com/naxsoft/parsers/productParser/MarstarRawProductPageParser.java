@@ -75,6 +75,11 @@ public class MarstarRawProductPageParser extends AbstractRawPageParser {
 
     }
 
+    /**
+     *
+     * @param price
+     * @return
+     */
     private static ArrayList<String> parsePrice(String price) {
         ArrayList<String> result = new ArrayList<>();
         Matcher matcher = Pattern.compile("((\\d+(\\.|,))+\\d\\d)+").matcher(price);
@@ -84,7 +89,6 @@ public class MarstarRawProductPageParser extends AbstractRawPageParser {
         }
         return result;
     }
-
 
     @Override
     public boolean canParse(WebPageEntity webPage) {

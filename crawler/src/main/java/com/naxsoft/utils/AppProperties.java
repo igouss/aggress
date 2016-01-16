@@ -13,6 +13,9 @@ public class AppProperties {
     private static final Logger logger = LoggerFactory.getLogger(AppProperties.class);
     private static final Properties properties = new Properties();
 
+    /**
+     * Load properties on start-up
+     */
     static {
         try {
             InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream("config.properties");
@@ -23,6 +26,11 @@ public class AppProperties {
         }
     }
 
+    /**
+     * Return application property
+     * @param key Lookup key
+     * @return Key value
+     */
     public static String getProperty(String key) {
         return properties.getProperty(key);
     }

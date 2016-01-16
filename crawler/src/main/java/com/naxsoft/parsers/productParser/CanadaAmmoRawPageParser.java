@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadaAmmoRawPageParser.class);
 
+    @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
@@ -80,6 +81,11 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
         return products;
     }
 
+    /**
+     *
+     * @param price
+     * @return
+     */
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
@@ -93,7 +99,7 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
         }
     }
 
-
+    @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("https://www.canadaammo.com/") && webPage.getType().equals("productPageRaw");
     }

@@ -20,6 +20,8 @@ import java.io.StringWriter;
 
 /**
  * Copyright NAXSoft 2015
+ *
+ *
  */
 public class SearchHandler extends AbstractSearchHandler {
     private static final Logger logger = LoggerFactory.getLogger(SearchHandler.class);
@@ -31,10 +33,19 @@ public class SearchHandler extends AbstractSearchHandler {
             "productName",
     };
 
+    /**
+     *
+     * @param client
+     */
     public SearchHandler(TransportClient client) {
         super(client);
     }
 
+    /**
+     *
+     * @param searchResponse
+     * @return
+     */
     private static String searchResultToJson(SearchResponse searchResponse) {
         logger.debug(searchResponse.toString());
         SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -53,6 +64,11 @@ public class SearchHandler extends AbstractSearchHandler {
         return builder.toString();
     }
 
+    /**
+     *
+     * @param exchange
+     * @return
+     */
     private static int getStartFrom(HttpServerExchange exchange) {
         int startFrom = 0;
         if (exchange.getQueryParameters().containsKey("startFrom")) {
@@ -61,6 +77,13 @@ public class SearchHandler extends AbstractSearchHandler {
         return startFrom;
     }
 
+    /**
+     *
+     * @param exchange
+     * @param paremeter
+     * @return
+     * @throws Exception
+     */
     private static String getSearchKey(HttpServerExchange exchange, String paremeter) throws Exception {
         StringWriter sw = new StringWriter();
         String val = exchange.getQueryParameters().get(paremeter).getFirst();
@@ -68,6 +91,11 @@ public class SearchHandler extends AbstractSearchHandler {
         return sw.toString();
     }
 
+    /**
+     *
+     * @param exchange
+     * @throws Exception
+     */
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         String searchKey = getSearchKey(exchange, "searchKey");
@@ -84,6 +112,13 @@ public class SearchHandler extends AbstractSearchHandler {
         exchange.getResponseSender().send(result);
     }
 
+    /**
+     *
+     * @param searchKey
+     * @param category
+     * @param startFrom
+     * @return
+     */
     protected ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 

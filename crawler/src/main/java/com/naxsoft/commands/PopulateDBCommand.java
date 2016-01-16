@@ -12,9 +12,19 @@ import rx.Observable;
 
 /**
  * Copyright NAXSoft 2015
+ *
+ * Add initial dataset to the database.
+ * The crawling is basically breath first search from that dataset
+ *
  */
 public class PopulateDBCommand implements Command {
     private final static Logger logger = LoggerFactory.getLogger(PopulateDBCommand.class);
+    private static WebPageService webPageService;
+    private static SourceService sourceService;
+
+    /**
+     *
+     */
     private final static String[] sources = {
             "http://www.alflahertys.com/",
             "http://www.bullseyelondon.com/",
@@ -42,8 +52,7 @@ public class PopulateDBCommand implements Command {
             "http://gun-shop.ca/",
             "https://shopquestar.com/",
     };
-    private static WebPageService webPageService;
-    private static SourceService sourceService;
+
 //    private static void populateSources() {
 //        Observable.from(sources).map(PopulateDBCommand::from)
 //                .retry(3)
@@ -63,6 +72,11 @@ public class PopulateDBCommand implements Command {
         return sourceEntity;
     }
 
+    /**
+     *
+     * @param sourceEntity
+     * @return
+     */
     private static boolean save(SourceEntity sourceEntity) {
         boolean rc = sourceService.save(sourceEntity);
         if (!rc) {
@@ -71,6 +85,11 @@ public class PopulateDBCommand implements Command {
         return rc;
     }
 
+    /**
+     *
+     * @param webPageEntities
+     * @return
+     */
     private static boolean save(WebPageEntity webPageEntities) {
         boolean rc = webPageService.save(webPageEntities);
         if (!rc) {
@@ -79,6 +98,11 @@ public class PopulateDBCommand implements Command {
         return rc;
     }
 
+    /**
+     *
+     * @param sourceEntity
+     * @return
+     */
     private static WebPageEntity from(SourceEntity sourceEntity) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(sourceEntity.getUrl());

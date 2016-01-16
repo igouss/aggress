@@ -23,6 +23,11 @@ import java.util.regex.Pattern;
 public class FishingWorldRawPageParser extends AbstractRawPageParser {
     private static final Logger logger = LoggerFactory.getLogger(FishingWorldRawPageParser.class);
 
+    /**
+     *
+     * @param price
+     * @return
+     */
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
@@ -36,6 +41,7 @@ public class FishingWorldRawPageParser extends AbstractRawPageParser {
         }
     }
 
+    @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
@@ -75,6 +81,7 @@ public class FishingWorldRawPageParser extends AbstractRawPageParser {
         return products;
     }
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("https://fishingworld.ca") && webPage.getType().equals("productPageRaw");
     }

@@ -12,16 +12,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+/**
+ *
+ */
 public class WebPageService {
     private final static Logger logger = LoggerFactory.getLogger(WebPageService.class);
     private final Database database;
     private final ObservableQuery<WebPageEntity> observableQuery;
 
+    /**
+     *
+     * @param database
+     */
     public WebPageService(Database database) {
         this.database = database;
         observableQuery = new ObservableQuery<>(database);
     }
 
+    /**
+     *
+     * @param webPageEntity
+     * @return
+     */
     public boolean save(WebPageEntity webPageEntity) {
         Boolean rc = false;
         try {
@@ -36,6 +48,11 @@ public class WebPageService {
         return rc;
     }
 
+    /**
+     *
+     * @param webPageEntity
+     * @return
+     */
     public int markParsed(WebPageEntity webPageEntity) {
         if (0 == webPageEntity.getId()) {
             return 0;
@@ -81,6 +98,11 @@ public class WebPageService {
         });
     }
 
+    /**
+     *
+     * @param type
+     * @return
+     */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         final String query = "from WebPageEntity where type = '" + type + "' and parsed = false order by rand()";
         return getUnparsedCount(type)

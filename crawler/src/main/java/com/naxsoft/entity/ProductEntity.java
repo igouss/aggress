@@ -16,11 +16,35 @@ import javax.persistence.*;
                 @Index(name = "ProductEntity_indexed_idx", columnList = "indexed")
         }
 )
+
+
+/**
+ *
+ */
 public class ProductEntity {
+    /**
+     *
+     */
     private int id;
+
+    /**
+     *
+     */
     private String json;
+
+    /**
+     *
+     */
     private int webpageId;
+
+    /**
+     *
+     */
     private boolean indexed;
+
+    /**
+     *
+     */
     private String url;
 
     public ProductEntity() {

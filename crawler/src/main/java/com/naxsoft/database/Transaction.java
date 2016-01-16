@@ -9,9 +9,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.functions.Func1;
 
+/**
+ *
+ */
 public class Transaction {
     private static final Logger logger = LoggerFactory.getLogger(Transaction.class);
 
+    /**
+     *
+     * @param database
+     * @param action
+     * @param <R>
+     * @return
+     */
     public static <R> R execute(Database database, Func1<StatelessSession, R> action) {
         StatelessSession session = null;
         org.hibernate.Transaction tx = null;

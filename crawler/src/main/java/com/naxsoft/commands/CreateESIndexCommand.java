@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Copyright NAXSoft 2015
+ *
+ * Create Elasticsearch index
+ *
  */
 public class CreateESIndexCommand implements Command {
     private static final Logger logger = LoggerFactory.getLogger(CreateESIndexCommand.class);

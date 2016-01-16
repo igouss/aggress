@@ -19,6 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright NAXSoft 2015
+ *
+ * HTTP client. Can sent GET and POST requests
+ *
  */
 public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
     public static final int REQUEST_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60);
@@ -47,16 +50,40 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
         asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
     }
 
+    /**
+     *
+     * @param url Page address
+     * @param handler Completion handler
+     * @param <R>
+     * @return
+     */
     @Override
     public <R> ListenableFuture<R> get(String url, CompletionHandler<R> handler) {
         return get(url, Collections.<Cookie>emptyList(), handler);
     }
 
+    /**
+     *
+     * @param url Page address
+     * @param cookies Request cookies
+     * @param handler Completion handler
+     * @param <R>
+     * @return
+     */
     @Override
     public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, CompletionHandler<R> handler) {
         return get(url, cookies, handler, true);
     }
 
+    /**
+     *
+     * @param url Page address
+     * @param cookies Request cookies
+     * @param handler Completion handler
+     * @param followRedirect Follow HTTP redirects
+     * @param <R>
+     * @return
+     */
     @Override
     public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, CompletionHandler<R> handler, boolean followRedirect) {
         logger.trace("Starting async http GET request url = {}", url);
@@ -68,11 +95,28 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
         return asyncHttpClient.executeRequest(request, handler);
     }
 
+    /**
+     *
+     * @param url Page address
+     * @param content Content to send in a POST request
+     * @param handler Completion handler
+     * @param <R>
+     * @return
+     */
     @Override
     public <R> ListenableFuture<R> post(String url, String content, CompletionHandler<R> handler) {
         return post(url, content, Collections.<Cookie>emptyList(), handler);
     }
 
+    /**
+     *
+     * @param url Page address
+     * @param content Content to send in a POST request
+     * @param cookies Request cookies
+     * @param handler Completion handler
+     * @param <R>
+     * @return
+     */
     @Override
     public <R> ListenableFuture<R> post(String url, String content, Collection<Cookie> cookies, CompletionHandler<R> handler) {
         logger.trace("Starting async http POST request url = {}", url);
@@ -85,6 +129,15 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
         return asyncHttpClient.executeRequest(request, handler);
     }
 
+    /**
+     *
+     * @param url Page address
+     * @param formParameters HTTP Form paramaters
+     * @param cookies Request cookies
+     * @param handler Completion handler
+     * @param <R>
+     * @return
+     */
     @Override
     public <R> ListenableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, CompletionHandler<R> handler) {
         logger.trace("Starting async http POST request url = {}", url);
@@ -102,6 +155,9 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
         return asyncHttpClient.executeRequest(request, handler);
     }
 
+    /**
+     *
+     */
     public void close() {
         asyncHttpClient.close();
     }

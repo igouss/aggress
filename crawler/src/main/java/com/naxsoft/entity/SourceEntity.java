@@ -8,6 +8,9 @@ package com.naxsoft.entity;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
+/**
+ *
+ */
 @Entity
 @Table(
         name = "source",
@@ -15,9 +18,24 @@ import java.sql.Timestamp;
         catalog = "aggress"
 )
 public class SourceEntity {
+    /**
+     *
+     */
     private int id;
+
+    /**
+     *
+     */
     private String url;
+
+    /**
+     *
+     */
     private boolean enabled;
+
+    /**
+     *
+     */
     private Timestamp modificationDate;
 
     public SourceEntity() {

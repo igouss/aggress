@@ -14,7 +14,9 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-
+/**
+ * Not used now. For later use.
+ */
 public class ESHelper {
     private static final ESLogger logger = ESLoggerFactory.getLogger(ESHelper.class.getName());
 

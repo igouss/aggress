@@ -10,9 +10,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Copyright NAXSoft 2015
+ *
+ * Delete all the rows from previous crawling
+ *
  */
 public class CleanDBCommand implements Command {
     private final static Logger logger = LoggerFactory.getLogger(CleanDBCommand.class);
+
+    /**
+     *
+     */
     private final static String[] tables = {
             "SourceEntity",
             "WebPageEntity",
@@ -24,6 +31,10 @@ public class CleanDBCommand implements Command {
         hqlTruncate(tables);
     }
 
+    /**
+     *
+     * @param tables
+     */
     public void hqlTruncate(String[] tables) {
         StatelessSession statelessSession = db.getSessionFactory().openStatelessSession();
         Transaction tx = null;

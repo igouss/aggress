@@ -20,6 +20,9 @@ import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
+ *
+ * Parse raw web pages entries, generate JSON representation and sent it to Elasticsearch
+ *
  */
 public class ParseCommand implements Command {
     private final static Logger logger = LoggerFactory.getLogger(ParseCommand.class);
@@ -58,10 +61,21 @@ public class ParseCommand implements Command {
         indexSuffix = null;
     }
 
+    /**
+     *
+     * @param products
+     * @param index
+     * @param type
+     * @return
+     */
     private Subscription indexProducts(Observable<ProductEntity> products, String index, String type) {
         return elastic.index(products, index, type);
     }
 
+    /**
+     *
+     * @param pagesToParse
+     */
     private void processProducts(Observable<WebPageEntity> pagesToParse) {
         pagesToParse.map(pageToParse -> {
             Set<ProductEntity> result = null;

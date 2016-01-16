@@ -31,10 +31,16 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright NAXSoft 2015
+ *
  */
 public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
+    /**
+     *
+     * @param args
+     * @throws UnknownHostException
+     */
     public static void main(final String[] args) throws UnknownHostException {
         TemplateEngine templateEngine = getTemplateEngine();
         TransportClient esClient = getTransportClient();
@@ -60,6 +66,13 @@ public class Server {
         }
     }
 
+    /**
+     *
+     * @param templateEngine
+     * @param client
+     * @param context
+     * @return
+     */
     private static HttpHandler getPathHandler(TemplateEngine templateEngine, TransportClient client, ApplicationContext context) {
         PathHandler pathHandler = Handlers.path();
         ContentEncodingRepository contentEncodingRepository = new ContentEncodingRepository();
@@ -106,6 +119,10 @@ public class Server {
         return client;
     }
 
+    /**
+     *
+     * @return
+     */
     private static TemplateEngine getTemplateEngine() {
         TemplateEngine templateEngine = new TemplateEngine();
         FileTemplateResolver templateResolver = new FileTemplateResolver();

@@ -9,6 +9,9 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import rx.Observable;
 
+/**
+ *
+ */
 public class NoopParser extends AbstractWebPageParser {
     public NoopParser(HttpClient client) {
     }

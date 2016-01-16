@@ -15,14 +15,25 @@ import rx.Observable;
 
 import java.util.Collection;
 
+/**
+ *
+ */
 public class ProductService {
     private final static Logger logger = LoggerFactory.getLogger(ProductService.class);
     private final Database database;
 
+    /**
+     *
+     * @param database
+     */
     public ProductService(Database database) {
         this.database = database;
     }
 
+    /**
+     *
+     * @param products
+     */
     public void save(Collection<ProductEntity> products) {
         StatelessSession session = null;
         org.hibernate.Transaction tx = null;
@@ -47,11 +58,18 @@ public class ProductService {
 
     }
 
+    /**
+     *
+     * @return
+     */
     public Observable<ProductEntity> getProducts() {
         String queryString = "from ProductEntity where indexed=false";
         return new ObservableQuery<ProductEntity>(database).execute(queryString);
     }
 
+    /**
+     *
+     */
     public void markAllAsIndexed() {
         StatelessSession session = null;
         org.hibernate.Transaction tx = null;

@@ -21,16 +21,26 @@ import java.io.StringWriter;
 
 /**
  * Copyright NAXSoft 2015
+ *
+ *
  */
 public abstract class AbstractSearchHandler implements HttpHandler {
     private static final Logger logger = LoggerFactory.getLogger(AbstractSearchHandler.class);
     protected TransportClient client;
 
-
+    /**
+     *
+     * @param client
+     */
     public AbstractSearchHandler(TransportClient client) {
         this.client = client;
     }
 
+    /**
+     *
+     * @param exchange
+     * @throws Exception
+     */
     @Override
     public abstract void handleRequest(HttpServerExchange exchange) throws Exception;
 

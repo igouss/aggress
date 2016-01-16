@@ -15,11 +15,16 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ *
+ */
 public class ProductParserFactory {
     private static final Logger logger = LoggerFactory.getLogger(ProductParserFactory.class);
     private final Set<ProductParser> parsers = new HashSet<>();
 
-
+    /**
+     *
+     */
     public ProductParserFactory() {
         Reflections reflections = new Reflections("com.naxsoft.parsers.productParser", new Scanner[0]);
         Set classes = reflections.getSubTypesOf(ProductParser.class);
@@ -37,6 +42,11 @@ public class ProductParserFactory {
         }
     }
 
+    /**
+     *
+     * @param webPageEntity
+     * @return
+     */
     public ProductParser getParser(WebPageEntity webPageEntity) {
         for (ProductParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {

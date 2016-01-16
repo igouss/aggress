@@ -16,12 +16,19 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ *
+ */
 public class WebPageParserFactory {
     private static final Logger logger = LoggerFactory.getLogger(WebPageParserFactory.class);
 
     private final Set<WebPageParser> parsers = new HashSet<>();
     private final HttpClient client;
 
+    /**
+     *
+     * @param client
+     */
     public WebPageParserFactory(HttpClient client) {
         this.client = client;
 
@@ -51,6 +58,11 @@ public class WebPageParserFactory {
         }
     }
 
+    /**
+     *
+     * @param webPageEntity
+     * @return
+     */
     public WebPageParser getParser(WebPageEntity webPageEntity) {
         for (WebPageParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
