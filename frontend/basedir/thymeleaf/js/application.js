@@ -8,9 +8,6 @@ requirejs.config({
         "jquery": "/js/jquery-2.1.4.min",
         "bootstrap": "/js/bootstrap.min"
     }
-    //"jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min",
-    //"bootstrap": "//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min"
-
 });
 
 require(['jquery', 'bootstrap', 'mustache'], function ($, bootStrap, m) {
@@ -34,9 +31,10 @@ require(['jquery', 'bootstrap', 'mustache'], function ($, bootStrap, m) {
 
         var searchData = {
             searchKey: null,
-            categoryKey: null
-            , startFrom: 0
+            categoryKey: null,
+            startFrom: 0
         };
+
         var prev = function (e) {
             searchData.startFrom -= 30;
             if (searchData.startFrom < 0) {
@@ -67,7 +65,59 @@ require(['jquery', 'bootstrap', 'mustache'], function ($, bootStrap, m) {
         var inputField = $("input#searchInput");
         var categoryField = $("select#category");
 
-        var search = function (onFailure) {
+
+        var parseData = function (data) {
+            if (searchData.startFrom != 0 && data.length == 0) {
+                return false;
+            }
+            $(".renderedItem").remove();
+
+            if (0 != data.length) {
+                if ($("nav").length == 0) {
+                    $("#navigation").append(m.render(navTemplate, {}));
+                    $("#prev").on("click", prev);
+                    $("#next").on("click", next);
+                }
+            } else {
+                searchData.startFrom = 0;
+                $("#prev").off("click", prev);
+                $("#next").off("click", next);
+                $("nav").remove();
+            }
+
+            $.map(data, function (element) {
+                //console.info(element);
+                var rendered = $(m.render(itemTemplate, element));
+                var tbody = rendered.find("tbody");
+
+                $.each(element, function (key, value) {
+                    if (key == "productImage" || key == "productName" || key == "url" || value == "") {
+
+                    } else {
+                        var rowHtml = "";
+                        if (key == "specialPrice") {
+                            rowHtml = "<tr class='info'><td>{{key}}</td><td>{{value}}</td></tr>";
+                        } else {
+                            rowHtml = "<tr><td>{{key}}</td><td>{{value}}</td></tr>";
+                        }
+                        var row = $(m.render(rowHtml, {
+                            "key": toCapitalizedWords(key),
+                            "value": value
+                        }));
+                        tbody.append(row);
+                    }
+                });
+
+                $('#searchResults').append(rendered);
+            });
+            $("html, body").animate({
+                scrollTop: 0
+            }, "slow");
+            return true;
+        };
+
+
+        var search = function () {
             if (inputField.val() != searchData.searchKey) {
                 searchData.startFrom = 0;
             }
@@ -81,57 +131,7 @@ require(['jquery', 'bootstrap', 'mustache'], function ($, bootStrap, m) {
             var pageName = "?search=" + encodeURIComponent(searchData.searchKey) + "&category=" + searchData.categoryKey + "&startFrom=" + searchData.startFrom;
             var title = searchData.categoryKey + ": " + searchData.searchKey;
             window.history.pushState(searchData, title, pageName);
-
-            $.getJSON("/search", searchData, function (data) {
-                if (searchData.startFrom != 0 && data.length == 0) {
-                    if (onFailure) {
-                        onFailure();
-                    }
-                    return false;
-                }
-                $(".renderedItem").remove();
-
-                if (0 != data.length) {
-                    if ($("nav").length == 0) {
-                        $("#navigation").append(m.render(navTemplate, {}));
-                        $("#prev").on("click", prev);
-                        $("#next").on("click", next);
-                    }
-                } else {
-                    searchData.startFrom = 0;
-                    $("#prev").off("click", prev);
-                    $("#next").off("click", next);
-                    $("nav").remove();
-                }
-
-                $.map(data, function (element) {
-                    //console.info(element);
-                    var rendered = $(m.render(itemTemplate, element));
-                    var tbody = rendered.find("tbody");
-
-                    $.each(element, function (key, value) {
-                        if (key == "productImage" || key == "productName" || key == "url" || value == "") {
-
-                        } else {
-                            var rowHtml = "";
-                            if (key == "specialPrice") {
-                                rowHtml = "<tr class='info'><td>{{key}}</td><td>{{value}}</td></tr>";
-                            } else {
-                                rowHtml = "<tr><td>{{key}}</td><td>{{value}}</td></tr>";
-                            }
-                            var row = $(m.render(rowHtml, {
-                                "key": toCapitalizedWords(key),
-                                "value": value
-                            }));
-                            tbody.append(row);
-                        }
-                    });
-
-                    $('#searchResults').append(rendered);
-                });
-                $("html, body").animate({scrollTop: 0}, "slow");
-                return true;
-            })
+            $.getJSON("/search", searchData, parseData);
         };
 
         m.parse(itemTemplate);
