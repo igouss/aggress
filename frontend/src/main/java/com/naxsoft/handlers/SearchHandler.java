@@ -9,9 +9,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +18,6 @@ import java.io.StringWriter;
 
 /**
  * Copyright NAXSoft 2015
- *
- *
  */
 public class SearchHandler extends AbstractSearchHandler {
     private static final Logger logger = LoggerFactory.getLogger(SearchHandler.class);
@@ -34,7 +30,6 @@ public class SearchHandler extends AbstractSearchHandler {
     };
 
     /**
-     *
      * @param client
      */
     public SearchHandler(TransportClient client) {
@@ -42,7 +37,6 @@ public class SearchHandler extends AbstractSearchHandler {
     }
 
     /**
-     *
      * @param searchResponse
      * @return
      */
@@ -53,19 +47,24 @@ public class SearchHandler extends AbstractSearchHandler {
         int length = searchHits.length;
         builder.append("[");
         for (int i = 0; i < length; i++) {
-            if (i == length - 1) {
+            if (searchHits[i].getScore() < 0.4) {
+                continue;
+            }
+            if (i == 0) {
                 builder.append(searchHits[i].getSourceAsString());
             } else {
-                builder.append(searchHits[i].getSourceAsString());
                 builder.append(",");
+                builder.append(searchHits[i].getSourceAsString());
+
             }
+            logger.info("Score = {}", searchHits[i].getScore());
         }
+
         builder.append("]");
         return builder.toString();
     }
 
     /**
-     *
      * @param exchange
      * @return
      */
@@ -78,7 +77,6 @@ public class SearchHandler extends AbstractSearchHandler {
     }
 
     /**
-     *
      * @param exchange
      * @param paremeter
      * @return
@@ -92,7 +90,6 @@ public class SearchHandler extends AbstractSearchHandler {
     }
 
     /**
-     *
      * @param exchange
      * @throws Exception
      */
@@ -113,7 +110,6 @@ public class SearchHandler extends AbstractSearchHandler {
     }
 
     /**
-     *
      * @param searchKey
      * @param category
      * @param startFrom
@@ -122,10 +118,16 @@ public class SearchHandler extends AbstractSearchHandler {
     protected ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
+        MatchQueryBuilder categoryFilter = QueryBuilders.matchQuery("category", category).type(MatchQueryBuilder.Type.PHRASE);
+        MultiMatchQueryBuilder searchQuery = QueryBuilders.multiMatchQuery(searchKey, "productName^3", "description", "category").type(MultiMatchQueryBuilder.Type.PHRASE);
+        ExistsQueryBuilder hasCategory = QueryBuilders.existsQuery("category");
+
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-        boolQueryBuilder.should(QueryBuilders.multiMatchQuery(searchKey, "productName^3", "description", "category"));
-        boolQueryBuilder.filter(QueryBuilders.existsQuery("category"));
-        boolQueryBuilder.must(QueryBuilders.matchQuery("category", category).type(MatchQueryBuilder.Type.PHRASE));
+
+        boolQueryBuilder.should(searchQuery);
+//        boolQueryBuilder.filter(hasCategory);
+        boolQueryBuilder.filter(categoryFilter);
+
 
         logger.info("{}", boolQueryBuilder);
 
