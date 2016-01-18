@@ -34,7 +34,11 @@ import static java.lang.System.setProperty;
 public class Aggress {
     private static final Logger logger = LoggerFactory.getLogger(Aggress.class);
 
-
+    /**
+     *
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
         final ExecutionContext context = new ExecutionContext();
         final MetricRegistry metrics = new MetricRegistry();
@@ -133,14 +137,14 @@ public class Aggress {
 
             if (options.has("createESIndex")) {
                 CreateESIndexCommand command = new CreateESIndexCommand();
-                command.setUp(context);;
+                command.setUp(context);
                 command.run();
                 command.tearDown();
             }
 
             if (options.has("createESMappings")) {
                 CreateESMappingCommand command = new CreateESMappingCommand();
-                command.setUp(context);;
+                command.setUp(context);
                 command.run();
                 command.tearDown();
             }

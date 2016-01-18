@@ -42,56 +42,51 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
             webPageEntities.add(parent);
         }
 
-        return Observable.create(subscriber -> {
-            Observable.from(webPageEntities).
-                    flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
-                        @Override
-                        public Void onCompleted(Response resp) throws Exception {
-                            if (200 == resp.getStatusCode()) {
-                                Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                                Elements elements;
+        return Observable.create(subscriber -> Observable.from(webPageEntities).
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
+                    @Override
+                    public Void onCompleted(Response resp) throws Exception {
+                        if (200 == resp.getStatusCode()) {
+                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
+                            Elements elements;
 
-                                // Add sub categories
-                                if (!resp.getUri().toString().contains("page=")) {
-                                    elements = document.select(".SubCategoryList a");
-                                    for (Element el : elements) {
-                                        WebPageEntity webPageEntity = new WebPageEntity();
-                                        webPageEntity.setUrl(el.attr("abs:href"));
-                                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                        webPageEntity.setParsed(false);
-                                        webPageEntity.setStatusCode(resp.getStatusCode());
-                                        webPageEntity.setType("frontPage");
-                                        logger.info("Product page listing={}", webPageEntity.getUrl());
-                                        subscriber.onNext(webPageEntity);
-                                    }
-                                    // add subpages
-                                    elements = document.select("#CategoryPagingTop > div > ul > li > a");
-                                    for (Element el : elements) {
-                                        WebPageEntity webPageEntity = new WebPageEntity();
-                                        webPageEntity.setUrl(el.attr("abs:href"));
-                                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                        webPageEntity.setParsed(false);
-                                        webPageEntity.setStatusCode(resp.getStatusCode());
-                                        webPageEntity.setType("productList");
-                                        logger.info("Product page listing={}", webPageEntity.getUrl());
-                                        subscriber.onNext(webPageEntity);
-                                    }
+                            // Add sub categories
+                            if (!resp.getUri().toString().contains("page=")) {
+                                elements = document.select(".SubCategoryList a");
+                                for (Element el : elements) {
+                                    WebPageEntity webPageEntity = new WebPageEntity();
+                                    webPageEntity.setUrl(el.attr("abs:href"));
+                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                    webPageEntity.setParsed(false);
+                                    webPageEntity.setType("frontPage");
+                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    subscriber.onNext(webPageEntity);
                                 }
-                                // add current page
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl(resp.getUri().toString() + "?sort=featured&page=1");
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setStatusCode(resp.getStatusCode());
-                                webPageEntity.setType("productList");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
-                                subscriber.onNext(webPageEntity);
+                                // add subpages
+                                elements = document.select("#CategoryPagingTop > div > ul > li > a");
+                                for (Element el : elements) {
+                                    WebPageEntity webPageEntity = new WebPageEntity();
+                                    webPageEntity.setUrl(el.attr("abs:href"));
+                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                    webPageEntity.setParsed(false);
+                                    webPageEntity.setType("productList");
+                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    subscriber.onNext(webPageEntity);
+                                }
                             }
-                            subscriber.onCompleted();
-                            return null;
+                            // add current page
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setUrl(resp.getUri() + "?sort=featured&page=1");
+                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                            webPageEntity.setParsed(false);
+                            webPageEntity.setType("productList");
+                            logger.info("Product page listing={}", webPageEntity.getUrl());
+                            subscriber.onNext(webPageEntity);
                         }
-                    })));
-        });
+                        subscriber.onCompleted();
+                        return null;
+                    }
+                }))));
     }
 
     private static WebPageEntity create(String url) {
@@ -99,7 +94,6 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
-        webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
         return webPageEntity;
     }

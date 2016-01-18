@@ -30,33 +30,30 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://westrifle.com/wrstore/index.php?main_page=products_all&disp_order=1"));
-        return Observable.create(subscriber -> {
-            Observable.from(webPageEntities).
-                    flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
-                        @Override
-                        public Void onCompleted(Response resp) throws Exception {
-                            if (200 == resp.getStatusCode()) {
-                                Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                                Elements elements = document.select("#allProductsListingTopNumber > strong:nth-child(3)");
-                                int productTotal = Integer.parseInt(elements.text());
-                                int pageTotal = (int) Math.ceil(productTotal / 10.0);
+        return Observable.create(subscriber -> Observable.from(webPageEntities).
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
+                    @Override
+                    public Void onCompleted(Response resp) throws Exception {
+                        if (200 == resp.getStatusCode()) {
+                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
+                            Elements elements = document.select("#allProductsListingTopNumber > strong:nth-child(3)");
+                            int productTotal = Integer.parseInt(elements.text());
+                            int pageTotal = (int) Math.ceil(productTotal / 10.0);
 
-                                for (int i = 1; i <= pageTotal; i++) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setUrl(page.getUrl() + "&page=" + i);
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPageEntity.setParsed(false);
-                                    webPageEntity.setStatusCode(resp.getStatusCode());
-                                    webPageEntity.setType("productList");
-                                    logger.info("Product page listing={}", webPageEntity.getUrl());
-                                    subscriber.onNext(webPageEntity);
-                                }
+                            for (int i = 1; i <= pageTotal; i++) {
+                                WebPageEntity webPageEntity = new WebPageEntity();
+                                webPageEntity.setUrl(page.getUrl() + "&page=" + i);
+                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                webPageEntity.setParsed(false);
+                                webPageEntity.setType("productList");
+                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                subscriber.onNext(webPageEntity);
                             }
-                            subscriber.onCompleted();
-                            return null;
                         }
-                    })));
-        });
+                        subscriber.onCompleted();
+                        return null;
+                    }
+                }))));
     }
 
     private static WebPageEntity create(String url) {
@@ -64,7 +61,6 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
-        webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
         return webPageEntity;
     }

@@ -27,9 +27,9 @@ public class ProductParserFactory {
      */
     public ProductParserFactory() {
         Reflections reflections = new Reflections("com.naxsoft.parsers.productParser", new Scanner[0]);
-        Set classes = reflections.getSubTypesOf(ProductParser.class);
+        Set<Class<? extends ProductParser>> classes = reflections.getSubTypesOf(ProductParser.class);
 
-        for (Class clazz : (Iterable<Class>) classes) {
+        for (Class clazz : classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
                     logger.info("Instantiating {}", clazz.getName());

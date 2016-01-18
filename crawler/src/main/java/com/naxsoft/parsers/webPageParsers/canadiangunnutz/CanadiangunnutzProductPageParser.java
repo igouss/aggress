@@ -22,7 +22,7 @@ import java.util.Map;
 public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
     private final HttpClient client;
-    private ListenableFuture<List<Cookie>> futureCookies;
+    private final ListenableFuture<List<Cookie>> futureCookies;
 
     public CanadiangunnutzProductPageParser(HttpClient client) {
         this.client = client;
@@ -55,7 +55,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
                             if (null != data) {
                                 return true;
                             } else {
-                                logger.error("failed to download web page {}" + webPage.getUrl());
+                                logger.error("failed to download web page {}", webPage.getUrl());
                                 return false;
                             }
                         })

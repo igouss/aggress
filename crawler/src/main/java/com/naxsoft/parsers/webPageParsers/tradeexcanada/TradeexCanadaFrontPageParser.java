@@ -31,30 +31,27 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("https://www.tradeexcanada.com/products_list"));
-        return Observable.create(subscriber -> {
-            Observable.from(webPageEntities).
-                    flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
-                        @Override
-                        public Void onCompleted(Response resp) throws Exception {
-                            if (200 == resp.getStatusCode()) {
-                                Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                                Elements elements = document.select(".view-content a");
-                                for (Element element : elements) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setUrl(element.attr("abs:href"));
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPageEntity.setParsed(false);
-                                    webPageEntity.setStatusCode(resp.getStatusCode());
-                                    webPageEntity.setType("productList");
-                                    logger.info("Product page listing={}", webPageEntity.getUrl());
-                                    subscriber.onNext(webPageEntity);
-                                }
+        return Observable.create(subscriber -> Observable.from(webPageEntities).
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
+                    @Override
+                    public Void onCompleted(Response resp) throws Exception {
+                        if (200 == resp.getStatusCode()) {
+                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
+                            Elements elements = document.select(".view-content a");
+                            for (Element element : elements) {
+                                WebPageEntity webPageEntity = new WebPageEntity();
+                                webPageEntity.setUrl(element.attr("abs:href"));
+                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                webPageEntity.setParsed(false);
+                                webPageEntity.setType("productList");
+                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                subscriber.onNext(webPageEntity);
                             }
-                            subscriber.onCompleted();
-                            return null;
                         }
-                    })));
-        });
+                        subscriber.onCompleted();
+                        return null;
+                    }
+                }))));
     }
 
     private static WebPageEntity create(String url) {
@@ -62,7 +59,6 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
-        webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
         return webPageEntity;
     }

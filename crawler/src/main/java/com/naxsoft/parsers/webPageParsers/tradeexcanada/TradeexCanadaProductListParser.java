@@ -27,38 +27,35 @@ public class TradeexCanadaProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.create(subscriber -> {
-            client.get(parent.getUrl(), new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                        if (parent.getUrl().contains("page=")) {
-                            Elements elements = document.select(".view-content a");
-                            for (Element element : elements) {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl(element.attr("abs:href"));
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setStatusCode(resp.getStatusCode());
-                                webPageEntity.setType("productPage");
-                                webPageEntity.setCategory(parent.getCategory());
-                                logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
-                                subscriber.onNext(webPageEntity);
-                            }
-                        } else {
-                            Elements subPages = document.select(".pager a");
-                            for (Element subPage : subPages) {
-                                subscriber.onNext(create(subPage.attr("abs:href")));
-                            }
-                            subscriber.onNext(create(parent.getUrl() + "?page=0"));
+        return Observable.create(subscriber -> client.get(parent.getUrl(), new CompletionHandler<Void>() {
+            @Override
+            public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
+                if (200 == resp.getStatusCode()) {
+                    Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
+                    if (parent.getUrl().contains("page=")) {
+                        Elements elements = document.select(".view-content a");
+                        for (Element element : elements) {
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setUrl(element.attr("abs:href"));
+                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                            webPageEntity.setParsed(false);
+                            webPageEntity.setType("productPage");
+                            webPageEntity.setCategory(parent.getCategory());
+                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                            subscriber.onNext(webPageEntity);
                         }
+                    } else {
+                        Elements subPages = document.select(".pager a");
+                        for (Element subPage : subPages) {
+                            subscriber.onNext(create(subPage.attr("abs:href")));
+                        }
+                        subscriber.onNext(create(parent.getUrl() + "?page=0"));
                     }
-                    subscriber.onCompleted();
-                    return null;
                 }
-            });
-        });
+                subscriber.onCompleted();
+                return null;
+            }
+        }));
     }
 
     private static WebPageEntity create(String url) {
@@ -66,7 +63,6 @@ public class TradeexCanadaProductListParser extends AbstractWebPageParser {
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
-        webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
         return webPageEntity;
     }

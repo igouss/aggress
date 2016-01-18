@@ -26,66 +26,62 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        Observable<WebPageEntity> tmp = Observable.create(subscriber -> {
-            client.get(parent.getUrl(), new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
+        Observable<WebPageEntity> tmp = Observable.create(subscriber -> client.get(parent.getUrl(), new CompletionHandler<Void>() {
+            @Override
+            public Void onCompleted(Response resp) throws Exception {
+                if (200 == resp.getStatusCode()) {
 
-                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                        Elements elements = document.select("div[ng-init]");
+                    Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
+                    Elements elements = document.select("div[ng-init]");
 
-                        for (Element e : elements) {
-                            String linkUrl = e.attr("ng-init");
-                            Matcher categoryMatcher = Pattern.compile("\'\\d+\'").matcher(linkUrl);
+                    for (Element e : elements) {
+                        String linkUrl = e.attr("ng-init");
+                        Matcher categoryMatcher = Pattern.compile("\'\\d+\'").matcher(linkUrl);
 
-                            if (categoryMatcher.find()) {
-                                String productCategory = categoryMatcher.group();
-                                String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setType("tmp");
-                                webPageEntity.setUrl(productDetailsUrl);
-                                webPageEntity.setCategory(parent.getCategory());
-                                subscriber.onNext(webPageEntity);
-                            }
+                        if (categoryMatcher.find()) {
+                            String productCategory = categoryMatcher.group();
+                            String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setType("tmp");
+                            webPageEntity.setUrl(productDetailsUrl);
+                            webPageEntity.setCategory(parent.getCategory());
+                            subscriber.onNext(webPageEntity);
                         }
                     }
-                    subscriber.onCompleted();
-                    return null;
                 }
-            });
-        });
-        return tmp.flatMap(page -> getItemsData(page));
+                subscriber.onCompleted();
+                return null;
+            }
+        }));
+        return tmp.flatMap(this::getItemsData);
     }
 
     private Observable<WebPageEntity> getItemsData(WebPageEntity parent) {
-        return Observable.create(subscriber -> {
-            client.get(parent.getUrl(), new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
+        return Observable.create(subscriber -> client.get(parent.getUrl(), new CompletionHandler<Void>() {
+            @Override
+            public Void onCompleted(Response resp) throws Exception {
 
-                    String productDetailsJson = resp.getResponseBody();
-                    Matcher itemNumberMatcher = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"").matcher(productDetailsJson);
-                    StringBuilder sb = new StringBuilder();
+                String productDetailsJson = resp.getResponseBody();
+                Matcher itemNumberMatcher = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"").matcher(productDetailsJson);
+                StringBuilder sb = new StringBuilder();
 
-                    while (itemNumberMatcher.find()) {
-                        sb.append(itemNumberMatcher.group(1));
-                        sb.append(',');
-                    }
-
-                    if (0 != sb.length()) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setType("productPage");
-                        logger.info("productPage={}", webPageEntity.getUrl());
-                        subscriber.onNext(webPageEntity);
-                    }
-                    subscriber.onCompleted();
-                    return null;
+                while (itemNumberMatcher.find()) {
+                    sb.append(itemNumberMatcher.group(1));
+                    sb.append(',');
                 }
-            });
-        });
+
+                if (0 != sb.length()) {
+                    WebPageEntity webPageEntity = new WebPageEntity();
+                    webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
+                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                    webPageEntity.setType("productPage");
+                    logger.info("productPage={}", webPageEntity.getUrl());
+                    subscriber.onNext(webPageEntity);
+                }
+                subscriber.onCompleted();
+                return null;
+            }
+        }));
     }
 
     public boolean canParse(WebPageEntity webPage) {

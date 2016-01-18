@@ -50,7 +50,7 @@ public class SearchHandler extends AbstractSearchHandler {
             if (searchHits[i].getScore() < 0.4) {
                 continue;
             }
-            if (i == 0) {
+            if (0 == i) {
                 builder.append(searchHits[i].getSourceAsString());
             } else {
                 builder.append(",");

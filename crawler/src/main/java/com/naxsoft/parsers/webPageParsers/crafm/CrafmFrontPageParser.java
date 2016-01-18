@@ -27,30 +27,27 @@ public class CrafmFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> {
-            client.get("http://www.crafm.com/firearms.html?limit=all", new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select(".products-grid .item > a");
-                        for (Element e : elements) {
-                            String linkUrl = e.attr("abs:href");
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(linkUrl);
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productPage");
-                            logger.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
-                            subscriber.onNext(webPageEntity);
-                        }
+        return Observable.create(subscriber -> client.get("http://www.crafm.com/firearms.html?limit=all", new CompletionHandler<Void>() {
+            @Override
+            public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
+                if (200 == resp.getStatusCode()) {
+                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                    Elements elements = document.select(".products-grid .item > a");
+                    for (Element e : elements) {
+                        String linkUrl = e.attr("abs:href");
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl(linkUrl);
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setType("productPage");
+                        logger.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
+                        subscriber.onNext(webPageEntity);
                     }
-                    subscriber.onCompleted();
-                    return null;
                 }
-            });
-        });
+                subscriber.onCompleted();
+                return null;
+            }
+        }));
     }
 
     @Override

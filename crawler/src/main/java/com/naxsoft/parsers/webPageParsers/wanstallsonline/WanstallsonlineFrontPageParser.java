@@ -33,49 +33,46 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://www.wanstallsonline.com/firearms/"));
-        return Observable.create(subscriber -> {
-            Observable.from(webPageEntities).
-                    flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
-                        @Override
-                        public Void onCompleted(Response resp) throws Exception {
-                            if (200 == resp.getStatusCode()) {
-                                Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                                int max = 1;
-                                Elements elements = document.select(".navigationtable td[valign=middle] > a");
-                                for (Element el : elements) {
-                                    try {
-                                        Matcher matcher = Pattern.compile("\\d+").matcher(el.text());
-                                        if (matcher.find()) {
-                                            int num = Integer.parseInt(matcher.group());
-                                            if (num > max) {
-                                                max = num;
-                                            }
+        return Observable.create(subscriber -> Observable.from(webPageEntities).
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
+                    @Override
+                    public Void onCompleted(Response resp) throws Exception {
+                        if (200 == resp.getStatusCode()) {
+                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
+                            int max = 1;
+                            Elements elements = document.select(".navigationtable td[valign=middle] > a");
+                            for (Element el : elements) {
+                                try {
+                                    Matcher matcher = Pattern.compile("\\d+").matcher(el.text());
+                                    if (matcher.find()) {
+                                        int num = Integer.parseInt(matcher.group());
+                                        if (num > max) {
+                                            max = num;
                                         }
-                                    } catch (Exception ignored) {
-                                        // ignore
                                     }
-                                }
-
-                                for (int i = 1; i < max; i++) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    if (1 == i) {
-                                        webPageEntity.setUrl(page.getUrl());
-                                    } else {
-                                        webPageEntity.setUrl(page.getUrl() + "index " + i + ".html");
-                                    }
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPageEntity.setParsed(false);
-                                    webPageEntity.setStatusCode(resp.getStatusCode());
-                                    webPageEntity.setType("productList");
-                                    logger.info("Product page listing={}", webPageEntity.getUrl());
-                                    subscriber.onNext(webPageEntity);
+                                } catch (Exception ignored) {
+                                    // ignore
                                 }
                             }
-                            subscriber.onCompleted();
-                            return null;
+
+                            for (int i = 1; i < max; i++) {
+                                WebPageEntity webPageEntity = new WebPageEntity();
+                                if (1 == i) {
+                                    webPageEntity.setUrl(page.getUrl());
+                                } else {
+                                    webPageEntity.setUrl(page.getUrl() + "index " + i + ".html");
+                                }
+                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                webPageEntity.setParsed(false);
+                                webPageEntity.setType("productList");
+                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                subscriber.onNext(webPageEntity);
+                            }
                         }
-                    })));
-        });
+                        subscriber.onCompleted();
+                        return null;
+                    }
+                }))));
     }
 
     private static WebPageEntity create(String url) {
@@ -83,7 +80,6 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
-        webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
         return webPageEntity;
     }

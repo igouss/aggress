@@ -34,40 +34,37 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://frontierfirearms.ca/ammunition-reloading.html"));
         webPageEntities.add(create("http://frontierfirearms.ca/shooting-accessories.html"));
         webPageEntities.add(create("http://frontierfirearms.ca/optics.html"));
-        return Observable.create(subscriber -> {
-            Observable.from(webPageEntities).
-                    flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
-                        @Override
-                        public Void onCompleted(Response resp) throws Exception {
-                            if (200 == resp.getStatusCode()) {
-                                Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                                String elements = document.select("div.toolbar > div.pager > p").first().text();
-                                Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
-                                if (!matcher.find()) {
-                                    logger.error("Unable to parse total pages");
-                                    subscriber.onCompleted();
-                                    return null;
-                                }
-
-                                int productTotal = Integer.parseInt(matcher.group(1));
-                                int pageTotal = (int) Math.ceil(productTotal / 30.0);
-
-                                for (int i = 1; i <= pageTotal; i++) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setUrl(page.getUrl() + "?p=" + i);
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPageEntity.setParsed(false);
-                                    webPageEntity.setStatusCode(resp.getStatusCode());
-                                    webPageEntity.setType("productList");
-                                    logger.info("Product page listing={}", webPageEntity.getUrl());
-                                    subscriber.onNext(webPageEntity);
-                                }
+        return Observable.create(subscriber -> Observable.from(webPageEntities).
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
+                    @Override
+                    public Void onCompleted(Response resp) throws Exception {
+                        if (200 == resp.getStatusCode()) {
+                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
+                            String elements = document.select("div.toolbar > div.pager > p").first().text();
+                            Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
+                            if (!matcher.find()) {
+                                logger.error("Unable to parse total pages");
+                                subscriber.onCompleted();
+                                return null;
                             }
-                            subscriber.onCompleted();
-                            return null;
+
+                            int productTotal = Integer.parseInt(matcher.group(1));
+                            int pageTotal = (int) Math.ceil(productTotal / 30.0);
+
+                            for (int i = 1; i <= pageTotal; i++) {
+                                WebPageEntity webPageEntity = new WebPageEntity();
+                                webPageEntity.setUrl(page.getUrl() + "?p=" + i);
+                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                webPageEntity.setParsed(false);
+                                webPageEntity.setType("productList");
+                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                subscriber.onNext(webPageEntity);
+                            }
                         }
-                    })));
-        });
+                        subscriber.onCompleted();
+                        return null;
+                    }
+                }))));
     }
 
     private static WebPageEntity create(String url) {
@@ -75,7 +72,6 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
-        webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
         return webPageEntity;
     }

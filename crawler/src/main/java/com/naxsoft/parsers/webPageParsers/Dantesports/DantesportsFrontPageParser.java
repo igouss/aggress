@@ -29,32 +29,29 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> {
-            Observable.from(client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false)).subscribe(cookies -> {
-                client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
-                    @Override
-                    public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                        if (200 == resp.getStatusCode()) {
-                            Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                            Elements elements = document.select("#scol1 > div.scell_menu > li > a");
+        return Observable.create(subscriber -> Observable.from(client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false)).subscribe(cookies -> {
+            client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
+                @Override
+                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
+                    if (200 == resp.getStatusCode()) {
+                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                        Elements elements = document.select("#scol1 > div.scell_menu > li > a");
 
-                            for (Element element : elements) {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl(element.attr("abs:href") + "&paging=0");
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setStatusCode(resp.getStatusCode());
-                                webPageEntity.setType("productList");
-                                logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
-                                subscriber.onNext(webPageEntity);
-                            }
+                        for (Element element : elements) {
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setUrl(element.attr("abs:href") + "&paging=0");
+                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                            webPageEntity.setParsed(false);
+                            webPageEntity.setType("productList");
+                            logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                            subscriber.onNext(webPageEntity);
                         }
-                        subscriber.onCompleted();
-                        return null;
                     }
-                });
+                    subscriber.onCompleted();
+                    return null;
+                }
             });
-        });
+        }));
     }
 
     @Override

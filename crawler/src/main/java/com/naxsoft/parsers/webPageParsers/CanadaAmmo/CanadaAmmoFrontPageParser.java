@@ -30,9 +30,9 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> client.get(webPage.getUrl(), new CompletionHandler<Void>() {
+        Observable<String> observable = Observable.create(subscriber -> client.get(webPage.getUrl(), new CompletionHandler<Void>() {
             @Override
-            public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
+            public Void onCompleted(Response resp) throws Exception {
                 if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
@@ -40,42 +40,44 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
 
                     for (Element el : elements) {
                         String url = el.attr("abs:href") + "?count=72";
-                        client.get(url, new CompletionHandler<Set<WebPageEntity>>() {
-                            @Override
-                            public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
-                                HashSet<WebPageEntity> subResult = new HashSet<>();
-                                Document document = Jsoup.parse(resp.getResponseBody(), url);
-                                Elements elements = document.select("div.clearfix span.pagination a.nav-page");
-                                if (elements.isEmpty()) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setUrl(url);
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPage.setStatusCode(resp.getStatusCode());
-                                    webPageEntity.setType("productList");
-                                    logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
-                                    subResult.add(webPageEntity);
-                                } else {
-                                    int i = Integer.parseInt(elements.first().text()) - 1;
-                                    int end = Integer.parseInt(elements.last().text());
-                                    for (; i <= end; i++) {
-                                        WebPageEntity webPageEntity = new WebPageEntity();
-                                        webPageEntity.setUrl(url + "&page=" + i);
-                                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                        webPage.setStatusCode(resp.getStatusCode());
-                                        webPageEntity.setType("productList");
-                                        logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
-                                        subResult.add(webPageEntity);
-                                    }
-                                }
-                                return subResult;
-                            }
-                        });
+                        subscriber.onNext(url);
                     }
                 }
                 subscriber.onCompleted();
                 return null;
             }
         }));
+
+        Observable<Set<WebPageEntity>> setObservable = observable.flatMap(url -> Observable.from(client.get(url, new CompletionHandler<Set<WebPageEntity>>() {
+            @Override
+            public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
+                HashSet<WebPageEntity> subResult = new HashSet<>();
+                Document document = Jsoup.parse(resp.getResponseBody(), url);
+                Elements elements = document.select("div.clearfix span.pagination a.nav-page");
+                if (elements.isEmpty()) {
+                    WebPageEntity webPageEntity = new WebPageEntity();
+                    webPageEntity.setUrl(url);
+                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                    webPageEntity.setType("productList");
+                    logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                    subResult.add(webPageEntity);
+                } else {
+                    int i = Integer.parseInt(elements.first().text()) - 1;
+                    int end = Integer.parseInt(elements.last().text());
+                    for (; i <= end; i++) {
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl(url + "&page=" + i);
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setType("productList");
+                        logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                        subResult.add(webPageEntity);
+                    }
+                }
+                return subResult;
+            }
+        })));
+
+        return setObservable.flatMap(Observable::from);
     }
 
     @Override

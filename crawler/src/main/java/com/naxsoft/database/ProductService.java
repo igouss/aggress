@@ -40,7 +40,6 @@ public class ProductService {
         try {
             session = database.getSessionFactory().openStatelessSession();
             tx = session.beginTransaction();
-            int i = 0;
             for (ProductEntity productEntity : products) {
                 session.insert(productEntity);
             }

@@ -26,34 +26,31 @@ public class CtcsuppliesProductListParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.create(subscriber -> {
-            client.get(parent.getUrl(), new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                        Elements elements = document.select("a.grid-link");
+        return Observable.create(subscriber -> client.get(parent.getUrl(), new CompletionHandler<Void>() {
+            @Override
+            public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
+                if (200 == resp.getStatusCode()) {
+                    Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
+                    Elements elements = document.select("a.grid-link");
 
-                        for (Element element : elements) {
-                            if (!element.select("span.badge.badge--sold-out").isEmpty()) {
-                                continue;
-                            }
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(element.attr("abs:href"));
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productPage");
-                            webPageEntity.setCategory(parent.getCategory());
-                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
-                            subscriber.onNext(webPageEntity);
+                    for (Element element : elements) {
+                        if (!element.select("span.badge.badge--sold-out").isEmpty()) {
+                            continue;
                         }
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl(element.attr("abs:href"));
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setType("productPage");
+                        webPageEntity.setCategory(parent.getCategory());
+                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                        subscriber.onNext(webPageEntity);
                     }
-                    subscriber.onCompleted();
-                    return null;
                 }
-            });
-        });
+                subscriber.onCompleted();
+                return null;
+            }
+        }));
     }
 
     public boolean canParse(WebPageEntity webPage) {

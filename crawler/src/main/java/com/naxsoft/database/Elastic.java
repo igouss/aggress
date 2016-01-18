@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Elastic implements AutoCloseable, Cloneable {
     private static final Logger logger = LoggerFactory.getLogger(Elastic.class);
-    TransportClient client = null;
+    private TransportClient client = null;
 
     /**
      *

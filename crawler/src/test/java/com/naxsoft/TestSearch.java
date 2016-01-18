@@ -56,7 +56,7 @@ public class TestSearch {
         Generator generator = new Generator();
         ArrayList<ProductEntity> data = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
-            data.add(generator.generate("product " + i, "description " + i, "category " + i, "http://site/product" + i));
+            data.add(Generator.generate("product " + i, "description " + i, "category " + i, "http://site/product" + i));
         }
         indexProducts(Observable.from(data), "product" + indexSuffix, "guns");
 
@@ -73,7 +73,7 @@ public class TestSearch {
         Generator generator = new Generator();
         ArrayList<ProductEntity> data = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
-            data.add(generator.generate("product " + i, "description " + i, "category " + i, "http://site/product" + i));
+            data.add(Generator.generate("product " + i, "description " + i, "category " + i, "http://site/product" + i));
         }
         indexProducts(Observable.from(data), "product" + indexSuffix, "guns");
 
@@ -90,9 +90,9 @@ public class TestSearch {
         Generator generator = new Generator();
         ArrayList<ProductEntity> data = new ArrayList<>();
 
-        data.add(generator.generate("product 22 hello", "description 22 foo", "category 22", "http://site/product22foo"));
-        data.add(generator.generate("product 22 world", "description 22 bar", "category 22", "http://site/product22bar"));
-        data.add(generator.generate("product 33", "description 33", "category 33", "http://site/product33"));
+        data.add(Generator.generate("product 22 hello", "description 22 foo", "category 22", "http://site/product22foo"));
+        data.add(Generator.generate("product 22 world", "description 22 bar", "category 22", "http://site/product22bar"));
+        data.add(Generator.generate("product 33", "description 33", "category 33", "http://site/product33"));
         indexProducts(Observable.from(data), "product" + indexSuffix, "guns");
 
         ListenableActionFuture<SearchResponse> query2 = runSearch("product 22", "category 22", 0);
@@ -128,7 +128,7 @@ public class TestSearch {
         return elastic.index(products, index, type);
     }
 
-    private String searchResultToJson(SearchResponse searchResponse) {
+    private static String searchResultToJson(SearchResponse searchResponse) {
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         StringBuilder builder = new StringBuilder();
         int length = searchHits.length;

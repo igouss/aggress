@@ -32,7 +32,6 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
-        webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
         return webPageEntity;
     }
@@ -74,7 +73,6 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setUrl(page.getUrl() + "&page=" + i);
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
-                                webPageEntity.setStatusCode(resp.getStatusCode());
                                 webPageEntity.setType("productList");
                                 logger.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);

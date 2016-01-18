@@ -18,7 +18,7 @@ import java.util.List;
 public class CrafmProductPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CrafmProductPageParser.class);
     private final HttpClient client;
-    List<Cookie> cookies;
+    private final List<Cookie> cookies;
 
     public CrafmProductPageParser(HttpClient client) {
         this.client = client;
@@ -33,7 +33,7 @@ public class CrafmProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}" + webPage.getUrl());
+                        logger.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 })

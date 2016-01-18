@@ -85,7 +85,6 @@ public class ProductEntity {
 
         ProductEntity that = (ProductEntity) o;
 
-        if (webpageId != that.webpageId) return false;
         return json.equals(that.json);
 
     }

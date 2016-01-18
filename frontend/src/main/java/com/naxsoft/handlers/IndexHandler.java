@@ -13,10 +13,10 @@ import java.util.Locale;
 /**
  * Copyright NAXSoft 2015
  *
- * 
+ *
  */
 public class IndexHandler implements HttpHandler {
-    public static final String REGULAR_NAME = Paths.get("").toAbsolutePath() + "/basedir/thymeleaf/layout.html";
+    private static final String REGULAR_NAME = Paths.get("").toAbsolutePath() + "/basedir/thymeleaf/layout.html";
     private final ApplicationContext context;
     private final TemplateEngine templateEngine;
 

@@ -26,31 +26,28 @@ public class CabelasFrontPageParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> {
-            client.get(webPage.getUrl(), new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select("a[data-heading=Shooting]");
+        return Observable.create(subscriber -> client.get(webPage.getUrl(), new CompletionHandler<Void>() {
+            @Override
+            public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
+                if (200 == resp.getStatusCode()) {
+                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
+                    Elements elements = document.select("a[data-heading=Shooting]");
 
-                        for (Element element : elements) {
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(element.attr("abs:href"));
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productList");
-                            logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
-                            subscriber.onNext(webPageEntity);
-                        }
-
+                    for (Element element : elements) {
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl(element.attr("abs:href"));
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setType("productList");
+                        logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                        subscriber.onNext(webPageEntity);
                     }
-                    subscriber.onCompleted();
-                    return null;
+
                 }
-            });
-        });
+                subscriber.onCompleted();
+                return null;
+            }
+        }));
 
     }
 

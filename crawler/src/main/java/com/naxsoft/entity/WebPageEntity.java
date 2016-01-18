@@ -88,7 +88,7 @@ public class WebPageEntity {
      */
     private static String compress(String text) {
         ByteArrayOutputStream rstBao = new ByteArrayOutputStream();
-        GZIPOutputStream zos = null;
+        GZIPOutputStream zos;
         try {
             zos = new GZIPOutputStream(rstBao);
             zos.write(text.getBytes());
@@ -166,6 +166,7 @@ public class WebPageEntity {
 
     /**
      * Set page HTML
+     *
      * @param content HTML content
      */
     public void setContent(String content) {
@@ -187,18 +188,6 @@ public class WebPageEntity {
 
     public void setModificationDate(Timestamp modificationDate) {
         this.modificationDate = modificationDate;
-    }
-
-    @Basic
-    @Column(
-            name = "status_code"
-    )
-    public Integer getStatusCode() {
-        return this.statusCode;
-    }
-
-    public void setStatusCode(Integer statusCode) {
-        this.statusCode = statusCode;
     }
 
     @Basic
@@ -259,8 +248,7 @@ public class WebPageEntity {
 
         WebPageEntity that = (WebPageEntity) o;
 
-        if (!type.equals(that.type)) return false;
-        return url.equals(that.url);
+        return type.equals(that.type) && url.equals(that.url);
 
     }
 

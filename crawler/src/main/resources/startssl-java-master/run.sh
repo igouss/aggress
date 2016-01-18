@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 KEYTOOL=~/opt/jdk1.8.0_65/bin/keytool
 KEYSTORE=~/opt/jdk1.8.0_65/jre/lib/security/cacerts
 PASSWORD=changeit

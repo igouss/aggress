@@ -24,10 +24,14 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
-    public static final int REQUEST_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60);
+
     private static final Logger logger = LoggerFactory.getLogger(HttpClientImpl.class);
+
+    private final static int MAX_CONNECTIONS = 3;
+    public static final int REQUEST_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60);
+
     private final AsyncHttpClient asyncHttpClient;
-    private final int maxConnections = 1;
+
 
     public HttpClientImpl(SSLContext sslContext) {
         AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder()
@@ -45,7 +49,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
                             .replayRequest(true)
                             .build();
                 })
-                .addRequestFilter(new ThrottleRequestFilter(maxConnections))
+                .addRequestFilter(new ThrottleRequestFilter(MAX_CONNECTIONS))
                 .build();
         asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
     }

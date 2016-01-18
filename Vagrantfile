@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "vivid64"
+  config.vm.box = 'vivid64'
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -23,12 +23,12 @@ Vagrant.configure(2) do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # config.vm.network "forwarded_port", guest: 80, host: 8080
-  config.vm.network "forwarded_port", guest: 9300, host: 9300
-  config.vm.network "forwarded_port", guest: 9200, host: 9200
-  config.vm.network "forwarded_port", guest: 5432, host: 5432
-  config.vm.network "forwarded_port", guest: 8065, host: 8065
+  config.vm.network 'forwarded_port', guest: 9300, host: 9300
+  config.vm.network 'forwarded_port', guest: 9200, host: 9200
+  config.vm.network 'forwarded_port', guest: 5432, host: 5432
+  config.vm.network 'forwarded_port', guest: 8065, host: 8065
 
-  config.vm.provider "virtualbox" do |v|
+  config.vm.provider 'virtualbox' do |v|
     v.memory = 2024
     v.cpus = 2
   end

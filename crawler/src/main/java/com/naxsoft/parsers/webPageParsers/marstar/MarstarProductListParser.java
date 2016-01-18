@@ -28,64 +28,60 @@ public class MarstarProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.create(subscriber -> {
-            client.get(parent.getUrl(), new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                        logger.info("Parsing {}", document.select("h1").text());
-                        Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
-                        for (Element e : elements) {
-                            WebPageEntity webPageEntity = getProductPage(resp, e);
-                            subscriber.onNext(webPageEntity);
-                        }
-                        elements = document.select(".baseTable td:nth-child(1) > a");
-                        for (Element e : elements) {
-                            WebPageEntity webPageEntity = getProductPage(resp, e);
-                            subscriber.onNext(webPageEntity);
-                        }
-                        elements = document.select("div.subcategoryName a");
-                        for (Element e : elements) {
-                            WebPageEntity webPageEntity = getProductList(resp, e);
-                            webPageEntity.setCategory(parent.getCategory());
-                            subscriber.onNext(webPageEntity);
-                        }
+        return Observable.create(subscriber -> client.get(parent.getUrl(), new CompletionHandler<Void>() {
+            @Override
+            public Void onCompleted(Response resp) throws Exception {
+                if (200 == resp.getStatusCode()) {
+                    Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
+                    logger.info("Parsing {}", document.select("h1").text());
+                    Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
+                    for (Element e : elements) {
+                        WebPageEntity webPageEntity = getProductPage(resp, e);
+                        subscriber.onNext(webPageEntity);
+                    }
+                    elements = document.select(".baseTable td:nth-child(1) > a");
+                    for (Element e : elements) {
+                        WebPageEntity webPageEntity = getProductPage(resp, e);
+                        subscriber.onNext(webPageEntity);
+                    }
+                    elements = document.select("div.subcategoryName a");
+                    for (Element e : elements) {
+                        WebPageEntity webPageEntity = getProductList(resp, e);
+                        webPageEntity.setCategory(parent.getCategory());
+                        subscriber.onNext(webPageEntity);
+                    }
 //                    if (result.isEmpty()) {
 //                        logger.warn("No entries found url = {}", resp.getUri());
 //                    }
-                    } else {
-                        logger.warn("Failed to open page {} error code: {}", resp.getUri(), resp.getStatusCode());
-                    }
-                    subscriber.onCompleted();
-                    return null;
+                } else {
+                    logger.warn("Failed to open page {} error code: {}", resp.getUri(), resp.getStatusCode());
                 }
+                subscriber.onCompleted();
+                return null;
+            }
 
-                private WebPageEntity getProductList(Response resp, Element e) {
-                    String linkUrl = e.attr("abs:href") + "&displayOutOfStock=no";
-                    WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(linkUrl);
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                    webPageEntity.setParsed(false);
-                    webPageEntity.setStatusCode(resp.getStatusCode());
-                    webPageEntity.setType("productList");
-                    logger.info("Found product list page {} url={}", e.text(), linkUrl);
-                    return webPageEntity;
-                }
+            private WebPageEntity getProductList(Response resp, Element e) {
+                String linkUrl = e.attr("abs:href") + "&displayOutOfStock=no";
+                WebPageEntity webPageEntity = new WebPageEntity();
+                webPageEntity.setUrl(linkUrl);
+                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                webPageEntity.setParsed(false);
+                webPageEntity.setType("productList");
+                logger.info("Found product list page {} url={}", e.text(), linkUrl);
+                return webPageEntity;
+            }
 
-                private WebPageEntity getProductPage(Response resp, Element e) {
-                    String linkUrl = e.attr("abs:href");
-                    WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(linkUrl);
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                    webPageEntity.setParsed(false);
-                    webPageEntity.setStatusCode(resp.getStatusCode());
-                    webPageEntity.setType("productPage");
-                    logger.info("Found product {} url={}", e.text(), linkUrl);
-                    return webPageEntity;
-                }
-            });
-        });
+            private WebPageEntity getProductPage(Response resp, Element e) {
+                String linkUrl = e.attr("abs:href");
+                WebPageEntity webPageEntity = new WebPageEntity();
+                webPageEntity.setUrl(linkUrl);
+                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                webPageEntity.setParsed(false);
+                webPageEntity.setType("productPage");
+                logger.info("Found product {} url={}", e.text(), linkUrl);
+                return webPageEntity;
+            }
+        }));
     }
 
     @Override

@@ -28,7 +28,7 @@ import java.util.Map;
 public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzProductListParser.class);
     private final HttpClient client;
-    ListenableFuture<List<Cookie>> futureCookies;
+    private final ListenableFuture<List<Cookie>> futureCookies;
 
 
     public CanadiangunnutzProductListParser(HttpClient client) {
@@ -48,8 +48,9 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        Observable<WebPageEntity> result = Observable.create(subscriber -> {
+        return Observable.create(subscriber -> {
             try {
+                logger.info("Loading login cookies");
                 List<Cookie> cookies = futureCookies.get();
                 if (null == cookies || cookies.isEmpty()) {
                     logger.warn("No login cookies");
@@ -76,7 +77,6 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                                             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                             webPageEntity.setParsed(false);
                                             webPageEntity.setType("productPage");
-                                            webPageEntity.setStatusCode(resp.getStatusCode());
                                             webPageEntity.setCategory(parent.getCategory());
                                             logger.info("productPage={}", webPageEntity.getUrl());
                                             subscriber.onNext(webPageEntity);
@@ -96,7 +96,6 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
             }
 
         });
-        return result;
     }
 
     @Override

@@ -35,7 +35,7 @@ public class CleanDBCommand implements Command {
      *
      * @param tables
      */
-    public void hqlTruncate(String[] tables) {
+    private void hqlTruncate(String[] tables) {
         StatelessSession statelessSession = db.getSessionFactory().openStatelessSession();
         Transaction tx = null;
         try {

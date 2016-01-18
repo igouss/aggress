@@ -26,7 +26,7 @@ public class ElasticEscape {
             }
 
             writer.append(value, e, length);
-        } catch (IOException var7) {
+        } catch (IOException ignore) {
             throw new Exception("Failed to encode value: " + value);
         }
     }

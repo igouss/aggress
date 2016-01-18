@@ -28,40 +28,37 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.create(subscriber -> {
-            client.get("http://ctcsupplies.ca/collections/all", new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), resp.getUri().toString());
-                        Elements elements = document.select("ul.pagination-custom  a");
-                        int max = 0;
-                        for (Element element : elements) {
-                            try {
-                                int tmp = Integer.parseInt(element.text());
-                                if (tmp > max) {
-                                    max = tmp;
-                                }
-                            } catch (NumberFormatException ignored) {
-                                // ignore
+        return Observable.create(subscriber -> client.get("http://ctcsupplies.ca/collections/all", new CompletionHandler<Void>() {
+            @Override
+            public Void onCompleted(Response resp) throws Exception {
+                if (200 == resp.getStatusCode()) {
+                    Document document = Jsoup.parse(resp.getResponseBody(), resp.getUri().toString());
+                    Elements elements = document.select("ul.pagination-custom  a");
+                    int max = 0;
+                    for (Element element : elements) {
+                        try {
+                            int tmp = Integer.parseInt(element.text());
+                            if (tmp > max) {
+                                max = tmp;
                             }
-                        }
-                        for (int i = 1; i <= max; i++) {
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl("http://ctcsupplies.ca/collections/all?page=" + i);
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setStatusCode(resp.getStatusCode());
-                            webPageEntity.setType("productList");
-                            logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), resp.getUri());
-                            subscriber.onNext(webPageEntity);
+                        } catch (NumberFormatException ignored) {
+                            // ignore
                         }
                     }
-                    subscriber.onCompleted();
-                    return null;
+                    for (int i = 1; i <= max; i++) {
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl("http://ctcsupplies.ca/collections/all?page=" + i);
+                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setType("productList");
+                        logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), resp.getUri());
+                        subscriber.onNext(webPageEntity);
+                    }
                 }
-            });
-        });
+                subscriber.onCompleted();
+                return null;
+            }
+        }));
     }
 
     @Override

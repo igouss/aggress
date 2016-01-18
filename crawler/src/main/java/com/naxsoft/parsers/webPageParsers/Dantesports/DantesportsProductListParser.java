@@ -29,37 +29,34 @@ public class DantesportsProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.create(subscriber -> {
-            client.get(parent.getUrl(), new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                        Elements elements = document.select("#store div.listItem");
+        return Observable.create(subscriber -> client.get(parent.getUrl(), new CompletionHandler<Void>() {
+            @Override
+            public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
+                if (200 == resp.getStatusCode()) {
+                    Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
+                    Elements elements = document.select("#store div.listItem");
 
-                        for (Element element : elements) {
-                            String onclick = element.attr("onclick");
-                            Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
-                            if (matcher.find()) {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl("https://shop.dantesports.com/items_detail.php?iid=" + matcher.group());
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setStatusCode(resp.getStatusCode());
-                                webPageEntity.setType("productPage");
-                                webPageEntity.setCategory(parent.getCategory());
-                                logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
-                                subscriber.onNext(webPageEntity);
-                            } else {
-                                logger.info("Product id not found: {}", parent);
-                            }
+                    for (Element element : elements) {
+                        String onclick = element.attr("onclick");
+                        Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
+                        if (matcher.find()) {
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setUrl("https://shop.dantesports.com/items_detail.php?iid=" + matcher.group());
+                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                            webPageEntity.setParsed(false);
+                            webPageEntity.setType("productPage");
+                            webPageEntity.setCategory(parent.getCategory());
+                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                            subscriber.onNext(webPageEntity);
+                        } else {
+                            logger.info("Product id not found: {}", parent);
                         }
                     }
-                    subscriber.onCompleted();
-                    return null;
                 }
-            });
-        });
+                subscriber.onCompleted();
+                return null;
+            }
+        }));
     }
 
     @Override

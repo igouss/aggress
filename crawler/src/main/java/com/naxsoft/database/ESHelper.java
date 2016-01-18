@@ -222,7 +222,7 @@ public class ESHelper {
                 bufferJSON.append(line);
             }
             br.close();
-        } catch (Exception e) {
+        } catch (Exception ignore) {
             return null;
         }
 

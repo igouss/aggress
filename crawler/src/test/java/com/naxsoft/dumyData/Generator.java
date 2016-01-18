@@ -14,7 +14,7 @@ import java.io.IOException;
 public class Generator {
     private static final Logger logger = LoggerFactory.getLogger(Generator.class);
 
-    public ProductEntity generate(String productName, String description, String category, String url) throws IOException {
+    public static ProductEntity generate(String productName, String description, String category, String url) throws IOException {
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
         jsonBuilder.startObject();
         jsonBuilder.field("url", url);

@@ -21,17 +21,6 @@ import java.util.HashSet;
  */
 public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
     private static final Logger logger = LoggerFactory.getLogger(FirearmsoutletcanadaFrontPageParser.class);
-    private static final String[] categories = {
-            "Precision and Target Rifles",
-            "Hunting and Sporting Arms",
-            "Military Surplus Rifle",
-            "Pistols and Revolvers",
-            "Shotguns",
-            "Modern Military and Black Rifles",
-            "Rimfire Firearms",
-            "Optics and Sights",
-            "Factory Ammo and Reloading Equipment",
-    };
     private final HttpClient client;
 
     public FirearmsoutletcanadaFrontPageParser(HttpClient client) {
@@ -50,31 +39,28 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/parts.html?limit=all&stock_status=64"));
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/sights-optics.html?limit=all&stock_status=64"));
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/consignment.html?limit=all&stock_status=64"));
-        return Observable.create(subscriber -> {
-            Observable.from(webPageEntities).
-                    flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
-                        @Override
-                        public Void onCompleted(Response resp) throws Exception {
-                            if (200 == resp.getStatusCode()) {
-                                Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                                Elements elements = document.select(".products-grid .product-name > a");
+        return Observable.create(subscriber -> Observable.from(webPageEntities).
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
+                    @Override
+                    public Void onCompleted(Response resp) throws Exception {
+                        if (200 == resp.getStatusCode()) {
+                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
+                            Elements elements = document.select(".products-grid .product-name > a");
 
-                                for (Element el : elements) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setUrl(el.attr("abs:href"));
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPageEntity.setParsed(false);
-                                    webPageEntity.setStatusCode(resp.getStatusCode());
-                                    webPageEntity.setType("productPage");
-                                    logger.info("Product page listing={}", webPageEntity.getUrl());
-                                    subscriber.onNext(webPageEntity);
-                                }
+                            for (Element el : elements) {
+                                WebPageEntity webPageEntity = new WebPageEntity();
+                                webPageEntity.setUrl(el.attr("abs:href"));
+                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                                webPageEntity.setParsed(false);
+                                webPageEntity.setType("productPage");
+                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                subscriber.onNext(webPageEntity);
                             }
-                            subscriber.onCompleted();
-                            return null;
                         }
-                    })));
-        });
+                        subscriber.onCompleted();
+                        return null;
+                    }
+                }))));
     }
 
     private static WebPageEntity create(String url) {
@@ -82,7 +68,6 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setUrl(url);
         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
-        webPageEntity.setStatusCode(200);
         webPageEntity.setType("productList");
         return webPageEntity;
     }
