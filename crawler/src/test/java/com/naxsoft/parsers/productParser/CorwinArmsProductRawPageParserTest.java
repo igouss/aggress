@@ -7,6 +7,8 @@ import org.junit.Test;
  * Copyright NAXSoft 2015
  */
 public class CorwinArmsProductRawPageParserTest extends AbstractTest {
+    private CorwinArmsProductRawPageParser parser = null;
+
     @Test
     public void parse() {
     }

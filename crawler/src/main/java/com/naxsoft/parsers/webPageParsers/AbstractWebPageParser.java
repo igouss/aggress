@@ -12,10 +12,10 @@ public abstract class AbstractWebPageParser implements WebPageParser {
     /**
      *
      */
-    private final static CompletionHandler<List<Cookie>> cookieHandler = new CompletionHandler<List<Cookie>>() {
+    private final static CompletionHandler<List<Cookie>> COOKIE_HANDLER = new CompletionHandler<List<Cookie>>() {
         @Override
-        public List<Cookie> onCompleted(com.ning.http.client.Response resp) throws Exception {
-            return resp.getCookies();
+        public List<Cookie> onCompleted(com.ning.http.client.Response response) throws Exception {
+            return response.getCookies();
         }
     };
 
@@ -24,6 +24,6 @@ public abstract class AbstractWebPageParser implements WebPageParser {
      * @return
      */
     protected static CompletionHandler<List<Cookie>> getCookiesHandler() {
-        return cookieHandler;
+        return COOKIE_HANDLER;
     }
 }

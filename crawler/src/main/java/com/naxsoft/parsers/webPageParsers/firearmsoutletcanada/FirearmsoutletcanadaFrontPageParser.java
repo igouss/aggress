@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscriber;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -40,27 +41,7 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/sights-optics.html?limit=all&stock_status=64"));
         webPageEntities.add(create("http://www.firearmsoutletcanada.com/consignment.html?limit=all&stock_status=64"));
         return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
-                    @Override
-                    public Void onCompleted(Response resp) throws Exception {
-                        if (200 == resp.getStatusCode()) {
-                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                            Elements elements = document.select(".products-grid .product-name > a");
-
-                            for (Element el : elements) {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl(el.attr("abs:href"));
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setType("productPage");
-                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-                                subscriber.onNext(webPageEntity);
-                            }
-                        }
-                        subscriber.onCompleted();
-                        return null;
-                    }
-                }))));
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidCompletionHandler(page, subscriber)))));
     }
 
     private static WebPageEntity create(String url) {
@@ -77,4 +58,37 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://www.firearmsoutletcanada.com/") && webPage.getType().equals("frontPage");
     }
 
+    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+        private final WebPageEntity page;
+        private final Subscriber<? super WebPageEntity> subscriber;
+
+        public VoidCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+            this.page = page;
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public Void onCompleted(Response response) throws Exception {
+            if (200 == response.getStatusCode()) {
+                Document document = Jsoup.parse(response.getResponseBody(), page.getUrl());
+                parseDocument(document);
+            }
+            subscriber.onCompleted();
+            return null;
+        }
+
+        private void parseDocument(Document document) {
+            Elements elements = document.select(".products-grid .product-name > a");
+
+            for (Element el : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity();
+                webPageEntity.setUrl(el.attr("abs:href"));
+                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                webPageEntity.setParsed(false);
+                webPageEntity.setType("productPage");
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                subscriber.onNext(webPageEntity);
+            }
+        }
+    }
 }

@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscriber;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -43,50 +44,7 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
         }
 
         return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
-                    @Override
-                    public Void onCompleted(Response resp) throws Exception {
-                        if (200 == resp.getStatusCode()) {
-                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                            Elements elements;
-
-                            // Add sub categories
-                            if (!resp.getUri().toString().contains("page=")) {
-                                elements = document.select(".SubCategoryList a");
-                                for (Element el : elements) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setUrl(el.attr("abs:href"));
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPageEntity.setParsed(false);
-                                    webPageEntity.setType("frontPage");
-                                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-                                    subscriber.onNext(webPageEntity);
-                                }
-                                // add subpages
-                                elements = document.select("#CategoryPagingTop > div > ul > li > a");
-                                for (Element el : elements) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setUrl(el.attr("abs:href"));
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPageEntity.setParsed(false);
-                                    webPageEntity.setType("productList");
-                                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-                                    subscriber.onNext(webPageEntity);
-                                }
-                            }
-                            // add current page
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(resp.getUri() + "?sort=featured&page=1");
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setType("productList");
-                            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-                            subscriber.onNext(webPageEntity);
-                        }
-                        subscriber.onCompleted();
-                        return null;
-                    }
-                }))));
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidCompletionHandler(page, subscriber)))));
     }
 
     private static WebPageEntity create(String url) {
@@ -101,5 +59,62 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.hical.ca/") && webPage.getType().equals("frontPage");
+    }
+
+    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+        private final WebPageEntity page;
+        private final Subscriber<? super WebPageEntity> subscriber;
+
+        public VoidCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+            this.page = page;
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public Void onCompleted(Response response) throws Exception {
+            if (200 == response.getStatusCode()) {
+                Document document = Jsoup.parse(response.getResponseBody(), page.getUrl());
+                parseDocument(response, document);
+            }
+            subscriber.onCompleted();
+            return null;
+        }
+
+        private void parseDocument(Response response, Document document) {
+            Elements elements;
+
+            // Add sub categories
+            if (!response.getUri().toString().contains("page=")) {
+                elements = document.select(".SubCategoryList a");
+                for (Element el : elements) {
+                    WebPageEntity webPageEntity = new WebPageEntity();
+                    webPageEntity.setUrl(el.attr("abs:href"));
+                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                    webPageEntity.setParsed(false);
+                    webPageEntity.setType("frontPage");
+                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    subscriber.onNext(webPageEntity);
+                }
+                // add subpages
+                elements = document.select("#CategoryPagingTop > div > ul > li > a");
+                for (Element el : elements) {
+                    WebPageEntity webPageEntity = new WebPageEntity();
+                    webPageEntity.setUrl(el.attr("abs:href"));
+                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                    webPageEntity.setParsed(false);
+                    webPageEntity.setType("productList");
+                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    subscriber.onNext(webPageEntity);
+                }
+            }
+            // add current page
+            WebPageEntity webPageEntity = new WebPageEntity();
+            webPageEntity.setUrl(response.getUri() + "?sort=featured&page=1");
+            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+            webPageEntity.setParsed(false);
+            webPageEntity.setType("productList");
+            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+            subscriber.onNext(webPageEntity);
+        }
     }
 }

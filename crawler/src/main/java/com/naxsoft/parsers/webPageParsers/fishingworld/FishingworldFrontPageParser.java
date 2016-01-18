@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscriber;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -47,45 +48,61 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("https://fishingworld.ca/hunting/144-shooting-accesories"));
         webPageEntities.add(create("https://fishingworld.ca/hunting/185-tree-stands"));
         return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new CompletionHandler<Void>() {
-                    @Override
-                    public Void onCompleted(Response resp) throws Exception {
-                        if (200 == resp.getStatusCode()) {
-                            Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                            Elements elements = document.select("#list > div.bar.blue");
-                            Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
-                            if (matcher.find()) {
-                                int max = Integer.parseInt(matcher.group(2));
-                                int postsPerPage = 10;
-                                int pages = (int) Math.ceil((double) max / postsPerPage);
-
-                                for (int i = 1; i <= pages; i++) {
-                                    WebPageEntity webPageEntity = new WebPageEntity();
-                                    webPageEntity.setUrl(page.getUrl() + "?page=" + i);
-                                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                    webPageEntity.setParsed(false);
-                                    webPageEntity.setType("productList");
-                                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-                                    subscriber.onNext(webPageEntity);
-                                }
-                            } else {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl(page.getUrl());
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setType("productList");
-                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-                                subscriber.onNext(webPageEntity);
-                            }
-                        }
-                        subscriber.onCompleted();
-                        return null;
-                    }
-                }))));
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidCompletionHandler(parent, page, subscriber)))));
     }
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("https://fishingworld.ca/") && webPage.getType().equals("frontPage");
+    }
+
+    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+        private final WebPageEntity parent;
+        private final WebPageEntity page;
+        private final Subscriber<? super WebPageEntity> subscriber;
+
+        public VoidCompletionHandler(WebPageEntity parent, WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+            this.parent = parent;
+            this.page = page;
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public Void onCompleted(Response response) throws Exception {
+            if (200 == response.getStatusCode()) {
+                Document document = Jsoup.parse(response.getResponseBody(), parent.getUrl());
+                parseDocument(document);
+            }
+            subscriber.onCompleted();
+            return null;
+        }
+
+        private void parseDocument(Document document) {
+            Elements elements = document.select("#list > div.bar.blue");
+            Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
+            if (matcher.find()) {
+                int max = Integer.parseInt(matcher.group(2));
+                int postsPerPage = 10;
+                int pages = (int) Math.ceil((double) max / postsPerPage);
+
+                for (int i = 1; i <= pages; i++) {
+                    WebPageEntity webPageEntity = new WebPageEntity();
+                    webPageEntity.setUrl(page.getUrl() + "?page=" + i);
+                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                    webPageEntity.setParsed(false);
+                    webPageEntity.setType("productList");
+                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    subscriber.onNext(webPageEntity);
+                }
+            } else {
+                WebPageEntity webPageEntity = new WebPageEntity();
+                webPageEntity.setUrl(page.getUrl());
+                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                webPageEntity.setParsed(false);
+                webPageEntity.setType("productList");
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                subscriber.onNext(webPageEntity);
+            }
+        }
     }
 }

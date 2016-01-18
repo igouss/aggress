@@ -46,8 +46,7 @@ public class TestSuite {
         try {
             Class<?>[] clazz = new Class<?>[]{};
             Request request = Request.classes(computer, included.toArray(clazz));
-            Result result = maxCore.run(request, core);
-            out.println(result.wasSuccessful());
+            maxCore.run(request, core);
         } catch (Exception e) {
             LOGGER.error("Failed run the test", e);
         }

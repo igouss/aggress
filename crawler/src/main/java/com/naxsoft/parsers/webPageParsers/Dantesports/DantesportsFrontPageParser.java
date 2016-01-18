@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscriber;
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
@@ -30,32 +31,46 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.create(subscriber -> Observable.from(client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false)).subscribe(cookies -> {
-            client.get(webPage.getUrl(), cookies, new CompletionHandler<Void>() {
-                @Override
-                public Void onCompleted(com.ning.http.client.Response resp) throws Exception {
-                    if (200 == resp.getStatusCode()) {
-                        Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                        Elements elements = document.select("#scol1 > div.scell_menu > li > a");
-
-                        for (Element element : elements) {
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(element.attr("abs:href") + "&paging=0");
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setType("productList");
-                            LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
-                            subscriber.onNext(webPageEntity);
-                        }
-                    }
-                    subscriber.onCompleted();
-                    return null;
-                }
-            });
+            client.get(webPage.getUrl(), cookies, new VoidCompletionHandler(webPage, subscriber));
         }));
     }
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("https://shop.dantesports.com/") && webPage.getType().equals("frontPage");
+    }
+
+    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+        private final WebPageEntity webPage;
+        private final Subscriber<? super WebPageEntity> subscriber;
+
+        public VoidCompletionHandler(WebPageEntity webPage, Subscriber<? super WebPageEntity> subscriber) {
+            this.webPage = webPage;
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public Void onCompleted(com.ning.http.client.Response response) throws Exception {
+            if (200 == response.getStatusCode()) {
+                Document document = Jsoup.parse(response.getResponseBody(), webPage.getUrl());
+                parseDocument(document);
+            }
+            subscriber.onCompleted();
+            return null;
+        }
+
+        private void parseDocument(Document document) {
+            Elements elements = document.select("#scol1 > div.scell_menu > li > a");
+
+            for (Element element : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity();
+                webPageEntity.setUrl(element.attr("abs:href") + "&paging=0");
+                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                webPageEntity.setParsed(false);
+                webPageEntity.setType("productList");
+                LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                subscriber.onNext(webPageEntity);
+            }
+        }
     }
 }

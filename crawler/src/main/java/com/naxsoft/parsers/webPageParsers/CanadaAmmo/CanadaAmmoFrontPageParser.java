@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscriber;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -30,58 +31,86 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        Observable<String> observable = Observable.create(subscriber -> client.get(webPage.getUrl(), new CompletionHandler<Void>() {
-            @Override
-            public Void onCompleted(Response resp) throws Exception {
-                if (200 == resp.getStatusCode()) {
-                    Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
-                    Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
-                    LOGGER.info("Parsing for sub-pages + {}", webPage.getUrl());
-
-                    for (Element el : elements) {
-                        String url = el.attr("abs:href") + "?count=72";
-                        subscriber.onNext(url);
-                    }
-                }
-                subscriber.onCompleted();
-                return null;
-            }
-        }));
-
-        Observable<Set<WebPageEntity>> setObservable = observable.flatMap(url -> Observable.from(client.get(url, new CompletionHandler<Set<WebPageEntity>>() {
-            @Override
-            public Set<WebPageEntity> onCompleted(Response resp) throws Exception {
-                HashSet<WebPageEntity> subResult = new HashSet<>();
-                Document document = Jsoup.parse(resp.getResponseBody(), url);
-                Elements elements = document.select("div.clearfix span.pagination a.nav-page");
-                if (elements.isEmpty()) {
-                    WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(url);
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                    webPageEntity.setType("productList");
-                    LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
-                    subResult.add(webPageEntity);
-                } else {
-                    int i = Integer.parseInt(elements.first().text()) - 1;
-                    int end = Integer.parseInt(elements.last().text());
-                    for (; i <= end; i++) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(url + "&page=" + i);
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                        webPageEntity.setType("productList");
-                        LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
-                        subResult.add(webPageEntity);
-                    }
-                }
-                return subResult;
-            }
-        })));
-
+        Observable<String> observable = Observable.create(subscriber -> client.get(webPage.getUrl(), new VoidCompletionHandler(webPage, subscriber)));
+        Observable<Set<WebPageEntity>> setObservable = observable.flatMap(url -> Observable.from(client.get(url, new SetCompletionHandler(url, webPage))));
         return setObservable.flatMap(Observable::from);
     }
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("https://www.canadaammo.com/") && webPage.getType().equals("frontPage");
+    }
+
+    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+        private final WebPageEntity webPage;
+        private final Subscriber<? super String> subscriber;
+
+        public VoidCompletionHandler(WebPageEntity webPage, Subscriber<? super String> subscriber) {
+            this.webPage = webPage;
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public Void onCompleted(Response response) throws Exception {
+            if (200 == response.getStatusCode()) {
+                Document document = Jsoup.parse(response.getResponseBody(), webPage.getUrl());
+                parseDocument(document);
+            }
+            subscriber.onCompleted();
+            return null;
+        }
+
+        private void parseDocument(Document document) {
+            Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
+            LOGGER.info("Parsing for sub-pages + {}", webPage.getUrl());
+
+            for (Element el : elements) {
+                String url = el.attr("abs:href") + "?count=72";
+                subscriber.onNext(url);
+            }
+        }
+    }
+
+    private static class SetCompletionHandler extends CompletionHandler<Set<WebPageEntity>> {
+        private final String url;
+        private final WebPageEntity webPage;
+
+        public SetCompletionHandler(String url, WebPageEntity webPage) {
+            this.url = url;
+            this.webPage = webPage;
+        }
+
+        @Override
+        public Set<WebPageEntity> onCompleted(Response response) throws Exception {
+
+            Document document = Jsoup.parse(response.getResponseBody(), url);
+            HashSet<WebPageEntity> subResult = parseDocument(document);
+            return subResult;
+        }
+
+        private HashSet<WebPageEntity> parseDocument(Document document) {
+            HashSet<WebPageEntity> subResult = new HashSet<>();
+            Elements elements = document.select("div.clearfix span.pagination a.nav-page");
+            if (elements.isEmpty()) {
+                WebPageEntity webPageEntity = new WebPageEntity();
+                webPageEntity.setUrl(url);
+                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                webPageEntity.setType("productList");
+                LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                subResult.add(webPageEntity);
+            } else {
+                int i = Integer.parseInt(elements.first().text()) - 1;
+                int end = Integer.parseInt(elements.last().text());
+                for (; i <= end; i++) {
+                    WebPageEntity webPageEntity = new WebPageEntity();
+                    webPageEntity.setUrl(url + "&page=" + i);
+                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                    webPageEntity.setType("productList");
+                    LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                    subResult.add(webPageEntity);
+                }
+            }
+            return subResult;
+        }
     }
 }

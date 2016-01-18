@@ -7,6 +7,8 @@ import org.junit.Test;
  * Copyright NAXSoft 2015
  */
 public class FirearmsoutletcanadaRawPageParserTest extends AbstractTest {
+    private FirearmsoutletcanadaRawPageParser parser = null;
+
     @Test
     public void parse() {
     }

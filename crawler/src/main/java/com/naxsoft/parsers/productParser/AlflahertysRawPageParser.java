@@ -11,6 +11,7 @@ import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,6 +30,11 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+        parseDocument(webPageEntity, result, document);
+        return result;
+    }
+
+    private void parseDocument(WebPageEntity webPageEntity, HashSet<ProductEntity> result, Document document) throws IOException {
         String productName = document.select(".product_name").text();
         LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
@@ -57,13 +63,12 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
                     jsonBuilder.field(specName, specValue);
                 }
                 jsonBuilder.endObject();
-                product.setUrl(webPageEntity.getUrl());
+                product.setUrl(document.location());
                 product.setJson(jsonBuilder.string());
             }
             product.setWebpageId(webPageEntity.getId());
             result.add(product);
         }
-        return result;
     }
 
     private static String parsePrice(String price) {

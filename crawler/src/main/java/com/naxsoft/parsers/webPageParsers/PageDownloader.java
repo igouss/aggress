@@ -41,12 +41,12 @@ public class PageDownloader {
     public static Future<WebPageEntity> download(HttpClient client, List<Cookie> cookies, String url) {
         return client.get(url, cookies, new CompletionHandler<WebPageEntity>() {
             @Override
-            public WebPageEntity onCompleted(com.ning.http.client.Response resp) throws Exception {
+            public WebPageEntity onCompleted(com.ning.http.client.Response response) throws Exception {
                 WebPageEntity result = null;
-                if (200 == resp.getStatusCode()) {
+                if (200 == response.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(url);
-                    webPageEntity.setContent(resp.getResponseBody());
+                    webPageEntity.setContent(response.getResponseBody());
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productPageRaw");

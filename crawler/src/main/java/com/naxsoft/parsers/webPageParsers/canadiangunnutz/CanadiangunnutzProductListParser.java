@@ -15,6 +15,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscriber;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -57,40 +58,7 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                     subscriber.onCompleted();
                     return;
                 }
-                client.get(parent.getUrl(), cookies, new CompletionHandler<Void>() {
-                    @Override
-                    public Void onCompleted(Response resp) throws Exception {
-                        if (200 == resp.getStatusCode()) {
-                            Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                            Elements elements = document.select("#threads .threadtitle");
-                            if (elements.isEmpty()) {
-                                LOGGER.error("No results on page");
-                            }
-                            for (Element element : elements) {
-                                Elements select = element.select(".prefix");
-                                if (!select.isEmpty()) {
-                                    if (select.first().text().contains("WTS")) {
-                                        element = element.select("a.title").first();
-                                        if (!element.text().toLowerCase().contains("remove")) {
-                                            WebPageEntity webPageEntity = new WebPageEntity();
-                                            webPageEntity.setUrl(element.attr("abs:href"));
-                                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                            webPageEntity.setParsed(false);
-                                            webPageEntity.setType("productPage");
-                                            webPageEntity.setCategory(parent.getCategory());
-                                            LOGGER.info("productPage={}", webPageEntity.getUrl());
-                                            subscriber.onNext(webPageEntity);
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            LOGGER.error("Failed to load page {}", parent.getUrl());
-                        }
-                        subscriber.onCompleted();
-                        return null;
-                    }
-                });
+                client.get(parent.getUrl(), cookies, new VoidCompletionHandler(parent, subscriber));
             } catch (Exception e) {
                 LOGGER.error("Failed to login to canadiangunnutz", e);
             }
@@ -101,5 +69,52 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.canadiangunnutz.com/") && webPage.getType().equals("productList");
+    }
+
+    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+        private final WebPageEntity parent;
+        private final Subscriber<? super WebPageEntity> subscriber;
+
+        public VoidCompletionHandler(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
+            this.parent = parent;
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public Void onCompleted(Response response) throws Exception {
+            if (200 == response.getStatusCode()) {
+                Document document = Jsoup.parse(response.getResponseBody(), parent.getUrl());
+                parseDocument(document);
+            } else {
+                LOGGER.error("Failed to load page {}", parent.getUrl());
+            }
+            subscriber.onCompleted();
+            return null;
+        }
+
+        private void parseDocument(Document document) {
+            Elements elements = document.select("#threads .threadtitle");
+            if (elements.isEmpty()) {
+                LOGGER.error("No results on page");
+            }
+            for (Element element : elements) {
+                Elements select = element.select(".prefix");
+                if (!select.isEmpty()) {
+                    if (select.first().text().contains("WTS")) {
+                        element = element.select("a.title").first();
+                        if (!element.text().toLowerCase().contains("remove")) {
+                            WebPageEntity webPageEntity = new WebPageEntity();
+                            webPageEntity.setUrl(element.attr("abs:href"));
+                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                            webPageEntity.setParsed(false);
+                            webPageEntity.setType("productPage");
+                            webPageEntity.setCategory(parent.getCategory());
+                            LOGGER.info("productPage={}", webPageEntity.getUrl());
+                            subscriber.onNext(webPageEntity);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

@@ -7,6 +7,7 @@ import org.junit.Test;
  * Copyright NAXSoft 2015
  */
 public class CtcsuppliesRawProductPageParserTest extends AbstractTest {
+    private CtcsuppliesRawProductPageParser parser;
     @Test
     public void parse() {
     }

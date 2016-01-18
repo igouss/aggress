@@ -33,10 +33,11 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
         try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             jsonBuilder.startObject();
             jsonBuilder.field("url", webPageEntity.getUrl());
             jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             document.select(".product-name h1").first().children().remove();
             String productName = document.select(".product-name h1").first().text().trim();
             jsonBuilder.field("productName", productName);

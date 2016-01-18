@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscriber;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -50,38 +51,7 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
             webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Black-Powder/c/black-powder?viewPageSize=72"));
 
             for (WebPageEntity page : webPageEntities) {
-                client.get(page.getUrl(), new CompletionHandler<Void>() {
-                    @Override
-                    public Void onCompleted(Response resp) throws Exception {
-                        if (200 == resp.getStatusCode()) {
-                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                            int max = 1;
-                            Elements elements = document.select(".pagination a");
-                            for (Element el : elements) {
-                                try {
-                                    int num = Integer.parseInt(el.text());
-                                    if (num > max) {
-                                        max = num;
-                                    }
-                                } catch (Exception ignored) {
-                                    // ignore
-                                }
-                            }
-
-                            for (int i = 0; i < max; i++) {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl(page.getUrl() + "&page=" + i);
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setType("productList");
-                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-                                subscriber.onNext(webPageEntity);
-                            }
-                        }
-                        subscriber.onCompleted();
-                        return null;
-                    }
-                });
+                client.get(page.getUrl(), new VoidCompletionHandler(page, subscriber));
             }
 
         });
@@ -90,6 +60,51 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.wholesalesports.com/") && webPage.getType().equals("frontPage");
+    }
+
+    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+        private final WebPageEntity page;
+        private final Subscriber<? super WebPageEntity> subscriber;
+
+        public VoidCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+            this.page = page;
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public Void onCompleted(Response response) throws Exception {
+            if (200 == response.getStatusCode()) {
+                Document document = Jsoup.parse(response.getResponseBody(), page.getUrl());
+                parseDocument(document);
+            }
+            subscriber.onCompleted();
+            return null;
+        }
+
+        private void parseDocument(Document document) {
+            int max = 1;
+            Elements elements = document.select(".pagination a");
+            for (Element el : elements) {
+                try {
+                    int num = Integer.parseInt(el.text());
+                    if (num > max) {
+                        max = num;
+                    }
+                } catch (Exception ignored) {
+                    // ignore
+                }
+            }
+
+            for (int i = 0; i < max; i++) {
+                WebPageEntity webPageEntity = new WebPageEntity();
+                webPageEntity.setUrl(page.getUrl() + "&page=" + i);
+                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                webPageEntity.setParsed(false);
+                webPageEntity.setType("productList");
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                subscriber.onNext(webPageEntity);
+            }
+        }
     }
 }
 

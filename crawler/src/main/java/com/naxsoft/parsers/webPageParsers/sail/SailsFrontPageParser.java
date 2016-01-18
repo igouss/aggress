@@ -13,6 +13,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscriber;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -44,27 +45,7 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
 //        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearm-accessories", parent));
 //        webPageEntities.add(create("http://www.sail.ca/en/hunting/ammunition", parent));
         return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), cookies, new CompletionHandler<Void>() {
-                    @Override
-                    public Void onCompleted(Response resp) throws Exception {
-                        if (200 == resp.getStatusCode()) {
-                            Document document = Jsoup.parse(resp.getResponseBody(), page.getUrl());
-                            Elements elements = document.select("ol.nav-2 a");
-
-                            for (Element el : elements) {
-                                WebPageEntity webPageEntity = new WebPageEntity();
-                                webPageEntity.setUrl(el.attr("abs:href") + "?limit=36");
-                                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
-                                webPageEntity.setParsed(false);
-                                webPageEntity.setType("productList");
-                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-                                subscriber.onNext(webPageEntity);
-                            }
-                        }
-                        subscriber.onCompleted();
-                        return null;
-                    }
-                }))));
+                flatMap(page -> Observable.from(client.get(page.getUrl(), cookies, new VoidCompletionHandler(page, subscriber)))));
     }
 
     private static WebPageEntity create(String url) {
@@ -79,5 +60,39 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.sail.ca/") && webPage.getType().equals("frontPage");
+    }
+
+    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+        private final WebPageEntity page;
+        private final Subscriber<? super WebPageEntity> subscriber;
+
+        public VoidCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+            this.page = page;
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public Void onCompleted(Response response) throws Exception {
+            if (200 == response.getStatusCode()) {
+                Document document = Jsoup.parse(response.getResponseBody(), page.getUrl());
+                parseDocument(document);
+            }
+            subscriber.onCompleted();
+            return null;
+        }
+
+        private void parseDocument(Document document) {
+            Elements elements = document.select("ol.nav-2 a");
+
+            for (Element el : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity();
+                webPageEntity.setUrl(el.attr("abs:href") + "?limit=36");
+                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
+                webPageEntity.setParsed(false);
+                webPageEntity.setType("productList");
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                subscriber.onNext(webPageEntity);
+            }
+        }
     }
 }

@@ -24,6 +24,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
 
 import java.io.IOException;
@@ -137,20 +138,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                 String indexContent = null;
                 indexContent = IOUtils.toString(resourceAsStream);
                 String url = "http://127.0.0.1:9200/" + newIndexName;
-                client.post(url, indexContent, new CompletionHandler<Void>() {
-                    @Override
-                    public Void onCompleted(Response response) throws Exception {
-                        int statusCode = response.getStatusCode();
-                        if (200 != statusCode) {
-                            LOGGER.error("Error creating index: {}", response.getResponseBody());
-                        } else {
-                            LOGGER.info("Created index: {}", response.getResponseBody());
-                        }
-                        subscriber.onNext(statusCode);
-                        subscriber.onCompleted();
-                        return null;
-                    }
-                });
+                client.post(url, indexContent, new VoidCompletionHandler(subscriber));
             } catch (IOException e) {
                 subscriber.onError(e);
             }
@@ -175,20 +163,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                 String indexContent = IOUtils.toString(resourceAsStream);
                 String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
 
-                client.post(url, indexContent, new CompletionHandler<Integer>() {
-                    @Override
-                    public Integer onCompleted(Response response) throws Exception {
-                        int statusCode = response.getStatusCode();
-                        if (200 != statusCode) {
-                            LOGGER.error("Error creating mapping: {}", response.getResponseBody());
-                        } else {
-                            LOGGER.info("Created mapping: {}", response.getResponseBody());
-                        }
-                        subscriber.onNext(statusCode);
-                        subscriber.onCompleted();
-                        return null;
-                    }
-                });
+                client.post(url, indexContent, new IntegerCompletionHandler(subscriber));
             } catch (IOException e) {
                 subscriber.onError(e);
             }
@@ -204,6 +179,48 @@ public class Elastic implements AutoCloseable, Cloneable {
      */
     public ListenableActionFuture<IndicesAliasesResponse> updateAlias(String index, String newAlias, String oldAlias) {
         return client.admin().indices().prepareAliases().addAlias(index, newAlias).removeAlias(index, oldAlias).execute();
+    }
+
+    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+        private final Subscriber<? super Integer> subscriber;
+
+        public VoidCompletionHandler(Subscriber<? super Integer> subscriber) {
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public Void onCompleted(Response response) throws Exception {
+            int statusCode = response.getStatusCode();
+            if (200 != statusCode) {
+                LOGGER.error("Error creating index: {}", response.getResponseBody());
+            } else {
+                LOGGER.info("Created index: {}", response.getResponseBody());
+            }
+            subscriber.onNext(statusCode);
+            subscriber.onCompleted();
+            return null;
+        }
+    }
+
+    private static class IntegerCompletionHandler extends CompletionHandler<Integer> {
+        private final Subscriber<? super Integer> subscriber;
+
+        public IntegerCompletionHandler(Subscriber<? super Integer> subscriber) {
+            this.subscriber = subscriber;
+        }
+
+        @Override
+        public Integer onCompleted(Response response) throws Exception {
+            int statusCode = response.getStatusCode();
+            if (200 != statusCode) {
+                LOGGER.error("Error creating mapping: {}", response.getResponseBody());
+            } else {
+                LOGGER.info("Created mapping: {}", response.getResponseBody());
+            }
+            subscriber.onNext(statusCode);
+            subscriber.onCompleted();
+            return null;
+        }
     }
 }
 

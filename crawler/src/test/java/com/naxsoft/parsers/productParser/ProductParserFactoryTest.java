@@ -12,6 +12,8 @@ import org.junit.Test;
  *
  */
 public class ProductParserFactoryTest extends AbstractTest {
+    private ProductParserFactory parser = null;
+
     @Test
     public void parse() {
     }
