@@ -19,7 +19,7 @@ import java.sql.Timestamp;
  */
 public class IrungunsFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(IrungunsFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IrungunsFrontPageParser.class);
 
     public IrungunsFrontPageParser(HttpClient client) {
         this.client = client;
@@ -41,7 +41,7 @@ public class IrungunsFrontPageParser extends AbstractWebPageParser {
                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
-                        logger.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
+                        LOGGER.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
                         subscriber.onNext(webPageEntity);
                     }
                 }

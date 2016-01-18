@@ -15,7 +15,7 @@ import rx.Observable;
 import java.sql.Timestamp;
 
 public class BullseyelondonProductListParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(BullseyelondonProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BullseyelondonProductListParser.class);
     private final HttpClient client;
 
     public BullseyelondonProductListParser(HttpClient client) {
@@ -37,7 +37,7 @@ public class BullseyelondonProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                        LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                         subscriber.onNext(webPageEntity);
                     }
                 }

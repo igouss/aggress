@@ -12,20 +12,22 @@ import java.io.IOException;
  * Copyright NAXSoft 2015
  */
 public class Generator {
-    private static final Logger logger = LoggerFactory.getLogger(Generator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Generator.class);
 
     public static ProductEntity generate(String productName, String description, String category, String url) throws IOException {
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", url);
-        jsonBuilder.field("productName", productName);
-        jsonBuilder.field("description", description);
-        jsonBuilder.field("category", category);
-        jsonBuilder.endObject();
+        ProductEntity product;
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", url);
+            jsonBuilder.field("productName", productName);
+            jsonBuilder.field("description", description);
+            jsonBuilder.field("category", category);
+            jsonBuilder.endObject();
 
-        ProductEntity product = new ProductEntity();
-        product.setUrl(url);
-        product.setJson(jsonBuilder.string());
+            product = new ProductEntity();
+            product.setUrl(url);
+            product.setJson(jsonBuilder.string());
+        }
         product.setWebpageId(42);
 
         return  product;

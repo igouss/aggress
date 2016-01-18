@@ -20,7 +20,7 @@ import java.sql.Timestamp;
  */
 public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
 
     public CtcsuppliesFrontPageParser(HttpClient client) {
         this.client = client;
@@ -51,7 +51,7 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productList");
-                        logger.info("productList = {}, parent = {}", webPageEntity.getUrl(), resp.getUri());
+                        LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), resp.getUri());
                         subscriber.onNext(webPageEntity);
                     }
                 }

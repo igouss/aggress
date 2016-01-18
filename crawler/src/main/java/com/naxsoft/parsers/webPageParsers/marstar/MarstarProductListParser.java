@@ -20,7 +20,7 @@ import java.sql.Timestamp;
  */
 public class MarstarProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(MarstarProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarstarProductListParser.class);
 
     public MarstarProductListParser(HttpClient client) {
         this.client = client;
@@ -33,7 +33,7 @@ public class MarstarProductListParser extends AbstractWebPageParser {
             public Void onCompleted(Response resp) throws Exception {
                 if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
-                    logger.info("Parsing {}", document.select("h1").text());
+                    LOGGER.info("Parsing {}", document.select("h1").text());
                     Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
                     for (Element e : elements) {
                         WebPageEntity webPageEntity = getProductPage(resp, e);
@@ -54,7 +54,7 @@ public class MarstarProductListParser extends AbstractWebPageParser {
 //                        logger.warn("No entries found url = {}", resp.getUri());
 //                    }
                 } else {
-                    logger.warn("Failed to open page {} error code: {}", resp.getUri(), resp.getStatusCode());
+                    LOGGER.warn("Failed to open page {} error code: {}", resp.getUri(), resp.getStatusCode());
                 }
                 subscriber.onCompleted();
                 return null;
@@ -67,7 +67,7 @@ public class MarstarProductListParser extends AbstractWebPageParser {
                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
-                logger.info("Found product list page {} url={}", e.text(), linkUrl);
+                LOGGER.info("Found product list page {} url={}", e.text(), linkUrl);
                 return webPageEntity;
             }
 
@@ -78,7 +78,7 @@ public class MarstarProductListParser extends AbstractWebPageParser {
                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productPage");
-                logger.info("Found product {} url={}", e.text(), linkUrl);
+                LOGGER.info("Found product {} url={}", e.text(), linkUrl);
                 return webPageEntity;
             }
         }));

@@ -19,11 +19,11 @@ import java.sql.Timestamp;
  */
 public class EllwoodeppsProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(EllwoodeppsProductListParser.class);
-
     public EllwoodeppsProductListParser(HttpClient client) {
         this.client = client;
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsProductListParser.class);
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
@@ -40,7 +40,7 @@ public class EllwoodeppsProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), resp.getUri());
+                        LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), resp.getUri());
                         subscriber.onNext(webPageEntity);
                     }
                 }

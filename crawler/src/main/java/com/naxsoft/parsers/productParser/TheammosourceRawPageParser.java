@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class TheammosourceRawPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(TheammosourceRawPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceRawPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -28,32 +28,33 @@ public class TheammosourceRawPageParser extends AbstractRawPageParser {
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
         String productName = document.select("#productListHeading").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         if (document.select("#productDetailsList > li:nth-child(2)").text().equals("0 Units in Stock")) {
             return result;
         }
 
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-        jsonBuilder.field("productName", productName);
-        jsonBuilder.field("productImage", document.select("#productMainImage img").attr("abs:src"));
-        jsonBuilder.field("description", document.select("#productDescription").text());
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        Elements specialPrice = document.select("#productPrices .productSpecialPrice");
-        if (!specialPrice.isEmpty()) {
-            jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices .normalprice").text()));
-            jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
-        } else {
-            jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices #retail").text()));
-        }
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            jsonBuilder.field("productName", productName);
+            jsonBuilder.field("productImage", document.select("#productMainImage img").attr("abs:src"));
+            jsonBuilder.field("description", document.select("#productDescription").text());
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            Elements specialPrice = document.select("#productPrices .productSpecialPrice");
+            if (!specialPrice.isEmpty()) {
+                jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices .normalprice").text()));
+                jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
+            } else {
+                jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices #retail").text()));
+            }
 
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setJson(jsonBuilder.string());
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setJson(jsonBuilder.string());
+        }
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
         return result;

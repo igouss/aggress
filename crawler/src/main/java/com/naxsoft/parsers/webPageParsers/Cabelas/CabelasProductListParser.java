@@ -19,7 +19,7 @@ import java.sql.Timestamp;
  * Copyright NAXSoft 2015
  */
 public class CabelasProductListParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CabelasProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CabelasProductListParser.class);
     private final HttpClient client;
 
     public CabelasProductListParser(HttpClient client) {
@@ -33,7 +33,7 @@ public class CabelasProductListParser extends AbstractWebPageParser {
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
         webPageEntity.setCategory(parent.getCategory());
-        logger.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
+        LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
         return webPageEntity;
     }
 

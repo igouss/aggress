@@ -32,7 +32,7 @@ import static java.lang.System.out;
 import static java.lang.System.setProperty;
 
 public class Aggress {
-    private static final Logger logger = LoggerFactory.getLogger(Aggress.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Aggress.class);
 
     /**
      *
@@ -44,7 +44,7 @@ public class Aggress {
         final MetricRegistry metrics = new MetricRegistry();
         final Database db = new Database();
         final Elastic elastic = new Elastic();
-        final ScheduledReporter elasticReporter = Slf4jReporter.forRegistry(metrics).outputTo(logger).build();
+        final ScheduledReporter elasticReporter = Slf4jReporter.forRegistry(metrics).outputTo(LOGGER).build();
         final OptionSet options = parseCommandLineArguments(args);
 
         HttpClientImpl asyncFetchClient = null;
@@ -126,7 +126,7 @@ public class Aggress {
                     Query query = session.createQuery("select count(id) from WebPageEntity where parsed = false");
                     rc = (Long) query.uniqueResult();
                 } catch (Exception e) {
-                    logger.error("Metric failed: com.naxsoft.database.Database.web_pages.unparsed", e);
+                    LOGGER.error("Metric failed: com.naxsoft.database.Database.web_pages.unparsed", e);
                 } finally {
                     if (null != session) {
                         session.close();
@@ -177,7 +177,7 @@ public class Aggress {
                 parseCommand.tearDown();
             }
         } catch (Exception e) {
-            logger.error("Application failure", e);
+            LOGGER.error("Application failure", e);
         } finally {
             if (null != elasticReporter) {
                 elasticReporter.stop();

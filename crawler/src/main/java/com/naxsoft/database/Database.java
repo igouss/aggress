@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Database implements AutoCloseable, Cloneable {
-    private final static Logger logger = LoggerFactory.getLogger(Database.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(Database.class);
     private final SessionFactory sessionFactory;
 
     /**
@@ -29,7 +29,7 @@ public class Database implements AutoCloseable, Cloneable {
             Metadata metadata = (new MetadataSources(e)).getMetadataBuilder().build();
             this.sessionFactory = metadata.getSessionFactoryBuilder().build();
         } catch (Exception e) {
-            logger.error("Failed to create hibernate session factory", e);
+            LOGGER.error("Failed to create hibernate session factory", e);
             throw e;
         }
     }

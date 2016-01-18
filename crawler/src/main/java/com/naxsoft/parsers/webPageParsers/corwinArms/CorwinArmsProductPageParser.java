@@ -12,7 +12,7 @@ import rx.Observable;
  * Copyright NAXSoft 2015
  */
 public class CorwinArmsProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CorwinArmsProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsProductPageParser.class);
     private final HttpClient client;
 
     public CorwinArmsProductPageParser(HttpClient client) {
@@ -26,7 +26,7 @@ public class CorwinArmsProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 })

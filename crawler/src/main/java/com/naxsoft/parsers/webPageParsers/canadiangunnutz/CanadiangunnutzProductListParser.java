@@ -26,7 +26,7 @@ import java.util.Map;
  * Copyright NAXSoft 2015
  */
 public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductListParser.class);
     private final HttpClient client;
     private final ListenableFuture<List<Cookie>> futureCookies;
 
@@ -50,10 +50,10 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return Observable.create(subscriber -> {
             try {
-                logger.info("Loading login cookies");
+                LOGGER.info("Loading login cookies");
                 List<Cookie> cookies = futureCookies.get();
                 if (null == cookies || cookies.isEmpty()) {
-                    logger.warn("No login cookies");
+                    LOGGER.warn("No login cookies");
                     subscriber.onCompleted();
                     return;
                 }
@@ -64,7 +64,7 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                             Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                             Elements elements = document.select("#threads .threadtitle");
                             if (elements.isEmpty()) {
-                                logger.error("No results on page");
+                                LOGGER.error("No results on page");
                             }
                             for (Element element : elements) {
                                 Elements select = element.select(".prefix");
@@ -78,21 +78,21 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                                             webPageEntity.setParsed(false);
                                             webPageEntity.setType("productPage");
                                             webPageEntity.setCategory(parent.getCategory());
-                                            logger.info("productPage={}", webPageEntity.getUrl());
+                                            LOGGER.info("productPage={}", webPageEntity.getUrl());
                                             subscriber.onNext(webPageEntity);
                                         }
                                     }
                                 }
                             }
                         } else {
-                            logger.error("Failed to load page {}", parent.getUrl());
+                            LOGGER.error("Failed to load page {}", parent.getUrl());
                         }
                         subscriber.onCompleted();
                         return null;
                     }
                 });
             } catch (Exception e) {
-                logger.error("Failed to login to canadiangunnutz", e);
+                LOGGER.error("Failed to login to canadiangunnutz", e);
             }
 
         });

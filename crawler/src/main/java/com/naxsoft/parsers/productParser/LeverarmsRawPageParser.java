@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class LeverarmsRawPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(LeverarmsRawPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsRawPageParser.class);
 
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
@@ -35,39 +35,40 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        String productName = document.select(".product-shop .product-name").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            String productName = document.select(".product-shop .product-name").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        if (document.select("p.availability.in-stock").isEmpty()) {
-            return products;
+            if (document.select("p.availability.in-stock").isEmpty()) {
+                return products;
+            }
+
+
+            jsonBuilder.field("productName", productName);
+
+            jsonBuilder.field("productImage", document.select(".product-img-box img").attr("abs:src"));
+
+            Elements specialPrice = document.select(".special-price .price");
+            if (!specialPrice.isEmpty()) {
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".old-price .price").text()));
+                jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
+            } else {
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".regular-price .price").text()));
+            }
+
+            jsonBuilder.field("description", document.select(".product-collateral").text() + " " + document.select(".short-description").text());
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setWebpageId(webPageEntity.getId());
+            product.setJson(jsonBuilder.string());
         }
-
-
-        jsonBuilder.field("productName", productName);
-
-        jsonBuilder.field("productImage", document.select(".product-img-box img").attr("abs:src"));
-
-        Elements specialPrice = document.select(".special-price .price");
-        if (!specialPrice.isEmpty()) {
-            jsonBuilder.field("regularPrice", parsePrice(document.select(".old-price .price").text()));
-            jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
-        } else {
-            jsonBuilder.field("regularPrice", parsePrice(document.select(".regular-price .price").text()));
-        }
-
-        jsonBuilder.field("description", document.select(".product-collateral").text() + " " + document.select(".short-description").text());
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setWebpageId(webPageEntity.getId());
-        product.setJson(jsonBuilder.string());
         products.add(product);
         return products;
     }

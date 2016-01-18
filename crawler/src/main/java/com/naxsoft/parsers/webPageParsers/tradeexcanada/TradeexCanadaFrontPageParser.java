@@ -21,7 +21,7 @@ import java.util.HashSet;
  */
 public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(TradeexCanadaFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaFrontPageParser.class);
 
     public TradeexCanadaFrontPageParser(HttpClient client) {
         this.client = client;
@@ -44,7 +44,7 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productList");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

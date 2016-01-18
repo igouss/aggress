@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 public class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(EllwoodeppsFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsFrontPageParser.class);
 
     public EllwoodeppsFrontPageParser(HttpClient client) {
         this.client = client;
@@ -42,7 +42,7 @@ public class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
                             String elements = document.select("div.amount-container > p").text();
                             Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
                             if (!matcher.find()) {
-                                logger.error("Unable to parse total pages");
+                                LOGGER.error("Unable to parse total pages");
                                 subscriber.onCompleted();
                                 return null;
                             }
@@ -56,7 +56,7 @@ public class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productList");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -27,30 +27,31 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
         RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
 
         for (RawProduct rp : rawProducts) {
-            logger.info("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
+            LOGGER.info("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
             ProductEntity product = new ProductEntity();
-            XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", "https://www.wolverinesupplies.com/ProductDetail/" + rp.ItemNumber);
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", rp.Title);
-            jsonBuilder.field("category", "");
-            jsonBuilder.field("productImage", "https://www.wolverinesupplies.com/images/items/Large/" + rp.ImageFile + rp.ImageExtension);
-            jsonBuilder.field("regularPrice", rp.ListPrice);
-            jsonBuilder.field("specialPrice", rp.Price);
-            jsonBuilder.field("unitsAvailable", rp.StockAmount);
-            jsonBuilder.field("description", rp.ExtendedDescription);
-            jsonBuilder.field("category", webPageEntity.getCategory());
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", "https://www.wolverinesupplies.com/ProductDetail/" + rp.ItemNumber);
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                jsonBuilder.field("productName", rp.Title);
+                jsonBuilder.field("category", "");
+                jsonBuilder.field("productImage", "https://www.wolverinesupplies.com/images/items/Large/" + rp.ImageFile + rp.ImageExtension);
+                jsonBuilder.field("regularPrice", rp.ListPrice);
+                jsonBuilder.field("specialPrice", rp.Price);
+                jsonBuilder.field("unitsAvailable", rp.StockAmount);
+                jsonBuilder.field("description", rp.ExtendedDescription);
+                jsonBuilder.field("category", webPageEntity.getCategory());
 
-            for (int j = 0; j < rp.Attributes.length; ++j) {
-                jsonBuilder.field(
-                        rp.Attributes[j].AttributeName.toLowerCase(),
-                        rp.Attributes[j].AttributeValue);
+                for (int j = 0; j < rp.Attributes.length; ++j) {
+                    jsonBuilder.field(
+                            rp.Attributes[j].AttributeName.toLowerCase(),
+                            rp.Attributes[j].AttributeValue);
+                }
+
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setJson(jsonBuilder.string());
             }
-
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
             product.setWebpageId(webPageEntity.getId());
             result.add(product);
         }

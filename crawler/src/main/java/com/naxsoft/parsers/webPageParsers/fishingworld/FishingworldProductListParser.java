@@ -19,7 +19,7 @@ import java.sql.Timestamp;
  */
 public class FishingworldProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(FishingworldProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FishingworldProductListParser.class);
 
     public FishingworldProductListParser(HttpClient client) {
         this.client = client;
@@ -40,7 +40,7 @@ public class FishingworldProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("Product page listing={}", webPageEntity.getUrl());
+                        LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                         subscriber.onNext(webPageEntity);
                     }
                 }

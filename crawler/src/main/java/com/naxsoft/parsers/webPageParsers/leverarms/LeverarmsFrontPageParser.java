@@ -21,7 +21,7 @@ import java.util.HashSet;
  */
 public class LeverarmsFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(LeverarmsFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsFrontPageParser.class);
 
     public LeverarmsFrontPageParser(HttpClient client) {
         this.client = client;
@@ -51,7 +51,7 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productPage");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

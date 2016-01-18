@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(FrontierfirearmsFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsFrontPageParser.class);
 
     public FrontierfirearmsFrontPageParser(HttpClient client) {
         this.client = client;
@@ -43,7 +43,7 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
                             String elements = document.select("div.toolbar > div.pager > p").first().text();
                             Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
                             if (!matcher.find()) {
-                                logger.error("Unable to parse total pages");
+                                LOGGER.error("Unable to parse total pages");
                                 subscriber.onCompleted();
                                 return null;
                             }
@@ -57,7 +57,7 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productList");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

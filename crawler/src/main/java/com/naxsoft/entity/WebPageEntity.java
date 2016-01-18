@@ -34,7 +34,7 @@ import java.util.zip.GZIPOutputStream;
         }
 )
 public class WebPageEntity {
-    private static final Logger logger = LoggerFactory.getLogger(WebPageEntity.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebPageEntity.class);
 
     /**
      *
@@ -100,7 +100,7 @@ public class WebPageEntity {
             // bytes.length);
             return Base64.getEncoder().encodeToString(bytes);
         } catch (IOException e) {
-            logger.error("Failed to compress", e);
+            LOGGER.error("Failed to compress", e);
         }
         return "";
     }
@@ -156,7 +156,7 @@ public class WebPageEntity {
             try {
                 return decompress(this.content);
             } catch (IOException e) {
-                logger.error("Failed to decompress", e);
+                LOGGER.error("Failed to decompress", e);
             }
         } else {
             return null;

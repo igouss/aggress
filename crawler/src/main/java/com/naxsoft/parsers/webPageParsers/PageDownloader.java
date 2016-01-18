@@ -16,7 +16,7 @@ import java.util.concurrent.Future;
  * Copyright NAXSoft 2015
  */
 public class PageDownloader {
-    private static final Logger logger = LoggerFactory.getLogger(PageDownloader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageDownloader.class);
 
 
     /**
@@ -51,7 +51,7 @@ public class PageDownloader {
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productPageRaw");
                     result = webPageEntity;
-                    logger.info("productPageRaw={}", webPageEntity.getUrl());
+                    LOGGER.info("productPageRaw={}", webPageEntity.getUrl());
                 }
                 return result;
             }

@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
     private final HttpClient client;
 
     public WolverinesuppliesProductListParser(HttpClient client) {
@@ -75,7 +75,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                     webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setType("productPage");
-                    logger.info("productPage={}", webPageEntity.getUrl());
+                    LOGGER.info("productPage={}", webPageEntity.getUrl());
                     subscriber.onNext(webPageEntity);
                 }
                 subscriber.onCompleted();

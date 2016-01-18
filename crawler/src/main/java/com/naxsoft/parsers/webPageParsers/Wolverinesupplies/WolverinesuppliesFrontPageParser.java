@@ -15,7 +15,7 @@ import rx.Observable;
 import java.sql.Timestamp;
 
 public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesFrontPageParser.class);
     private final HttpClient client;
 
     public WolverinesuppliesFrontPageParser(HttpClient client) {
@@ -37,7 +37,7 @@ public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
                             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                             webPageEntity.setParsed(false);
                             webPageEntity.setType("productList");
-                            logger.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
+                            LOGGER.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
                             subscriber.onNext(webPageEntity);
                         }
                     }

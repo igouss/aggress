@@ -16,7 +16,7 @@ import rx.Observable;
  *
  */
 public class WebPageService {
-    private final static Logger logger = LoggerFactory.getLogger(WebPageService.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(WebPageService.class);
     private final Database database;
     private final ObservableQuery<WebPageEntity> observableQuery;
 
@@ -38,12 +38,12 @@ public class WebPageService {
         Boolean rc = false;
         try {
             rc = Transaction.execute(database, session -> {
-                logger.debug("Saving {}", webPageEntity);
+                LOGGER.debug("Saving {}", webPageEntity);
                 session.insert(webPageEntity);
                 return true;
             });
         } catch (ConstraintViolationException ex) {
-            logger.info("A duplicate URL found, ignore", ex);
+            LOGGER.info("A duplicate URL found, ignore", ex);
         }
         return rc;
     }
@@ -107,7 +107,7 @@ public class WebPageService {
         final String query = "from WebPageEntity where type = '" + type + "' and parsed = false order by rand()";
         return getUnparsedCount(type)
                 .flatMap(count -> observableQuery.execute(query))
-                .doOnNext(value -> logger.info("Found unparsed WebPageEntity url = {} type {}", value.getUrl(), type))
-                .doOnError(ex -> logger.error("Exception", ex));
+                .doOnNext(value -> LOGGER.info("Found unparsed WebPageEntity url = {} type {}", value.getUrl(), type))
+                .doOnError(ex -> LOGGER.error("Exception", ex));
     }
 }

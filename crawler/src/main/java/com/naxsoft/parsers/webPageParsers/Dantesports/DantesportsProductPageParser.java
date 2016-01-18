@@ -12,7 +12,7 @@ import rx.Observable;
  * Copyright NAXSoft 2015
  */
 public class DantesportsProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(DantesportsProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsProductPageParser.class);
     private final HttpClient client;
 
     public DantesportsProductPageParser(HttpClient client) {
@@ -25,7 +25,7 @@ public class DantesportsProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 })

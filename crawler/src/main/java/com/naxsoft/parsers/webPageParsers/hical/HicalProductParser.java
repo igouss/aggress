@@ -12,7 +12,7 @@ import rx.Observable;
  * Copyright NAXSoft 2015
  */
 public class HicalProductParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(HicalProductParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HicalProductParser.class);
     private final HttpClient client;
 
     public HicalProductParser(HttpClient client) {
@@ -26,7 +26,7 @@ public class HicalProductParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 }).map(webPageEntity -> {

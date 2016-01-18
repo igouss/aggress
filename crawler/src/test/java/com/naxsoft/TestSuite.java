@@ -24,7 +24,7 @@ import static java.lang.System.out;
  * Copyright NAXSoft 2015
  */
 public class TestSuite {
-    private static final Logger logger = LoggerFactory.getLogger(TestSuite.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestSuite.class);
 
     public static void main(String[] args) throws IOException {
         Path maxCorePath = Paths.get("", "maxCore").toAbsolutePath();
@@ -49,7 +49,7 @@ public class TestSuite {
             Result result = maxCore.run(request, core);
             out.println(result.wasSuccessful());
         } catch (Exception e) {
-            logger.error("Failed run the test", e);
+            LOGGER.error("Failed run the test", e);
         }
 
     }

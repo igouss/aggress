@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 public class WolverinesuppliesProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(WolverinesuppliesProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductPageParser.class);
     private final HttpClient client;
 
     public WolverinesuppliesProductPageParser(HttpClient client) {
@@ -27,7 +27,7 @@ public class WolverinesuppliesProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 }).map(webPageEntity -> {

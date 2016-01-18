@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class Server {
-    private static final Logger logger = LoggerFactory.getLogger(Server.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
     /**
      *
@@ -62,7 +62,7 @@ public class Server {
         try {
             server.start();
         } catch (RuntimeException e) {
-            logger.error("Server error", e);
+            LOGGER.error("Server error", e);
         }
     }
 
@@ -104,16 +104,16 @@ public class Server {
         client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
 
         while (true) {
-            logger.info("Waiting for elastic to connect to a node...");
+            LOGGER.info("Waiting for elastic to connect to a node...");
             int connectedNodes = client.connectedNodes().size();
             if (0 != connectedNodes) {
-                logger.info("Connection established");
+                LOGGER.info("Connection established");
                 break;
             }
             try {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
             } catch (InterruptedException e) {
-                logger.error("Thread sleep failed", e);
+                LOGGER.error("Thread sleep failed", e);
             }
         }
         return client;

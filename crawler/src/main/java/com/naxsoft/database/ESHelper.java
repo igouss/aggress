@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
  * Not used now. For later use.
  */
 public class ESHelper {
-    private static final ESLogger logger = ESLoggerFactory.getLogger(ESHelper.class.getName());
+    private static final ESLogger LOGGER = ESLoggerFactory.getLogger(ESHelper.class.getName());
 
     /**
      * Define a type for a given index and if exists with its mapping definition (loaded in classloader)
@@ -30,13 +30,13 @@ public class ESHelper {
      * @throws Exception
      */
     public static void pushMapping(Client client, String index, String type, XContentBuilder xcontent) throws Exception {
-        if (logger.isTraceEnabled()) logger.trace("pushMapping(" + index + "," + type + ")");
+        if (LOGGER.isTraceEnabled()) LOGGER.trace("pushMapping(" + index + "," + type + ")");
 
         // If type does not exist, we create it
         boolean mappingExist = isMappingExist(client, index, type);
         if (!mappingExist) {
-            if (logger.isDebugEnabled())
-                logger.debug("Mapping [" + index + "]/[" + type + "] doesn't exist. Creating it.");
+            if (LOGGER.isDebugEnabled())
+                LOGGER.debug("Mapping [" + index + "]/[" + type + "] doesn't exist. Creating it.");
 
             String source = null;
 
@@ -49,13 +49,13 @@ public class ESHelper {
                         .setType(type);
 
                 if (null != source) {
-                    if (logger.isTraceEnabled()) logger.trace("Mapping for [" + index + "]/[" + type + "]=" + source);
+                    if (LOGGER.isTraceEnabled()) LOGGER.trace("Mapping for [" + index + "]/[" + type + "]=" + source);
                     pmrb.setSource(source);
                 }
 
                 if (null != xcontent) {
-                    if (logger.isTraceEnabled())
-                        logger.trace("Mapping for [" + index + "]/[" + type + "]=" + xcontent.string());
+                    if (LOGGER.isTraceEnabled())
+                        LOGGER.trace("Mapping for [" + index + "]/[" + type + "]=" + xcontent.string());
                     pmrb.setSource(xcontent);
                 }
 
@@ -64,17 +64,17 @@ public class ESHelper {
                 if (!response.isAcknowledged()) {
                     throw new Exception("Could not define mapping for type [" + index + "]/[" + type + "].");
                 } else {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Mapping definition for [" + index + "]/[" + type + "] succesfully created.");
+                    if (LOGGER.isDebugEnabled())
+                        LOGGER.debug("Mapping definition for [" + index + "]/[" + type + "] succesfully created.");
                 }
             } else {
-                if (logger.isDebugEnabled())
-                    logger.debug("No mapping definition for [" + index + "]/[" + type + "]. Ignoring.");
+                if (LOGGER.isDebugEnabled())
+                    LOGGER.debug("No mapping definition for [" + index + "]/[" + type + "]. Ignoring.");
             }
         } else {
-            if (logger.isDebugEnabled()) logger.debug("Mapping [" + index + "]/[" + type + "] already exists.");
+            if (LOGGER.isDebugEnabled()) LOGGER.debug("Mapping [" + index + "]/[" + type + "] already exists.");
         }
-        if (logger.isTraceEnabled()) logger.trace("/pushMapping(" + index + "," + type + ")");
+        if (LOGGER.isTraceEnabled()) LOGGER.trace("/pushMapping(" + index + "," + type + ")");
     }
 
     /**
@@ -108,18 +108,18 @@ public class ESHelper {
      * @param analyzer Analyzer to apply : default to "default"
      */
     public static void createIndexIfNeeded(Client client, String index, String type, String analyzer) {
-        if (logger.isDebugEnabled()) logger.debug("createIndexIfNeeded({}, {}, {})", index, type, analyzer);
+        if (LOGGER.isDebugEnabled()) LOGGER.debug("createIndexIfNeeded({}, {}, {})", index, type, analyzer);
 
         try {
             // We check first if index already exists
             if (!isIndexExist(client, index)) {
-                if (logger.isDebugEnabled()) logger.debug("Index {} doesn't exist. Creating it.", index);
+                if (LOGGER.isDebugEnabled()) LOGGER.debug("Index {} doesn't exist. Creating it.", index);
 
                 CreateIndexRequestBuilder cirb = client.admin().indices().prepareCreate(index);
 
                 String source = readJsonDefinition("_settings");
                 if (null != source) {
-                    if (logger.isTraceEnabled()) logger.trace("Mapping for [{}]={}", index, source);
+                    if (LOGGER.isTraceEnabled()) LOGGER.trace("Mapping for [{}]={}", index, source);
                     cirb.setSettings(source);
                 }
 
@@ -128,11 +128,11 @@ public class ESHelper {
                     throw new Exception("Could not create index [" + index + "].");
             }
         } catch (Exception e) {
-            logger.warn("createIndexIfNeeded() : Exception raised : {}", e.getClass());
-            if (logger.isDebugEnabled()) logger.debug("- Exception stacktrace :", e);
+            LOGGER.warn("createIndexIfNeeded() : Exception raised : {}", e.getClass());
+            if (LOGGER.isDebugEnabled()) LOGGER.debug("- Exception stacktrace :", e);
         }
 
-        if (logger.isDebugEnabled()) logger.debug("/createIndexIfNeeded()");
+        if (LOGGER.isDebugEnabled()) LOGGER.debug("/createIndexIfNeeded()");
     }
 
     /**
@@ -142,13 +142,13 @@ public class ESHelper {
      * @param indexName Index name
      */
     public static void createIndexIfNeededNoMapping(Client client, String indexName) {
-        if (logger.isDebugEnabled()) logger.debug("createIndexIfNeeded({})", indexName);
+        if (LOGGER.isDebugEnabled()) LOGGER.debug("createIndexIfNeeded({})", indexName);
 
         try {
             // We check first if index already exists
             if (!isIndexExist(client, indexName)) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Index {} doesn't exist. Creating it.", indexName);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Index {} doesn't exist. Creating it.", indexName);
                 }
 
                 CreateIndexRequestBuilder cirb = client.admin().indices().prepareCreate(indexName);
@@ -158,11 +158,11 @@ public class ESHelper {
             }
 
         } catch (Exception e) {
-            logger.warn("createIndexIfNeeded() : Exception raised : {}", e.getClass());
-            if (logger.isDebugEnabled()) logger.debug("- Exception stacktrace :", e);
+            LOGGER.warn("createIndexIfNeeded() : Exception raised : {}", e.getClass());
+            if (LOGGER.isDebugEnabled()) LOGGER.debug("- Exception stacktrace :", e);
         }
 
-        if (logger.isDebugEnabled()) logger.debug("/createIndexIfNeededNoMapping({})");
+        if (LOGGER.isDebugEnabled()) LOGGER.debug("/createIndexIfNeededNoMapping({})");
     }
 
     /**

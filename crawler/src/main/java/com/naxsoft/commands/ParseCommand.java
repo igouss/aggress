@@ -25,7 +25,7 @@ import java.util.Set;
  *
  */
 public class ParseCommand implements Command {
-    private final static Logger logger = LoggerFactory.getLogger(ParseCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ParseCommand.class);
     private WebPageService webPageService = null;
     private ProductService productService = null;
     private Elastic elastic = null;
@@ -48,7 +48,7 @@ public class ParseCommand implements Command {
         processProducts(webPageService.getUnparsedByType("productPageRaw"));
         indexProducts(productService.getProducts(), "product" + indexSuffix, "guns");
         productService.markAllAsIndexed();
-        logger.info("Parsing complete");
+        LOGGER.info("Parsing complete");
     }
 
     @Override
@@ -94,11 +94,11 @@ public class ParseCommand implements Command {
                         if (null != result) {
                             pageToParse.setParsed(true);
                             if (0 == webPageService.markParsed(pageToParse)) {
-                                logger.error("Failed to make page as parsed {}", pageToParse);
+                                LOGGER.error("Failed to make page as parsed {}", pageToParse);
                                 result = null;
                             }
                         } else {
-                            logger.error("failed to parse {}", pageToParse.getUrl());
+                            LOGGER.error("failed to parse {}", pageToParse.getUrl());
                         }
                     } else {
                         throw new InvalidParameterException("Invalid category name");
@@ -107,11 +107,11 @@ public class ParseCommand implements Command {
                     throw new InvalidParameterException("Category not set");
                 }
             } catch (Exception e) {
-                logger.error("Failed to parse product page {}", pageToParse.getUrl(), e);
+                LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
             }
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
                 .retry(3)
-                .subscribe(productService::save, ex -> logger.error("Parser Process Exception", ex));
+                .subscribe(productService::save, ex -> LOGGER.error("Parser Process Exception", ex));
     }
 }

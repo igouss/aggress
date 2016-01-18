@@ -18,7 +18,7 @@ import java.sql.Timestamp;
  * Copyright NAXSoft 2015
  */
 public class AlflahertysProductListParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(AlflahertysProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysProductListParser.class);
     private final HttpClient client;
 
     public AlflahertysProductListParser(HttpClient client) {
@@ -40,7 +40,7 @@ public class AlflahertysProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                        LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                         subscriber.onNext(webPageEntity);
                     }
                 }

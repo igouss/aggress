@@ -19,7 +19,7 @@ import java.sql.Timestamp;
  */
 public class CtcsuppliesProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(CtcsuppliesProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesProductListParser.class);
 
     public CtcsuppliesProductListParser(HttpClient client) {
         this.client = client;
@@ -43,7 +43,7 @@ public class CtcsuppliesProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                        LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                         subscriber.onNext(webPageEntity);
                     }
                 }

@@ -20,7 +20,7 @@ import java.util.HashSet;
  * Copyright NAXSoft 2015
  */
 public class TheammosourceFrontPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(TheammosourceFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceFrontPageParser.class);
     private final HttpClient client;
 
     public TheammosourceFrontPageParser(HttpClient client) {
@@ -46,7 +46,7 @@ public class TheammosourceFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productList");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

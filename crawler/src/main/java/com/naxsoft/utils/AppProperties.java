@@ -10,19 +10,19 @@ import java.util.Properties;
  * Copyright NAXSoft 2015
  */
 public class AppProperties {
-    private static final Logger logger = LoggerFactory.getLogger(AppProperties.class);
-    private static final Properties properties = new Properties();
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppProperties.class);
+    private static final Properties PROPERTIES = new Properties();
 
     /**
-     * Load properties on start-up
+     * Load PROPERTIES on start-up
      */
     static {
         try {
             InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream("config.properties");
-            properties.load(resourceAsStream);
-            logger.debug("App properties {}" , properties);
+            PROPERTIES.load(resourceAsStream);
+            LOGGER.debug("App properties {}", PROPERTIES);
         } catch (Exception e) {
-            logger.error("Failed to load properties", e);
+            LOGGER.error("Failed to load properties", e);
         }
     }
 
@@ -32,6 +32,6 @@ public class AppProperties {
      * @return Key value
      */
     public static String getProperty(String key) {
-        return properties.getProperty(key);
+        return PROPERTIES.getProperty(key);
     }
 }

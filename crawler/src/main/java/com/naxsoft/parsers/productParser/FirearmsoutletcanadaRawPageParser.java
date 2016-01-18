@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(FirearmsoutletcanadaRawPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FirearmsoutletcanadaRawPageParser.class);
 
     /**
      *
@@ -45,22 +45,23 @@ public class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
         }
 
         String productName = document.select(".product-name h1").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        jsonBuilder.field("productName", productName);
-        jsonBuilder.field("productImage", document.select("img#image-main").attr("src"));
-        jsonBuilder.field("regularPrice", parsePrice(document.select(".regular-price span").text()));
-        jsonBuilder.field("description", document.select("#product-tabs > div > div:nth-child(2)").text());
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setJson(jsonBuilder.string());
+            jsonBuilder.field("productName", productName);
+            jsonBuilder.field("productImage", document.select("img#image-main").attr("src"));
+            jsonBuilder.field("regularPrice", parsePrice(document.select(".regular-price span").text()));
+            jsonBuilder.field("description", document.select("#product-tabs > div > div:nth-child(2)").text());
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setJson(jsonBuilder.string());
+        }
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
         return result;

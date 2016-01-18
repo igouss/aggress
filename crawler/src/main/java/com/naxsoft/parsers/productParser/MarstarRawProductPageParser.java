@@ -23,52 +23,53 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class MarstarRawProductPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(MarstarRawProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarstarRawProductPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        String productName = document.select("h1").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-        jsonBuilder.field("productName", productName);
-        jsonBuilder.field("productImage", document.select("img[id=mainPic]").attr("abs:src"));
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        ArrayList<String> price = parsePrice(document.select(".priceAvail").text());
-        if (price.isEmpty()) {
-            return products; // ignore
-        } else if (1 == price.size()) {
-            jsonBuilder.field("regularPrice", price.get(0));
-        } else {
-            jsonBuilder.field("regularPrice", price.get(0));
-            jsonBuilder.field("specialPrice", price.get(1));
+            String productName = document.select("h1").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            jsonBuilder.field("productName", productName);
+            jsonBuilder.field("productImage", document.select("img[id=mainPic]").attr("abs:src"));
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            ArrayList<String> price = parsePrice(document.select(".priceAvail").text());
+            if (price.isEmpty()) {
+                return products; // ignore
+            } else if (1 == price.size()) {
+                jsonBuilder.field("regularPrice", price.get(0));
+            } else {
+                jsonBuilder.field("regularPrice", price.get(0));
+                jsonBuilder.field("specialPrice", price.get(1));
+            }
+
+            String description = document.select("#main-content > div:nth-child(7)").text();
+            if (description.isEmpty()) {
+                description = document.select("#main-content > div:nth-child(6), #main-content > div:nth-child(8)").text();
+            }
+            jsonBuilder.field("description", description);
+            Iterator<Element> labels = document.select("#main-content > table > tbody > tr:nth-child(1) > th").iterator();
+            Iterator<Element> values = document.select("#main-content > table > tbody > tr.baseTableCell > td").iterator();
+
+            while (labels.hasNext()) {
+                String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_'));
+                String specValue = values.next().text();
+                jsonBuilder.field(specName, specValue);
+            }
+            jsonBuilder.endObject();
+
+            product.setUrl(webPageEntity.getUrl());
+            product.setWebpageId(webPageEntity.getId());
+            product.setJson(jsonBuilder.string());
         }
-
-        String description = document.select("#main-content > div:nth-child(7)").text();
-        if (description.isEmpty()) {
-            description = document.select("#main-content > div:nth-child(6), #main-content > div:nth-child(8)").text();
-        }
-        jsonBuilder.field("description", description);
-        Iterator<Element> labels = document.select("#main-content > table > tbody > tr:nth-child(1) > th").iterator();
-        Iterator<Element> values = document.select("#main-content > table > tbody > tr.baseTableCell > td").iterator();
-
-        while (labels.hasNext()) {
-            String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_'));
-            String specValue = values.next().text();
-            jsonBuilder.field(specName, specValue);
-        }
-        jsonBuilder.endObject();
-
-        product.setUrl(webPageEntity.getUrl());
-        product.setWebpageId(webPageEntity.getId());
-        product.setJson(jsonBuilder.string());
         products.add(product);
 
         return products;

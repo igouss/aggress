@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  */
 public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(CorwinArmsFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsFrontPageParser.class);
 
     public CorwinArmsFrontPageParser(HttpClient client) {
         this.client = client;
@@ -49,7 +49,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productList");
-                        logger.info("Found on front page ={}", linkUrl);
+                        LOGGER.info("Found on front page ={}", linkUrl);
                         result.add(webPageEntity);
 
                     }
@@ -76,7 +76,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setType("productList");
-                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                     subscriber.onNext(webPageEntity);
                                 }
                             } else {
@@ -85,7 +85,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productList");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

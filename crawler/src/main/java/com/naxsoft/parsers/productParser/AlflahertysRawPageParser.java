@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class AlflahertysRawPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -30,35 +30,36 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select(".product_name").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         if (!document.select(".product_section .sold_out").text().equals("Sold Out")) {
             ProductEntity product = new ProductEntity();
-            XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select("meta[property=og:image]").attr("content"));
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                jsonBuilder.field("productName", productName);
+                jsonBuilder.field("productImage", document.select("meta[property=og:image]").attr("content"));
 
-            if (document.select(".product_section .was_price").text().equals("")) {
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .current_price").text()));
-            } else {
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .was_price").text()));
-                jsonBuilder.field("specialPrice", parsePrice(document.select(".product_section-secondary .price-current_price").text()));
+                if (document.select(".product_section .was_price").text().equals("")) {
+                    jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .current_price").text()));
+                } else {
+                    jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .was_price").text()));
+                    jsonBuilder.field("specialPrice", parsePrice(document.select(".product_section-secondary .price-current_price").text()));
+                }
+                jsonBuilder.field("description", document.select(".product_section .description").text());
+                jsonBuilder.field("category", webPageEntity.getCategory());
+                Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
+                Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
+                while (labels.hasNext()) {
+                    String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
+                    String specValue = values.next().text();
+                    jsonBuilder.field(specName, specValue);
+                }
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setJson(jsonBuilder.string());
             }
-            jsonBuilder.field("description", document.select(".product_section .description").text());
-            jsonBuilder.field("category", webPageEntity.getCategory());
-            Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
-            Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
-            while (labels.hasNext()) {
-                String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
-                String specValue = values.next().text();
-                jsonBuilder.field(specName, specValue);
-            }
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
             product.setWebpageId(webPageEntity.getId());
             result.add(product);
         }

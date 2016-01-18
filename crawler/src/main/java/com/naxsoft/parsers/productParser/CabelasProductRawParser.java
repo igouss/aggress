@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class CabelasProductRawParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CabelasProductRawParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CabelasProductRawParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -30,31 +30,32 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select("h1.product-heading").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-        jsonBuilder.field("productName", productName);
-        jsonBuilder.field("category", document.select(".breadcrumbs").text());
-        jsonBuilder.field("productImage", document.select("#product-image img").attr("src"));
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            jsonBuilder.field("productName", productName);
+            jsonBuilder.field("category", document.select(".breadcrumbs").text());
+            jsonBuilder.field("productImage", document.select("#product-image img").attr("src"));
 
-        Elements specialPrice = document.select(".productDetails-secondary .price-secondary");
-        Elements regularPrice = document.select(".productDetails-secondary .price-primary");
-        if (!specialPrice.isEmpty()) {
-            jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
-            jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
-        } else {
-            jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
+            Elements specialPrice = document.select(".productDetails-secondary .price-secondary");
+            Elements regularPrice = document.select(".productDetails-secondary .price-primary");
+            if (!specialPrice.isEmpty()) {
+                jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
+                jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
+            } else {
+                jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
+            }
+            jsonBuilder.field("description", document.select(".productDetails-section .row").text());
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setJson(jsonBuilder.string());
         }
-        jsonBuilder.field("description", document.select(".productDetails-section .row").text());
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setJson(jsonBuilder.string());
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
         return result;

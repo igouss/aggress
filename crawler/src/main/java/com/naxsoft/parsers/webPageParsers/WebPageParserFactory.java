@@ -20,7 +20,7 @@ import java.util.Set;
  *
  */
 public class WebPageParserFactory {
-    private static final Logger logger = LoggerFactory.getLogger(WebPageParserFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebPageParserFactory.class);
 
     private final Set<WebPageParser> parsers = new HashSet<>();
     private final HttpClient client;
@@ -38,7 +38,7 @@ public class WebPageParserFactory {
         for (Class<? extends WebPageParser> clazz : classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
-                    logger.info("Instantiating {}", clazz.getName());
+                    LOGGER.info("Instantiating {}", clazz.getName());
                     Class<?>[] interfaces = client.getClass().getInterfaces();
                     Class<?> asyncFetchClient = null;
                     for (Class iface : interfaces) {
@@ -52,7 +52,7 @@ public class WebPageParserFactory {
                     WebPageParser webPageParser = clazz.getConstructor(asyncFetchClient).newInstance(client);
                     this.parsers.add(webPageParser);
                 } catch (Exception e) {
-                    logger.error("Failed to instantiate WebPage parser {}", clazz, e);
+                    LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
                 }
             }
         }
@@ -66,11 +66,11 @@ public class WebPageParserFactory {
     public WebPageParser getParser(WebPageEntity webPageEntity) {
         for (WebPageParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
-                logger.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
+                LOGGER.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
                 return parser;
             }
         }
-        logger.warn("Failed to find a web-page parser for action = {}, url = {}", webPageEntity.getType(), webPageEntity.getUrl());
+        LOGGER.warn("Failed to find a web-page parser for action = {}, url = {}", webPageEntity.getType(), webPageEntity.getUrl());
         return new NoopParser(client);
     }
 }

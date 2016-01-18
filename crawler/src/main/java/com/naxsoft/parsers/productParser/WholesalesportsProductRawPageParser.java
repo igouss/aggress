@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(WholesalesportsProductRawPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WholesalesportsProductRawPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -28,37 +28,38 @@ public class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select("h1.product-name").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         if (2 == document.select("div.alert.negative").size()) {
             return result;
         }
 
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-        jsonBuilder.field("productName", productName);
-        jsonBuilder.field("productImage", document.select(".productImagePrimaryLink img").attr("abs:src"));
-        jsonBuilder.field("manufacturer", document.select(".product-brand").text());
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        if (document.select(".new .price-value").isEmpty()) {
-            Elements price = document.select(".current .price-value");
-            if (!price.isEmpty()) {
-                jsonBuilder.field("regularPrice", parsePrice(price.text()));
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            jsonBuilder.field("productName", productName);
+            jsonBuilder.field("productImage", document.select(".productImagePrimaryLink img").attr("abs:src"));
+            jsonBuilder.field("manufacturer", document.select(".product-brand").text());
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            if (document.select(".new .price-value").isEmpty()) {
+                Elements price = document.select(".current .price-value");
+                if (!price.isEmpty()) {
+                    jsonBuilder.field("regularPrice", parsePrice(price.text()));
+                } else {
+                    price = document.select("div.productDescription span.price-value");
+                    jsonBuilder.field("regularPrice", parsePrice(price.text()));
+                }
             } else {
-                price = document.select("div.productDescription span.price-value");
-                jsonBuilder.field("regularPrice", parsePrice(price.text()));
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".old .price-value").text()));
+                jsonBuilder.field("specialPrice", parsePrice(document.select(".new .price-value").text()));
             }
-        } else {
-            jsonBuilder.field("regularPrice", parsePrice(document.select(".old .price-value").text()));
-            jsonBuilder.field("specialPrice", parsePrice(document.select(".new .price-value").text()));
+            jsonBuilder.field("description", document.select(".summary").text());
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setJson(jsonBuilder.string());
         }
-        jsonBuilder.field("description", document.select(".summary").text());
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setJson(jsonBuilder.string());
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
         return result;

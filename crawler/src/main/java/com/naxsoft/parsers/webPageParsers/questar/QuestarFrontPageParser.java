@@ -13,7 +13,7 @@ import java.sql.Timestamp;
  * Copyright NAXSoft 2015
  */
 public class QuestarFrontPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(QuestarFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QuestarFrontPageParser.class);
     private final HttpClient client;
 
     public QuestarFrontPageParser(HttpClient client) {

@@ -14,18 +14,18 @@ import java.util.HashMap;
  * Copyright NAXSoft 2015
  */
 public class ExecutionContext extends HashMap<String, Object> {
-    private OptionSet options;
-    private Database db;
-    private Elastic elastic;
-    private ScheduledReporter elasticReporter;
-    private WebPageParserFactory webPageParserFactory;
-    private WebPageService webPageService;
-    private ProductService productService;
-    private SourceService sourceService;
-    private ProductParserFactory productParserFactory;
-    private MetricRegistry metrics;
-    private String indexSuffix;
-    private HttpClient fetchClient;
+    private OptionSet options = null;
+    private Database db = null;
+    private Elastic elastic = null;
+    private ScheduledReporter elasticReporter = null;
+    private WebPageParserFactory webPageParserFactory = null;
+    private WebPageService webPageService = null;
+    private ProductService productService = null;
+    private SourceService sourceService = null;
+    private ProductParserFactory productParserFactory = null;
+    private MetricRegistry metrics = null;
+    private String indexSuffix = null;
+    private HttpClient fetchClient = null;
 
     public HttpClient getHTTPClient() {
         return fetchClient;

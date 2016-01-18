@@ -13,7 +13,7 @@ import rx.Observable;
  */
 public class CabellasProductPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(CabellasProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CabellasProductPageParser.class);
 
     public CabellasProductPageParser(HttpClient client) {
         this.client = client;
@@ -26,7 +26,7 @@ public class CabellasProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 })

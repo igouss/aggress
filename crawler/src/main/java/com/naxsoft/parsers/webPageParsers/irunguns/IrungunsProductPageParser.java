@@ -12,7 +12,7 @@ import rx.Observable;
  * Copyright NAXSoft 2015
  */
 public class IrungunsProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(IrungunsProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IrungunsProductPageParser.class);
     private final HttpClient client;
 
     public IrungunsProductPageParser(HttpClient client) {
@@ -25,7 +25,7 @@ public class IrungunsProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 }).map(webPageEntity -> {

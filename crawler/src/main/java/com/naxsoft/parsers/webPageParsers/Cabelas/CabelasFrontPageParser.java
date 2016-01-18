@@ -18,7 +18,7 @@ import java.sql.Timestamp;
  * Copyright NAXSoft 2015
  */
 public class CabelasFrontPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CabelasFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CabelasFrontPageParser.class);
     private final HttpClient client;
 
     public CabelasFrontPageParser(HttpClient client) {
@@ -39,7 +39,7 @@ public class CabelasFrontPageParser extends AbstractWebPageParser {
                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productList");
-                        logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                        LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                         subscriber.onNext(webPageEntity);
                     }
 

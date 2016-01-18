@@ -21,7 +21,7 @@ import java.util.HashSet;
  */
 public class HicalFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(HicalFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HicalFrontPageParser.class);
 
     public HicalFrontPageParser(HttpClient client) {
         this.client = client;
@@ -59,7 +59,7 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
                                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setType("frontPage");
-                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                     subscriber.onNext(webPageEntity);
                                 }
                                 // add subpages
@@ -70,7 +70,7 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
                                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setType("productList");
-                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                     subscriber.onNext(webPageEntity);
                                 }
                             }
@@ -80,7 +80,7 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
                             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                             webPageEntity.setParsed(false);
                             webPageEntity.setType("productList");
-                            logger.info("Product page listing={}", webPageEntity.getUrl());
+                            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                             subscriber.onNext(webPageEntity);
                         }
                         subscriber.onCompleted();

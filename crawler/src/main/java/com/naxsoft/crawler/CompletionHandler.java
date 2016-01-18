@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public abstract class CompletionHandler<R> extends AsyncCompletionHandler<R> {
-    private static final Logger logger = LoggerFactory.getLogger(CompletionHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompletionHandler.class);
 
     /**
      *
@@ -22,9 +22,9 @@ public abstract class CompletionHandler<R> extends AsyncCompletionHandler<R> {
     public void onThrowable(Throwable t) {
         if (t instanceof java.util.concurrent.CancellationException) {
             // ignore
-            logger.debug("HTTP Request canceled");
+            LOGGER.debug("HTTP Request canceled");
         } else {
-            logger.error("HTTP Error", t);
+            LOGGER.error("HTTP Error", t);
         }
     }
 }

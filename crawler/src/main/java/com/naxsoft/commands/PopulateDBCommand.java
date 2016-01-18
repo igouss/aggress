@@ -18,7 +18,7 @@ import rx.Observable;
  *
  */
 public class PopulateDBCommand implements Command {
-    private final static Logger logger = LoggerFactory.getLogger(PopulateDBCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(PopulateDBCommand.class);
     private static WebPageService webPageService;
     private static SourceService sourceService;
 
@@ -62,7 +62,7 @@ public class PopulateDBCommand implements Command {
 
     private static void populateRoots() {
         Observable.from(sources).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
-                .subscribe(PopulateDBCommand::save, ex -> logger.error("PopulateRoots Exception", ex));
+                .subscribe(PopulateDBCommand::save, ex -> LOGGER.error("PopulateRoots Exception", ex));
     }
 
     private static SourceEntity from(String sourceUrl) {
@@ -80,7 +80,7 @@ public class PopulateDBCommand implements Command {
     private static boolean save(SourceEntity sourceEntity) {
         boolean rc = sourceService.save(sourceEntity);
         if (!rc) {
-            logger.error("Failed to save sourceEntity");
+            LOGGER.error("Failed to save sourceEntity");
         }
         return rc;
     }
@@ -93,7 +93,7 @@ public class PopulateDBCommand implements Command {
     private static boolean save(WebPageEntity webPageEntities) {
         boolean rc = webPageService.save(webPageEntities);
         if (!rc) {
-            logger.error("Failed to save webPageEntities");
+            LOGGER.error("Failed to save webPageEntities");
         }
         return rc;
     }
@@ -107,7 +107,7 @@ public class PopulateDBCommand implements Command {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(sourceEntity.getUrl());
         webPageEntity.setType("frontPage");
-        logger.info("Adding new root {}", webPageEntity.getUrl());
+        LOGGER.info("Adding new root {}", webPageEntity.getUrl());
         return webPageEntity;
     }
 

@@ -18,7 +18,7 @@ import java.util.Date;
  *
  */
 public class SourceService {
-    private final static Logger logger = LoggerFactory.getLogger(SourceService.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(SourceService.class);
     private final Database database;
 
     /**
@@ -61,7 +61,7 @@ public class SourceService {
                         }
                         tx.commit();
                     } catch (Exception e) {
-                        logger.error("Failed to mark as source as parsed", e);
+                        LOGGER.error("Failed to mark as source as parsed", e);
                         if (null != tx) {
                             tx.rollback();
                         }
@@ -70,7 +70,7 @@ public class SourceService {
                             session.close();
                         }
                     }
-                }, ex -> logger.error("MarkParsed Exception", ex));
+                }, ex -> LOGGER.error("MarkParsed Exception", ex));
     }
 
     /**
@@ -80,7 +80,7 @@ public class SourceService {
      */
     public boolean save(SourceEntity sourceEntity) {
         return Transaction.execute(database, session -> {
-            logger.debug("Saving {}", sourceEntity);
+            LOGGER.debug("Saving {}", sourceEntity);
             session.insert(sourceEntity);
             return true;
         });

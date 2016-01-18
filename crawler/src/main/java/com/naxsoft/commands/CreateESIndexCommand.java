@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CreateESIndexCommand implements Command {
-    private static final Logger logger = LoggerFactory.getLogger(CreateESIndexCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateESIndexCommand.class);
 
     private Elastic elastic = null;
     private HttpClient httpClient = null;
@@ -30,9 +30,9 @@ public class CreateESIndexCommand implements Command {
     public void run() throws CLIException {
         elastic.createIndex(httpClient, "product", "guns", indexSuffix)
                 .subscribe(rc -> {
-                    logger.info("Elastic create index rc = {}", rc);
+                    LOGGER.info("Elastic create index rc = {}", rc);
                 }, ex -> {
-                    logger.error("CreateIndex Exception", ex);
+                    LOGGER.error("CreateIndex Exception", ex);
                 });
     }
 

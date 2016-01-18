@@ -18,7 +18,7 @@ import java.sql.Timestamp;
  * Copyright NAXSoft 2015
  */
 public class TheammosourceProductListParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(TheammosourceProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceProductListParser.class);
     private final HttpClient client;
 
     public TheammosourceProductListParser(HttpClient client) {
@@ -41,7 +41,7 @@ public class TheammosourceProductListParser extends AbstractWebPageParser {
                             webPageEntity.setParsed(false);
                             webPageEntity.setType("productList");
                             webPageEntity.setCategory(parent.getCategory());
-                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                            LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                             subscriber.onNext(webPageEntity);
                         }
                     } else {
@@ -54,7 +54,7 @@ public class TheammosourceProductListParser extends AbstractWebPageParser {
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productList");
                                 webPageEntity.setCategory(parent.getCategory());
-                                logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                                LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }
@@ -65,7 +65,7 @@ public class TheammosourceProductListParser extends AbstractWebPageParser {
                             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                             webPageEntity.setParsed(false);
                             webPageEntity.setType("productPage");
-                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                            LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                             subscriber.onNext(webPageEntity);
                         }
                     }

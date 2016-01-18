@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CleanDBCommand implements Command {
-    private final static Logger logger = LoggerFactory.getLogger(CleanDBCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CleanDBCommand.class);
 
     /**
      *
@@ -47,7 +47,7 @@ public class CleanDBCommand implements Command {
             }
             tx.commit();
         } catch (Exception e) {
-            logger.error("Failed to clean-up database", e);
+            LOGGER.error("Failed to clean-up database", e);
             if (null != tx) {
                 tx.rollback();
             }

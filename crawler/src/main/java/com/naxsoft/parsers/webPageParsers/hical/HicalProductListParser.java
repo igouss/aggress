@@ -19,7 +19,7 @@ import java.sql.Timestamp;
  */
 public class HicalProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(HicalProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HicalProductListParser.class);
 
     public HicalProductListParser(HttpClient client) {
         this.client = client;
@@ -40,7 +40,7 @@ public class HicalProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("Product page listing={}", webPageEntity.getUrl());
+                        LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                         subscriber.onNext(webPageEntity);
                     }
                 }

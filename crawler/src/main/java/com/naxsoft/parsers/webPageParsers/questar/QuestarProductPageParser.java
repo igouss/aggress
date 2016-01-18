@@ -12,7 +12,7 @@ import rx.Observable;
  * Copyright NAXSoft 2015
  */
 public class QuestarProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(QuestarProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QuestarProductPageParser.class);
     private final HttpClient client;
 
     public QuestarProductPageParser(HttpClient client) {
@@ -26,7 +26,7 @@ public class QuestarProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 })

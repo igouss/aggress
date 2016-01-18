@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(EllwoodeppsRawProductParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsRawProductParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -33,31 +33,32 @@ public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
         }
 
         String productName = document.select(".product-name span").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-        jsonBuilder.field("productName", productName);
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            jsonBuilder.field("productName", productName);
 
-        jsonBuilder.field("regularPrice", parsePrice(document.select(".price").text()));
+            jsonBuilder.field("regularPrice", parsePrice(document.select(".price").text()));
 
-        Iterator<Element> labels = document.select("th.label").iterator();
-        Iterator<Element> values = document.select("td.data").iterator();
+            Iterator<Element> labels = document.select("th.label").iterator();
+            Iterator<Element> values = document.select("td.data").iterator();
 
-        while (labels.hasNext()) {
-            String specName = labels.next().text();
-            String specValue = values.next().text();
-            if (!specValue.isEmpty()) {
-                jsonBuilder.field(specName, specValue);
+            while (labels.hasNext()) {
+                String specName = labels.next().text();
+                String specValue = values.next().text();
+                if (!specValue.isEmpty()) {
+                    jsonBuilder.field(specName, specValue);
+                }
             }
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setJson(jsonBuilder.string());
         }
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setJson(jsonBuilder.string());
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
         return result;

@@ -12,7 +12,7 @@ import rx.Observable;
  * Copyright NAXSoft 2015
  */
 public class WanstallsonlineProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(WanstallsonlineProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WanstallsonlineProductPageParser.class);
     private final HttpClient client;
 
     public WanstallsonlineProductPageParser(HttpClient client) {
@@ -26,7 +26,7 @@ public class WanstallsonlineProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 })

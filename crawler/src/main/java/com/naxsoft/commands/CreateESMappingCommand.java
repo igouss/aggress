@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CreateESMappingCommand implements Command{
-    private static final Logger logger = LoggerFactory.getLogger(CreateESMappingCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateESMappingCommand.class);
 
     private Elastic elastic = null;
     private HttpClient httpClient = null;
@@ -30,9 +30,9 @@ public class CreateESMappingCommand implements Command{
     public void run() throws CLIException {
         elastic.createMapping(httpClient, "product", "guns", indexSuffix)
                 .subscribe(rc -> {
-                    logger.info("Elastic create mapping rc = {}", rc);
+                    LOGGER.info("Elastic create mapping rc = {}", rc);
                 }, ex -> {
-                    logger.error("CreateMapping Exception", ex);
+                    LOGGER.error("CreateMapping Exception", ex);
                 });
     }
 

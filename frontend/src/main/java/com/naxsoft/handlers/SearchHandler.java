@@ -20,7 +20,7 @@ import java.io.StringWriter;
  * Copyright NAXSoft 2015
  */
 public class SearchHandler extends AbstractSearchHandler {
-    private static final Logger logger = LoggerFactory.getLogger(SearchHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchHandler.class);
     private static final String[] includeFields = new String[]{
             "url",
             "productImage",
@@ -41,7 +41,7 @@ public class SearchHandler extends AbstractSearchHandler {
      * @return
      */
     private static String searchResultToJson(SearchResponse searchResponse) {
-        logger.debug(searchResponse.toString());
+        LOGGER.debug(searchResponse.toString());
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         StringBuilder builder = new StringBuilder();
         int length = searchHits.length;
@@ -57,7 +57,7 @@ public class SearchHandler extends AbstractSearchHandler {
                 builder.append(searchHits[i].getSourceAsString());
 
             }
-            logger.info("Score = {}", searchHits[i].getScore());
+            LOGGER.info("Score = {}", searchHits[i].getScore());
         }
 
         builder.append("]");
@@ -98,7 +98,7 @@ public class SearchHandler extends AbstractSearchHandler {
         String searchKey = getSearchKey(exchange, "searchKey");
         String categoryKey = getSearchKey(exchange, "categoryKey");
         int startFrom = getStartFrom(exchange);
-        logger.info("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
+        LOGGER.info("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
 
         ListenableActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
         SearchResponse searchResponse = future.actionGet();
@@ -129,7 +129,7 @@ public class SearchHandler extends AbstractSearchHandler {
         boolQueryBuilder.filter(categoryFilter);
 
 
-        logger.info("{}", boolQueryBuilder);
+        LOGGER.info("{}", boolQueryBuilder);
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product" + indexSuffix);
         searchRequestBuilder.setQuery(boolQueryBuilder);

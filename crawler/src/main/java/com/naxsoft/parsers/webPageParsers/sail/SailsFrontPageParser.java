@@ -23,7 +23,7 @@ import java.util.HashSet;
  * Copyright NAXSoft 2015
  */
 public class SailsFrontPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(SailsFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SailsFrontPageParser.class);
     private static final Collection<Cookie> cookies;
 
     static {
@@ -57,7 +57,7 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productList");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

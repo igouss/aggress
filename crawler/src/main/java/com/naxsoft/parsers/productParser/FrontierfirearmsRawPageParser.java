@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(FrontierfirearmsRawPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsRawPageParser.class);
 
     /**
      *
@@ -45,30 +45,31 @@ public class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
         }
 
         String productName = document.select(".product-name h1").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        jsonBuilder.field("productName", productName);
-        jsonBuilder.field("productImage", document.select(".product-img-box img").attr("src"));
+            jsonBuilder.field("productName", productName);
+            jsonBuilder.field("productImage", document.select(".product-img-box img").attr("src"));
 
-        String specialPrice = document.select(".special-price .price").text();
-        if ("".equals(specialPrice)) {
-            jsonBuilder.field("regularPrice", parsePrice(document.select(".regular-price .price").text()));
-        } else {
-            jsonBuilder.field("specialPrice", parsePrice(specialPrice));
-            jsonBuilder.field("regularPrice", parsePrice(document.select(".old-price .price").text()));
-        }
+            String specialPrice = document.select(".special-price .price").text();
+            if ("".equals(specialPrice)) {
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".regular-price .price").text()));
+            } else {
+                jsonBuilder.field("specialPrice", parsePrice(specialPrice));
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".old-price .price").text()));
+            }
 //        jsonBuilder.field("description", document.select(".short-description").text());
-        jsonBuilder.field("description", document.select("#product_tabs_description_tabbed_contents > div").text());
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setJson(jsonBuilder.string());
+            jsonBuilder.field("description", document.select("#product_tabs_description_tabbed_contents > div").text());
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setJson(jsonBuilder.string());
+        }
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
         return result;

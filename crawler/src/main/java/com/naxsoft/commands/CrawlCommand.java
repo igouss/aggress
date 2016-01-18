@@ -19,7 +19,7 @@ import rx.Observable;
  *
  */
 public class CrawlCommand implements Command {
-    private final static Logger logger = LoggerFactory.getLogger(CrawlCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CrawlCommand.class);
 
     private WebPageService webPageService = null;
     private WebPageParserFactory webPageParserFactory = null;
@@ -38,15 +38,15 @@ public class CrawlCommand implements Command {
         process(webPageService.getUnparsedByType("productList"));
         process(webPageService.getUnparsedByType("productPage"));
         webPageService.getUnparsedCount("frontPage").take(1).subscribe(value -> {
-            logger.info("Unparsed frontPage = {}", value);
+            LOGGER.info("Unparsed frontPage = {}", value);
         });
         webPageService.getUnparsedCount("productList").take(1).subscribe(value -> {
-            logger.info("Unparsed productList = {}", value);
+            LOGGER.info("Unparsed productList = {}", value);
         });
         webPageService.getUnparsedCount("productPage").take(1).subscribe(value -> {
-            logger.info("Unparsed productPage = {}", value);
+            LOGGER.info("Unparsed productPage = {}", value);
         });
-        logger.info("Fetch & parse complete");
+        LOGGER.info("Fetch & parse complete");
     }
 
     @Override
@@ -72,15 +72,15 @@ public class CrawlCommand implements Command {
 
                 pageToParse.setParsed(true);
                 if (0 == webPageService.markParsed(pageToParse)) {
-                    logger.error("Failed to make page as parsed {}", pageToParse);
+                    LOGGER.error("Failed to make page as parsed {}", pageToParse);
                     result = null;
                 }
             } catch (Exception e) {
-                logger.error("Failed to process source {}", pageToParse.getUrl(), e);
+                LOGGER.error("Failed to process source {}", pageToParse.getUrl(), e);
             }
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
                 .retry(3)
-                .subscribe(webPageService::save, ex -> logger.error("Crawler Process Exception", ex));
+                .subscribe(webPageService::save, ex -> LOGGER.error("Crawler Process Exception", ex));
     }
 }

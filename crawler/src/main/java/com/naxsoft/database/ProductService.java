@@ -19,7 +19,7 @@ import java.util.Collection;
  *
  */
 public class ProductService {
-    private final static Logger logger = LoggerFactory.getLogger(ProductService.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
     private final Database database;
 
     /**
@@ -45,7 +45,7 @@ public class ProductService {
             }
             tx.commit();
         } catch (HibernateException e) {
-            logger.error("Failed to save products", e);
+            LOGGER.error("Failed to save products", e);
             if (null != tx) {
                 tx.rollback();
             }
@@ -79,10 +79,10 @@ public class ProductService {
             Query query = session.createQuery("update ProductEntity as p set p.indexed = true");
 
             int rc = query.executeUpdate();
-            logger.info("The number of entities affected: {}", rc);
+            LOGGER.info("The number of entities affected: {}", rc);
             tx.commit();
         } catch (HibernateException e) {
-            logger.error("Failed to mark all as indexed", e);
+            LOGGER.error("Failed to mark all as indexed", e);
             if (null != tx) {
                 tx.rollback();
             }

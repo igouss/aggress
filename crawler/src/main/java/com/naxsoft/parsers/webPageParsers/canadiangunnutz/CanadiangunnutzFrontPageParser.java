@@ -28,8 +28,8 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzFrontPageParser.class);
-    private static final String[] categories = {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzFrontPageParser.class);
+    private static final String[] CATEGORIES = {
             "Precision and Target Rifles",
             "Hunting and Sporting Arms",
             "Military Surplus Rifle",
@@ -66,7 +66,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
 
         try {
             if (null == cookies || cookies.isEmpty()) {
-                logger.info("Loading login cookies");
+                LOGGER.info("Loading login cookies");
                 cookies = futureCookies.get();
             }
             Observable<WebPageEntity> productList = Observable.create(subscriber -> client.get("http://www.canadiangunnutz.com/forum/forum.php", cookies, new CompletionHandler<Void>() {
@@ -76,7 +76,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                         Document document = Jsoup.parse(resp.getResponseBody(), parent.getUrl());
                         Elements elements = document.select("h2.forumtitle > a");
                         if (elements.isEmpty()) {
-                            logger.error("No results on page");
+                            LOGGER.error("No results on page");
                         }
 
                         for (Element element : elements) {
@@ -84,14 +84,14 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                             if (!text.startsWith("Exchange of")) {
                                 continue;
                             }
-                            for (String category : categories) {
+                            for (String category : CATEGORIES) {
                                 if (text.endsWith(category)) {
                                     WebPageEntity webPageEntity = new WebPageEntity();
                                     webPageEntity.setUrl(element.attr("abs:href"));
                                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setType("productList");
-                                    logger.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
+                                    LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
                                     subscriber.onNext(webPageEntity);
                                     break;
                                 }
@@ -99,7 +99,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                         }
 
                     } else {
-                        logger.error("Failed to load page {}", resp.getUri());
+                        LOGGER.error("Failed to load page {}", resp.getUri());
                     }
 
                     subscriber.onCompleted();
@@ -125,7 +125,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setType("productList");
-                                    logger.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
+                                    LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
                                     subscriber.onNext(webPageEntity);
                                 }
                             }
@@ -136,7 +136,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 });
             }));
         } catch (Exception e) {
-            logger.error("An error occurred", e);
+            LOGGER.error("An error occurred", e);
         }
         return null;
     }

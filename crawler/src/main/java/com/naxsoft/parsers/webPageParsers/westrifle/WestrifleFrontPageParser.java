@@ -20,7 +20,7 @@ import java.util.HashSet;
  */
 public class WestrifleFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(WestrifleFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleFrontPageParser.class);
 
     public WestrifleFrontPageParser(HttpClient client) {
         this.client = client;
@@ -46,7 +46,7 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productList");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

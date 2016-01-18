@@ -20,7 +20,7 @@ import java.util.HashSet;
  * Copyright NAXSoft 2015
  */
 public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(FirearmsoutletcanadaFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FirearmsoutletcanadaFrontPageParser.class);
     private final HttpClient client;
 
     public FirearmsoutletcanadaFrontPageParser(HttpClient client) {
@@ -53,7 +53,7 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productPage");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

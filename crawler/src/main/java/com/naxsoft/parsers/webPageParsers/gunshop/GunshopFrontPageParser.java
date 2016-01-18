@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  */
 public class GunshopFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(GunshopFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GunshopFrontPageParser.class);
 
     public GunshopFrontPageParser(HttpClient client) {
         this.client = client;
@@ -61,7 +61,7 @@ public class GunshopFrontPageParser extends AbstractWebPageParser {
                                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setType("productList");
-                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                     subscriber.onNext(webPageEntity);
                                 }
                             } else {
@@ -70,7 +70,7 @@ public class GunshopFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productList");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

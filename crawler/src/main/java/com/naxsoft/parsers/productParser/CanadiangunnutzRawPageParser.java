@@ -19,52 +19,53 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzRawPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzRawPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        String productName = document.select("div.postdetails h2").text();
-        if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove") || productName.toLowerCase().contains("delete")) {
-            return products;
-        }
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            String productName = document.select("div.postdetails h2").text();
+            if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove") || productName.toLowerCase().contains("delete")) {
+                return products;
+            }
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        jsonBuilder.field("productName", productName);
+            jsonBuilder.field("productName", productName);
 
-        Elements images = document.select(".content blockquote img");
-        if (!images.isEmpty()) {
-            jsonBuilder.field("productImage", images.first().attr("abs:src"));
-        } else {
-            images = document.select(".content blockquote a[href]");
+            Elements images = document.select(".content blockquote img");
             if (!images.isEmpty()) {
-                for (Element el : images) {
-                    if (el.attr("href").endsWith("jpg")) {
-                        jsonBuilder.field("productImage", el.attr("href"));
-                        break;
+                jsonBuilder.field("productImage", images.first().attr("abs:src"));
+            } else {
+                images = document.select(".content blockquote a[href]");
+                if (!images.isEmpty()) {
+                    for (Element el : images) {
+                        if (el.attr("href").endsWith("jpg")) {
+                            jsonBuilder.field("productImage", el.attr("href"));
+                            break;
+                        }
+                    }
+                } else {
+                    images = document.select(".content img.attach");
+                    if (!images.isEmpty()) {
+                        jsonBuilder.field("productImage", images.first().attr("abs:src"));
                     }
                 }
-            } else {
-                images = document.select(".content img.attach");
-                if (!images.isEmpty()) {
-                    jsonBuilder.field("productImage", images.first().attr("abs:src"));
-                }
             }
+            jsonBuilder.field("description", document.select(".content blockquote").text());
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setWebpageId(webPageEntity.getId());
+            product.setJson(jsonBuilder.string());
         }
-        jsonBuilder.field("description", document.select(".content blockquote").text());
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setWebpageId(webPageEntity.getId());
-        product.setJson(jsonBuilder.string());
         products.add(product);
         return products;
     }

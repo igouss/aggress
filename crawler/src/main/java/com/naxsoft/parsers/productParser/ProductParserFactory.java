@@ -19,7 +19,7 @@ import java.util.Set;
  *
  */
 public class ProductParserFactory {
-    private static final Logger logger = LoggerFactory.getLogger(ProductParserFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductParserFactory.class);
     private final Set<ProductParser> parsers = new HashSet<>();
 
     /**
@@ -32,11 +32,11 @@ public class ProductParserFactory {
         for (Class clazz : classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
-                    logger.info("Instantiating {}", clazz.getName());
+                    LOGGER.info("Instantiating {}", clazz.getName());
                     ProductParser e = (ProductParser) clazz.getConstructor(new Class[0]).newInstance(new Object[0]);
                     parsers.add(e);
                 } catch (Exception e) {
-                    logger.error("Failed to create a new product parser", e);
+                    LOGGER.error("Failed to create a new product parser", e);
                 }
             }
         }
@@ -50,11 +50,11 @@ public class ProductParserFactory {
     public ProductParser getParser(WebPageEntity webPageEntity) {
         for (ProductParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
-                logger.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
+                LOGGER.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
                 return parser;
             }
         }
-        logger.warn("Failed to find a document parser for action = {} url = {}", webPageEntity.getType(), webPageEntity.getUrl());
+        LOGGER.warn("Failed to find a document parser for action = {} url = {}", webPageEntity.getType(), webPageEntity.getUrl());
         return new NoopParser();
     }
 

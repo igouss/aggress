@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public abstract class AbstractSearchHandler implements HttpHandler {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractSearchHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSearchHandler.class);
     protected TransportClient client;
 
     /**

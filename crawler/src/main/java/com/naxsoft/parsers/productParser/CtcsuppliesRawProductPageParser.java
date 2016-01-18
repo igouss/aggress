@@ -19,36 +19,37 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CtcsuppliesRawProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesRawProductPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select(".product-single h1").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-        jsonBuilder.field("productName", productName);
-        jsonBuilder.field("productImage", document.select("#ProductPhotoImg").attr("src"));
-        jsonBuilder.field("manufacturer", document.select(".product-single h3").text());
-        String category = document.select("nav > a:nth-child(3)").text();
-        if (!category.isEmpty()) {
-            jsonBuilder.field("category", category);
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            jsonBuilder.field("productName", productName);
+            jsonBuilder.field("productImage", document.select("#ProductPhotoImg").attr("src"));
+            jsonBuilder.field("manufacturer", document.select(".product-single h3").text());
+            String category = document.select("nav > a:nth-child(3)").text();
+            if (!category.isEmpty()) {
+                jsonBuilder.field("category", category);
+            }
+
+
+            jsonBuilder.field("regularPrice", parsePrice(document.select("#ProductPrice").text()));
+            jsonBuilder.field("description", document.select(".product-description p").text());
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setJson(jsonBuilder.string());
         }
-
-
-        jsonBuilder.field("regularPrice", parsePrice(document.select("#ProductPrice").text()));
-        jsonBuilder.field("description", document.select(".product-description p").text());
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setJson(jsonBuilder.string());
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
 

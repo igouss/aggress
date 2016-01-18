@@ -13,7 +13,7 @@ import rx.functions.Func1;
  *
  */
 public class Transaction {
-    private static final Logger logger = LoggerFactory.getLogger(Transaction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Transaction.class);
 
     /**
      *
@@ -35,7 +35,7 @@ public class Transaction {
             if (null != tx) {
                 tx.rollback();
             }
-            logger.error("Transaction failed", e);
+            LOGGER.error("Transaction failed", e);
             throw e;
         } finally {
             if (null != session) {

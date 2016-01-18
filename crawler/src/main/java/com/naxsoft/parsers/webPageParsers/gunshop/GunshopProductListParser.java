@@ -19,7 +19,7 @@ import java.sql.Timestamp;
  */
 public class GunshopProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(GunshopProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GunshopProductListParser.class);
 
     public GunshopProductListParser(HttpClient client) {
         this.client = client;
@@ -43,7 +43,7 @@ public class GunshopProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), resp.getUri());
+                        LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), resp.getUri());
                         subscriber.onNext(webPageEntity);
                     }
                 }

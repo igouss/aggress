@@ -22,7 +22,7 @@ import java.util.Set;
  */
 public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(CanadaAmmoFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoFrontPageParser.class);
 
     public CanadaAmmoFrontPageParser(HttpClient client) {
         this.client = client;
@@ -36,7 +36,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                 if (200 == resp.getStatusCode()) {
                     Document document = Jsoup.parse(resp.getResponseBody(), webPage.getUrl());
                     Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
-                    logger.info("Parsing for sub-pages + {}", webPage.getUrl());
+                    LOGGER.info("Parsing for sub-pages + {}", webPage.getUrl());
 
                     for (Element el : elements) {
                         String url = el.attr("abs:href") + "?count=72";
@@ -59,7 +59,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                     webPageEntity.setUrl(url);
                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setType("productList");
-                    logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                    LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                     subResult.add(webPageEntity);
                 } else {
                     int i = Integer.parseInt(elements.first().text()) - 1;
@@ -69,7 +69,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                         webPageEntity.setUrl(url + "&page=" + i);
                         webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setType("productList");
-                        logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                        LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                         subResult.add(webPageEntity);
                     }
                 }

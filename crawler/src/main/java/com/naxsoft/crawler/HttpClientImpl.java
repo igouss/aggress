@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpClientImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientImpl.class);
 
     private final static int MAX_CONNECTIONS = 3;
     public static final int REQUEST_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60);
@@ -43,7 +43,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
                 .setPooledConnectionIdleTimeout((int) TimeUnit.MILLISECONDS.convert(60, TimeUnit.SECONDS))
                 .setAcceptAnyCertificate(true)
                 .addIOExceptionFilter(ctx -> {
-                    logger.error("ASyncHttpdClient error {} {}", ctx.getRequest().getUrl(), ctx.getIOException().getMessage());
+                    LOGGER.error("ASyncHttpdClient error {} {}", ctx.getRequest().getUrl(), ctx.getIOException().getMessage());
                     return new FilterContext.FilterContextBuilder(ctx)
                             .request(ctx.getRequest())
                             .replayRequest(true)
@@ -90,7 +90,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      */
     @Override
     public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, CompletionHandler<R> handler, boolean followRedirect) {
-        logger.trace("Starting async http GET request url = {}", url);
+        LOGGER.trace("Starting async http GET request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
@@ -123,7 +123,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      */
     @Override
     public <R> ListenableFuture<R> post(String url, String content, Collection<Cookie> cookies, CompletionHandler<R> handler) {
-        logger.trace("Starting async http POST request url = {}", url);
+        LOGGER.trace("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
@@ -144,7 +144,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      */
     @Override
     public <R> ListenableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, CompletionHandler<R> handler) {
-        logger.trace("Starting async http POST request url = {}", url);
+        LOGGER.trace("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);

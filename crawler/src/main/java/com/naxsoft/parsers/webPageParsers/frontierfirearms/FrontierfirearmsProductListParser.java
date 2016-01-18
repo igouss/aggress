@@ -19,7 +19,7 @@ import java.sql.Timestamp;
  */
 public class FrontierfirearmsProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(FrontierfirearmsProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsProductListParser.class);
 
     public FrontierfirearmsProductListParser(HttpClient client) {
         this.client = client;
@@ -40,7 +40,7 @@ public class FrontierfirearmsProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), resp.getUri());
+                        LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), resp.getUri());
                         subscriber.onNext(webPageEntity);
                     }
                 }

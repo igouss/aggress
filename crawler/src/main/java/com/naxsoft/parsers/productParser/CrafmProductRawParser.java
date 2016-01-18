@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class CrafmProductRawParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CrafmProductRawParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrafmProductRawParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -27,23 +27,24 @@ public class CrafmProductRawParser extends AbstractRawPageParser {
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select(".product-essential .product-name").text();
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-        jsonBuilder.field("productName", productName);
-        String img = document.select(".product-image img").attr("src");
-        jsonBuilder.field("productImage", img);
-        jsonBuilder.field("regularPrice", parsePrice(document.select("#product_addtocart_form > div.product-shop > div:nth-child(4) > h2 > span").text()));
-        jsonBuilder.field("description", document.select("div.short-description p[align=justify]").text());
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setJson(jsonBuilder.string());
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            jsonBuilder.field("productName", productName);
+            String img = document.select(".product-image img").attr("src");
+            jsonBuilder.field("productImage", img);
+            jsonBuilder.field("regularPrice", parsePrice(document.select("#product_addtocart_form > div.product-shop > div:nth-child(4) > h2 > span").text()));
+            jsonBuilder.field("description", document.select("div.short-description p[align=justify]").text());
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setJson(jsonBuilder.string());
+        }
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
 

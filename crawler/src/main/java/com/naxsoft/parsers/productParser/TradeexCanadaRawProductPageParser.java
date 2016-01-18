@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(TradeexCanadaRawProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaRawProductPageParser.class);
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -32,30 +32,31 @@ public class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
         if (productName.toUpperCase().contains("OUT OF STOCK") || productName.contains("Donation to the CSSA")) {
             return result;
         }
-        logger.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         ProductEntity product = new ProductEntity();
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-        jsonBuilder.startObject();
-        jsonBuilder.field("url", webPageEntity.getUrl());
-        jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-        jsonBuilder.field("productName", productName);
-        jsonBuilder.field("productImage", document.select(".main-product-image img").attr("abs:src"));
-        jsonBuilder.field("description", document.select(".product-body").text());
-        jsonBuilder.field("regularPrice", parsePrice(document.select("#price-group .product span").text()));
-        jsonBuilder.field("category", webPageEntity.getCategory());
-        Iterator<Element> labels = document.select(".product-additional .field-label").iterator();
-        Iterator<Element> values = document.select(".product-additional .field-items").iterator();
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            jsonBuilder.field("productName", productName);
+            jsonBuilder.field("productImage", document.select(".main-product-image img").attr("abs:src"));
+            jsonBuilder.field("description", document.select(".product-body").text());
+            jsonBuilder.field("regularPrice", parsePrice(document.select("#price-group .product span").text()));
+            jsonBuilder.field("category", webPageEntity.getCategory());
+            Iterator<Element> labels = document.select(".product-additional .field-label").iterator();
+            Iterator<Element> values = document.select(".product-additional .field-items").iterator();
 
-        while (labels.hasNext()) {
-            String specName = labels.next().text().replace(":", "").trim();
-            String specValue = values.next().text();
-            jsonBuilder.field(specName, specValue);
+            while (labels.hasNext()) {
+                String specName = labels.next().text().replace(":", "").trim();
+                String specValue = values.next().text();
+                jsonBuilder.field(specName, specValue);
+            }
+
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setJson(jsonBuilder.string());
         }
-
-        jsonBuilder.endObject();
-        product.setUrl(webPageEntity.getUrl());
-        product.setJson(jsonBuilder.string());
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
         return result;

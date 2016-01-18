@@ -19,7 +19,7 @@ import java.util.LinkedList;
  * Copyright NAXSoft 2015
  */
 public class DantesportsFrontPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
     private final HttpClient client;
 
     public DantesportsFrontPageParser(HttpClient client) {
@@ -43,7 +43,7 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
                             webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                             webPageEntity.setParsed(false);
                             webPageEntity.setType("productList");
-                            logger.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
+                            LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                             subscriber.onNext(webPageEntity);
                         }
                     }

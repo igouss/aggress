@@ -19,7 +19,7 @@ import java.sql.Timestamp;
  */
 public class CanadaAmmoProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(CanadaAmmoProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoProductListParser.class);
 
     public CanadaAmmoProductListParser(HttpClient client) {
         this.client = client;
@@ -40,7 +40,7 @@ public class CanadaAmmoProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("productPage={}", webPageEntity.getUrl());
+                        LOGGER.info("productPage={}", webPageEntity.getUrl());
                         subscriber.onNext(webPageEntity);
                     }
                 }

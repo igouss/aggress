@@ -18,7 +18,7 @@ import java.sql.Timestamp;
  * Copyright NAXSoft 2015
  */
 public class CorwinArmsProductListParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CorwinArmsProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsProductListParser.class);
     private final HttpClient client;
 
     public CorwinArmsProductListParser(HttpClient client) {
@@ -40,7 +40,7 @@ public class CorwinArmsProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), resp.getUri());
+                        LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), resp.getUri());
                         subscriber.onNext(webPageEntity);
                     }
                 }

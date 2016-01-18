@@ -12,7 +12,7 @@ import rx.Observable;
  * Copyright NAXSoft 2015
  */
 public class FirearmsoutletcanadaProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(FirearmsoutletcanadaProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FirearmsoutletcanadaProductPageParser.class);
     private final HttpClient client;
 
     public FirearmsoutletcanadaProductPageParser(HttpClient client) {
@@ -26,7 +26,7 @@ public class FirearmsoutletcanadaProductPageParser extends AbstractWebPageParser
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 })

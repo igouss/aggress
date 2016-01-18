@@ -12,7 +12,7 @@ import rx.Observable;
  * Copyright NAXSoft 2015
  */
 public class TradeexCanadaProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(TradeexCanadaProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaProductPageParser.class);
     private final HttpClient client;
 
     public TradeexCanadaProductPageParser(HttpClient client) {
@@ -26,7 +26,7 @@ public class TradeexCanadaProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 })

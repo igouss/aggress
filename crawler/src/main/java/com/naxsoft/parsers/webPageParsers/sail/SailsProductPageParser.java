@@ -16,7 +16,7 @@ import java.util.List;
  * Copyright NAXSoft 2015
  */
 public class SailsProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(SailsProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SailsProductPageParser.class);
     private static final List<Cookie> cookies;
 
     static {
@@ -37,7 +37,7 @@ public class SailsProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 }).map(webPageEntity -> {

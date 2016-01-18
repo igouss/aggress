@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class FishingworldFrontPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(FishingworldFrontPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FishingworldFrontPageParser.class);
     private final HttpClient client;
 
     public FishingworldFrontPageParser(HttpClient client) {
@@ -65,7 +65,7 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
                                     webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                     webPageEntity.setParsed(false);
                                     webPageEntity.setType("productList");
-                                    logger.info("Product page listing={}", webPageEntity.getUrl());
+                                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                     subscriber.onNext(webPageEntity);
                                 }
                             } else {
@@ -74,7 +74,7 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
                                 webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                                 webPageEntity.setParsed(false);
                                 webPageEntity.setType("productList");
-                                logger.info("Product page listing={}", webPageEntity.getUrl());
+                                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                                 subscriber.onNext(webPageEntity);
                             }
                         }

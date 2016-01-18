@@ -22,7 +22,7 @@ import java.util.Collection;
  */
 public class SailsProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(SailsProductListParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SailsProductListParser.class);
     private static final Collection<Cookie> cookies;
 
     static {
@@ -52,7 +52,7 @@ public class SailsProductListParser extends AbstractWebPageParser {
                             webPageEntity.setParsed(false);
                             webPageEntity.setType("productList");
                             webPageEntity.setCategory(parent.getCategory());
-                            logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                            LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                             subscriber.onNext(webPageEntity);
                         }
                     }
@@ -64,7 +64,7 @@ public class SailsProductListParser extends AbstractWebPageParser {
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productPage");
                         webPageEntity.setCategory(parent.getCategory());
-                        logger.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
+                        LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());
                         subscriber.onNext(webPageEntity);
                     }
                 }

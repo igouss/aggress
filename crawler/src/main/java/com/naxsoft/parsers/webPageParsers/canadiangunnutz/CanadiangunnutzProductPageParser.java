@@ -20,7 +20,7 @@ import java.util.Map;
  * Copyright NAXSoft 2015
  */
 public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
     private final HttpClient client;
     private final ListenableFuture<List<Cookie>> futureCookies;
 
@@ -45,7 +45,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
             try {
                 List<Cookie> cookies = futureCookies.get();
                 if (null == cookies || cookies.isEmpty()) {
-                    logger.warn("No login cookies");
+                    LOGGER.warn("No login cookies");
                     subscriber.onCompleted();
                     return;
                 }
@@ -55,7 +55,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
                             if (null != data) {
                                 return true;
                             } else {
-                                logger.error("failed to download web page {}", webPage.getUrl());
+                                LOGGER.error("failed to download web page {}", webPage.getUrl());
                                 return false;
                             }
                         })
@@ -64,7 +64,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
                             return webPageEntity;
                         }).subscribe(subscriber::onNext, subscriber::onError, subscriber::onCompleted);
             } catch (Exception e) {
-                logger.error("Failed to login to canadiangunnutz", e);
+                LOGGER.error("Failed to login to canadiangunnutz", e);
             }
         });
 

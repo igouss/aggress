@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 public class BullseyelondonProductPageParser extends AbstractWebPageParser {
-    private static final Logger logger = LoggerFactory.getLogger(BullseyelondonProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BullseyelondonProductPageParser.class);
     private final HttpClient client;
 
     public BullseyelondonProductPageParser(HttpClient client) {
@@ -22,7 +22,7 @@ public class BullseyelondonProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 })

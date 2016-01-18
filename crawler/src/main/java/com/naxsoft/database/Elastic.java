@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class Elastic implements AutoCloseable, Cloneable {
-    private static final Logger logger = LoggerFactory.getLogger(Elastic.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Elastic.class);
     private TransportClient client = null;
 
     /**
@@ -51,16 +51,16 @@ public class Elastic implements AutoCloseable, Cloneable {
             this.client.addTransportAddress(new InetSocketTransportAddress(java.net.InetAddress.getByName(hostname), port));
 
             while (true) {
-                logger.info("Waiting for elastic to connect to a node...");
+                LOGGER.info("Waiting for elastic to connect to a node...");
                 int connectedNodes = this.client.connectedNodes().size();
                 if (0 != connectedNodes) {
-                    logger.info("Connection established");
+                    LOGGER.info("Connection established");
                     break;
                 }
                 try {
                     Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
                 } catch (InterruptedException e) {
-                    logger.error("Thread sleep failed", e);
+                    LOGGER.error("Thread sleep failed", e);
                 }
             }
         }
@@ -104,7 +104,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                     request.setOpType(IndexRequest.OpType.INDEX);
                     bulkRequestBuilder.add(request);
                 } catch (IOException e) {
-                    logger.error("Failed to create JSON generator", e);
+                    LOGGER.error("Failed to create JSON generator", e);
                 }
             }
             return bulkRequestBuilder.execute();
@@ -112,11 +112,11 @@ public class Elastic implements AutoCloseable, Cloneable {
                 .retry(3)
                 .subscribe(bulkResponse -> {
                     if (bulkResponse.hasFailures()) {
-                        logger.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
+                        LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
                     } else {
-                        logger.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
+                        LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
                     }
-                }, ex -> logger.error("Index Exception", ex));
+                }, ex -> LOGGER.error("Index Exception", ex));
     }
 
     /**
@@ -132,7 +132,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             try {
                 String resourceName = "/elastic." + index + "." + type + ".index.json";
                 String newIndexName = index + indexSuffix;
-                logger.info("Creating index {} type {} from {}", newIndexName, type, resourceName);
+                LOGGER.info("Creating index {} type {} from {}", newIndexName, type, resourceName);
                 InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
                 String indexContent = null;
                 indexContent = IOUtils.toString(resourceAsStream);
@@ -142,9 +142,9 @@ public class Elastic implements AutoCloseable, Cloneable {
                     public Void onCompleted(Response response) throws Exception {
                         int statusCode = response.getStatusCode();
                         if (200 != statusCode) {
-                            logger.error("Error creating index: {}", response.getResponseBody());
+                            LOGGER.error("Error creating index: {}", response.getResponseBody());
                         } else {
-                            logger.info("Created index: {}", response.getResponseBody());
+                            LOGGER.info("Created index: {}", response.getResponseBody());
                         }
                         subscriber.onNext(statusCode);
                         subscriber.onCompleted();
@@ -170,7 +170,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             try {
                 String resourceName = "/elastic." + index + "." + type + ".mapping.json";
                 String newIndexName = index + indexSuffix;
-                logger.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
+                LOGGER.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
                 InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
                 String indexContent = IOUtils.toString(resourceAsStream);
                 String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
@@ -180,9 +180,9 @@ public class Elastic implements AutoCloseable, Cloneable {
                     public Integer onCompleted(Response response) throws Exception {
                         int statusCode = response.getStatusCode();
                         if (200 != statusCode) {
-                            logger.error("Error creating mapping: {}", response.getResponseBody());
+                            LOGGER.error("Error creating mapping: {}", response.getResponseBody());
                         } else {
-                            logger.info("Created mapping: {}", response.getResponseBody());
+                            LOGGER.info("Created mapping: {}", response.getResponseBody());
                         }
                         subscriber.onNext(statusCode);
                         subscriber.onCompleted();

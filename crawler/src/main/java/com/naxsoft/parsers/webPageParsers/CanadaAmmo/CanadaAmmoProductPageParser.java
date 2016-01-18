@@ -13,7 +13,7 @@ import rx.Observable;
  */
 public class CanadaAmmoProductPageParser extends AbstractWebPageParser {
     private final HttpClient client;
-    private static final Logger logger = LoggerFactory.getLogger(CanadaAmmoProductPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoProductPageParser.class);
 
     public CanadaAmmoProductPageParser(HttpClient client) {
         this.client = client;
@@ -26,7 +26,7 @@ public class CanadaAmmoProductPageParser extends AbstractWebPageParser {
                     if (null != data) {
                         return true;
                     } else {
-                        logger.error("failed to download web page {}", webPage.getUrl());
+                        LOGGER.error("failed to download web page {}", webPage.getUrl());
                         return false;
                     }
                 })
