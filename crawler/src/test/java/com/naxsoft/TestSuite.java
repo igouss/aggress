@@ -15,9 +15,10 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+
+import static java.lang.System.out;
 
 /**
  * Copyright NAXSoft 2015
@@ -30,7 +31,7 @@ public class TestSuite {
         File file = maxCorePath.toFile();
         MaxCore maxCore = MaxCore.storedLocally(file);
         JUnitCore core = new JUnitCore();
-        core.addListener(new TextListener(System.out));
+        core.addListener(new TextListener(out));
         ParallelComputer computer = new ParallelComputer(true, true);
 
         Reflections reflections = new Reflections("com.naxsoft");
@@ -46,7 +47,7 @@ public class TestSuite {
             Class<?>[] clazz = new Class<?>[]{};
             Request request = Request.classes(computer, included.toArray(clazz));
             Result result = maxCore.run(request, core);
-            System.out.println(result.wasSuccessful());
+            out.println(result.wasSuccessful());
         } catch (Exception e) {
             logger.error("Failed run the test", e);
         }

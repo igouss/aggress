@@ -41,15 +41,10 @@ public class TestSearch {
         elastic.connect("localhost", 9300);
     }
 
-
-
-
     @After
     public void after() {
         elastic.close();
     }
-
-
 
     @Test
     public void should_return_one() throws Exception {
