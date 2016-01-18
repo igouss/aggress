@@ -125,7 +125,7 @@ public class SearchHandler extends AbstractSearchHandler {
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
 
         boolQueryBuilder.should(searchQuery);
-//        boolQueryBuilder.filter(hasCategory);
+        boolQueryBuilder.filter(hasCategory);
         boolQueryBuilder.filter(categoryFilter);
 
 

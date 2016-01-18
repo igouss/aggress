@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 /**
@@ -34,18 +36,21 @@ public class TestSuite {
         Reflections reflections = new Reflections("com.naxsoft");
         Set<Class<? extends AbstractTest>> classes = reflections.getSubTypesOf(AbstractTest.class);
 
+        LinkedList<Class<?>> included = new LinkedList<>();
         for (Class<? extends AbstractTest> clazz : classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
-                try {
-                    logger.info("Testing {}", clazz.getName());
-                    Request request = Request.classes(computer, clazz);
-                    Result result = maxCore.run(request, core);
-                    System.out.println(result.wasSuccessful());
-                } catch (Exception e) {
-                    logger.error("Failed to instantiate test {}", clazz, e);
-                }
+                included.add(clazz);
             }
         }
+        try {
+            Class<?>[] clazz = new Class<?>[]{};
+            Request request = Request.classes(computer, included.toArray(clazz));
+            Result result = maxCore.run(request, core);
+            System.out.println(result.wasSuccessful());
+        } catch (Exception e) {
+            logger.error("Failed run the test", e);
+        }
+
     }
 //    public static void main(String[] args) throws IOException {
 //        JUnitCore core = new JUnitCore();
