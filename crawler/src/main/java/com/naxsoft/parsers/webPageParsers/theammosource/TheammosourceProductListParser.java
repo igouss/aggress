@@ -61,7 +61,6 @@ public class TheammosourceProductListParser extends AbstractWebPageParser {
                 for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(element.attr("abs:href"));
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productList");
                     webPageEntity.setCategory(parent.getCategory());
@@ -74,7 +73,6 @@ public class TheammosourceProductListParser extends AbstractWebPageParser {
                     for (Element element : elements) {
                         WebPageEntity webPageEntity = new WebPageEntity();
                         webPageEntity.setUrl(element.attr("abs:href"));
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productList");
                         webPageEntity.setCategory(parent.getCategory());
@@ -86,7 +84,6 @@ public class TheammosourceProductListParser extends AbstractWebPageParser {
                 for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(element.attr("abs:href"));
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productPage");
                     LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), parent.getUrl());

@@ -121,7 +121,6 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                     if (text.endsWith(category)) {
                         WebPageEntity webPageEntity = new WebPageEntity();
                         webPageEntity.setUrl(element.attr("abs:href"));
-                        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productList");
                         LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
@@ -163,7 +162,6 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 for (int i = 1; i <= pages; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(response.getUri() + "/page" + i);
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productList");
                     LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());

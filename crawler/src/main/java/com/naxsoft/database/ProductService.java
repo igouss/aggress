@@ -6,9 +6,7 @@
 package com.naxsoft.database;
 
 import com.naxsoft.entity.ProductEntity;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -23,7 +21,6 @@ public class ProductService {
     private final Database database;
 
     /**
-     *
      * @param database
      */
     public ProductService(Database database) {
@@ -31,65 +28,34 @@ public class ProductService {
     }
 
     /**
-     *
-     * @param products
+     * @param products Save
      */
     public void save(Collection<ProductEntity> products) {
-        StatelessSession session = null;
-        org.hibernate.Transaction tx = null;
-        try {
-            session = database.getSessionFactory().openStatelessSession();
-            tx = session.beginTransaction();
+        database.executeTransaction(session -> {
             for (ProductEntity productEntity : products) {
                 session.insert(productEntity);
             }
-            tx.commit();
-        } catch (HibernateException e) {
-            LOGGER.error("Failed to save products", e);
-            if (null != tx) {
-                tx.rollback();
-            }
-        } finally {
-            if (null != session) {
-                session.close();
-            }
-        }
-
+            return true;
+        });
     }
 
     /**
-     *
-     * @return
+     * Get stream of unindexed products
+     * @return Stream of unindexed products
      */
     public Observable<ProductEntity> getProducts() {
         String queryString = "from ProductEntity where indexed=false";
-        return new ObservableQuery<ProductEntity>(database).execute(queryString);
+        return database.scroll(queryString);
     }
 
     /**
-     *
+     * Mark all products as indexed
      */
     public void markAllAsIndexed() {
-        StatelessSession session = null;
-        org.hibernate.Transaction tx = null;
-
-        try {
-            session = database.getSessionFactory().openStatelessSession();
-            tx = session.beginTransaction();
+        int rc = database.executeTransaction(session -> {
             Query query = session.createQuery("update ProductEntity as p set p.indexed = true");
-
-            int rc = query.executeUpdate();
-            LOGGER.info("The number of entities affected: {}", rc);
-            tx.commit();
-        } catch (HibernateException e) {
-            LOGGER.error("Failed to mark all as indexed", e);
-            if (null != tx) {
-                tx.rollback();
-            }
-        } finally {
-            if (null != session) {
-                session.close();
-            }
-        }
+            return query.executeUpdate();
+        });
+        LOGGER.info("The number of entities affected: {}", rc);
     }
 }

@@ -66,7 +66,6 @@ public class DantesportsProductListParser extends AbstractWebPageParser {
                 if (matcher.find()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl("https://shop.dantesports.com/items_detail.php?iid=" + matcher.group());
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productPage");
                     webPageEntity.setCategory(parent.getCategory());

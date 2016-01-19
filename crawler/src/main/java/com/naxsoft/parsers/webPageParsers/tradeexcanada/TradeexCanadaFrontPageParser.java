@@ -39,7 +39,6 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
-        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
         return webPageEntity;
@@ -74,7 +73,6 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl(element.attr("abs:href"));
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());

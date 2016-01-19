@@ -45,7 +45,6 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
     private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
-        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
         return webPageEntity;
@@ -81,7 +80,6 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
             for (Element e : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl(e.attr("abs:href"));
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productPage");
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());

@@ -71,7 +71,6 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
             for (int i = 1; i <= max; i++) {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl("http://www.alflahertys.com/collections/all?page=" + i);
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());

@@ -105,7 +105,6 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                         if (!element.text().toLowerCase().contains("remove")) {
                             WebPageEntity webPageEntity = new WebPageEntity();
                             webPageEntity.setUrl(element.attr("abs:href"));
-                            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                             webPageEntity.setParsed(false);
                             webPageEntity.setType("productPage");
                             webPageEntity.setCategory(parent.getCategory());

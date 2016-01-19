@@ -17,7 +17,6 @@ import com.ning.http.util.SslUtils;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.hibernate.Query;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.IOException;
+import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
 
 import static java.lang.System.out;
@@ -35,11 +34,11 @@ public class Aggress {
     private static final Logger LOGGER = LoggerFactory.getLogger(Aggress.class);
 
     /**
-     *
-     * @param args
-     * @throws IOException
+     * Crawler application.
+     * Walks websites, parses product pages and sends the result to elasticsearch.
+     * @param args Command line arguments
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         final ExecutionContext context = new ExecutionContext();
         final MetricRegistry metrics = new MetricRegistry();
         final Database db = new Database();
@@ -53,7 +52,12 @@ public class Aggress {
             showHelp();
             return;
         }
-        elastic.connect("localhost", 9300);
+        try {
+            elastic.connect("localhost", 9300);
+        } catch (UnknownHostException e) {
+            LOGGER.error("Failed to connect to elastic search", e);
+            return;
+        }
 
         context.setOptions(options);
         context.setDb(db);
@@ -64,7 +68,6 @@ public class Aggress {
 //                    .hosts("localhost:9300")
 //                    .build();
 //            elasticReporter.start(1, TimeUnit.SECONDS);
-
 
 
         try {
@@ -117,23 +120,10 @@ public class Aggress {
             context.setIndexSuffix(indexSuffix);
 
 
-
-            metrics.register(MetricRegistry.name(Database.class, "web_pages", "unparsed"), (Gauge<Long>) () -> {
-                Long rc = -1L;
-                StatelessSession session = null;
-                try {
-                    session = db.getSessionFactory().openStatelessSession();
-                    Query query = session.createQuery("select count(id) from WebPageEntity where parsed = false");
-                    rc = (Long) query.uniqueResult();
-                } catch (Exception e) {
-                    LOGGER.error("Metric failed: com.naxsoft.database.Database.web_pages.unparsed", e);
-                } finally {
-                    if (null != session) {
-                        session.close();
-                    }
-                }
-                return rc;
-            });
+            metrics.register(MetricRegistry.name(Database.class, "web_pages", "unparsed"), (Gauge<Long>) () -> db.executeQuery(session -> {
+                Query query = session.createQuery("select count(id) from WebPageEntity where parsed = false");
+                return (Long) query.uniqueResult();
+            }));
 
             if (options.has("createESIndex")) {
                 CreateESIndexCommand command = new CreateESIndexCommand();

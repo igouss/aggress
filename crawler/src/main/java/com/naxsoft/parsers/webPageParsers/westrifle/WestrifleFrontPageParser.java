@@ -38,7 +38,6 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
     private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
-        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
         return webPageEntity;
@@ -76,7 +75,6 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
             for (int i = 1; i <= pageTotal; i++) {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl(page.getUrl() + "&page=" + i);
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());

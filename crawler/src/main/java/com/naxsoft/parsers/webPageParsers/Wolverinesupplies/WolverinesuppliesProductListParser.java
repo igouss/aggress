@@ -61,7 +61,6 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
             if (0 != sb.length()) {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setType("productPage");
                 LOGGER.info("productPage={}", webPageEntity.getUrl());
                 subscriber.onNext(webPageEntity);

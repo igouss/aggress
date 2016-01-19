@@ -73,7 +73,6 @@ public class SailsProductListParser extends AbstractWebPageParser {
                 for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(element.attr("abs:href"));
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productList");
                     webPageEntity.setCategory(parent.getCategory());
@@ -85,7 +84,6 @@ public class SailsProductListParser extends AbstractWebPageParser {
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl(element.attr("abs:href"));
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productPage");
                 webPageEntity.setCategory(parent.getCategory());

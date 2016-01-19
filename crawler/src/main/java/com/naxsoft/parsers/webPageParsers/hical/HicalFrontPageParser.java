@@ -50,7 +50,6 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
     private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
-        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
         return webPageEntity;
@@ -89,7 +88,6 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
                 for (Element el : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(el.attr("abs:href"));
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("frontPage");
                     LOGGER.info("Product page listing={}", webPageEntity.getUrl());
@@ -100,7 +98,6 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
                 for (Element el : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(el.attr("abs:href"));
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productList");
                     LOGGER.info("Product page listing={}", webPageEntity.getUrl());
@@ -110,7 +107,6 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
             // add current page
             WebPageEntity webPageEntity = new WebPageEntity();
             webPageEntity.setUrl(response.getUri() + "?sort=featured&page=1");
-            webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());

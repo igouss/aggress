@@ -57,7 +57,6 @@ public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
                 if (null != linkUrl && !linkUrl.isEmpty() && linkUrl.contains("Products") && e.siblingElements().isEmpty()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(linkUrl);
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productList");
                     LOGGER.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());

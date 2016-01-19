@@ -15,23 +15,30 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscription;
 
-import java.security.InvalidParameterException;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
- *
+ * <p>
  * Parse raw web pages entries, generate JSON representation and sent it to Elasticsearch
- *
  */
 public class ParseCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(ParseCommand.class);
+    private final Set<String> validCategories = new HashSet<>();
     private WebPageService webPageService = null;
     private ProductService productService = null;
     private Elastic elastic = null;
     private ProductParserFactory productParserFactory = null;
     private MetricRegistry metrics = null;
     private String indexSuffix = null;
+
+    public ParseCommand() {
+        validCategories.add("n/a");
+        validCategories.add("firearms");
+        validCategories.add("ammo");
+        validCategories.add("misc");
+    }
 
     @Override
     public void setUp(ExecutionContext context) throws CLIException {
@@ -45,7 +52,8 @@ public class ParseCommand implements Command {
 
     @Override
     public void run() throws CLIException {
-        processProducts(webPageService.getUnparsedByType("productPageRaw"));
+        Observable<WebPageEntity> productPageRaw = webPageService.getUnparsedByType("productPageRaw");
+        processProducts(productPageRaw);
         indexProducts(productService.getProducts(), "product" + indexSuffix, "guns");
         productService.markAllAsIndexed();
         LOGGER.info("Parsing complete");
@@ -62,10 +70,10 @@ public class ParseCommand implements Command {
     }
 
     /**
-     *
-     * @param products
-     * @param index
-     * @param type
+     * Adds stream of products to Elasticsearch
+     * @param products Stream of products to save
+     * @param index Elasticsearch index
+     * @param type Elasticsearch type
      * @return
      */
     private Subscription indexProducts(Observable<ProductEntity> products, String index, String type) {
@@ -73,8 +81,8 @@ public class ParseCommand implements Command {
     }
 
     /**
-     *
-     * @param pagesToParse
+     * Parse stream of webpages and save product entries into the database
+     * @param pagesToParse Stream of pages to parse
      */
     private void processProducts(Observable<WebPageEntity> pagesToParse) {
         pagesToParse.map(pageToParse -> {
@@ -84,11 +92,12 @@ public class ParseCommand implements Command {
                 Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
                 Timer.Context time = parseTime.time();
 
-
-                String webPageEntityCategory = pageToParse.getCategory();
+                String category = pageToParse.getCategory();
                 // Check is category is set and has valid name
-                if (null != webPageEntityCategory && !webPageEntityCategory.isEmpty()) {
-                    if (pageToParse.getCategory().toLowerCase().equals("N/A") && pageToParse.getCategory().toLowerCase().equals("Firearms") && pageToParse.getCategory().toLowerCase().equals("Ammo") && pageToParse.getCategory().toLowerCase().equals("Misc")) {
+                if (null == category || validCategories.contains(pageToParse.getCategory().toLowerCase())) {
+                    LOGGER.error("Invalid category: {}", pageToParse);
+                } else {
+
                         result = parser.parse(pageToParse);
                         time.stop();
                         if (null != result) {
@@ -98,20 +107,14 @@ public class ParseCommand implements Command {
                                 result = null;
                             }
                         } else {
-                            LOGGER.error("failed to parse {}", pageToParse.getUrl());
+                            LOGGER.error("failed to parse {}", pageToParse);
                         }
-                    } else {
-                        throw new InvalidParameterException("Invalid category name");
-                    }
-                } else {
-                    throw new InvalidParameterException("Category not set");
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
             }
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
-                .retry(3)
                 .subscribe(productService::save, ex -> LOGGER.error("Parser Process Exception", ex));
     }
 }

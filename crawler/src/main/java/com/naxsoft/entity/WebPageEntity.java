@@ -49,16 +49,6 @@ public class WebPageEntity {
     /**
      *
      */
-    private Timestamp modificationDate;
-
-    /**
-     *
-     */
-    private Integer statusCode;
-
-    /**
-     *
-     */
     private String type;
 
     /**
@@ -142,15 +132,14 @@ public class WebPageEntity {
         this.id = id;
     }
 
+    /**
+     * Get pages's HTML
+     */
     @Basic
     @Column(
             name = "content",
             columnDefinition = "TEXT"
     )
-
-    /**
-     * Get pages's HTML
-     */
     public String getContent() {
         if (null != this.content) {
             try {
@@ -176,18 +165,6 @@ public class WebPageEntity {
             this.content = null;
         }
 
-    }
-
-    @Basic
-    @Column(
-            name = "modification_date"
-    )
-    public Timestamp getModificationDate() {
-        return this.modificationDate;
-    }
-
-    public void setModificationDate(Timestamp modificationDate) {
-        this.modificationDate = modificationDate;
     }
 
     @Basic
@@ -244,7 +221,7 @@ public class WebPageEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (null == o || getClass() != o.getClass()) return false;
 
         WebPageEntity that = (WebPageEntity) o;
 
@@ -262,9 +239,10 @@ public class WebPageEntity {
     @Override
     public String toString() {
         return "WebPageEntity{" +
-                "parsed = '" + parsed + '\'' +
-                ", type = " + type +
-                ", url = '" + url + '\'' +
+                "type='" + type + '\'' +
+                ", parsed=" + parsed +
+                ", url='" + url + '\'' +
+                ", category='" + category + '\'' +
                 '}';
     }
 }

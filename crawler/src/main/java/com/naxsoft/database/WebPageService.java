@@ -18,26 +18,22 @@ import rx.Observable;
 public class WebPageService {
     private final static Logger LOGGER = LoggerFactory.getLogger(WebPageService.class);
     private final Database database;
-    private final ObservableQuery<WebPageEntity> observableQuery;
 
     /**
-     *
      * @param database
      */
     public WebPageService(Database database) {
         this.database = database;
-        observableQuery = new ObservableQuery<>(database);
     }
 
     /**
-     *
      * @param webPageEntity
      * @return
      */
     public boolean save(WebPageEntity webPageEntity) {
         Boolean rc = false;
         try {
-            rc = Transaction.execute(database, session -> {
+            rc = database.executeTransaction(session -> {
                 LOGGER.debug("Saving {}", webPageEntity);
                 session.insert(webPageEntity);
                 return true;
@@ -49,18 +45,21 @@ public class WebPageService {
     }
 
     /**
-     *
-     * @param webPageEntity
-     * @return
+     * Update page parsed status in the database
+     * @param webPageEntity Page to update
+     * @return The number of entities updated.
      */
     public int markParsed(WebPageEntity webPageEntity) {
+        int rc = -1;
         if (0 == webPageEntity.getId()) {
-            return 0;
+            LOGGER.error("Trying to save a webpage with id=0 {}", webPageEntity);
+        } else {
+            rc = database.executeTransaction(session -> {
+                Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
+                return query.setInteger("id", webPageEntity.getId()).executeUpdate();
+            });
         }
-        return Transaction.execute(database, session -> {
-            Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
-            return query.setInteger("id", webPageEntity.getId()).executeUpdate();
-        });
+        return rc;
     }
 
     /**
@@ -71,10 +70,10 @@ public class WebPageService {
      */
     public Observable<Long> getUnparsedCount(String type) {
         return Observable.create(subscriber -> {
-            Long rc = 0L;
             try {
+                long rc = 0L;
                 do {
-                    rc = Transaction.execute(database, session -> {
+                    rc = database.executeQuery(session -> {
                         Long count = 0L;
                         String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
                         Query query = session.createQuery(queryString);
@@ -82,12 +81,10 @@ public class WebPageService {
                         count = (Long) query.list().get(0);
                         return count;
                     });
-                    if (null == rc) {
-                        subscriber.onError(new Exception("Could not get unparsed count for " + type));
-                    } else if (0 != rc) {
-                        subscriber.onNext(rc);
-                    } else {
+                    if (0 == rc) {
                         subscriber.onCompleted();
+                    } else {
+                        subscriber.onNext(rc);
                     }
                 } while ((0L != rc) && !subscriber.isUnsubscribed());
             } catch (Exception e) {
@@ -99,15 +96,13 @@ public class WebPageService {
     }
 
     /**
-     *
-     * @param type
-     * @return
+     * Get stream of unparsed pages.
+     * Use scrolling
+     * @param type Webpage type
+     * @return Stream of unparsed pages of specefied type
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         final String query = "from WebPageEntity where type = '" + type + "' and parsed = false order by rand()";
-        return getUnparsedCount(type)
-                .flatMap(count -> observableQuery.execute(query))
-                .doOnNext(value -> LOGGER.info("Found unparsed WebPageEntity url = {} type {}", value.getUrl(), type))
-                .doOnError(ex -> LOGGER.error("Exception", ex));
+        return getUnparsedCount(type).flatMap(f -> database.scroll(query));
     }
 }

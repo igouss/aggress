@@ -3,56 +3,40 @@ package com.naxsoft.commands;
 import com.naxsoft.ExecutionContext;
 import com.naxsoft.database.Database;
 import org.hibernate.Query;
-import org.hibernate.StatelessSession;
-import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Copyright NAXSoft 2015
- *
+ * <p>
  * Delete all the rows from previous crawling
- *
  */
 public class CleanDBCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(CleanDBCommand.class);
 
     /**
-     *
+     * Tables to purge
      */
-    private final static String[] tables = {
+    private final static String[] TABLES = {
             "SourceEntity",
             "WebPageEntity",
             "ProductEntity"
     };
     private Database db = null;
 
-    private void deleteOldData() {
-        hqlTruncate(tables);
-    }
-
     /**
+     * Delete all data from the database tables
      *
-     * @param tables
+     * @param tables Database tables to purge
      */
     private void hqlTruncate(String[] tables) {
-        StatelessSession statelessSession = db.getSessionFactory().openStatelessSession();
-        Transaction tx = null;
-        try {
-            tx = statelessSession.beginTransaction();
-            for (String table : tables) {
+        for (String table : tables) {
+            int rc = db.executeTransaction(session -> {
                 String hql = String.format("delete from %s", table);
-                Query query = statelessSession.createQuery(hql);
-                query.executeUpdate();
-            }
-            tx.commit();
-        } catch (Exception e) {
-            LOGGER.error("Failed to clean-up database", e);
-            if (null != tx) {
-                tx.rollback();
-            }
-        } finally {
-            statelessSession.close();
+                Query query = session.createQuery(hql);
+                return query.executeUpdate();
+            });
+            LOGGER.debug("Deleted {} records from the table {}", rc, table);
         }
     }
 
@@ -63,7 +47,7 @@ public class CleanDBCommand implements Command {
 
     @Override
     public void run() throws CLIException {
-        deleteOldData();
+        hqlTruncate(TABLES);
     }
 
     @Override

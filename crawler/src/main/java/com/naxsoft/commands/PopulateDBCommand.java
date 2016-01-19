@@ -19,13 +19,13 @@ import rx.Observable;
  */
 public class PopulateDBCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(PopulateDBCommand.class);
-    private static WebPageService webPageService;
-    private static SourceService sourceService;
+    private static WebPageService webPageService = null;
+    private static SourceService sourceService = null;
 
     /**
-     *
+     * Sites that crawler can walk and parse
      */
-    private final static String[] sources = {
+    private final static String[] SOURCES = {
             "http://www.alflahertys.com/",
             "http://www.bullseyelondon.com/",
             "http://www.cabelas.ca/",
@@ -54,14 +54,14 @@ public class PopulateDBCommand implements Command {
     };
 
 //    private static void populateSources() {
-//        Observable.from(sources).map(PopulateDBCommand::from)
+//        Observable.from(SOURCES).map(PopulateDBCommand::from)
 //                .retry(3)
 //                .doOnError(ex -> logger.error("Exception", ex))
 //                .subscribe(PopulateDBCommand::save);
 //    }
 
     private static void populateRoots() {
-        Observable.from(sources).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
+        Observable.from(SOURCES).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
                 .subscribe(PopulateDBCommand::save, ex -> LOGGER.error("PopulateRoots Exception", ex));
     }
 

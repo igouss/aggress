@@ -94,7 +94,6 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
             if (elements.isEmpty()) {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl(url);
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setType("productList");
                 LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                 subResult.add(webPageEntity);
@@ -104,7 +103,6 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                 for (; i <= end; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(url + "&page=" + i);
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setType("productList");
                     LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                     subResult.add(webPageEntity);

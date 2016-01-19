@@ -47,7 +47,6 @@ public class PageDownloader {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(url);
                     webPageEntity.setContent(response.getResponseBody());
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productPageRaw");
                     result = webPageEntity;

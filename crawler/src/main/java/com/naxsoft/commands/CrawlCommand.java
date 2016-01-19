@@ -16,7 +16,6 @@ import rx.Observable;
  *
  * Crawl pages from initial dataset walking breath first. For each page generate one or more sub-pages to parse.
  * Stop at leafs.
- *
  */
 public class CrawlCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(CrawlCommand.class);
@@ -57,8 +56,8 @@ public class CrawlCommand implements Command {
     }
 
     /**
-     *
-     * @param pagesToParse
+     * Process the stream of unparsed webpages. Processed web pages are saved into the database.
+     * @param pagesToParse Stream of webpages to process
      */
     private void process(Observable<WebPageEntity> pagesToParse) {
         pagesToParse.flatMap(pageToParse -> {

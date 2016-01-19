@@ -60,7 +60,6 @@ public class HicalProductListParser extends AbstractWebPageParser {
             for (Element el : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl(el.attr("abs:href"));
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productPage");
                 webPageEntity.setCategory(parent.getCategory());

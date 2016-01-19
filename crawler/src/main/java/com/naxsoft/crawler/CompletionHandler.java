@@ -14,10 +14,6 @@ import org.slf4j.LoggerFactory;
 public abstract class CompletionHandler<R> extends AsyncCompletionHandler<R> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionHandler.class);
 
-    /**
-     *
-     * @param t
-     */
     @Override
     public void onThrowable(Throwable t) {
         if (t instanceof java.util.concurrent.CancellationException) {

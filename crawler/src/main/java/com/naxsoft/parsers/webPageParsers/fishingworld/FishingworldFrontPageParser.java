@@ -32,7 +32,6 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
     private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
-        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
         return webPageEntity;
@@ -88,7 +87,6 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
                 for (int i = 1; i <= pages; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(page.getUrl() + "?page=" + i);
-                    webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productList");
                     LOGGER.info("Product page listing={}", webPageEntity.getUrl());
@@ -97,7 +95,6 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
             } else {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl(page.getUrl());
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());

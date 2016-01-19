@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
  * Copyright NAXSoft 2015
  *
  * HTTP client. Can sent GET and POST requests
- *
  */
 public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
 
@@ -55,7 +54,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
     }
 
     /**
-     *
+     * Execute HTTP GET operation
      * @param url Page address
      * @param handler Completion handler
      * @param <R>
@@ -67,7 +66,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
     }
 
     /**
-     *
+     * Execute HTTP GET operation
      * @param url Page address
      * @param cookies Request cookies
      * @param handler Completion handler
@@ -80,7 +79,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
     }
 
     /**
-     *
+     * Execute HTTP GET operation
      * @param url Page address
      * @param cookies Request cookies
      * @param handler Completion handler
@@ -100,7 +99,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
     }
 
     /**
-     *
+     * Execute HTTP POST operation
      * @param url Page address
      * @param content Content to send in a POST request
      * @param handler Completion handler
@@ -113,7 +112,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
     }
 
     /**
-     *
+     * Execute HTTP POST operation
      * @param url Page address
      * @param content Content to send in a POST request
      * @param cookies Request cookies
@@ -134,7 +133,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
     }
 
     /**
-     *
+     * Execute HTTP POST operation
      * @param url Page address
      * @param formParameters HTTP Form paramaters
      * @param cookies Request cookies
@@ -160,7 +159,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
     }
 
     /**
-     *
+     * Close HTTP client
      */
     public void close() {
         asyncHttpClient.close();

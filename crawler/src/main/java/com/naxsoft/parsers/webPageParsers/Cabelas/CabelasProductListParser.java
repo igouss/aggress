@@ -30,7 +30,6 @@ public class CabelasProductListParser extends AbstractWebPageParser {
     private static WebPageEntity getProductList(WebPageEntity parent, String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
-        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
         webPageEntity.setCategory(parent.getCategory());
@@ -45,7 +44,6 @@ public class CabelasProductListParser extends AbstractWebPageParser {
     private static WebPageEntity productPage(int statusCode, String url) {
         WebPageEntity productPage = new WebPageEntity();
         productPage.setUrl(url);
-        productPage.setModificationDate(new Timestamp(System.currentTimeMillis()));
         productPage.setParsed(false);
         productPage.setType("productPage");
         return productPage;

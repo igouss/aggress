@@ -61,7 +61,6 @@ public class CrafmFrontPageParser extends AbstractWebPageParser {
                 String linkUrl = e.attr("abs:href");
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl(linkUrl);
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productPage");
                 LOGGER.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());

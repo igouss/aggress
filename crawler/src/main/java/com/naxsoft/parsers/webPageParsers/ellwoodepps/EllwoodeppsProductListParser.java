@@ -61,7 +61,6 @@ public class EllwoodeppsProductListParser extends AbstractWebPageParser {
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl(element.attr("abs:href"));
-                webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productPage");
                 webPageEntity.setCategory(parent.getCategory());
