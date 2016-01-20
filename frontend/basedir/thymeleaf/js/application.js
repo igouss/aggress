@@ -91,6 +91,10 @@ require(['jquery', 'bootstrap', 'mustache'], function ($, bootStrap, m) {
                 var rendered = $(m.render(itemTemplate, element));
                 var tbody = rendered.find("tbody");
 
+		if (typeof(element.productImage) == 'undefined') {
+			element.productImage = "https://pbs.twimg.com/profile_images/600060188872155136/st4Sp6Aw.jpg";
+		}
+
                 $.each(element, function (key, value) {
                     if (key == "productImage" || key == "productName" || key == "url" || value == "") {
 
