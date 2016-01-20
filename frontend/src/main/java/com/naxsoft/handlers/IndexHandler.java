@@ -14,7 +14,7 @@ import java.util.Locale;
  * Copyright NAXSoft 2015
  */
 public class IndexHandler extends AbstractHTTPRequestHandler {
-    private static final String REGULAR_NAME = Paths.get("").toAbsolutePath() + "/basedir/thymeleaf/layout.html";
+    private static final String REGULAR_NAME =  "layout";
 
     private final ApplicationContext context;
     private final TemplateEngine templateEngine;
@@ -39,11 +39,11 @@ public class IndexHandler extends AbstractHTTPRequestHandler {
         }
         HashMap<String, String> variables = new HashMap<>();
         Context context = new Context(Locale.getDefault(), variables);
-        String result;
-        result = templateEngine.process(REGULAR_NAME, context);
+        String result = templateEngine.process(REGULAR_NAME, context);
 
         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html;charset=UTF-8");
         disableCache(exchange);
         exchange.getResponseSender().send(result);
     }
 }
+

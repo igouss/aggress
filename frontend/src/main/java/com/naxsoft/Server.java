@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
+import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -127,8 +128,13 @@ public class Server {
         TemplateEngine templateEngine = new TemplateEngine();
         FileTemplateResolver templateResolver = new FileTemplateResolver();
         templateResolver.setTemplateMode("HTML5");
-
+        templateResolver.setCharacterEncoding("UTF-8");
+        // Template cache TTL=1h. If not set, entries would be cached until expelled by LRU
+        // templateResolver.setCacheTTLMs(3600000L);
+        templateResolver.setPrefix(Paths.get("").toAbsolutePath() + "\\basedir\\thymeleaf\\");
+        templateResolver.setSuffix(".html");
         templateEngine.addTemplateResolver(templateResolver);
+
         return templateEngine;
     }
 }

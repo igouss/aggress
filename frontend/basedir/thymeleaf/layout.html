@@ -6,15 +6,19 @@
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="stylesheet" href="/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <!--/*
+    not sure of this really makes page look better
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css" />
+    */-->
 
-    <!--
+    <!--/* Use CDN for bootstrap css, visiter will probably have bootstrap cached and this will speed-up page load */-->
+    <!--/* disable while I don't have internet at home
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
               integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"/>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
               integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous"/>
-    -->
+    */-->
     <link rel="stylesheet" type="text/css" href="css/application.css"/>
     <link rel="icon" type="image/x-icon" href="img/favicon.ico"/>
 </head>
@@ -23,11 +27,13 @@
 <body>
 <div class="container">
     <div class="row col-md-12 page-header">
-        <h1><a href="/">Canadian Guns &amp; Ammo Search</a></h1>
+        <!--/* Just for fun text substitution */-->
+        <h1><a href="/" th:text="'Canadian Guns &amp; Ammo Search'">Canadian Guns &amp; Ammo Search</a></h1>
     </div>
 
     <div class="row col-md-12">
         <div class="col-md-12">
+            <!--/* TODO use form when JS is disabled? */-->
                 <div class="form-group">
                     <div class="input-group">
                         <input id="searchInput" type="search" class="form-control" placeholder="Search for..."/>
@@ -63,8 +69,12 @@
     </div>
 </div>
 
-<script src="/js/require.js" data-main="js/application.js"></script>
+<!--/* Hook-up event handlers */-->
+<script src="js/require.js" data-main="js/application.js"></script>
+
+<!--/* Navigation template */-->
 <script id="navTemplate" type="text/x-tmpl-mustache">
+<![CDATA[
         <nav>
             <ul class="pager">
                 <li>
@@ -75,9 +85,12 @@
                 </li>
             </ul>
         </nav>
-
+]]>
 </script>
+
+<!--/* Item display template */-->
 <script id="itemTemplate" type="text/x-tmpl-mustache">
+<![CDATA[
         <div class="renderedItem">
           <div class="media-left">
             <a href="{{url}}">
@@ -96,7 +109,7 @@
             </p>
           </div>
         </div>
-
+]]>
 </script>
 </body>
 </html>
