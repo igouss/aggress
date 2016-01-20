@@ -31,16 +31,16 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Copyright NAXSoft 2015
- *
+ * Copyright NAXSoft 2015.
+ * HTTP frontend to search engine
  */
 public class Server {
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
     /**
-     *
-     * @param args
-     * @throws UnknownHostException
+     * Start server app
+     * @param args Application command line args
+     * @throws UnknownHostException Thrown when we try to connect to invalid elasticsearch client
      */
     public static void main(final String[] args) throws UnknownHostException {
         TemplateEngine templateEngine = getTemplateEngine();
@@ -68,11 +68,11 @@ public class Server {
     }
 
     /**
-     *
-     * @param templateEngine
-     * @param client
-     * @param context
-     * @return
+     * Configure web app path routing
+     * @param templateEngine HTML template engine
+     * @param client Elasticsearch client
+     * @param context Application context
+     * @return HTTP routing handler
      */
     private static HttpHandler getPathHandler(TemplateEngine templateEngine, TransportClient client, ApplicationContext context) {
         PathHandler pathHandler = Handlers.path();
@@ -99,6 +99,11 @@ public class Server {
         return handler;
     }
 
+    /**
+     * Get Elasticsearch client
+     * @return Elasticsearch client
+     * @throws UnknownHostException Thrown when we try to connect to invalid host
+     */
     private static TransportClient getTransportClient() throws UnknownHostException {
         Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         TransportClient client = new TransportClient.Builder().settings(settings).build();
@@ -121,8 +126,8 @@ public class Server {
     }
 
     /**
-     *
-     * @return
+     * Get HTML5 template engine
+     * @return TempleteEngine
      */
     private static TemplateEngine getTemplateEngine() {
         TemplateEngine templateEngine = new TemplateEngine();
