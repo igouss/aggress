@@ -19,8 +19,10 @@ import java.io.StringWriter;
 /**
  * Copyright NAXSoft 2015
  */
-public class SearchHandler extends AbstractSearchHandler {
+public class SearchHandler extends AbstractHTTPRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchHandler.class);
+    protected TransportClient client;
+
     private static final String[] includeFields = new String[]{
             "url",
             "productImage",
@@ -33,7 +35,7 @@ public class SearchHandler extends AbstractSearchHandler {
      * @param client
      */
     public SearchHandler(TransportClient client) {
-        super(client);
+        this.client = client;
     }
 
     /**
@@ -76,6 +78,8 @@ public class SearchHandler extends AbstractSearchHandler {
         return startFrom;
     }
 
+
+
     /**
      * @param exchange
      * @param paremeter
@@ -106,6 +110,7 @@ public class SearchHandler extends AbstractSearchHandler {
 
         exchange.getResponseHeaders().add(HttpString.tryFromString("Access-Control-Allow-Origin"), "*");
         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "application/json;");
+        disableCache(exchange);
         exchange.getResponseSender().send(result);
     }
 

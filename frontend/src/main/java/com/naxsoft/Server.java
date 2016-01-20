@@ -81,14 +81,14 @@ public class Server {
         handler.setNext(pathHandler);
 
         pathHandler.addExactPath("/", new IndexHandler(context, templateEngine));
-        pathHandler.addExactPath("/verbose", new IndexHandler(context, templateEngine));
-        pathHandler.addExactPath("/search", new SearchHandler(client));
+        pathHandler.addExactPath("/verbose", Handlers.disableCache(new IndexHandler(context, templateEngine)));
+        pathHandler.addExactPath("/search", Handlers.disableCache(new SearchHandler(client)));
 
         String baseDir = Paths.get("").toAbsolutePath().toString();
         String relPath = baseDir + "/basedir/thymeleaf";
         pathHandler.addPrefixPath("/css", Handlers.resource(new FileResourceManager(new File(relPath + "/css/"), 100)));
         pathHandler.addPrefixPath("/fonts", Handlers.resource(new FileResourceManager(new File(relPath + "/fonts/"), 100)));
-        pathHandler.addPrefixPath("/js", Handlers.resource(new FileResourceManager(new File(relPath + "/js/"), 100)));
+        pathHandler.addPrefixPath("/js", Handlers.disableCache(Handlers.resource(new FileResourceManager(new File(relPath + "/js/"), 100))));
         pathHandler.addPrefixPath("/img", Handlers.resource(new FileResourceManager(new File(relPath + "/img/"), 100)));
 
 //                .setHandler(sessionAttachmentHandler)

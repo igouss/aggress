@@ -1,8 +1,8 @@
 package com.naxsoft.handlers;
 
 import com.naxsoft.ApplicationContext;
-import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.util.Headers;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -12,16 +12,14 @@ import java.util.Locale;
 
 /**
  * Copyright NAXSoft 2015
- *
- *
  */
-public class IndexHandler implements HttpHandler {
+public class IndexHandler extends AbstractHTTPRequestHandler {
     private static final String REGULAR_NAME = Paths.get("").toAbsolutePath() + "/basedir/thymeleaf/layout.html";
+
     private final ApplicationContext context;
     private final TemplateEngine templateEngine;
 
     /**
-     *
      * @param context
      * @param templateEngine
      */
@@ -31,7 +29,6 @@ public class IndexHandler implements HttpHandler {
     }
 
     /**
-     *
      * @param exchange
      * @throws Exception
      */
@@ -44,6 +41,9 @@ public class IndexHandler implements HttpHandler {
         Context context = new Context(Locale.getDefault(), variables);
         String result;
         result = templateEngine.process(REGULAR_NAME, context);
+
+        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html;charset=UTF-8");
+        disableCache(exchange);
         exchange.getResponseSender().send(result);
     }
 }
