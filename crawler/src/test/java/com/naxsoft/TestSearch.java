@@ -8,9 +8,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.After;
@@ -101,15 +99,20 @@ public class TestSearch {
     protected ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
+
+        MultiMatchQueryBuilder searchQuery = QueryBuilders.multiMatchQuery(searchKey, "productName^3", "_all");
+        ExistsQueryBuilder hasCategory = QueryBuilders.existsQuery("category");
+        TermQueryBuilder categoryFilter = QueryBuilders.termQuery("category", category);
+
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-        boolQueryBuilder.should(QueryBuilders.multiMatchQuery(searchKey, "productName^3", "description", "category"));
-        boolQueryBuilder.filter(QueryBuilders.existsQuery("category"));
-        boolQueryBuilder.must(QueryBuilders.matchQuery("category", category).type(MatchQueryBuilder.Type.PHRASE));
 
-        System.out.println(boolQueryBuilder);
+        boolQueryBuilder.must(searchQuery);
+        boolQueryBuilder.must(hasCategory);
+        boolQueryBuilder.filter(categoryFilter);
 
-        Client client = elastic.getClient();
-        SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product" + indexSuffix);
+
+
+        SearchRequestBuilder searchRequestBuilder = elastic.getClient().prepareSearch("product" + indexSuffix);
         searchRequestBuilder.setQuery(boolQueryBuilder);
         searchRequestBuilder.setTypes("guns");
         searchRequestBuilder.setSearchType(SearchType.DEFAULT);
@@ -117,6 +120,7 @@ public class TestSearch {
         searchRequestBuilder.setFrom(startFrom).setSize(30).setExplain(true);
 
         return searchRequestBuilder.execute();
+
     }
 
     private Subscription indexProducts(Observable<ProductEntity> products, String index, String type) {

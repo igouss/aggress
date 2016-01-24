@@ -29,6 +29,7 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
             "regularPrice",
             "specialPrice",
             "productName",
+            "category",
     };
 
     /**
@@ -123,14 +124,14 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
     protected ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
-        MatchQueryBuilder categoryFilter = QueryBuilders.matchQuery("category", category).type(MatchQueryBuilder.Type.PHRASE);
-        MultiMatchQueryBuilder searchQuery = QueryBuilders.multiMatchQuery(searchKey, "productName^3", "description", "category").type(MultiMatchQueryBuilder.Type.PHRASE);
+        MultiMatchQueryBuilder searchQuery = QueryBuilders.multiMatchQuery(searchKey, "productName^3", "_all");
         ExistsQueryBuilder hasCategory = QueryBuilders.existsQuery("category");
+        TermQueryBuilder categoryFilter = QueryBuilders.termQuery("category", category);
 
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
 
-        boolQueryBuilder.should(searchQuery);
-        boolQueryBuilder.filter(hasCategory);
+        boolQueryBuilder.must(searchQuery);
+        boolQueryBuilder.must(hasCategory);
         boolQueryBuilder.filter(categoryFilter);
 
 
