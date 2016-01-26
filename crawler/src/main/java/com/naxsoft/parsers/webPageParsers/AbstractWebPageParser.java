@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.ning.http.client.cookie.Cookie;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public abstract class AbstractWebPageParser implements WebPageParser {
     /**
      *
      */
-    private final static CompletionHandler<List<Cookie>> COOKIE_HANDLER = new CompletionHandler<List<Cookie>>() {
+    private final static AbstractCompletionHandler<List<Cookie>> COOKIE_HANDLER = new AbstractCompletionHandler<List<Cookie>>() {
         @Override
         public List<Cookie> onCompleted(com.ning.http.client.Response response) throws Exception {
             return response.getCookies();
@@ -23,7 +23,7 @@ public abstract class AbstractWebPageParser implements WebPageParser {
      *
      * @return
      */
-    protected static CompletionHandler<List<Cookie>> getCookiesHandler() {
+    protected static AbstractCompletionHandler<List<Cookie>> getCookiesHandler() {
         return COOKIE_HANDLER;
     }
 }

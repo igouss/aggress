@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,22 +26,22 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        Observable<WebPageEntity> tmp = Observable.create(subscriber -> client.get(parent.getUrl(), new VoidCompletionHandler2(parent, subscriber)));
+        Observable<WebPageEntity> tmp = Observable.create(subscriber -> client.get(parent.getUrl(), new VoidAbstractCompletionHandler2(parent, subscriber)));
         return tmp.flatMap(this::getItemsData);
     }
 
     private Observable<WebPageEntity> getItemsData(WebPageEntity parent) {
-        return Observable.create(subscriber -> client.get(parent.getUrl(), new VoidCompletionHandler(subscriber)));
+        return Observable.create(subscriber -> client.get(parent.getUrl(), new VoidAbstractCompletionHandler(subscriber)));
     }
 
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("https://www.wolverinesupplies.com/") && webPage.getType().equals("productList");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(Subscriber<? super WebPageEntity> subscriber) {
             this.subscriber = subscriber;
         }
 
@@ -70,11 +69,11 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         }
     }
 
-    private static class VoidCompletionHandler2 extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler2 extends AbstractCompletionHandler<Void> {
         private final WebPageEntity parent;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler2(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler2(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
             this.parent = parent;
             this.subscriber = subscriber;
         }

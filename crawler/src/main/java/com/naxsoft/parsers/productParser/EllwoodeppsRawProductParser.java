@@ -54,7 +54,7 @@ public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
                     jsonBuilder.field(specName, specValue);
                 }
             }
-            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());

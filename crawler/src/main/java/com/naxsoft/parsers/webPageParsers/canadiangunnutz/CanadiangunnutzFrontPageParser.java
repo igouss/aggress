@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,9 +68,9 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 LOGGER.info("Loading login cookies");
                 cookies = futureCookies.get();
             }
-            Observable<WebPageEntity> productList = Observable.create(subscriber -> client.get("http://www.canadiangunnutz.com/forum/forum.php", cookies, new VoidCompletionHandler(parent, subscriber)));
+            Observable<WebPageEntity> productList = Observable.create(subscriber -> client.get("http://www.canadiangunnutz.com/forum/forum.php", cookies, new VoidAbstractCompletionHandler(parent, subscriber)));
             return Observable.create(subscriber -> productList.subscribe(forumPage -> {
-                client.get(forumPage.getUrl(), cookies, new VoidCompletionHandler2(parent, subscriber));
+                client.get(forumPage.getUrl(), cookies, new VoidAbstractCompletionHandler2(parent, subscriber));
             }));
         } catch (Exception e) {
             LOGGER.error("An error occurred", e);
@@ -84,11 +83,11 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://www.canadiangunnutz.com/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final WebPageEntity parent;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
             this.parent = parent;
             this.subscriber = subscriber;
         }
@@ -123,6 +122,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                         webPageEntity.setUrl(element.attr("abs:href"));
                         webPageEntity.setParsed(false);
                         webPageEntity.setType("productList");
+                        webPageEntity.setCategory("n/a");
                         LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
                         subscriber.onNext(webPageEntity);
                         break;
@@ -132,11 +132,11 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         }
     }
 
-    private static class VoidCompletionHandler2 extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler2 extends AbstractCompletionHandler<Void> {
         private final WebPageEntity parent;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler2(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler2(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
             this.parent = parent;
             this.subscriber = subscriber;
         }
@@ -164,6 +164,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                     webPageEntity.setUrl(response.getUri() + "/page" + i);
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productList");
+                    webPageEntity.setCategory("n/a");
                     LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
                     subscriber.onNext(webPageEntity);
                 }

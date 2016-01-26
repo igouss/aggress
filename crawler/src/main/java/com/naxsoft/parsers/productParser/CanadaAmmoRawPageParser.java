@@ -51,7 +51,7 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
             LOGGER.info("Parsing {}, page={}", productName, webPageEntityUrl);
 
             jsonBuilder.field("productName", productName);
-            jsonBuilder.field("category", document.select("div.page.product-details > div.page__header li:nth-child(2) > a").text());
+//            jsonBuilder.field("category", document.select("div.page.product-details > div.page__header li:nth-child(2) > a").text());
             jsonBuilder.field("manufacturer", document.select(".product-details__title .product__manufacturer").text());
 
             jsonBuilder.field("productImage", document.select("img[itemprop=image]").attr("srcset"));
@@ -64,7 +64,7 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
             }
 
             jsonBuilder.field("description", document.select("div.product-details__meta-wrap > div > div > div:nth-child(1) > section span").text());
-            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
             Iterator<Element> labels = document.select(".product-details__spec-label").iterator();
             Iterator<Element> values = document.select(".product-details__spec-value").iterator();
 

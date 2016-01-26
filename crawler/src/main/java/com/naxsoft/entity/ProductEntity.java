@@ -25,7 +25,7 @@ public class ProductEntity {
     /**
      *
      */
-    private int id;
+    private Long id;
 
     /**
      *
@@ -35,7 +35,7 @@ public class ProductEntity {
     /**
      *
      */
-    private int webpageId;
+    private Long webpageId;
 
     /**
      *
@@ -57,11 +57,11 @@ public class ProductEntity {
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
     )
-    public int getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -85,26 +85,24 @@ public class ProductEntity {
 
         ProductEntity that = (ProductEntity) o;
 
-        return json.equals(that.json);
+        return url.equals(that.url);
 
     }
 
     @Override
     public int hashCode() {
-        int result = json.hashCode();
-        result = 31 * result + webpageId;
-        return result;
+        return url.hashCode();
     }
 
     @Basic
     @Column(
             name = "webpage_id"
     )
-    public int getWebpageId() {
+    public Long getWebpageId() {
         return this.webpageId;
     }
 
-    public void setWebpageId(int webpageId) {
+    public void setWebpageId(Long webpageId) {
         this.webpageId = webpageId;
     }
 

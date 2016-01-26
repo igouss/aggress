@@ -42,7 +42,7 @@ public class TheammosourceRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productName", productName);
             jsonBuilder.field("productImage", document.select("#productMainImage img").attr("abs:src"));
             jsonBuilder.field("description", document.select("#productDescription").text());
-            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
             Elements specialPrice = document.select("#productPrices .productSpecialPrice");
             if (!specialPrice.isEmpty()) {
                 jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices .normalprice").text()));

@@ -1,13 +1,12 @@
 package com.naxsoft.parsers.webPageParsers;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -39,7 +38,7 @@ public class PageDownloader {
      * @return Stream of downloaded pages.
      */
     public static Future<WebPageEntity> download(HttpClient client, List<Cookie> cookies, String url) {
-        return client.get(url, cookies, new CompletionHandler<WebPageEntity>() {
+        return client.get(url, cookies, new AbstractCompletionHandler<WebPageEntity>() {
             @Override
             public WebPageEntity onCompleted(com.ning.http.client.Response response) throws Exception {
                 WebPageEntity result = null;

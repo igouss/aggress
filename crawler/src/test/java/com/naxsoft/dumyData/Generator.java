@@ -28,7 +28,7 @@ public class Generator {
             product.setUrl(url);
             product.setJson(jsonBuilder.string());
         }
-        product.setWebpageId(42);
+        product.setWebpageId(42L);
 
         return  product;
     }

@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.corwinArms;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,11 +35,11 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
 
-        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new SetCompletionHandler(webPage));
+        Future<Set<WebPageEntity>> future = client.get(webPage.getUrl(), new SetAbstractCompletionHandler(webPage));
 
         return Observable.from(future).
                 flatMap(Observable::from).
-                flatMap(parent -> Observable.create(subscriber -> client.get(parent.getUrl(), new SetCompletionHandler2(parent, subscriber))));
+                flatMap(parent -> Observable.create(subscriber -> client.get(parent.getUrl(), new SetAbstractCompletionHandler2(parent, subscriber))));
     }
 
     @Override
@@ -49,10 +47,10 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().equals("https://www.corwin-arms.com/") && webPage.getType().equals("frontPage");
     }
 
-    private static class SetCompletionHandler extends CompletionHandler<Set<WebPageEntity>> {
+    private static class SetAbstractCompletionHandler extends AbstractCompletionHandler<Set<WebPageEntity>> {
         private final WebPageEntity webPage;
 
-        public SetCompletionHandler(WebPageEntity webPage) {
+        public SetAbstractCompletionHandler(WebPageEntity webPage) {
             this.webPage = webPage;
         }
 
@@ -75,6 +73,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl(linkUrl);
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
+                webPageEntity.setCategory("n/a");
                 LOGGER.info("Found on front page ={}", linkUrl);
                 result.add(webPageEntity);
             }
@@ -82,11 +81,11 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
         }
     }
 
-    private static class SetCompletionHandler2 extends CompletionHandler<Set<WebPageEntity>> {
+    private static class SetAbstractCompletionHandler2 extends AbstractCompletionHandler<Set<WebPageEntity>> {
         private final WebPageEntity parent;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public SetCompletionHandler2(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
+        public SetAbstractCompletionHandler2(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
             this.parent = parent;
             this.subscriber = subscriber;
         }

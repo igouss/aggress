@@ -40,7 +40,7 @@ public class SailsRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productName", productName);
             jsonBuilder.field("productImage", document.select(".product-image-gallery > img#image-main").attr("abs:src"));
             jsonBuilder.field("description", document.select(".product-shop .short-description").text() + " " + document.select("div[data-component=product-description-region]").text());
-            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
             if (!document.select(".product-shop .special-price").isEmpty()) {
                 jsonBuilder.field("regularPrice", parsePrice(document.select(".product-shop .old-price .price").text()));
                 jsonBuilder.field("specialPrice", parsePrice(document.select(".product-shop .special-price .price").text()));

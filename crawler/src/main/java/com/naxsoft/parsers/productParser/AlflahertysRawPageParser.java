@@ -54,7 +54,7 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
                     jsonBuilder.field("specialPrice", parsePrice(document.select(".product_section-secondary .price-current_price").text()));
                 }
                 jsonBuilder.field("description", document.select(".product_section .description").text());
-                jsonBuilder.field("category", webPageEntity.getCategory());
+                jsonBuilder.array("category", webPageEntity.getCategory().split(","));
                 Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
                 Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
                 while (labels.hasNext()) {

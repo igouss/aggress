@@ -39,7 +39,7 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
             jsonBuilder.field("url", webPageEntity.getUrl());
             jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
             jsonBuilder.field("productName", productName);
-            jsonBuilder.field("category", document.select(".breadcrumbs").text());
+//            jsonBuilder.field("category", document.select(".breadcrumbs").text());
             jsonBuilder.field("productImage", document.select("#product-image img").attr("src"));
 
             Elements specialPrice = document.select(".productDetails-secondary .price-secondary");
@@ -51,7 +51,7 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
                 jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
             }
             jsonBuilder.field("description", document.select(".productDetails-section .row").text());
-            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());

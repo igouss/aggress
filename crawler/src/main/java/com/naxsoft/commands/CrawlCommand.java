@@ -10,10 +10,13 @@ import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
+
+import java.util.concurrent.Semaphore;
 
 /**
  * Copyright NAXSoft 2015
- *
+ * <p>
  * Crawl pages from initial dataset walking breath first. For each page generate one or more sub-pages to parse.
  * Stop at leafs.
  */
@@ -36,15 +39,15 @@ public class CrawlCommand implements Command {
         process(webPageService.getUnparsedByType("frontPage"));
         process(webPageService.getUnparsedByType("productList"));
         process(webPageService.getUnparsedByType("productPage"));
-        webPageService.getUnparsedCount("frontPage").take(1).subscribe(value -> {
-            LOGGER.info("Unparsed frontPage = {}", value);
-        });
-        webPageService.getUnparsedCount("productList").take(1).subscribe(value -> {
-            LOGGER.info("Unparsed productList = {}", value);
-        });
-        webPageService.getUnparsedCount("productPage").take(1).subscribe(value -> {
-            LOGGER.info("Unparsed productPage = {}", value);
-        });
+//        webPageService.getUnparsedCount("frontPage").take(1).subscribe(value -> {
+//            LOGGER.info("Unparsed frontPage = {}", value);
+//        });
+//        webPageService.getUnparsedCount("productList").take(1).subscribe(value -> {
+//            LOGGER.info("Unparsed productList = {}", value);
+//        });
+//        webPageService.getUnparsedCount("productPage").take(1).subscribe(value -> {
+//            LOGGER.info("Unparsed productPage = {}", value);
+//        });
         LOGGER.info("Fetch & parse complete");
     }
 
@@ -57,9 +60,11 @@ public class CrawlCommand implements Command {
 
     /**
      * Process the stream of unparsed webpages. Processed web pages are saved into the database.
+     *
      * @param pagesToParse Stream of webpages to process
      */
     private void process(Observable<WebPageEntity> pagesToParse) {
+        Semaphore semaphore = new Semaphore(0);
         pagesToParse.flatMap(pageToParse -> {
             Observable<WebPageEntity> result = null;
             try {
@@ -79,7 +84,17 @@ public class CrawlCommand implements Command {
             }
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
-                .retry(3)
-                .subscribe(webPageService::save, ex -> LOGGER.error("Crawler Process Exception", ex));
+                .subscribe((webPageEntity) -> {
+                    webPageService.save(webPageEntity);
+
+                }, ex -> LOGGER.error("Crawler Process Exception", ex), () -> {
+                    semaphore.release();
+                });
+
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,9 +1,10 @@
 package com.naxsoft.parsers.webPageParsers.theammosource;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -14,8 +15,8 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Copyright NAXSoft 2015
@@ -33,8 +34,21 @@ public class TheammosourceFrontPageParser extends AbstractWebPageParser {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=1")); // Ammo
         webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=2")); // FIREARMS
-        return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidCompletionHandler(page, subscriber)))));
+
+
+        return Observable.create(subscriber -> {
+            for(WebPageEntity entity : webPageEntities) {
+                ListenableFuture<Void> future = client.get(entity.getUrl(), new VoidAbstractCompletionHandler(entity, subscriber));
+                try {
+                    future.get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+            subscriber.onCompleted();
+        });
     }
 
     private static WebPageEntity create(String url) {
@@ -50,11 +64,11 @@ public class TheammosourceFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://www.theammosource.com/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final WebPageEntity page;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
             this.page = page;
             this.subscriber = subscriber;
         }

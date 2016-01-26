@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
-
 public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesFrontPageParser.class);
     private final HttpClient client;
@@ -24,18 +22,18 @@ public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> client.get(webPage.getUrl(), new VoidCompletionHandler(webPage, subscriber)));
+        return Observable.create(subscriber -> client.get(webPage.getUrl(), new VoidAbstractCompletionHandler(webPage, subscriber)));
     }
 
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().equals("https://www.wolverinesupplies.com/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final WebPageEntity webPage;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity webPage, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(WebPageEntity webPage, Subscriber<? super WebPageEntity> subscriber) {
             this.webPage = webPage;
             this.subscriber = subscriber;
         }
@@ -58,6 +56,7 @@ public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(linkUrl);
                     webPageEntity.setParsed(false);
+                    webPageEntity.setCategory("n/a");
                     webPageEntity.setType("productList");
                     LOGGER.info("ProductPageUrl={}, parseUrl={}", linkUrl, webPage.getUrl());
                     subscriber.onNext(webPageEntity);

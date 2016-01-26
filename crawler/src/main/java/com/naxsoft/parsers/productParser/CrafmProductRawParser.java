@@ -40,7 +40,7 @@ public class CrafmProductRawParser extends AbstractRawPageParser {
             jsonBuilder.field("productImage", img);
             jsonBuilder.field("regularPrice", parsePrice(document.select("#product_addtocart_form > div.product-shop > div:nth-child(4) > h2 > span").text()));
             jsonBuilder.field("description", document.select("div.short-description p[align=justify]").text());
-            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());

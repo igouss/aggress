@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.tradeexcanada;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.HashSet;
 
 /**
@@ -32,8 +31,12 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("https://www.tradeexcanada.com/products_list"));
-        return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidCompletionHandler(page, subscriber)))));
+
+        return Observable.create(subscriber -> {
+           for(WebPageEntity webPageEntity : webPageEntities) {
+               client.get(webPageEntity.getUrl(), new CompletionHandler(webPageEntity, subscriber));
+           }
+        });
     }
 
     private static WebPageEntity create(String url) {
@@ -41,6 +44,7 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setUrl(url);
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
+        webPageEntity.setCategory("n/a");
         return webPageEntity;
     }
 
@@ -49,11 +53,11 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("https://www.tradeexcanada.com/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class CompletionHandler extends AbstractCompletionHandler {
         private final WebPageEntity page;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+        public CompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
             this.page = page;
             this.subscriber = subscriber;
         }
@@ -75,6 +79,31 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl(element.attr("abs:href"));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
+
+                if (element.text().contains("AAA Super Specials")) {
+                    webPageEntity.setCategory("firearms,ammo");
+                }  else if (element.text().contains("Combination Guns")) {
+                    webPageEntity.setCategory("firearms");
+                } else if (element.text().contains("Double Rifles")) {
+                    webPageEntity.setCategory("firearms");
+                } else if (element.text().contains("Handguns")) {
+                    webPageEntity.setCategory("firearms");
+                } else if (element.text().contains("Hunting and Sporting Arms")) {
+                    webPageEntity.setCategory("firearms");
+                } else if (element.text().contains("Rifle")) {
+                    webPageEntity.setCategory("firearms");
+                } else if (element.text().contains("Shotguns")) {
+                    webPageEntity.setCategory("firearms");
+                } else if (element.text().contains("Ammunition")) {
+                    webPageEntity.setCategory("ammo");
+                } else if (element.text().contains("Ammunition")) {
+                    webPageEntity.setCategory("Reloading Components");
+                } else if (element.text().contains("Scopes")) {
+                    webPageEntity.setCategory("optics");
+                } else {
+                    webPageEntity.setCategory("misc");
+                }
+
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 subscriber.onNext(webPageEntity);
             }

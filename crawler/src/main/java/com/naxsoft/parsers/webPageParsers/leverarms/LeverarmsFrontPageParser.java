@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.leverarms;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.HashSet;
 
 /**
@@ -39,7 +38,7 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://www.leverarms.com/surplus-firearms.html?limit=all"));
         webPageEntities.add(create("http://www.leverarms.com/used-firearms.html?limit=all"));
         return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidCompletionHandler(page, subscriber)))));
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidAbstractCompletionHandler(page, subscriber)))));
     }
 
     private static WebPageEntity create(String url) {
@@ -55,11 +54,11 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://www.leverarms.com/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final WebPageEntity page;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
             this.page = page;
             this.subscriber = subscriber;
         }
@@ -82,6 +81,7 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl(e.attr("abs:href"));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productPage");
+                webPageEntity.setCategory("n/a");
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 subscriber.onNext(webPageEntity);
             }

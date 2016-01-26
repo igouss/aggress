@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.sail;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,7 +44,7 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
 //        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearm-accessories", parent));
 //        webPageEntities.add(create("http://www.sail.ca/en/hunting/ammunition", parent));
         return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), cookies, new VoidCompletionHandler(page, subscriber)))));
+                flatMap(page -> Observable.from(client.get(page.getUrl(), cookies, new VoidAbstractCompletionHandler(page, subscriber)))));
     }
 
     private static WebPageEntity create(String url) {
@@ -53,6 +52,7 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
         webPageEntity.setUrl(url);
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
+        webPageEntity.setCategory("n/a");
         return webPageEntity;
     }
 
@@ -61,11 +61,11 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://www.sail.ca/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final WebPageEntity page;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
             this.page = page;
             this.subscriber = subscriber;
         }
@@ -88,6 +88,7 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl(el.attr("abs:href") + "?limit=36");
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
+                webPageEntity.setCategory("n/a");
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 subscriber.onNext(webPageEntity);
             }

@@ -30,7 +30,6 @@ import java.util.zip.GZIPOutputStream;
                 @Index(columnList = "type"),
                 @Index(columnList = "parsed"),
                 @Index(columnList = "url,type", unique = true)
-
         }
 )
 public class WebPageEntity {
@@ -39,7 +38,7 @@ public class WebPageEntity {
     /**
      *
      */
-    private int id;
+    private Long id;
 
     /**
      *
@@ -124,11 +123,11 @@ public class WebPageEntity {
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
     )
-    public int getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

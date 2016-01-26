@@ -65,7 +65,7 @@ public class IrungunsRawProductPageParser extends AbstractRawPageParser {
             if (!description.isEmpty()) {
                 jsonBuilder.field("description", description);
             }
-            jsonBuilder.field("category", webPageEntity.getCategory());
+            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
             Iterator<Element> labels = document.select("table.productTbl > tbody > tr > td:nth-child(1)").iterator();
             Iterator<Element> values = document.select("table.productTbl > tbody > tr > td:nth-child(2)").iterator();
 

@@ -56,7 +56,7 @@ public class WebPageService {
         } else {
             rc = database.executeTransaction(session -> {
                 Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
-                return query.setInteger("id", webPageEntity.getId()).executeUpdate();
+                return query.setLong("id", webPageEntity.getId()).executeUpdate();
             });
         }
         return rc;

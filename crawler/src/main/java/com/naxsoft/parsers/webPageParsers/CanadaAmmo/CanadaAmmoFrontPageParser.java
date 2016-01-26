@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.canadaAmmo;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,8 +30,8 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        Observable<String> observable = Observable.create(subscriber -> client.get(webPage.getUrl(), new VoidCompletionHandler(webPage, subscriber)));
-        Observable<Set<WebPageEntity>> setObservable = observable.flatMap(url -> Observable.from(client.get(url, new SetCompletionHandler(url, webPage))));
+        Observable<String> observable = Observable.create(subscriber -> client.get(webPage.getUrl(), new VoidAbstractCompletionHandler(webPage, subscriber)));
+        Observable<Set<WebPageEntity>> setObservable = observable.flatMap(url -> Observable.from(client.get(url, new SetAbstractCompletionHandler(url, webPage))));
         return setObservable.flatMap(Observable::from);
     }
 
@@ -41,11 +40,11 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("https://www.canadaammo.com/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final WebPageEntity webPage;
         private final Subscriber<? super String> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity webPage, Subscriber<? super String> subscriber) {
+        public VoidAbstractCompletionHandler(WebPageEntity webPage, Subscriber<? super String> subscriber) {
             this.webPage = webPage;
             this.subscriber = subscriber;
         }
@@ -71,11 +70,11 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
         }
     }
 
-    private static class SetCompletionHandler extends CompletionHandler<Set<WebPageEntity>> {
+    private static class SetAbstractCompletionHandler extends AbstractCompletionHandler<Set<WebPageEntity>> {
         private final String url;
         private final WebPageEntity webPage;
 
-        public SetCompletionHandler(String url, WebPageEntity webPage) {
+        public SetAbstractCompletionHandler(String url, WebPageEntity webPage) {
             this.url = url;
             this.webPage = webPage;
         }
@@ -95,6 +94,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setUrl(url);
                 webPageEntity.setType("productList");
+                webPageEntity.setCategory("n/a");
                 LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                 subResult.add(webPageEntity);
             } else {
@@ -104,6 +104,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(url + "&page=" + i);
                     webPageEntity.setType("productList");
+                    webPageEntity.setCategory("n/a");
                     LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                     subResult.add(webPageEntity);
                 }

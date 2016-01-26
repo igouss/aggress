@@ -92,24 +92,25 @@ public class ParseCommand implements Command {
                 Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
                 Timer.Context time = parseTime.time();
 
-                String category = pageToParse.getCategory();
-                // Check is category is set and has valid name
-                if (null == category || validCategories.contains(pageToParse.getCategory().toLowerCase())) {
-                    LOGGER.error("Invalid category: {}", pageToParse);
-                } else {
-
-                        result = parser.parse(pageToParse);
-                        time.stop();
-                        if (null != result) {
-                            pageToParse.setParsed(true);
-                            if (0 == webPageService.markParsed(pageToParse)) {
-                                LOGGER.error("Failed to make page as parsed {}", pageToParse);
-                                result = null;
-                            }
-                        } else {
-                            LOGGER.error("failed to parse {}", pageToParse);
-                        }
+                String[] categories = pageToParse.getCategory().split(",");
+                for (String category : categories) {
+                    if (!validCategories.contains(category)) {
+                        LOGGER.error("Invalid category: {}, entry {}", category, pageToParse);
+                    }
                 }
+
+                result = parser.parse(pageToParse);
+                time.stop();
+                if (null != result) {
+                    pageToParse.setParsed(true);
+                    if (0 == webPageService.markParsed(pageToParse)) {
+                        LOGGER.error("Failed to make page as parsed {}", pageToParse);
+                        result = null;
+                    }
+                } else {
+                    LOGGER.error("failed to parse {}", pageToParse);
+                }
+
             } catch (Exception e) {
                 LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
             }

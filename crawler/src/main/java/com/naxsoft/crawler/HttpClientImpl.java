@@ -61,7 +61,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      * @return
      */
     @Override
-    public <R> ListenableFuture<R> get(String url, CompletionHandler<R> handler) {
+    public <R> ListenableFuture<R> get(String url, AbstractCompletionHandler<R> handler) {
         return get(url, Collections.<Cookie>emptyList(), handler);
     }
 
@@ -74,7 +74,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      * @return
      */
     @Override
-    public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, CompletionHandler<R> handler) {
+    public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         return get(url, cookies, handler, true);
     }
 
@@ -88,7 +88,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      * @return
      */
     @Override
-    public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, CompletionHandler<R> handler, boolean followRedirect) {
+    public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
         LOGGER.trace("Starting async http GET request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
@@ -107,7 +107,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      * @return
      */
     @Override
-    public <R> ListenableFuture<R> post(String url, String content, CompletionHandler<R> handler) {
+    public <R> ListenableFuture<R> post(String url, String content, AbstractCompletionHandler<R> handler) {
         return post(url, content, Collections.<Cookie>emptyList(), handler);
     }
 
@@ -121,7 +121,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      * @return
      */
     @Override
-    public <R> ListenableFuture<R> post(String url, String content, Collection<Cookie> cookies, CompletionHandler<R> handler) {
+    public <R> ListenableFuture<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.trace("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
@@ -142,7 +142,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      * @return
      */
     @Override
-    public <R> ListenableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, CompletionHandler<R> handler) {
+    public <R> ListenableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.trace("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);

@@ -58,6 +58,7 @@ public class Server {
 
         Undertow server = Undertow.builder()
                 .addHttpListener(8080, "localhost")
+                .addHttpListener(8090, "localhost")
                 .setHandler(pathHandler) // new SimpleErrorPageHandler().setNext
                 .build();
         try {

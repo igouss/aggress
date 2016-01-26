@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
  * Logs on errors.
  *
  */
-public abstract class CompletionHandler<R> extends AsyncCompletionHandler<R> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompletionHandler.class);
+public abstract class AbstractCompletionHandler<R> extends AsyncCompletionHandler<R> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCompletionHandler.class);
 
     @Override
     public void onThrowable(Throwable t) {

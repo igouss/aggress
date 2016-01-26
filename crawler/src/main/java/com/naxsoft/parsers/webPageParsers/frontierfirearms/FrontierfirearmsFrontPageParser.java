@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.frontierfirearms;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,7 +35,7 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://frontierfirearms.ca/shooting-accessories.html"));
         webPageEntities.add(create("http://frontierfirearms.ca/optics.html"));
         return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidCompletionHandler(page, subscriber)))));
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidAbstractCompletionHandler(page, subscriber)))));
     }
 
     private static WebPageEntity create(String url) {
@@ -52,11 +51,11 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://frontierfirearms.ca/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final WebPageEntity page;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
             this.page = page;
             this.subscriber = subscriber;
         }
@@ -88,6 +87,7 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl(page.getUrl() + "?p=" + i);
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
+                webPageEntity.setCategory("n/a");
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 subscriber.onNext(webPageEntity);
             }

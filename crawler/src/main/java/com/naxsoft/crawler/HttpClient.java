@@ -19,7 +19,7 @@ public interface HttpClient {
      * @param <R> resource type returned by Completion handler
      * @return
      */
-    <R> ListenableFuture<R> get(String url, CompletionHandler<R> handler);
+    <R> ListenableFuture<R> get(String url, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP GET request
@@ -29,7 +29,7 @@ public interface HttpClient {
      * @param <R> result of an asynchronous computation.
      * @return
      */
-    <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, CompletionHandler<R> handler);
+    <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP GET request
@@ -40,7 +40,7 @@ public interface HttpClient {
      * @param <R> result of an asynchronous computation.
      * @return
      */
-    <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, CompletionHandler<R> handler, boolean followRedirect);
+    <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect);
 
     /**
      * Perform an HTTP POST request
@@ -50,7 +50,7 @@ public interface HttpClient {
      * @param <R> result of an asynchronous computation.
      * @return
      */
-    <R> ListenableFuture<R> post(String url, String content, CompletionHandler<R> handler);
+    <R> ListenableFuture<R> post(String url, String content, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP POST request
@@ -61,7 +61,7 @@ public interface HttpClient {
      * @param <R> result of an asynchronous computation.
      * @return
      */
-    <R> ListenableFuture<R> post(String url, String content, Collection<Cookie> cookies, CompletionHandler<R> handler);
+    <R> ListenableFuture<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP POST request
@@ -72,5 +72,5 @@ public interface HttpClient {
      * @param <R> result of an asynchronous computation.
      * @return
      */
-    <R> ListenableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, CompletionHandler<R> handler);
+    <R> ListenableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
 }

@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.dantesports;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.LinkedList;
 
 /**
@@ -31,7 +30,7 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.create(subscriber -> Observable.from(client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false)).subscribe(cookies -> {
-            client.get(webPage.getUrl(), cookies, new VoidCompletionHandler(webPage, subscriber));
+            client.get(webPage.getUrl(), cookies, new VoidAbstractCompletionHandler(webPage, subscriber));
         }));
     }
 
@@ -40,11 +39,11 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("https://shop.dantesports.com/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final WebPageEntity webPage;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity webPage, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(WebPageEntity webPage, Subscriber<? super WebPageEntity> subscriber) {
             this.webPage = webPage;
             this.subscriber = subscriber;
         }
@@ -67,6 +66,7 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl(element.attr("abs:href") + "&paging=0");
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
+                webPageEntity.setCategory("n/a");
                 LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), webPage.getUrl());
                 subscriber.onNext(webPageEntity);
             }

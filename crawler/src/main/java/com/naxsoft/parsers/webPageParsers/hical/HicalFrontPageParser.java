@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.hical;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.HashSet;
 
 /**
@@ -44,7 +43,7 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
         }
 
         return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidCompletionHandler(page, subscriber)))));
+                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidAbstractCompletionHandler(page, subscriber)))));
     }
 
     private static WebPageEntity create(String url) {
@@ -60,11 +59,11 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://www.hical.ca/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final WebPageEntity page;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
             this.page = page;
             this.subscriber = subscriber;
         }
@@ -90,6 +89,7 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
                     webPageEntity.setUrl(el.attr("abs:href"));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("frontPage");
+                    webPageEntity.setCategory("n/a");
                     LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                     subscriber.onNext(webPageEntity);
                 }
@@ -100,6 +100,7 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
                     webPageEntity.setUrl(el.attr("abs:href"));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productList");
+                    webPageEntity.setCategory("n/a");
                     LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                     subscriber.onNext(webPageEntity);
                 }
@@ -109,6 +110,7 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(response.getUri() + "?sort=featured&page=1");
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
+            webPageEntity.setCategory("n/a");
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             subscriber.onNext(webPageEntity);
         }

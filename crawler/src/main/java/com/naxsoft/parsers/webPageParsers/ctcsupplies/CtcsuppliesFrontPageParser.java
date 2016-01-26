@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.ctcsupplies;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -13,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
-
-import java.sql.Timestamp;
 
 /**
  * Copyright NAXSoft 2015
@@ -29,7 +27,7 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.create(subscriber -> client.get("http://ctcsupplies.ca/collections/all", new VoidCompletionHandler(subscriber)));
+        return Observable.create(subscriber -> client.get("http://ctcsupplies.ca/collections/all", new VoidAbstractCompletionHandler(subscriber)));
     }
 
     @Override
@@ -38,10 +36,10 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     }
 
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(Subscriber<? super WebPageEntity> subscriber) {
             this.subscriber = subscriber;
         }
 
@@ -73,6 +71,7 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl("http://ctcsupplies.ca/collections/all?page=" + i);
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
+                webPageEntity.setCategory("n/a");
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), response.getUri());
                 subscriber.onNext(webPageEntity);
             }

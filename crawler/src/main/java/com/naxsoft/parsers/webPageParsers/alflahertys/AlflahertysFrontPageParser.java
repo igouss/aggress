@@ -1,10 +1,9 @@
 package com.naxsoft.parsers.webPageParsers.alflahertys;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,8 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
-
-import java.sql.Timestamp;
 
 /**
  * Copyright NAXSoft 2015
@@ -30,7 +27,7 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.create(subscriber -> client.get("http://www.alflahertys.com/collections/all/", new VoidCompletionHandler(subscriber)));
+        return Observable.create(subscriber -> client.get("http://www.alflahertys.com/collections/all/", new VoidAbstractCompletionHandler(subscriber)));
     }
 
     @Override
@@ -38,10 +35,10 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("frontPage");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(Subscriber<? super WebPageEntity> subscriber) {
             this.subscriber = subscriber;
         }
 
@@ -73,6 +70,7 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl("http://www.alflahertys.com/collections/all?page=" + i);
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
+                webPageEntity.setCategory("n/a");
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 subscriber.onNext(webPageEntity);
             }

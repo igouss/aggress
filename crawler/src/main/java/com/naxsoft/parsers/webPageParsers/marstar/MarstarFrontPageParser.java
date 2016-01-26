@@ -31,9 +31,9 @@ public class MarstarFrontPageParser extends AbstractWebPageParser {
     private static WebPageEntity create(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
-        webPageEntity.setModificationDate(new Timestamp(System.currentTimeMillis()));
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
+        webPageEntity.setCategory("n/a");
         return webPageEntity;
     }
 

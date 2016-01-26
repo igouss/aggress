@@ -1,6 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
-import com.naxsoft.crawler.CompletionHandler;
+import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -58,7 +57,7 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                     subscriber.onCompleted();
                     return;
                 }
-                client.get(parent.getUrl(), cookies, new VoidCompletionHandler(parent, subscriber));
+                client.get(parent.getUrl(), cookies, new VoidAbstractCompletionHandler(parent, subscriber));
             } catch (Exception e) {
                 LOGGER.error("Failed to login to canadiangunnutz", e);
             }
@@ -71,11 +70,11 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://www.canadiangunnutz.com/") && webPage.getType().equals("productList");
     }
 
-    private static class VoidCompletionHandler extends CompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
         private final WebPageEntity parent;
         private final Subscriber<? super WebPageEntity> subscriber;
 
-        public VoidCompletionHandler(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
+        public VoidAbstractCompletionHandler(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
             this.parent = parent;
             this.subscriber = subscriber;
         }
