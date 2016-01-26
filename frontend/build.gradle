@@ -33,3 +33,8 @@ task serverjar(type: Jar) {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+task libs(type: Sync) {
+    from configurations.runtime
+    into "$buildDir/libs"
+}
