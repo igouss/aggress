@@ -135,7 +135,6 @@ public class Server {
         FileTemplateResolver templateResolver = new FileTemplateResolver();
         templateResolver.setTemplateMode("HTML5");
         templateResolver.setCharacterEncoding("UTF-8");
-        // Template cache TTL=1h. If not set, entries would be cached until expelled by LRU
         // templateResolver.setCacheTTLMs(3600000L);
         templateResolver.setPrefix(Paths.get("").toAbsolutePath() + "\\basedir\\thymeleaf\\");
         templateResolver.setSuffix(".html");
