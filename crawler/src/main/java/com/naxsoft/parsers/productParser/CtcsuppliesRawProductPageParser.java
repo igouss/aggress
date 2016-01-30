@@ -42,13 +42,9 @@ public class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
 //                jsonBuilder.field("category", category);
 //            }
 
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
-
             jsonBuilder.field("regularPrice", parsePrice(document.select("#ProductPrice").text()));
             jsonBuilder.field("description", document.select(".product-description p").text());
+
             String allCategories = webPageEntity.getCategory();
             if (allCategories != null) {
                 jsonBuilder.array("category", allCategories.split(","));
