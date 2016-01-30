@@ -4,6 +4,7 @@ import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
@@ -17,10 +18,7 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyright NAXSoft 2015
@@ -30,6 +28,31 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
     private final ListenableFuture<List<Cookie>> futureCookies;
 
+    private Collection<WebPageEntity> parseDocument(Document document) {
+        Set<WebPageEntity> result = new HashSet<>(1);
+
+        Elements elements = document.select("#threads .threadtitle");
+        if (elements.isEmpty()) {
+            LOGGER.error("No results on page");
+        }
+        for (Element element : elements) {
+            Elements select = element.select(".prefix");
+            if (!select.isEmpty()) {
+                if (select.first().text().contains("WTS")) {
+                    element = element.select("a.title").first();
+                    if (!element.text().toLowerCase().contains("remove")) {
+                        WebPageEntity webPageEntity = new WebPageEntity();
+                        webPageEntity.setUrl(element.attr("abs:href"));
+                        webPageEntity.setParsed(false);
+                        webPageEntity.setType("productPage");
+                        LOGGER.info("productPage={}", webPageEntity.getUrl());
+                        result.add(webPageEntity);
+                    }
+                }
+            }
+        }
+        return result;
+    }
 
     public CanadiangunnutzProductListParser(HttpClient client) {
         this.client = client;
@@ -48,71 +71,15 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.create(subscriber -> {
-            try {
-                LOGGER.info("Loading login cookies");
-                List<Cookie> cookies = futureCookies.get();
-                if (null == cookies || cookies.isEmpty()) {
-                    LOGGER.warn("No login cookies");
-                    subscriber.onCompleted();
-                    return;
-                }
-                client.get(parent.getUrl(), cookies, new VoidAbstractCompletionHandler(parent, subscriber));
-            } catch (Exception e) {
-                LOGGER.error("Failed to login to canadiangunnutz", e);
-            }
-
-        });
+        return Observable.from(futureCookies)
+                .map(cookies1 -> client.get(parent.getUrl(), cookies1, new DocumentCompletionHandler()))
+                .flatMap(Observable::from)
+                .map(this::parseDocument)
+                .flatMap(Observable::from);
     }
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.canadiangunnutz.com/") && webPage.getType().equals("productList");
-    }
-
-    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
-        private final WebPageEntity parent;
-        private final Subscriber<? super WebPageEntity> subscriber;
-
-        public VoidAbstractCompletionHandler(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
-            this.parent = parent;
-            this.subscriber = subscriber;
-        }
-
-        @Override
-        public Void onCompleted(Response response) throws Exception {
-            if (200 == response.getStatusCode()) {
-                Document document = Jsoup.parse(response.getResponseBody(), parent.getUrl());
-                parseDocument(document);
-            } else {
-                LOGGER.error("Failed to load page {}", parent.getUrl());
-            }
-            subscriber.onCompleted();
-            return null;
-        }
-
-        private void parseDocument(Document document) {
-            Elements elements = document.select("#threads .threadtitle");
-            if (elements.isEmpty()) {
-                LOGGER.error("No results on page");
-            }
-            for (Element element : elements) {
-                Elements select = element.select(".prefix");
-                if (!select.isEmpty()) {
-                    if (select.first().text().contains("WTS")) {
-                        element = element.select("a.title").first();
-                        if (!element.text().toLowerCase().contains("remove")) {
-                            WebPageEntity webPageEntity = new WebPageEntity();
-                            webPageEntity.setUrl(element.attr("abs:href"));
-                            webPageEntity.setParsed(false);
-                            webPageEntity.setType("productPage");
-                            webPageEntity.setCategory(parent.getCategory());
-                            LOGGER.info("productPage={}", webPageEntity.getUrl());
-                            subscriber.onNext(webPageEntity);
-                        }
-                    }
-                }
-            }
-        }
     }
 }

@@ -4,6 +4,7 @@ import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +25,31 @@ import java.util.regex.Pattern;
 public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsFrontPageParser.class);
+
+    private Collection<WebPageEntity> parseDocument(Document document) {
+        Set<WebPageEntity> result = new HashSet<>(1);
+
+        String elements = document.select("div.toolbar > div.pager > p").first().text();
+        Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
+        if (!matcher.find()) {
+            LOGGER.error("Unable to parse total pages");
+            return result;
+        }
+
+        int productTotal = Integer.parseInt(matcher.group(1));
+        int pageTotal = (int) Math.ceil(productTotal / 30.0);
+
+        for (int i = 1; i <= pageTotal; i++) {
+            WebPageEntity webPageEntity = new WebPageEntity();
+            webPageEntity.setUrl(document.location() + "?p=" + i);
+            webPageEntity.setParsed(false);
+            webPageEntity.setType("productList");
+            webPageEntity.setCategory("n/a");
+            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+            result.add(webPageEntity);
+        }
+        return result;
+    }
 
     public FrontierfirearmsFrontPageParser(HttpClient client) {
         this.client = client;
@@ -34,8 +62,11 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://frontierfirearms.ca/ammunition-reloading.html"));
         webPageEntities.add(create("http://frontierfirearms.ca/shooting-accessories.html"));
         webPageEntities.add(create("http://frontierfirearms.ca/optics.html"));
-        return Observable.create(subscriber -> Observable.from(webPageEntities).
-                flatMap(page -> Observable.from(client.get(page.getUrl(), new VoidAbstractCompletionHandler(page, subscriber)))));
+        return Observable.from(webPageEntities)
+                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler()))
+                .flatMap(Observable::from)
+                .map(this::parseDocument)
+                .flatMap(Observable::from);
     }
 
     private static WebPageEntity create(String url) {
@@ -49,49 +80,5 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://frontierfirearms.ca/") && webPage.getType().equals("frontPage");
-    }
-
-    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
-        private final WebPageEntity page;
-        private final Subscriber<? super WebPageEntity> subscriber;
-
-        public VoidAbstractCompletionHandler(WebPageEntity page, Subscriber<? super WebPageEntity> subscriber) {
-            this.page = page;
-            this.subscriber = subscriber;
-        }
-
-        @Override
-        public Void onCompleted(Response response) throws Exception {
-            if (200 == response.getStatusCode()) {
-                Document document = Jsoup.parse(response.getResponseBody(), page.getUrl());
-                if (parseDocument(document)) return null;
-            }
-            subscriber.onCompleted();
-            return null;
-        }
-
-        private boolean parseDocument(Document document) {
-            String elements = document.select("div.toolbar > div.pager > p").first().text();
-            Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
-            if (!matcher.find()) {
-                LOGGER.error("Unable to parse total pages");
-                subscriber.onCompleted();
-                return true;
-            }
-
-            int productTotal = Integer.parseInt(matcher.group(1));
-            int pageTotal = (int) Math.ceil(productTotal / 30.0);
-
-            for (int i = 1; i <= pageTotal; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(page.getUrl() + "?p=" + i);
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productList");
-                webPageEntity.setCategory("n/a");
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-                subscriber.onNext(webPageEntity);
-            }
-            return false;
-        }
     }
 }
