@@ -19,6 +19,7 @@ import rx.Observable;
 import rx.Subscriber;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Copyright NAXSoft 2015
@@ -71,11 +72,15 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.from(futureCookies)
-                .map(cookies1 -> client.get(parent.getUrl(), cookies1, new DocumentCompletionHandler()))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from);
+        try {
+            List<Cookie> cookies = futureCookies.get();
+            return Observable.from(client.get(parent.getUrl(), cookies, new DocumentCompletionHandler()))
+                    .map(this::parseDocument)
+                    .flatMap(Observable::from);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return Observable.empty();
     }
 
     @Override
