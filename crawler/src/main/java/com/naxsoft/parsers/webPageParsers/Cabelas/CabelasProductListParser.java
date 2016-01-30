@@ -4,6 +4,8 @@ import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,6 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -25,13 +31,52 @@ public class CabelasProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity getProductList(WebPageEntity parent, String url) {
+    private Collection<WebPageEntity> parseDocument(Document document) {
+        Set<WebPageEntity> result = new HashSet<>(1);
+        if (isTerminalSubcategory(document)) {
+            if (document.baseUri().contains("pagenumber")) {
+                Elements elements = document.select(".productCard-heading a");
+                for (Element element : elements) {
+                    result.add(productPage(200, element.attr("abs:href")));
+                }
+            } else {
+                Elements subPages = document.select("#main footer > nav span, #main footer > nav a");
+                if (!subPages.isEmpty()) {
+                    int max = 1;
+                    for (Element subpage : subPages) {
+                        try {
+                            int page = Integer.parseInt(subpage.text());
+                            if (page > max) {
+                                max = page;
+                            }
+                        } catch (Exception ignored) {
+                            // ignore
+                        }
+                    }
+                    for (int i = 1; i <= max; i++) {
+                        result.add(getProductList(document.location() + "?pagenumber=" + i));
+                    }
+                } else {
+                    result.add(getProductList(document.location() + "?pagenumber=" + 1));
+                }
+            }
+        } else {
+            Elements subPages = document.select("#categories > ul > li > a");
+            for (Element element : subPages) {
+                WebPageEntity subCategoryPage = getProductList( element.attr("abs:href"));
+                result.add(subCategoryPage);
+            }
+        }
+        return result;
+    }
+
+
+    private static WebPageEntity getProductList(String url) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
-        webPageEntity.setCategory(parent.getCategory());
-        LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
+        LOGGER.info("productList={}", webPageEntity.getUrl());
         return webPageEntity;
     }
 
@@ -47,70 +92,13 @@ public class CabelasProductListParser extends AbstractWebPageParser {
         return productPage;
     }
 
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> client.get(webPage.getUrl(), new VoidAbstractCompletionHandler(webPage, subscriber)));
+    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+        ListenableFuture<Document> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler());
+        return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
     }
 
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.cabelas.ca/") && webPage.getType().equals("productList");
-    }
-
-    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
-        private final WebPageEntity webPage;
-        private final Subscriber<? super WebPageEntity> subscriber;
-
-        public VoidAbstractCompletionHandler(WebPageEntity webPage, Subscriber<? super WebPageEntity> subscriber) {
-            this.webPage = webPage;
-            this.subscriber = subscriber;
-        }
-
-        @Override
-        public Void onCompleted(Response response) throws Exception {
-            if (200 == response.getStatusCode()) {
-                webPage.setParsed(true);
-                Document document = Jsoup.parse(response.getResponseBody(), webPage.getUrl());
-                parseDocument(document);
-            }
-            subscriber.onCompleted();
-            return null;
-        }
-
-        private void parseDocument(Document document) {
-            if (isTerminalSubcategory(document)) {
-                if (document.baseUri().contains("pagenumber")) {
-                    Elements elements = document.select(".productCard-heading a");
-                    for (Element element : elements) {
-                        subscriber.onNext(productPage(200, element.attr("abs:href")));
-                    }
-                } else {
-                    Elements subPages = document.select("#main footer > nav span, #main footer > nav a");
-                    if (!subPages.isEmpty()) {
-                        int max = 1;
-                        for (Element subpage : subPages) {
-                            try {
-                                int page = Integer.parseInt(subpage.text());
-                                if (page > max) {
-                                    max = page;
-                                }
-                            } catch (Exception ignored) {
-                                // ignore
-                            }
-                        }
-                        for (int i = 1; i <= max; i++) {
-                            subscriber.onNext(getProductList(webPage, webPage.getUrl() + "?pagenumber=" + i));
-                        }
-                    } else {
-                        subscriber.onNext(getProductList(webPage, webPage.getUrl() + "?pagenumber=" + 1));
-                    }
-                }
-            } else {
-                Elements subPages = document.select("#categories > ul > li > a");
-                for (Element element : subPages) {
-                    WebPageEntity subCategoryPage = getProductList(webPage, element.attr("abs:href"));
-                    subscriber.onNext(subCategoryPage);
-                }
-            }
-        }
     }
 }
 

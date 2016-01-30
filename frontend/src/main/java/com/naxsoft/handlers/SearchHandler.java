@@ -21,8 +21,6 @@ import java.io.StringWriter;
  */
 public class SearchHandler extends AbstractHTTPRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchHandler.class);
-    protected TransportClient client;
-
     private static final String[] includeFields = new String[]{
             "url",
             "productImage",
@@ -31,6 +29,7 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
             "productName",
             "category",
     };
+    protected TransportClient client;
 
     /**
      * @param client
@@ -80,7 +79,6 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
     }
 
 
-
     /**
      * @param exchange
      * @param paremeter
@@ -125,14 +123,16 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         MultiMatchQueryBuilder searchQuery = QueryBuilders.multiMatchQuery(searchKey, "productName^4", "description^2", "_all");
-//        ExistsQueryBuilder hasCategory = QueryBuilders.existsQuery("category");
-//        TermQueryBuilder categoryFilter = QueryBuilders.termQuery("category", category);
+        ExistsQueryBuilder hasCategory = QueryBuilders.existsQuery("category");
+        TermQueryBuilder categoryFilter = QueryBuilders.termQuery("category", category);
 
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
 
         boolQueryBuilder.must(searchQuery);
-//        boolQueryBuilder.must(hasCategory);
-//        boolQueryBuilder.filter(categoryFilter);
+        if (null != category && !category.isEmpty()) {
+            boolQueryBuilder.must(hasCategory);
+            boolQueryBuilder.filter(categoryFilter);
+        }
 
 
         LOGGER.info("{}", boolQueryBuilder);

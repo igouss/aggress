@@ -8,6 +8,7 @@ package com.naxsoft.database;
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.ProductEntity;
+import com.naxsoft.entity.WebPageEntity;
 import com.ning.http.client.Response;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.ListenableActionFuture;
@@ -21,6 +22,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -30,6 +32,7 @@ import rx.Subscription;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -181,7 +184,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         return client.admin().indices().prepareAliases().addAlias(index, newAlias).removeAlias(index, oldAlias).execute();
     }
 
-    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Document> {
         private final Subscriber<? super Integer> subscriber;
 
         public VoidAbstractCompletionHandler(Subscriber<? super Integer> subscriber) {
@@ -189,7 +192,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         }
 
         @Override
-        public Void onCompleted(Response response) throws Exception {
+        public Document onCompleted(Response response) throws Exception {
             int statusCode = response.getStatusCode();
             if (200 != statusCode) {
                 LOGGER.error("Error creating index: {}", response.getResponseBody());

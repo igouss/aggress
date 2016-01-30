@@ -92,11 +92,16 @@ public class ParseCommand implements Command {
                 Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
                 Timer.Context time = parseTime.time();
 
-                String[] categories = pageToParse.getCategory().split(",");
-                for (String category : categories) {
-                    if (!validCategories.contains(category)) {
-                        LOGGER.error("Invalid category: {}, entry {}", category, pageToParse);
+                String allCategories = pageToParse.getCategory();
+                if (null != allCategories) {
+                    String[] categories = allCategories.split(",");
+                    for (String category : categories) {
+                        if (!validCategories.contains(category)) {
+                            LOGGER.error("Invalid category: {}, entry {}", category, pageToParse);
+                        }
                     }
+                } else {
+                    LOGGER.info("Category not set {}", pageToParse);
                 }
 
                 result = parser.parse(pageToParse);

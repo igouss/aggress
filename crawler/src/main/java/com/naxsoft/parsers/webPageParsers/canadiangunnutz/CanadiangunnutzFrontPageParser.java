@@ -1,26 +1,21 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
-import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
 import com.ning.http.client.cookie.Cookie;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.Subscriber;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,115 +55,78 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler());
     }
 
+    private Collection<WebPageEntity> parseDocument(Document document) {
+        Set<WebPageEntity> result = new HashSet<>(1);
+
+        Elements elements = document.select("h2.forumtitle > a");
+        if (elements.isEmpty()) {
+            LOGGER.error("No results on page");
+        }
+
+        for (Element element : elements) {
+            String text = element.text();
+            if (!text.startsWith("Exchange of")) {
+                continue;
+            }
+            for (String category : CATEGORIES) {
+                if (text.endsWith(category)) {
+                    WebPageEntity webPageEntity = new WebPageEntity();
+                    webPageEntity.setUrl(element.attr("abs:href"));
+                    webPageEntity.setParsed(false);
+                    webPageEntity.setType("productList");
+                    webPageEntity.setCategory("n/a");
+                    LOGGER.info("productList={}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    private Collection<WebPageEntity> parseDocument2(Document document) {
+        Set<WebPageEntity> result = new HashSet<>(1);
+
+        Element element = document.select("#threadpagestats").first();
+        String text = element.text();
+        Matcher matcher = Pattern.compile("Threads (\\d+) to (\\d+) of (\\d+)").matcher(text);
+        if (matcher.find()) {
+            int postsPerPage = Integer.parseInt(matcher.group(2));
+            int total = Integer.parseInt(matcher.group(3));
+            int pages = (int) Math.ceil((double) total / postsPerPage);
+            for (int i = 1; i <= pages; i++) {
+                WebPageEntity webPageEntity = new WebPageEntity();
+                webPageEntity.setUrl(document.location() + "/page" + i);
+                webPageEntity.setParsed(false);
+                webPageEntity.setType("productList");
+                webPageEntity.setCategory("n/a");
+                LOGGER.info("productList={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
+        }
+        return result;
+    }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         try {
-            if (null == cookies || cookies.isEmpty()) {
-                LOGGER.info("Loading login cookies");
-                cookies = futureCookies.get();
-            }
-            Observable<WebPageEntity> productList = Observable.create(subscriber -> client.get("http://www.canadiangunnutz.com/forum/forum.php", cookies, new VoidAbstractCompletionHandler(parent, subscriber)));
-            return Observable.create(subscriber -> productList.subscribe(forumPage -> {
-                client.get(forumPage.getUrl(), cookies, new VoidAbstractCompletionHandler2(parent, subscriber));
-            }));
-        } catch (Exception e) {
-            LOGGER.error("An error occurred", e);
+            cookies = futureCookies.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
-        return null;
+        return Observable.from(futureCookies)
+                .map(cookies1 -> client.get("http://www.canadiangunnutz.com/forum/forum.php", cookies1, new DocumentCompletionHandler()))
+                .flatMap(Observable::from)
+                .map(this::parseDocument)
+                .flatMap(Observable::from)
+                .map(webPageEntity -> client.get(webPageEntity.getUrl(), cookies, new DocumentCompletionHandler()))
+                .flatMap(Observable::from)
+                .map(this::parseDocument2)
+                .flatMap(Observable::from);
     }
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.canadiangunnutz.com/") && webPage.getType().equals("frontPage");
-    }
-
-    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Void> {
-        private final WebPageEntity parent;
-        private final Subscriber<? super WebPageEntity> subscriber;
-
-        public VoidAbstractCompletionHandler(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
-            this.parent = parent;
-            this.subscriber = subscriber;
-        }
-
-        @Override
-        public Void onCompleted(Response response) throws Exception {
-            if (200 == response.getStatusCode()) {
-                Document document = Jsoup.parse(response.getResponseBody(), parent.getUrl());
-                parseDocument(document);
-            } else {
-                LOGGER.error("Failed to load page {}", response.getUri());
-            }
-
-            subscriber.onCompleted();
-            return null;
-        }
-
-        private void parseDocument(Document document) {
-            Elements elements = document.select("h2.forumtitle > a");
-            if (elements.isEmpty()) {
-                LOGGER.error("No results on page");
-            }
-
-            for (Element element : elements) {
-                String text = element.text();
-                if (!text.startsWith("Exchange of")) {
-                    continue;
-                }
-                for (String category : CATEGORIES) {
-                    if (text.endsWith(category)) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(element.attr("abs:href"));
-                        webPageEntity.setParsed(false);
-                        webPageEntity.setType("productList");
-                        webPageEntity.setCategory("n/a");
-                        LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
-                        subscriber.onNext(webPageEntity);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    private static class VoidAbstractCompletionHandler2 extends AbstractCompletionHandler<Void> {
-        private final WebPageEntity parent;
-        private final Subscriber<? super WebPageEntity> subscriber;
-
-        public VoidAbstractCompletionHandler2(WebPageEntity parent, Subscriber<? super WebPageEntity> subscriber) {
-            this.parent = parent;
-            this.subscriber = subscriber;
-        }
-
-        @Override
-        public Void onCompleted(Response response) throws Exception {
-            if (200 == response.getStatusCode()) {
-                Document document = Jsoup.parse(response.getResponseBody(), response.getUri().toString());
-                parseDocument(response, document);
-            }
-            subscriber.onCompleted();
-            return null;
-        }
-
-        private void parseDocument(Response response, Document document) {
-            Element element = document.select("#threadpagestats").first();
-            String text = element.text();
-            Matcher matcher = Pattern.compile("Threads (\\d+) to (\\d+) of (\\d+)").matcher(text);
-            if (matcher.find()) {
-                int postsPerPage = Integer.parseInt(matcher.group(2));
-                int total = Integer.parseInt(matcher.group(3));
-                int pages = (int) Math.ceil((double) total / postsPerPage);
-                for (int i = 1; i <= pages; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(response.getUri() + "/page" + i);
-                    webPageEntity.setParsed(false);
-                    webPageEntity.setType("productList");
-                    webPageEntity.setCategory("n/a");
-                    LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), parent.getUrl());
-                    subscriber.onNext(webPageEntity);
-                }
-            }
-        }
     }
 }

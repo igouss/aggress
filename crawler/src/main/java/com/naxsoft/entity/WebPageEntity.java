@@ -193,7 +193,7 @@ public class WebPageEntity {
     @Basic
     @Column(
             name = "url"
-            , length = 2048
+            , columnDefinition = "TEXT"
 //            , columnDefinition = "TEXT"
     )
     public String getUrl() {
