@@ -42,7 +42,11 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
             String productName = document.select(".product-name h1").first().text().trim();
             jsonBuilder.field("productName", productName);
             //jsonBuilder.field("category", document.select(".breadcrumbs .category18 a").text().trim());
-            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
+            String allCategories = webPageEntity.getCategory();
+            if (allCategories != null) {
+                jsonBuilder.array("category", allCategories.split(","));
+            }
+
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
             jsonBuilder.field("productImage", document.select("#product_addtocart_form > div.product-img-box > p > a > img").attr("src").trim());
             jsonBuilder.field("regularPrice", getRegularPrice(document));
@@ -55,7 +59,7 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
 
             jsonBuilder.field("unitsAvailable", BullseyelondonProductRawPageParser.getUnitsAvailable(document));
             jsonBuilder.field("description", document.select(".short-description").text().trim());
-            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
+
             Elements table = document.select("#product_tabs_additional_contents");
 
             for (Element row : table.select("tr")) {

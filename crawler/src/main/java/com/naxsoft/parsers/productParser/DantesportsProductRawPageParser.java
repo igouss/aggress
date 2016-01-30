@@ -47,7 +47,10 @@ public class DantesportsProductRawPageParser extends AbstractRawPageParser {
                 jsonBuilder.field("regularPrice", matcher.group().replace(",", ""));
             }
             jsonBuilder.field("description", document.select(".itemDescription").text());
-            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
+            String allCategories = webPageEntity.getCategory();
+            if (allCategories != null) {
+                jsonBuilder.array("category", allCategories.split(","));
+            }
 //        Iterator<Element> labels = document.select("table tr span.lang-en").iterator();
 //        Iterator<Element> values = document.select("table td span.lang-en").iterator();
 //        while(labels.hasNext()) {

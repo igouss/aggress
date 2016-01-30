@@ -42,7 +42,10 @@ public class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productName", productName);
             jsonBuilder.field("productImage", document.select(".productImagePrimaryLink img").attr("abs:src"));
             jsonBuilder.field("manufacturer", document.select(".product-brand").text());
-            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
+            String allCategories = webPageEntity.getCategory();
+            if (allCategories != null) {
+                jsonBuilder.array("category", allCategories.split(","));
+            }
             if (document.select(".new .price-value").isEmpty()) {
                 Elements price = document.select(".current .price-value");
                 if (!price.isEmpty()) {

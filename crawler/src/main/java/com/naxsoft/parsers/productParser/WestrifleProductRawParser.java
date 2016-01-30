@@ -41,7 +41,10 @@ public class WestrifleProductRawParser extends AbstractRawPageParser {
             jsonBuilder.field("productName", productName);
             jsonBuilder.field("productImage", document.select("#productMainImage a > img").attr("abs:src"));
             jsonBuilder.field("description", document.select("#productDescription").text());
-            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
+            String allCategories = webPageEntity.getCategory();
+            if (allCategories != null) {
+                jsonBuilder.array("category", allCategories.split(","));
+            }
             jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices").text()));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());

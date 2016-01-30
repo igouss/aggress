@@ -43,7 +43,13 @@ public class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productImage", document.select(".main-product-image img").attr("abs:src"));
             jsonBuilder.field("description", document.select(".product-body").text());
             jsonBuilder.field("regularPrice", parsePrice(document.select("#price-group .product span").text()));
-            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
+            String allCategories = webPageEntity.getCategory();
+            if (allCategories != null) {
+                jsonBuilder.array("category", allCategories.split(","));
+            }
+            if (allCategories != null) {
+                jsonBuilder.array("category", allCategories.split(","));
+            }
             Iterator<Element> labels = document.select(".product-additional .field-label").iterator();
             Iterator<Element> values = document.select(".product-additional .field-items").iterator();
 

@@ -60,7 +60,10 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
                 }
             }
             jsonBuilder.field("description", document.select(".content blockquote").text());
-            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
+            String allCategories = webPageEntity.getCategory();
+            if (allCategories != null) {
+                jsonBuilder.array("category", allCategories.split(","));
+            }
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setWebpageId(webPageEntity.getId());
