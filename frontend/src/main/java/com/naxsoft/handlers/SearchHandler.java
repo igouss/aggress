@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
+import java.util.Deque;
+import java.util.Map;
 
 /**
  * Copyright NAXSoft 2015
@@ -49,9 +51,6 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
         int length = searchHits.length;
         builder.append("[");
         for (int i = 0; i < length; i++) {
-            if (searchHits[i].getScore() < 0.4) {
-                continue;
-            }
             if (0 == i) {
                 builder.append(searchHits[i].getSourceAsString());
             } else {
@@ -87,9 +86,15 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
      */
     private static String getSearchKey(HttpServerExchange exchange, String paremeter) throws Exception {
         StringWriter sw = new StringWriter();
-        String val = exchange.getQueryParameters().get(paremeter).getFirst();
-        ElasticEscape.escape(val, sw);
-        return sw.toString();
+        Map<String, Deque<String>> queryParameters = exchange.getQueryParameters();
+        Deque<String> strings = queryParameters.get(paremeter);
+        if (strings != null) {
+            String val = strings.getFirst();
+            ElasticEscape.escape(val, sw);
+            return sw.toString();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -123,15 +128,14 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         MultiMatchQueryBuilder searchQuery = QueryBuilders.multiMatchQuery(searchKey, "productName^4", "description^2", "_all");
-        ExistsQueryBuilder hasCategory = QueryBuilders.existsQuery("category");
-        TermQueryBuilder categoryFilter = QueryBuilders.termQuery("category", category);
-
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
 
         boolQueryBuilder.must(searchQuery);
-        if (null != category && !category.isEmpty()) {
-            boolQueryBuilder.must(hasCategory);
-            boolQueryBuilder.filter(categoryFilter);
+            if (null != category && !category.isEmpty()) {
+        /*
+            boolQueryBuilder.must(QueryBuilders.existsQuery("category"));
+            boolQueryBuilder.filter(QueryBuilders.termQuery("category", category));
+            */
         }
 
 

@@ -17,38 +17,5 @@ import java.util.Map;
 public class AlflahertysFrontPageParserTest extends AbstractTest {
     @Test
     public void parse() {
-
-        AlflahertysFrontPageParser parser = new AlflahertysFrontPageParser(new HttpClient() {
-            @Override
-            public <R> ListenableFuture<R> get(String url, AbstractCompletionHandler<R> handler) {
-                return null;
-            }
-
-            @Override
-            public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
-                return null;
-            }
-
-            @Override
-            public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
-                return null;
-            }
-
-            @Override
-            public <R> ListenableFuture<R> post(String url, String content, AbstractCompletionHandler<R> handler) {
-                return null;
-            }
-
-            @Override
-            public <R> ListenableFuture<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
-                return null;
-            }
-
-            @Override
-            public <R> ListenableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
-                return null;
-            }
-        });
-        parser.parse(new WebPageEntity());
     }
 }

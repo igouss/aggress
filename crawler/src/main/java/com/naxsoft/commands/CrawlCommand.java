@@ -10,7 +10,6 @@ import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.concurrent.Semaphore;
 
@@ -65,36 +64,29 @@ public class CrawlCommand implements Command {
      */
     private void process(Observable<WebPageEntity> pagesToParse) {
         Semaphore semaphore = new Semaphore(0);
-        pagesToParse.flatMap(pageToParse -> {
-            Observable<WebPageEntity> result = null;
-            try {
-                WebPageParser parser = webPageParserFactory.getParser(pageToParse);
-                Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
-                Timer.Context time = parseTime.time();
-                result = parser.parse(pageToParse);
-                time.stop();
+        pagesToParse
+                .flatMap(pageToParse -> {
+                    Observable<WebPageEntity> result = null;
+                    try {
+                        WebPageParser parser = webPageParserFactory.getParser(pageToParse);
+                        Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
+                        Timer.Context time = parseTime.time();
+                        result = parser.parse(pageToParse);
+                        time.stop();
 
-                pageToParse.setParsed(true);
-                if (0 == webPageService.markParsed(pageToParse)) {
-                    LOGGER.error("Failed to make page as parsed {}", pageToParse);
-                    result = null;
-                }
-            } catch (Exception e) {
-                LOGGER.error("Failed to process source {}", pageToParse.getUrl(), e);
-            }
-            return result;
-        }).filter(webPageEntities -> null != webPageEntities)
-                .subscribe((webPageEntity) -> {
-                    webPageService.save(webPageEntity);
-
-                }, ex -> LOGGER.error("Crawler Process Exception", ex), () -> {
-                    semaphore.release();
-                });
-
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+                        pageToParse.setParsed(true);
+                        if (0 == webPageService.markParsed(pageToParse)) {
+                            LOGGER.error("Failed to make page as parsed {}", pageToParse);
+                            result = null;
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to process source {}", pageToParse.getUrl(), e);
+                    }
+                    return result;
+                }).filter(webPageEntities -> null != webPageEntities)
+                .subscribe(
+                        webPageService::save,
+                        ex -> LOGGER.error("Crawler Process Exception", ex)
+                );
     }
 }

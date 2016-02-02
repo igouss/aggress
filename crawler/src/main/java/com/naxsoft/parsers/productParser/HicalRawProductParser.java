@@ -48,7 +48,7 @@ public class HicalRawProductParser extends AbstractRawPageParser {
             jsonBuilder.field("productImage", document.select("#ProductDetails .ProductThumbImage img").attr("src"));
             jsonBuilder.field("description", document.select("#ProductDescription").text().trim());
             String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
+            if (null != allCategories) {
                 jsonBuilder.array("category", allCategories.split(","));
             }
             jsonBuilder.endObject();

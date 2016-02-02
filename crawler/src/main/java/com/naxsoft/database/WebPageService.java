@@ -46,6 +46,7 @@ public class WebPageService {
 
     /**
      * Update page parsed status in the database
+     *
      * @param webPageEntity Page to update
      * @return The number of entities updated.
      */
@@ -71,9 +72,9 @@ public class WebPageService {
     public Observable<Long> getUnparsedCount(String type) {
         return Observable.create(subscriber -> {
             try {
-                long rc = 0L;
+                long rowCount = 0L;
                 do {
-                    rc = database.executeQuery(session -> {
+                    rowCount = database.executeQuery(session -> {
                         Long count = 0L;
                         String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
                         Query query = session.createQuery(queryString);
@@ -81,16 +82,15 @@ public class WebPageService {
                         count = (Long) query.list().get(0);
                         return count;
                     });
-                    if (0 == rc) {
+                    if (0 == rowCount) {
                         subscriber.onCompleted();
+                        break;
                     } else {
-                        subscriber.onNext(rc);
+                        subscriber.onNext(rowCount);
                     }
-                } while ((0L != rc) && !subscriber.isUnsubscribed());
+                } while (true);
             } catch (Exception e) {
-                if (!subscriber.isUnsubscribed()) {
-                    subscriber.onError(e);
-                }
+                subscriber.onError(e);
             }
         });
     }
@@ -98,11 +98,12 @@ public class WebPageService {
     /**
      * Get stream of unparsed pages.
      * Use scrolling
+     *
      * @param type Webpage type
      * @return Stream of unparsed pages of specefied type
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         final String query = "from WebPageEntity where type = '" + type + "' and parsed = false order by rand()";
-        return getUnparsedCount(type).flatMap(f -> database.scroll(query));
+        return getUnparsedCount(type).flatMap(count -> database.scroll(query));
     }
 }

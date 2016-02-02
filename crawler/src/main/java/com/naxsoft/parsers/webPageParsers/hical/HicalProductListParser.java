@@ -30,7 +30,24 @@ public class HicalProductListParser extends AbstractWebPageParser {
     private Collection<WebPageEntity> parseDocument(Document document) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("#frmCompare .ProductDetails a");
+
+        Elements elements;
+        // Add sub categories
+        if (!document.location().contains("page=")) {
+            // add subpages
+            elements = document.select("#CategoryPagingTop > div > ul > li > a");
+            for (Element el : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity();
+                webPageEntity.setUrl(el.attr("abs:href"));
+                webPageEntity.setParsed(false);
+                webPageEntity.setType("productList");
+                webPageEntity.setCategory("n/a");
+                LOGGER.info("ProductList sub-page {}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
+        }
+
+        elements = document.select("#frmCompare .ProductDetails a");
         for (Element el : elements) {
             WebPageEntity webPageEntity = new WebPageEntity();
             webPageEntity.setUrl(el.attr("abs:href"));

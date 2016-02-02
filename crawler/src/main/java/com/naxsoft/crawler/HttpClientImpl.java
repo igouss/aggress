@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  *
  * HTTP client. Can sent GET and POST requests
  */
-public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
+public class HttpClientImpl implements HttpClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientImpl.class);
 
@@ -89,7 +89,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      */
     @Override
     public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
-        LOGGER.trace("Starting async http GET request url = {}", url);
+        LOGGER.debug("Starting async http GET request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
@@ -122,7 +122,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      */
     @Override
     public <R> ListenableFuture<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
-        LOGGER.trace("Starting async http POST request url = {}", url);
+        LOGGER.debug("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
@@ -143,7 +143,7 @@ public class HttpClientImpl implements AutoCloseable, Cloneable, HttpClient {
      */
     @Override
     public <R> ListenableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
-        LOGGER.trace("Starting async http POST request url = {}", url);
+        LOGGER.debug("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);

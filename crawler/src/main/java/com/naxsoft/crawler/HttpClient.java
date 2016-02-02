@@ -11,7 +11,7 @@ import java.util.Map;
  *
  * HttpClient interface, in case we need to replace actual implementation for mocking purposes.
  */
-public interface HttpClient {
+public interface HttpClient extends AutoCloseable {
     /**
      * Perform an HTTP GET request
      * @param url Page address
