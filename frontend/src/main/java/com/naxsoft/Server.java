@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -39,6 +38,7 @@ public class Server {
 
     /**
      * Start server app
+     *
      * @param args Application command line args
      * @throws UnknownHostException Thrown when we try to connect to invalid elasticsearch client
      */
@@ -70,9 +70,10 @@ public class Server {
 
     /**
      * Configure web app path routing
+     *
      * @param templateEngine HTML template engine
-     * @param client Elasticsearch client
-     * @param context Application context
+     * @param client         Elasticsearch client
+     * @param context        Application context
      * @return HTTP routing handler
      */
     private static HttpHandler getPathHandler(TemplateEngine templateEngine, TransportClient client, ApplicationContext context) {
@@ -102,6 +103,7 @@ public class Server {
 
     /**
      * Get Elasticsearch client
+     *
      * @return Elasticsearch client
      * @throws UnknownHostException Thrown when we try to connect to invalid host
      */
@@ -128,6 +130,7 @@ public class Server {
 
     /**
      * Get HTML5 template engine
+     *
      * @return TempleteEngine
      */
     private static TemplateEngine getTemplateEngine() {
@@ -136,7 +139,7 @@ public class Server {
         templateResolver.setTemplateMode("HTML5");
         templateResolver.setCharacterEncoding("UTF-8");
         // templateResolver.setCacheTTLMs(3600000L);
-        templateResolver.setPrefix(Paths.get("").toAbsolutePath() + "\\basedir\\thymeleaf\\");
+        templateResolver.setPrefix(Paths.get("").toAbsolutePath() + File.pathSeparator + "basedir" + File.pathSeparator + "thymeleaf" + File.pathSeparator);
         templateResolver.setSuffix(".html");
         templateEngine.addTemplateResolver(templateResolver);
 
