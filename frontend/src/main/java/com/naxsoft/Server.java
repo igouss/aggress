@@ -139,7 +139,7 @@ public class Server {
         templateResolver.setTemplateMode("HTML5");
         templateResolver.setCharacterEncoding("UTF-8");
         // templateResolver.setCacheTTLMs(3600000L);
-        templateResolver.setPrefix(Paths.get("").toAbsolutePath() + File.pathSeparator + "basedir" + File.pathSeparator + "thymeleaf" + File.pathSeparator);
+        templateResolver.setPrefix(Paths.get("").toAbsolutePath() + File.separator + "basedir" + File.separator + "thymeleaf" + File.separator);
         templateResolver.setSuffix(".html");
         templateEngine.addTemplateResolver(templateResolver);
 
