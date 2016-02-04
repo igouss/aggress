@@ -82,9 +82,9 @@ public class WebPageService {
                         count = (Long) query.list().get(0);
                         return count;
                     });
-                    if (0 == rowCount) {
+                    if (0L == rowCount) {
                         subscriber.onCompleted();
-                        break;
+                        return;
                     } else {
                         subscriber.onNext(rowCount);
                     }
