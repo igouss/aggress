@@ -36,6 +36,7 @@ public class ParseCommand implements Command {
     public ParseCommand() {
         validCategories.add("n/a");
         validCategories.add("firearms");
+        validCategories.add("reloading");
         validCategories.add("ammo");
         validCategories.add("misc");
     }

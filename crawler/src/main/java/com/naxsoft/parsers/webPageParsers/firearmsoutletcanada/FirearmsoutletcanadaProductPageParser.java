@@ -21,7 +21,7 @@ public class FirearmsoutletcanadaProductPageParser extends AbstractWebPageParser
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, webPage.getUrl()))
+        return Observable.from(PageDownloader.download(client, webPage))
                 .filter(data -> {
                     if (null != data) {
                         return true;

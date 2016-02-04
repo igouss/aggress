@@ -50,7 +50,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
                     return;
                 }
 
-                Observable.from(PageDownloader.download(client, cookies, webPage.getUrl()))
+                Observable.from(PageDownloader.download(client, cookies, webPage))
                         .filter(data -> {
                             if (null != data) {
                                 return true;

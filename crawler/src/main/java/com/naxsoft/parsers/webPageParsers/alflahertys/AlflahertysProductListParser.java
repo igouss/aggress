@@ -5,6 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -31,15 +32,25 @@ public class AlflahertysProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select("body > div.container.main.content > div:nth-child(3) a:nth-child(1).view_product_info");
+        Elements elements = document.select("div.info");
 
         for (Element element : elements) {
+            if (!element.select(".sold_out").isEmpty()) {
+                continue;
+            }
+            if (element.select(".title").text().contains("Sold out")) {
+                continue;
+            }
+
             WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
+            webPageEntity.setUrl(element.parent().attr("abs:href"));
             webPageEntity.setParsed(false);
             webPageEntity.setType("productPage");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }
@@ -47,7 +58,7 @@ public class AlflahertysProductListParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        ListenableFuture<Document> future = client.get(parent.getUrl(), new DocumentCompletionHandler());
+        ListenableFuture<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
         return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
     }
 

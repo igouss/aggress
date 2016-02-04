@@ -4,6 +4,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -34,7 +35,9 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
         return webPageEntity;
     }
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         int max = 1;
@@ -76,7 +79,7 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Black-Powder/c/black-powder?viewPageSize=72"));
 
         return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler()))
+                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
                 .flatMap(Observable::from);

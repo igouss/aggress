@@ -5,6 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -26,7 +27,9 @@ import java.util.Set;
 public class GunshopProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopProductListParser.class);
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Elements elements = document.select(".products li > a");
@@ -50,7 +53,7 @@ public class GunshopProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        ListenableFuture<Document> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler());
+        ListenableFuture<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
         return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
     }
 

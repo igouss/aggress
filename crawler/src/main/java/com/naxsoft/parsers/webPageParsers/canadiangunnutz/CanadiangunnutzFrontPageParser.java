@@ -4,6 +4,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
@@ -55,7 +56,9 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler());
     }
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Elements elements = document.select("h2.forumtitle > a");
@@ -84,7 +87,9 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         return result;
     }
 
-    private Collection<WebPageEntity> parseDocument2(Document document) {
+    private Collection<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Element element = document.select("#threadpagestats").first();
@@ -114,12 +119,14 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+        WebPageEntity webPageEntity = new WebPageEntity();
+        webPageEntity.setUrl("http://www.canadiangunnutz.com/forum/forum.php");
         return Observable.from(futureCookies)
-                .map(cookies1 -> client.get("http://www.canadiangunnutz.com/forum/forum.php", cookies1, new DocumentCompletionHandler()))
+                .map(cookies1 -> client.get(webPageEntity.getUrl(), cookies1, new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
                 .flatMap(Observable::from)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), cookies, new DocumentCompletionHandler()))
+                .map(webPageEntity1 -> client.get(webPageEntity.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument2)
                 .flatMap(Observable::from);

@@ -5,6 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,7 +27,9 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsFrontPageParser.class);
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Elements elements = document.select(".item h4 a");
@@ -58,7 +61,7 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://www.leverarms.com/surplus-firearms.html?limit=all"));
         webPageEntities.add(create("http://www.leverarms.com/used-firearms.html?limit=all"));
         return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler()))
+                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
                 .flatMap(Observable::from);

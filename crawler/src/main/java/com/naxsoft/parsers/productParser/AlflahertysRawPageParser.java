@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,16 +52,18 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
                     jsonBuilder.field("specialPrice", parsePrice(document.select(".product_section-secondary .price-current_price").text()));
                 }
                 jsonBuilder.field("description", document.select(".product_section .description").text());
-                String allCategories = webPageEntity.getCategory();
+                Set<String> allCategories = getNormalizedCategories(webPageEntity);
                 if (allCategories != null) {
-                    jsonBuilder.array("category", allCategories.split(","));
+                    jsonBuilder.field("category", allCategories);
                 }
                 Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
                 Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
                 while (labels.hasNext()) {
                     String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
                     String specValue = values.next().text();
-                    jsonBuilder.field(specName, specValue);
+                    if (!specName.equalsIgnoreCase("category")) {
+                        jsonBuilder.field(specName, specValue);
+                    }
                 }
                 jsonBuilder.endObject();
                 product.setUrl(document.location());
@@ -72,6 +72,82 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
             product.setWebpageId(webPageEntity.getId());
             result.add(product);
         }
+    }
+
+    private Set<String> getNormalizedCategories(WebPageEntity webPageEntity) {
+        String[] rawCategories = webPageEntity.getCategory().split(",");
+        Map<String, String> mapping = new HashMap<>();
+        Set<String> result = new HashSet<>();
+
+        mapping.put("FIREARMS", "firearms");
+        mapping.put("HANDGUNS", "firearms");
+        mapping.put("RESTRICTED RIFLES", "firearms");
+        mapping.put("RIFLES", "firearms");
+        mapping.put("SHOTGUNS", "firearms");
+        mapping.put("BLACK POWDER", "firearms");
+
+        mapping.put("HANDGUN AMMUNITION", "ammo");
+        mapping.put("BULK RIFLE AMMO", "ammo");
+        mapping.put("RIFLE AMMO", "ammo");
+        mapping.put("RIMFIRE AMMUNTION", "ammo");
+        mapping.put("SHOTGUN AMMO", "ammo");
+        mapping.put("RELOADING", "reloading");
+
+        mapping.put("SCOPES", "optics");
+        mapping.put("CLOSE QUARTERS OPTICS & IRON SIGHTS", "optics");
+        mapping.put("RANGE FINDERS", "optics");
+        mapping.put("SPOTTING SCOPES", "optics");
+        mapping.put("BINOCULARS", "optics");
+        mapping.put("OPTIC CARE", "optics");
+        mapping.put("OPTIC MOUNTS", "optics");
+        mapping.put("NIGHT VISION", "optics");
+        mapping.put("SIGHTING TOOLS", "optics");
+
+        mapping.put("HANDGUN CASES", "misc");
+        mapping.put("SOFT CASES", "misc");
+        mapping.put("HARD CASES", "misc");
+        mapping.put("RANGE BAGS", "misc");
+        mapping.put("AMMUNITION STORAGE", "misc");
+        mapping.put("CABINETS & SAFES", "misc");
+        mapping.put("SAFE ACCESSORIES", "misc");
+        mapping.put("LOCKS", "misc");
+
+        mapping.put("HOLSTERS, MAG POUCHES, & SHELL HOLDERS", "misc");
+        mapping.put("LIGHTS & LASERS", "misc");
+        mapping.put("RAILS & MOUNTS", "misc");
+        mapping.put("UTILITY BAGS & PACKS", "misc");
+        mapping.put("TACTICAL TOOLS", "misc");
+
+        mapping.put("AR COMPONENTS", "misc");
+        mapping.put("GRIPS", "misc");
+        mapping.put("RIFLE PARTS & STOCKS", "misc");
+        mapping.put("HANDGUN PARTS", "misc");
+        mapping.put("SHOTGUN PARTS & STOCKS", "misc");
+        mapping.put("SHOTGUN BARRELS & CHOKES", "misc");
+        mapping.put("CONVERSION KITS", "misc");
+
+        mapping.put("FIREARM MAINTENANCE & TOOLS", "misc");
+        mapping.put("BIPODS AND SHOOTING RESTS", "misc");
+        mapping.put("SLINGS & SWIVELS", "misc");
+        mapping.put("EYES & EARS", "misc");
+        mapping.put("CLIPS & MAGAZINES", "misc");
+        mapping.put("SHOTGUN ACCESSORIES", "misc");
+        mapping.put("TARGETS", "misc");
+
+        mapping.put("ACCESSORIES", "misc");
+        mapping.put("FIELD DRESSING & TOOLS", "misc");
+        mapping.put("GAME CALLS DECOYS & ACCESSORIES", "misc");
+        mapping.put("SCENTS, DETERGENTS, & ATTRACTANTS", "misc");
+        mapping.put("BLINDS & CAMOUFLAGE", "misc");
+        mapping.put("TRAIL CAMERAS", "misc");
+        mapping.put("HUNTING CLOTHES", "misc");
+
+
+
+        for (String rawCategory : rawCategories) {
+            result.add(mapping.get(rawCategory.toUpperCase()));
+        }
+        return result;
     }
 
     private static String parsePrice(String price) {

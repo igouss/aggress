@@ -5,7 +5,10 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
+import com.ning.http.client.cookie.Cookie;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,10 +18,8 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Copyright NAXSoft 2015
@@ -27,7 +28,9 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
     private final HttpClient client;
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Elements elements = document.select("#scol1 > div.scell_menu > li > a");
@@ -52,12 +55,15 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false))
-                .map(cookies -> client.get(webPage.getUrl(), cookies, new DocumentCompletionHandler()))
-                .flatMap(Observable::from)
+        List<Cookie> cookies = null;
+        try {
+            cookies = client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return Observable.from(client.get(webPage.getUrl(), cookies, new DocumentCompletionHandler(webPage)))
                 .map(this::parseDocument)
                 .flatMap(Observable::from);
-
     }
 
     @Override

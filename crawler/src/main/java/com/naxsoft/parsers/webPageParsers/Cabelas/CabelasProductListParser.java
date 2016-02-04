@@ -5,6 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -31,13 +32,15 @@ public class CabelasProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
-        if (isTerminalSubcategory(document)) {
+        if (isTerminalSubcategory(downloadResult)) {
             if (document.baseUri().contains("pagenumber")) {
                 Elements elements = document.select(".productCard-heading a");
                 for (Element element : elements) {
-                    result.add(productPage(200, element.attr("abs:href")));
+                    result.add(productPage(element.attr("abs:href")));
                 }
             } else {
                 Elements subPages = document.select("#main footer > nav span, #main footer > nav a");
@@ -80,11 +83,13 @@ public class CabelasProductListParser extends AbstractWebPageParser {
         return webPageEntity;
     }
 
-    private static boolean isTerminalSubcategory(Document document) {
+    private static boolean isTerminalSubcategory(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         return (1 == document.select(".categories .active").size()) || document.select("h1").text().equals("Thanks for visiting Cabelas.ca!");
     }
 
-    private static WebPageEntity productPage(int statusCode, String url) {
+    private static WebPageEntity productPage(String url) {
         WebPageEntity productPage = new WebPageEntity();
         productPage.setUrl(url);
         productPage.setParsed(false);
@@ -93,7 +98,7 @@ public class CabelasProductListParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        ListenableFuture<Document> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler());
+        ListenableFuture<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
         return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
     }
 

@@ -8,7 +8,6 @@ package com.naxsoft.database;
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.ProductEntity;
-import com.naxsoft.entity.WebPageEntity;
 import com.ning.http.client.Response;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.ListenableActionFuture;
@@ -22,17 +21,14 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,7 +39,6 @@ public class Elastic implements AutoCloseable, Cloneable {
     private TransportClient client = null;
 
     /**
-     *
      * @param hostname
      * @param port
      * @throws UnknownHostException
@@ -81,7 +76,6 @@ public class Elastic implements AutoCloseable, Cloneable {
     }
 
     /**
-     *
      * @return
      */
     public Client getClient() {
@@ -90,7 +84,6 @@ public class Elastic implements AutoCloseable, Cloneable {
 
 
     /**
-     *
      * @param products
      * @param index
      * @param type
@@ -124,7 +117,6 @@ public class Elastic implements AutoCloseable, Cloneable {
     }
 
     /**
-     *
      * @param client
      * @param index
      * @param type
@@ -132,24 +124,22 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @return
      */
     public Observable<Integer> createIndex(HttpClient client, String index, String type, String indexSuffix) {
-        return Observable.create(subscriber -> {
-            try {
-                String resourceName = "/elastic." + index + "." + type + ".index.json";
-                String newIndexName = index + indexSuffix;
-                LOGGER.info("Creating index {} type {} from {}", newIndexName, type, resourceName);
-                InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
-                String indexContent = null;
-                indexContent = IOUtils.toString(resourceAsStream);
-                String url = "http://127.0.0.1:9200/" + newIndexName;
-                client.post(url, indexContent, new VoidAbstractCompletionHandler(subscriber));
-            } catch (IOException e) {
-                subscriber.onError(e);
-            }
-        });
+        try {
+            String resourceName = "/elastic." + index + "." + type + ".index.json";
+            String newIndexName = index + indexSuffix;
+            LOGGER.info("Creating index {} type {} from {}", newIndexName, type, resourceName);
+            InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
+            String indexContent = null;
+            indexContent = IOUtils.toString(resourceAsStream);
+            String url = "http://127.0.0.1:9200/" + newIndexName;
+            return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()));
+        } catch (Exception e) {
+            LOGGER.error("Failed to create index", e);
+        }
+        return Observable.empty();
     }
 
     /**
-     *
      * @param client
      * @param index
      * @param type
@@ -157,24 +147,23 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @return
      */
     public Observable<Integer> createMapping(HttpClient client, String index, String type, String indexSuffix) {
-        return Observable.create(subscriber -> {
-            try {
-                String resourceName = "/elastic." + index + "." + type + ".mapping.json";
-                String newIndexName = index + indexSuffix;
-                LOGGER.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
-                InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
-                String indexContent = IOUtils.toString(resourceAsStream);
-                String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
 
-                client.post(url, indexContent, new IntegerAbstractCompletionHandler(subscriber));
-            } catch (IOException e) {
-                subscriber.onError(e);
-            }
-        });
+        try {
+            String resourceName = "/elastic." + index + "." + type + ".mapping.json";
+            String newIndexName = index + indexSuffix;
+            LOGGER.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
+            InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
+            String indexContent = IOUtils.toString(resourceAsStream);
+            String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
+
+            return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()));
+        } catch (IOException e) {
+            LOGGER.error("Failed to create mapping", e);
+        }
+        return Observable.empty();
     }
 
     /**
-     *
      * @param index
      * @param newAlias
      * @param oldAlias
@@ -184,46 +173,42 @@ public class Elastic implements AutoCloseable, Cloneable {
         return client.admin().indices().prepareAliases().addAlias(index, newAlias).removeAlias(index, oldAlias).execute();
     }
 
-    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Document> {
-        private final Subscriber<? super Integer> subscriber;
+    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Integer> {
 
-        public VoidAbstractCompletionHandler(Subscriber<? super Integer> subscriber) {
-            this.subscriber = subscriber;
-        }
-
-        @Override
-        public Document onCompleted(Response response) throws Exception {
-            int statusCode = response.getStatusCode();
-            if (200 != statusCode) {
-                LOGGER.error("Error creating index: {}", response.getResponseBody());
-            } else {
-                LOGGER.info("Created index: {}", response.getResponseBody());
-            }
-            subscriber.onNext(statusCode);
-            subscriber.onCompleted();
-            return null;
-        }
-    }
-
-    private static class IntegerAbstractCompletionHandler extends AbstractCompletionHandler<Integer> {
-        private final Subscriber<? super Integer> subscriber;
-
-        public IntegerAbstractCompletionHandler(Subscriber<? super Integer> subscriber) {
-            this.subscriber = subscriber;
+        public VoidAbstractCompletionHandler() {
         }
 
         @Override
         public Integer onCompleted(Response response) throws Exception {
             int statusCode = response.getStatusCode();
             if (200 != statusCode) {
-                LOGGER.error("Error creating mapping: {}", response.getResponseBody());
+                LOGGER.error("Error creating index: {}", response.getResponseBody());
             } else {
-                LOGGER.info("Created mapping: {}", response.getResponseBody());
+                LOGGER.info("Created index: {}", response.getResponseBody());
             }
-            subscriber.onNext(statusCode);
-            subscriber.onCompleted();
-            return null;
+            return statusCode;
         }
     }
+//
+//    private static class IntegerAbstractCompletionHandler extends AbstractCompletionHandler<Integer> {
+//        private final Subscriber<? super Integer> subscriber;
+//
+//        public IntegerAbstractCompletionHandler(Subscriber<? super Integer> subscriber) {
+//            this.subscriber = subscriber;
+//        }
+//
+//        @Override
+//        public Integer onCompleted(Response response) throws Exception {
+//            int statusCode = response.getStatusCode();
+//            if (200 != statusCode) {
+//                LOGGER.error("Error creating mapping: {}", response.getResponseBody());
+//            } else {
+//                LOGGER.info("Created mapping: {}", response.getResponseBody());
+//            }
+//            subscriber.onNext(statusCode);
+//            subscriber.onCompleted();
+//            return null;
+//        }
+//    }
 }
 

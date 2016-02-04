@@ -22,32 +22,33 @@ public class PageDownloader {
      * Download page from the url.
      *
      * @param client HTTPClient
-     * @param url    URL of pages to download
+     * @param webPageEntity Page to download
      * @return Stream of downloaded pages.
      */
-    public static Future<WebPageEntity> download(HttpClient client, String url) {
-        return download(client, Collections.EMPTY_LIST, url);
+    public static Future<WebPageEntity> download(HttpClient client, WebPageEntity webPageEntity) {
+        return download(client, Collections.EMPTY_LIST, webPageEntity);
     }
 
     /**
      * Download page from the url.
      *
-     * @param url     URL of pages to download
+     * @param parent Page to download
      * @param client  HTTPClient
      * @param cookies HTML cookies
      * @return Stream of downloaded pages.
      */
-    public static Future<WebPageEntity> download(HttpClient client, List<Cookie> cookies, String url) {
-        return client.get(url, cookies, new AbstractCompletionHandler<WebPageEntity>() {
+    public static Future<WebPageEntity> download(HttpClient client, List<Cookie> cookies, WebPageEntity parent) {
+        return client.get(parent.getUrl(), cookies, new AbstractCompletionHandler<WebPageEntity>() {
             @Override
             public WebPageEntity onCompleted(com.ning.http.client.Response response) throws Exception {
                 WebPageEntity result = null;
                 if (200 == response.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(url);
+                    webPageEntity.setUrl(response.getUri().toUrl());
                     webPageEntity.setContent(response.getResponseBody());
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productPageRaw");
+                    webPageEntity.setCategory(parent.getCategory());
                     result = webPageEntity;
                     LOGGER.info("productPageRaw={}", webPageEntity.getUrl());
                 }

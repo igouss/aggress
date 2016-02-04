@@ -5,6 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.Response;
 import com.ning.http.client.cookie.Cookie;
 import org.jsoup.Jsoup;
@@ -35,7 +36,9 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
 
     private final HttpClient client;
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
 
@@ -64,7 +67,7 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://www.sail.ca/en/hunting/firearm-accessories"));
         webPageEntities.add(create("http://www.sail.ca/en/hunting/ammunition"));
         return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler()))
+                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
                 .flatMap(Observable::from);

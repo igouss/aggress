@@ -131,11 +131,9 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
 
         boolQueryBuilder.must(searchQuery);
-            if (null != category && !category.isEmpty()) {
-        /*
+         if (null != category && !category.isEmpty()) {
             boolQueryBuilder.must(QueryBuilders.existsQuery("category"));
             boolQueryBuilder.filter(QueryBuilders.termQuery("category", category));
-            */
         }
 
 

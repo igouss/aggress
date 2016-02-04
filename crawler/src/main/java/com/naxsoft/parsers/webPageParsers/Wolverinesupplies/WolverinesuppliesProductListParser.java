@@ -4,6 +4,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
@@ -50,7 +51,9 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         return result;
     }
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Elements elements = document.select("div[ng-init]");
@@ -72,13 +75,13 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        ListenableFuture<Document> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler());
+        ListenableFuture<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
         Observable<WebPageEntity> tmpObservable = Observable.from(future)
                 .map((document) -> parseDocument(document))
                 .flatMap(Observable::from);
 
         return tmpObservable.flatMap(tmp -> {
-            Future<WebPageEntity> result = PageDownloader.download(client, tmp.getUrl());
+            Future<WebPageEntity> result = PageDownloader.download(client, tmp);
             return Observable.from(result);
         }).flatMap(webPageEntity1 -> Observable.from(onCompleted(webPageEntity1)));
     }

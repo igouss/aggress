@@ -5,6 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,7 +27,9 @@ import java.util.regex.Pattern;
 public class GunshopFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopFrontPageParser.class);
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Elements elements = document.select(".woocommerce-result-count");
@@ -74,7 +77,7 @@ public class GunshopFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://gun-shop.ca/shop/", parent));
 
         return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler()))
+                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
                 .flatMap(Observable::from);

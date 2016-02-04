@@ -28,7 +28,7 @@ public class CrafmProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, cookies, webPage.getUrl()))
+        return Observable.from(PageDownloader.download(client, cookies, webPage))
                 .filter(data -> {
                     if (null != data) {
                         return true;

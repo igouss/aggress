@@ -5,6 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,7 +27,9 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsFrontPageParser.class);
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         String elements = document.select("div.toolbar > div.pager > p").first().text();
@@ -63,7 +66,7 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://frontierfirearms.ca/shooting-accessories.html"));
         webPageEntities.add(create("http://frontierfirearms.ca/optics.html"));
         return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler()))
+                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
                 .flatMap(Observable::from);

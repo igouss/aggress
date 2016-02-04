@@ -24,7 +24,7 @@ public class TradeexCanadaProductPageParser extends AbstractWebPageParser {
         if (webPage.getUrl().contains("out-stock") || webPage.getUrl().contains("-sold")) {
             return Observable.empty();
         } else {
-            return Observable.from(PageDownloader.download(client, webPage.getUrl()))
+            return Observable.from(PageDownloader.download(client, webPage))
                     .filter(data -> {
                         if (null != data) {
                             return true;

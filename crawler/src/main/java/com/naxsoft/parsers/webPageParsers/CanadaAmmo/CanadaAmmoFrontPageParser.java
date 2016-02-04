@@ -5,6 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -31,20 +32,25 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private Collection<String> parseDocument(Document document) {
-        HashSet<String> result = new HashSet<>();
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
+        HashSet<WebPageEntity> result = new HashSet<>();
         Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
         LOGGER.info("Parsing for sub-pages + {}", document.location());
 
         for (Element el : elements) {
-            String url = el.attr("abs:href") + "?count=72";
-            result.add(url);
+            WebPageEntity webPageEntity = new WebPageEntity();
+            webPageEntity.setUrl(el.attr("abs:href") + "?count=72");
+            result.add(webPageEntity);
         }
         return result;
     }
 
 
-    private Collection<WebPageEntity> parseDocument2(Document document) {
+    private Collection<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         HashSet<WebPageEntity> subResult = new HashSet<>();
         Elements elements = document.select("div.clearfix span.pagination a.nav-page");
         if (elements.isEmpty()) {
@@ -72,11 +78,11 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        ListenableFuture<Document> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler());
+        ListenableFuture<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
         return Observable.from(future)
                 .map((document1) -> parseDocument(document1))
                 .flatMap(Observable::from)
-                .map(url -> client.get(url, new DocumentCompletionHandler()))
+                .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
                 .flatMap(Observable::from)
                 .flatMap(document -> Observable.from(parseDocument2(document)));
     }

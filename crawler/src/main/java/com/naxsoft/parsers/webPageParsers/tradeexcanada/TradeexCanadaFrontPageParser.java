@@ -5,6 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,7 +27,9 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaFrontPageParser.class);
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Elements elements = document.select(".view-content a");
@@ -77,7 +80,7 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
 
         return Observable.create(subscriber -> {
            for(WebPageEntity webPageEntity : webPageEntities) {
-               client.get(webPageEntity.getUrl(), new DocumentCompletionHandler());
+               client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
            }
         });
     }

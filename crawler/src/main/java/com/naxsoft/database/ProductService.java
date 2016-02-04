@@ -44,7 +44,7 @@ public class ProductService {
      * @return Stream of unindexed products
      */
     public Observable<ProductEntity> getProducts() {
-        String queryString = "from ProductEntity where indexed=false";
+        String queryString = "from ProductEntity";
         return database.scroll(queryString);
     }
 

@@ -22,7 +22,7 @@ public class WolverinesuppliesProductPageParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, webPage.getUrl()))
+        return Observable.from(PageDownloader.download(client, webPage))
                 .filter(data -> {
                     if (null != data) {
                         return true;

@@ -5,6 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
+import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
@@ -27,7 +28,9 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
 
-    private Collection<WebPageEntity> parseDocument(Document document) {
+    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Elements elements = document.select("ul.pagination-custom  a");
@@ -61,7 +64,7 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        ListenableFuture<Document> future = client.get("http://ctcsupplies.ca/collections/all", new DocumentCompletionHandler());
+        ListenableFuture<DownloadResult> future = client.get("http://ctcsupplies.ca/collections/all", new DocumentCompletionHandler(parent));
         return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
     }
 
