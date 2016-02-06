@@ -45,6 +45,7 @@ public class DantesportsProductListParser extends AbstractWebPageParser {
                 webPageEntity.setUrl("https://shop.dantesports.com/items_detail.php?iid=" + matcher.group());
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productPage");
+                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             } else {

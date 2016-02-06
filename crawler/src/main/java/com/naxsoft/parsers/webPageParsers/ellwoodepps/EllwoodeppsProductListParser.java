@@ -35,12 +35,18 @@ public class EllwoodeppsProductListParser extends AbstractWebPageParser {
 
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("td.firearm-name > a");
+        Elements elements = document.select(".firearm-table");
         for (Element element : elements) {
             WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
+            webPageEntity.setUrl(element.select("td.firearm-name > a").attr("abs:href"));
             webPageEntity.setParsed(false);
             webPageEntity.setType("productPage");
+            if (downloadResult.getSourcePage().getCategory().equalsIgnoreCase("tmp")) {
+                webPageEntity.setCategory(element.select(".firearm-table > tbody > tr:nth-child(2) > td:nth-child(2)").text());
+            } else {
+                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            }
+
             LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }

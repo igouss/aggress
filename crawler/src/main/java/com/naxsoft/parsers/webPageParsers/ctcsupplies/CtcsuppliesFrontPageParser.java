@@ -50,7 +50,7 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl("http://ctcsupplies.ca/collections/all?page=" + i);
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("n/a");
+            webPageEntity.setCategory("misc");
             LOGGER.info("productList = {}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }

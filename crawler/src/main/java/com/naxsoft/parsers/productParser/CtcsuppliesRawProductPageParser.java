@@ -37,18 +37,9 @@ public class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productName", productName);
             jsonBuilder.field("productImage", document.select("#ProductPhotoImg").attr("src"));
             jsonBuilder.field("manufacturer", document.select(".product-single h3").text());
-//            String category = document.select("nav > a:nth-child(3)").text();
-//            if (!category.isEmpty()) {
-//                jsonBuilder.field("category", category);
-//            }
-
+            jsonBuilder.field("category", webPageEntity.getCategory());
             jsonBuilder.field("regularPrice", parsePrice(document.select("#ProductPrice").text()));
             jsonBuilder.field("description", document.select(".product-description p").text());
-
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());
@@ -60,7 +51,6 @@ public class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
     }
 
     /**
-     *
      * @param price
      * @return
      */

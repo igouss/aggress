@@ -54,6 +54,6 @@ public class CrafmFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().equals("http://www.crafm.com/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().startsWith("http://www.crafm.com/") && webPage.getType().equals("frontPage");
     }
 }

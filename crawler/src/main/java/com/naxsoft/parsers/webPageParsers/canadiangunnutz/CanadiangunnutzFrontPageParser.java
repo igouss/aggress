@@ -109,7 +109,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl(document.location() + "/page" + i);
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
-                webPageEntity.setCategory("n/a");
+                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -131,7 +131,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
                 .flatMap(Observable::from)
-                .map(webPageEntity1 -> client.get(webPageEntity.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))
+                .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument2)
                 .flatMap(Observable::from);

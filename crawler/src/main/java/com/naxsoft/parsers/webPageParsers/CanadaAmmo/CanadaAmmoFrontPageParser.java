@@ -38,6 +38,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
             WebPageEntity webPageEntity = new WebPageEntity();
             webPageEntity.setUrl(el.attr("abs:href") + "?count=72");
             webPageEntity.setCategory(el.text());
+            webPageEntity.setType("tmp");
             result.add(webPageEntity);
         }
         return result;

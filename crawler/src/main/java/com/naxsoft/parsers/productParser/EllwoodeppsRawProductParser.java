@@ -2,6 +2,7 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import org.apache.lucene.geo3d.Tools;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
@@ -11,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +21,33 @@ import java.util.regex.Pattern;
  */
 public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsRawProductParser.class);
+
+    private static final Map<String, String> mapping = new HashMap<>();
+
+    static {
+        mapping.put("firearm", "firearm");
+        mapping.put("Ammo", "ammo");
+        mapping.put("Archery Accessories", "misc");
+        mapping.put("Barrels", "misc");
+        mapping.put("Bayonets", "misc");
+        mapping.put("Binoculars", "misc");
+        mapping.put("Bipods", "optic");
+        mapping.put("Books, Manuals and Videos", "misc");
+        mapping.put("Chokes", "misc");
+        mapping.put("Firearm Cleaning &Tools ", "misc");
+        mapping.put("Grips", "misc");
+        mapping.put("Gun Cases", "misc");
+        mapping.put("Holsters", "misc");
+        mapping.put("Knives", "misc");
+        mapping.put("Magazines", "misc");
+        mapping.put("Militaria", "misc");
+        mapping.put("Misc Gun Parts", "misc");
+        mapping.put("Misc Hunting Accessories", "misc");
+        mapping.put("Reloading", "reload");
+        mapping.put("Scopes & Mounts", "optic");
+        mapping.put("Shooting Accessories", "misc");
+        mapping.put("Stocks", "misc");
+    }
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -54,10 +80,8 @@ public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
                     jsonBuilder.field(specName, specValue);
                 }
             }
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+
+            jsonBuilder.array("category", getNormalizedCategories(webPageEntity));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());
@@ -67,8 +91,18 @@ public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
         return result;
     }
 
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String s = mapping.get(webPageEntity.getCategory());
+        if (null != s) {
+            String[] result = s.split(",");
+            return result;
+        } else {
+            LOGGER.error("Invalid category: " + webPageEntity);
+            return new String[]{"misc"};
+        }
+    }
+
     /**
-     *
      * @param price
      * @return
      */

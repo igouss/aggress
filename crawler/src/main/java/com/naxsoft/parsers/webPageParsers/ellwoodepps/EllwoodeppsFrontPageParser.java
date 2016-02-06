@@ -62,15 +62,23 @@ public class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        ListenableFuture<DownloadResult> future = client.get("https://ellwoodepps.com/hunting/firearms.html?limit=100&no_cache=true", new DocumentCompletionHandler(parent));
-        return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
+        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
+        webPageEntities.add(create("https://ellwoodepps.com/hunting/accessories.html?product_sold=3175", "firearm"));
+        webPageEntities.add(create("https://ellwoodepps.com/hunting/firearms.html?product_sold=3175", "tmp"));
+
+        return Observable.from(webPageEntities)
+                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(Observable::from)
+                .map(this::parseDocument)
+                .flatMap(Observable::from);
     }
 
-    private static WebPageEntity create(String url, WebPageEntity parent) {
+    private static WebPageEntity create(String url, String category) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
+        webPageEntity.setCategory(category);
         return webPageEntity;
     }
 

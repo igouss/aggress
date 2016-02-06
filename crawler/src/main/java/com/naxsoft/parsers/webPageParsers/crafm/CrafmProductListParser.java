@@ -55,7 +55,7 @@ public class CrafmProductListParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().equals("http://www.crafm.com/") && webPage.getType().equals("productList");
+        return webPage.getUrl().startsWith("http://www.crafm.com/") && webPage.getType().equals("productList");
     }
 
 }
