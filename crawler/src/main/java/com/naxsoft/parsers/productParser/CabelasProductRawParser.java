@@ -24,7 +24,7 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
     private static final Map<String, String> mapping = new HashMap<>();
 
     static {
-        mapping.put("firearm", "firearm");
+        mapping.put("Firearm", "firearm");
         mapping.put("Ammunition", "ammo");
         mapping.put("Optics", "optic");
         mapping.put("Firearm Accessories", "misc");
@@ -51,7 +51,6 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
             jsonBuilder.field("url", webPageEntity.getUrl());
             jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
             jsonBuilder.field("productName", productName);
-//            jsonBuilder.field("category", document.select(".breadcrumbs").text());
             jsonBuilder.field("productImage", document.select("#product-image img").attr("src"));
 
             Elements specialPrice = document.select(".productDetails-secondary .price-secondary");
@@ -72,10 +71,18 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
         result.add(product);
         return result;
     }
+
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String[] result = mapping.get(webPageEntity.getCategory()).split(",");
-        return result;
+        String s = mapping.get(webPageEntity.getCategory());
+        if (null != s) {
+            String[] result = s.split(",");
+            return result;
+        } else {
+            LOGGER.error("Invalid category: " + webPageEntity);
+            return new String[] {"misc"};
+        }
     }
+
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {

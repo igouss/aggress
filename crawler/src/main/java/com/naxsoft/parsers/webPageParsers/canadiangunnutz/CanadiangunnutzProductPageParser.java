@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Copyright NAXSoft 2015
@@ -41,33 +42,16 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> {
-            try {
-                List<Cookie> cookies = futureCookies.get();
-                if (null == cookies || cookies.isEmpty()) {
-                    LOGGER.warn("No login cookies");
-                    subscriber.onCompleted();
-                    return;
-                }
-
-                Observable.from(PageDownloader.download(client, cookies, webPage))
-                        .filter(data -> {
-                            if (null != data) {
-                                return true;
-                            } else {
-                                LOGGER.error("failed to download web page {}", webPage.getUrl());
-                                return false;
-                            }
-                        })
-                        .map(webPageEntity -> {
-                            webPageEntity.setCategory(webPage.getCategory());
-                            return webPageEntity;
-                        }).subscribe(subscriber::onNext, subscriber::onError, subscriber::onCompleted);
-            } catch (Exception e) {
-                LOGGER.error("Failed to login to canadiangunnutz", e);
-            }
-        });
-
+        List<Cookie> cookies = null;
+        try {
+            cookies = futureCookies.get();
+            return Observable.from(PageDownloader.download(client, cookies, webPage))
+                    .filter(data -> null != data);
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error("Failed to download page" , e);
+            e.printStackTrace();
+        }
+        return Observable.empty();
     }
 
     @Override

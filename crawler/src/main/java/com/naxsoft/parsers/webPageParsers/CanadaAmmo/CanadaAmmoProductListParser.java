@@ -41,6 +41,7 @@ public class CanadaAmmoProductListParser extends AbstractWebPageParser {
             webPageEntity.setUrl(element.attr("abs:href"));
             webPageEntity.setParsed(false);
             webPageEntity.setType("productPage");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPage={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }

@@ -2,6 +2,8 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import org.apache.lucene.geo3d.Tools;
+import org.elasticsearch.common.inject.Scopes;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
@@ -10,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +24,33 @@ import java.util.regex.Pattern;
  */
 public class CrafmProductRawParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmProductRawParser.class);
+    private static final Map<String, String> mapping = new HashMap<>();
+
+    static {
+        mapping.put("Competition Accessories", "misc");
+        mapping.put("Firearms", "firearm");
+        mapping.put("Batteries", "misc");
+        mapping.put("Magazines", "misc");
+        mapping.put("Chronographs", "misc");
+        mapping.put("Targets", "misc");
+        mapping.put("Safes & Cases", "misc");
+        mapping.put("Knives & Tools", "misc");
+        mapping.put("Miscellaneous", "misc");
+        mapping.put("Lights & Lasers", "misc");
+        mapping.put("Books & DVD's", "misc");
+        mapping.put("Mounts & Rings", "misc");
+        mapping.put("Ammunition", "ammo");
+        mapping.put("Parts & Accessories", "misc");
+        mapping.put("Grips", "misc");
+        mapping.put("Cleaning Products", "misc");
+        mapping.put("Protection", "misc");
+        mapping.put("Reloading", "reload");
+        mapping.put("Scopes& Opticals", "optic");
+        mapping.put("Clothing", "misc");
+        mapping.put("LIQUIDATION", "misc");
+        mapping.put("PROMOTIONS", "misc");
+    }
+
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -40,10 +71,7 @@ public class CrafmProductRawParser extends AbstractRawPageParser {
             jsonBuilder.field("productImage", img);
             jsonBuilder.field("regularPrice", parsePrice(document.select("#product_addtocart_form > div.product-shop > div:nth-child(4) > h2 > span").text()));
             jsonBuilder.field("description", document.select("div.short-description p[align=justify]").text());
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+            jsonBuilder.array("category", getNormalizedCategories(webPageEntity));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());
@@ -55,8 +83,12 @@ public class CrafmProductRawParser extends AbstractRawPageParser {
 
     }
 
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String[] result = mapping.get(webPageEntity.getCategory()).split(",");
+        return result;
+    }
+
     /**
-     *
      * @param price
      * @return
      */

@@ -8,6 +8,7 @@ import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
+import org.apache.commons.collections4.map.HashedMap;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -25,17 +26,21 @@ import java.util.regex.Pattern;
  */
 public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzFrontPageParser.class);
-    private static final String[] CATEGORIES = {
-            "Precision and Target Rifles",
-            "Hunting and Sporting Arms",
-            "Military Surplus Rifle",
-            "Pistols and Revolvers",
-            "Shotguns",
-            "Modern Military and Black Rifles",
-            "Rimfire Firearms",
-            "Optics and Sights",
-            "Factory Ammo and Reloading Equipment",
-    };
+
+    private static final Map<String, String> categories = new HashMap<>();
+
+    static {
+        categories.put("Precision and Target Rifles", "firearm");
+        categories.put("Hunting and Sporting Arms", "firearm");
+        categories.put("Military Surplus Rifle", "firearm");
+        categories.put("Pistols and Revolvers", "firearm");
+        categories.put("Shotguns", "firearm");
+        categories.put("Modern Military and Black Rifles", "firearm");
+        categories.put("Rimfire Firearms", "firearm");
+        categories.put("Optics and Sights", "optic");
+        categories.put("Factory Ammo and Reloading Equipment", "reload");
+    }
+
     private final HttpClient client;
     private final ListenableFuture<List<Cookie>> futureCookies;
     private List<Cookie> cookies = null;
@@ -71,13 +76,13 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
             if (!text.startsWith("Exchange of")) {
                 continue;
             }
-            for (String category : CATEGORIES) {
+            for (String category : categories.keySet()) {
                 if (text.endsWith(category)) {
                     WebPageEntity webPageEntity = new WebPageEntity();
                     webPageEntity.setUrl(element.attr("abs:href"));
                     webPageEntity.setParsed(false);
                     webPageEntity.setType("productList");
-                    webPageEntity.setCategory("n/a");
+                    webPageEntity.setCategory(categories.get(category));
                     LOGGER.info("productList={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                     break;

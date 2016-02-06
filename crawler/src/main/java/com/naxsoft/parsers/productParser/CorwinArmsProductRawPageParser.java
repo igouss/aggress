@@ -10,7 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +22,22 @@ import java.util.regex.Pattern;
  */
 public class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsProductRawPageParser.class);
+
+    private static final Map<String, String> mapping = new HashMap<>();
+
+    static {
+        mapping.put("New Arrivals", "misc");
+        mapping.put("Firearms", "firearm");
+        mapping.put("Firearm Accessories", "optic,misc");
+        mapping.put("Magazines", "misc");
+        mapping.put("Knives", "misc");
+        mapping.put("Flashlights", "misc");
+        mapping.put("Axes", "misc");
+        mapping.put("Bayonets", "misc");
+        mapping.put("Swords", "misc");
+        mapping.put("Optics", "optic");
+
+    }
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -43,10 +61,7 @@ public class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productImage", img);
             jsonBuilder.field("regularPrice", parsePrice(document.select(".field-name-commerce-price").text()));
             jsonBuilder.field("description", document.select("div.field-type-text-with-summary > div > div").text().replace("\u0160", "\n"));
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+            jsonBuilder.array("category", getNormalizedCategories(webPageEntity));
 
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
@@ -57,6 +72,11 @@ public class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
 
         return result;
 
+    }
+
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String[] result = mapping.get(webPageEntity.getCategory()).split(",");
+        return result;
     }
 
     /**

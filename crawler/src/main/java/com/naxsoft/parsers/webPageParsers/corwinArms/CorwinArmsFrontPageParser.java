@@ -13,9 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,7 +40,8 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(linkUrl);
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("n/a");
+            webPageEntity.setCategory(e.text());
+
             LOGGER.info("Found on front page ={}", linkUrl);
             result.add(webPageEntity);
         }
@@ -63,6 +62,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl(document.location() + "?page=" + i);
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
+                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -71,6 +71,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(document.location());
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }

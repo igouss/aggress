@@ -13,10 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.text.NumberFormat;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +22,17 @@ import java.util.regex.Pattern;
  */
 public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoRawPageParser.class);
+    private static final Map<String, String> mapping = new HashMap<>();
+
+    static {
+        mapping.put("Ammunition", "ammo");
+        mapping.put("Firearms", "firearm");
+        mapping.put("Accessories", "misc");
+        mapping.put("Equipment", "misc");
+        mapping.put("Range Accessories", "misc");
+        mapping.put("Optics", "optic");
+        mapping.put("Bargain Centre", "firearm,misc,ammo");
+    }
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -64,10 +72,8 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
             }
 
             jsonBuilder.field("description", document.select("div.product-details__meta-wrap > div > div > div:nth-child(1) > section span").text());
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+            jsonBuilder.array("category", getNormalizedCategories(webPageEntity));
+
             Iterator<Element> labels = document.select(".product-details__spec-label").iterator();
             Iterator<Element> values = document.select(".product-details__spec-value").iterator();
 
@@ -85,6 +91,16 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
         return products;
     }
 
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String s = mapping.get(webPageEntity.getCategory());
+        if (null != s) {
+            String[] result = s.split(",");
+            return result;
+        } else {
+            LOGGER.error("Invalid category: " + webPageEntity);
+            return new String[] {"misc"};
+        }
+    }
     /**
      *
      * @param price

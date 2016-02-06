@@ -1,21 +1,17 @@
 package com.naxsoft.parsers.webPageParsers.crafm;
 
-import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.Subscriber;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,14 +32,14 @@ public class CrafmFrontPageParser extends AbstractWebPageParser {
 
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".products-grid .item > a");
+        Elements elements = document.select(".nav-container a");
         for (Element e : elements) {
             String linkUrl = e.attr("abs:href");
             WebPageEntity webPageEntity = new WebPageEntity();
             webPageEntity.setUrl(linkUrl);
             webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory("n/a");
+            webPageEntity.setType("productList");
+            webPageEntity.setCategory(e.text());
             LOGGER.info("ProductPageUrl={}", linkUrl);
             result.add(webPageEntity);
         }
@@ -52,7 +48,7 @@ public class CrafmFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        ListenableFuture<DownloadResult> future = client.get("http://www.crafm.com/firearms.html?limit=all", new DocumentCompletionHandler(webPage));
+        ListenableFuture<DownloadResult> future = client.get("http://www.crafm.com/catalogue/", new DocumentCompletionHandler(webPage));
         return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
     }
 
