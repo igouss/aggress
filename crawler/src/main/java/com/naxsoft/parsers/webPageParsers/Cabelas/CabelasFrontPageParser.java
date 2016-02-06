@@ -43,7 +43,6 @@ public class CabelasFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(element.attr("abs:href"));
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("n/a");
             LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }

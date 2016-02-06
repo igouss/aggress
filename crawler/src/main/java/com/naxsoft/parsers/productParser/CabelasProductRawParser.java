@@ -12,9 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.text.NumberFormat;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +21,21 @@ import java.util.regex.Pattern;
  */
 public class CabelasProductRawParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CabelasProductRawParser.class);
+    private static final Map<String, String> mapping = new HashMap<>();
+
+    static {
+        mapping.put("firearm", "firearm");
+        mapping.put("Ammunition", "ammo");
+        mapping.put("Optics", "optic");
+        mapping.put("Firearm Accessories", "misc");
+        mapping.put("Range Accessories", "misc");
+        mapping.put("Reloading", "reloading");
+        mapping.put("Airguns", "firearm");
+        mapping.put("Gun Cases & Storage", "misc");
+        mapping.put("Firearm Care", "misc");
+        mapping.put("Muzzleloading", "firearm");
+        mapping.put("Airsoft", "misc");
+    }
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -31,7 +44,6 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
         String productName = document.select("h1.product-heading").text();
         LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-
 
         ProductEntity product = new ProductEntity();
         try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
@@ -51,10 +63,7 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
                 jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
             }
             jsonBuilder.field("description", document.select(".productDetails-section .row").text());
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());
@@ -63,7 +72,10 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
         result.add(product);
         return result;
     }
-
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String[] result = mapping.get(webPageEntity.getCategory()).split(",");
+        return result;
+    }
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {

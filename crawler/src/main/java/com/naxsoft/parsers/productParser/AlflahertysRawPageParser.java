@@ -79,29 +79,29 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
         Map<String, String> mapping = new HashMap<>();
         Set<String> result = new HashSet<>();
 
-        mapping.put("FIREARMS", "firearms");
-        mapping.put("HANDGUNS", "firearms");
-        mapping.put("RESTRICTED RIFLES", "firearms");
-        mapping.put("RIFLES", "firearms");
-        mapping.put("SHOTGUNS", "firearms");
-        mapping.put("BLACK POWDER", "firearms");
+        mapping.put("FIREARMS", "firearm");
+        mapping.put("HANDGUNS", "firearm");
+        mapping.put("RESTRICTED RIFLES", "firearm");
+        mapping.put("RIFLES", "firearm");
+        mapping.put("SHOTGUNS", "firearm");
+        mapping.put("BLACK POWDER", "firearm");
 
         mapping.put("HANDGUN AMMUNITION", "ammo");
         mapping.put("BULK RIFLE AMMO", "ammo");
         mapping.put("RIFLE AMMO", "ammo");
         mapping.put("RIMFIRE AMMUNTION", "ammo");
         mapping.put("SHOTGUN AMMO", "ammo");
-        mapping.put("RELOADING", "reloading");
+        mapping.put("RELOADING", "reload");
 
-        mapping.put("SCOPES", "optics");
-        mapping.put("CLOSE QUARTERS OPTICS & IRON SIGHTS", "optics");
-        mapping.put("RANGE FINDERS", "optics");
-        mapping.put("SPOTTING SCOPES", "optics");
-        mapping.put("BINOCULARS", "optics");
-        mapping.put("OPTIC CARE", "optics");
-        mapping.put("OPTIC MOUNTS", "optics");
-        mapping.put("NIGHT VISION", "optics");
-        mapping.put("SIGHTING TOOLS", "optics");
+        mapping.put("SCOPES", "optic");
+        mapping.put("CLOSE QUARTERS optic & IRON SIGHTS", "optic");
+        mapping.put("RANGE FINDERS", "optic");
+        mapping.put("SPOTTING SCOPES", "optic");
+        mapping.put("BINOCULARS", "optic");
+        mapping.put("OPTIC CARE", "optic");
+        mapping.put("OPTIC MOUNTS", "optic");
+        mapping.put("NIGHT VISION", "optic");
+        mapping.put("SIGHTING TOOLS", "optic");
 
         mapping.put("HANDGUN CASES", "misc");
         mapping.put("SOFT CASES", "misc");

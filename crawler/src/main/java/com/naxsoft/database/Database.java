@@ -148,6 +148,7 @@ public class Database implements AutoCloseable, Cloneable {
                     subscriber.onNext(t);
                 }
             }
+            result.close();
             if (!subscriber.isUnsubscribed()) {
                 subscriber.onCompleted();
             }

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscription;
+import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -72,9 +73,10 @@ public class ParseCommand implements Command {
 
     /**
      * Adds stream of products to Elasticsearch
+     *
      * @param products Stream of products to save
-     * @param index Elasticsearch index
-     * @param type Elasticsearch type
+     * @param index    Elasticsearch index
+     * @param type     Elasticsearch type
      * @return
      */
     private Subscription indexProducts(Observable<ProductEntity> products, String index, String type) {
@@ -83,45 +85,34 @@ public class ParseCommand implements Command {
 
     /**
      * Parse stream of webpages and save product entries into the database
+     *
      * @param pagesToParse Stream of pages to parse
      */
     private void processProducts(Observable<WebPageEntity> pagesToParse) {
-        pagesToParse.map(pageToParse -> {
-            Set<ProductEntity> result = null;
-            try {
-                ProductParser parser = productParserFactory.getParser(pageToParse);
-                Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
-                Timer.Context time = parseTime.time();
-
-                String allCategories = pageToParse.getCategory();
-                if (null != allCategories) {
-                    String[] categories = allCategories.split(",");
-                    for (String category : categories) {
-                        if (!validCategories.contains(category)) {
-                            LOGGER.error("Invalid category: {}, entry {}", category, pageToParse);
+        pagesToParse
+                .map(pageToParse -> {
+                    Set<ProductEntity> result = null;
+                    try {
+                        ProductParser parser = productParserFactory.getParser(pageToParse);
+                        Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
+                        Timer.Context time = parseTime.time();
+                        result = parser.parse(pageToParse);
+                        time.stop();
+                        if (null != result) {
+                            pageToParse.setParsed(true);
+                            if (0 == webPageService.markParsed(pageToParse)) {
+                                LOGGER.error("Failed to make page as parsed {}", pageToParse);
+                                result = null;
+                            }
+                        } else {
+                            LOGGER.error("failed to parse {}", pageToParse);
                         }
-                    }
-                } else {
-                    LOGGER.info("Category not set {}", pageToParse);
-                }
 
-                result = parser.parse(pageToParse);
-                time.stop();
-                if (null != result) {
-                    pageToParse.setParsed(true);
-                    if (0 == webPageService.markParsed(pageToParse)) {
-                        LOGGER.error("Failed to make page as parsed {}", pageToParse);
-                        result = null;
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
                     }
-                } else {
-                    LOGGER.error("failed to parse {}", pageToParse);
-                }
-
-            } catch (Exception e) {
-                LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
-            }
-            return result;
-        }).filter(webPageEntities -> null != webPageEntities)
+                    return result;
+                }).filter(webPageEntities -> null != webPageEntities)
                 .subscribe(productService::save, ex -> LOGGER.error("Parser Process Exception", ex));
     }
 }

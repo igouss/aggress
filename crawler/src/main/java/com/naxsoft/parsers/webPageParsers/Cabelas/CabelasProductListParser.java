@@ -40,7 +40,9 @@ public class CabelasProductListParser extends AbstractWebPageParser {
             if (document.baseUri().contains("pagenumber")) {
                 Elements elements = document.select(".productCard-heading a");
                 for (Element element : elements) {
-                    result.add(productPage(element.attr("abs:href")));
+                    WebPageEntity webPageEntity = productPage(element.attr("abs:href"));
+                    webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                    result.add(webPageEntity);
                 }
             } else {
                 Elements subPages = document.select("#main footer > nav span, #main footer > nav a");
@@ -57,16 +59,25 @@ public class CabelasProductListParser extends AbstractWebPageParser {
                         }
                     }
                     for (int i = 1; i <= max; i++) {
-                        result.add(getProductList(document.location() + "?pagenumber=" + i));
+                        WebPageEntity webPageEntity = getProductList(document.location() + "?pagenumber=" + i);
+                        webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                        result.add(webPageEntity);
                     }
                 } else {
-                    result.add(getProductList(document.location() + "?pagenumber=" + 1));
+                    WebPageEntity webPageEntity = getProductList(document.location() + "?pagenumber=" + 1);
+                    webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                    result.add(webPageEntity);
                 }
             }
         } else {
             Elements subPages = document.select("#categories > ul > li > a");
             for (Element element : subPages) {
                 WebPageEntity subCategoryPage = getProductList( element.attr("abs:href"));
+                if (downloadResult.getSourcePage().getCategory() == null) {
+                    subCategoryPage.setCategory(element.text());
+                } else {
+                    subCategoryPage.setCategory(downloadResult.getSourcePage().getCategory());
+                }
                 result.add(subCategoryPage);
             }
         }

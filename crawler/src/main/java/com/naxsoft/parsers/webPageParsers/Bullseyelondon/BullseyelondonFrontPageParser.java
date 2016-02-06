@@ -39,7 +39,7 @@ public class BullseyelondonFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(element.attr("abs:href") + "?limit=all");
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("n/a");
+            webPageEntity.setCategory(element.text());
             LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }

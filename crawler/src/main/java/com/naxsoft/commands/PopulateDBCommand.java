@@ -26,9 +26,9 @@ public class PopulateDBCommand implements Command {
      * Sites that crawler can walk and parse
      */
     private final static String[] SOURCES = {
-            "http://www.alflahertys.com/",
+//            "http://www.alflahertys.com/",
 //            "http://www.bullseyelondon.com/",
-//            "http://www.cabelas.ca/",
+            "http://www.cabelas.ca/",
 //            "https://www.canadaammo.com/",
 //            "http://www.canadiangunnutz.com/",
 //            "https://www.corwin-arms.com/",

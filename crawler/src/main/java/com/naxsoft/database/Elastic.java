@@ -97,7 +97,8 @@ public class Elastic implements AutoCloseable, Cloneable {
                     XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
                     jsonBuilder.startObject();
                     IndexRequestBuilder request = client.prepareIndex(index, type, "" + p.getUrl());
-                    request.setSource(p.getJson());
+                    String payload = p.getJson();
+                    request.setSource(payload);
                     request.setOpType(IndexRequest.OpType.INDEX);
                     bulkRequestBuilder.add(request);
                 } catch (IOException e) {
