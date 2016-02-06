@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 dependencies {
-    compile 'org.elasticsearch:elasticsearch:2.1.1'
+    compile 'org.elasticsearch:elasticsearch:2.2.0'
     compile 'org.jsoup:jsoup:1.8.3'
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.2.Final'
     compile group: 'org.hibernate', name: 'hibernate-hikaricp', version: '5.0.2.Final'
