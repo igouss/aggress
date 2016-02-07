@@ -38,6 +38,7 @@ public class FrontierfirearmsProductListParser extends AbstractWebPageParser {
             webPageEntity.setUrl(element.attr("abs:href"));
             webPageEntity.setParsed(false);
             webPageEntity.setType("productPage");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }

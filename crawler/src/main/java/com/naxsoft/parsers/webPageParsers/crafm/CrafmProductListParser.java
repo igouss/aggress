@@ -6,6 +6,7 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.ListenableFuture;
+import com.ning.http.client.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -13,9 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Copyright NAXSoft 2015
@@ -49,7 +48,11 @@ public class CrafmProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        ListenableFuture<DownloadResult> future = client.get(webPage.getUrl(), new DocumentCompletionHandler(webPage));
+        List<Cookie> cookies = new ArrayList<>(1);
+        cookies.add(Cookie.newValidCookie("store", "english", false, null, null, Long.MAX_VALUE, false, false));
+
+        ListenableFuture<DownloadResult> future = client.get(webPage.getUrl(), cookies, new DocumentCompletionHandler(webPage));
+
         return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
     }
 

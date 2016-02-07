@@ -47,7 +47,7 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(document.location() + "?p=" + i);
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("n/a");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -61,10 +61,10 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://frontierfirearms.ca/firearms.html"));
-        webPageEntities.add(create("http://frontierfirearms.ca/ammunition-reloading.html"));
-        webPageEntities.add(create("http://frontierfirearms.ca/shooting-accessories.html"));
-        webPageEntities.add(create("http://frontierfirearms.ca/optics.html"));
+        webPageEntities.add(create("http://frontierfirearms.ca/firearms.html", "firearm"));
+        webPageEntities.add(create("http://frontierfirearms.ca/ammunition-reloading.html", "ammo"));
+        webPageEntities.add(create("http://frontierfirearms.ca/shooting-accessories.html", "misc"));
+        webPageEntities.add(create("http://frontierfirearms.ca/optics.html", "optic"));
         return Observable.from(webPageEntities)
                 .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
@@ -72,11 +72,12 @@ public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from);
     }
 
-    private static WebPageEntity create(String url) {
+    private static WebPageEntity create(String url, String category) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
+        webPageEntity.setCategory(category);
         return webPageEntity;
     }
 

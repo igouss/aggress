@@ -84,8 +84,13 @@ public class CrafmProductRawParser extends AbstractRawPageParser {
     }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String[] result = mapping.get(webPageEntity.getCategory()).split(",");
-        return result;
+        String s = mapping.get(webPageEntity.getCategory());
+        if (null != s) {
+            return s.split(",");
+        } else {
+            LOGGER.error("Unknown category {}", webPageEntity);
+            return new String[]{"misc"};
+        }
     }
 
     /**
