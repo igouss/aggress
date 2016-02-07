@@ -22,63 +22,9 @@ import java.util.regex.Pattern;
  */
 public class AlflahertysRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
+    private static Map<String, String> mapping = new HashMap<>();
 
-    @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
-
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-        parseDocument(webPageEntity, result, document);
-        return result;
-    }
-
-    private void parseDocument(WebPageEntity webPageEntity, HashSet<ProductEntity> result, Document document) throws IOException {
-        String productName = document.select(".product_name").text();
-        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-
-        if (!document.select(".product_section .sold_out").text().equals("Sold Out")) {
-            ProductEntity product = new ProductEntity();
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                jsonBuilder.field("productName", productName);
-                jsonBuilder.field("productImage", document.select("meta[property=og:image]").attr("content"));
-
-                if (document.select(".product_section .was_price").text().equals("")) {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .current_price").text()));
-                } else {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .was_price").text()));
-                    jsonBuilder.field("specialPrice", parsePrice(document.select(".product_section-secondary .price-current_price").text()));
-                }
-                jsonBuilder.field("description", document.select(".product_section .description").text());
-                Set<String> allCategories = getNormalizedCategories(webPageEntity);
-                if (allCategories != null) {
-                    jsonBuilder.field("category", allCategories);
-                }
-                Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
-                Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
-                while (labels.hasNext()) {
-                    String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
-                    String specValue = values.next().text();
-                    if (!specName.equalsIgnoreCase("category")) {
-                        jsonBuilder.field(specName, specValue);
-                    }
-                }
-                jsonBuilder.endObject();
-                product.setUrl(document.location());
-                product.setJson(jsonBuilder.string());
-            }
-            product.setWebpageId(webPageEntity.getId());
-            result.add(product);
-        }
-    }
-
-    private Set<String> getNormalizedCategories(WebPageEntity webPageEntity) {
-        String[] rawCategories = webPageEntity.getCategory().split(",");
-        Map<String, String> mapping = new HashMap<>();
-        Set<String> result = new HashSet<>();
-
+    static {
         mapping.put("FIREARMS", "firearm");
         mapping.put("HANDGUNS", "firearm");
         mapping.put("RESTRICTED RIFLES", "firearm");
@@ -141,13 +87,65 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
         mapping.put("BLINDS & CAMOUFLAGE", "misc");
         mapping.put("TRAIL CAMERAS", "misc");
         mapping.put("HUNTING CLOTHES", "misc");
+    }
+    @Override
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
+        HashSet<ProductEntity> result = new HashSet<>();
 
-
-
-        for (String rawCategory : rawCategories) {
-            result.add(mapping.get(rawCategory.toUpperCase()));
-        }
+        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+        parseDocument(webPageEntity, result, document);
         return result;
+    }
+
+    private void parseDocument(WebPageEntity webPageEntity, HashSet<ProductEntity> result, Document document) throws IOException {
+        String productName = document.select(".product_name").text();
+        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+
+        if (!document.select(".product_section .sold_out").text().equals("Sold Out")) {
+            ProductEntity product = new ProductEntity();
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                jsonBuilder.field("productName", productName);
+                jsonBuilder.field("productImage", document.select("meta[property=og:image]").attr("content"));
+
+                if (document.select(".product_section .was_price").text().equals("")) {
+                    jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .current_price").text()));
+                } else {
+                    jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .was_price").text()));
+                    jsonBuilder.field("specialPrice", parsePrice(document.select(".product_section-secondary .price-current_price").text()));
+                }
+                jsonBuilder.field("description", document.select(".product_section .description").text());
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+                Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
+                Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
+                while (labels.hasNext()) {
+                    String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
+                    String specValue = values.next().text();
+                    if (!specName.equalsIgnoreCase("category")) {
+                        jsonBuilder.field(specName, specValue);
+                    }
+                }
+                jsonBuilder.endObject();
+                product.setUrl(document.location());
+                product.setJson(jsonBuilder.string());
+            }
+            product.setWebpageId(webPageEntity.getId());
+            result.add(product);
+        }
+    }
+
+
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String s = mapping.get(webPageEntity.getCategory());
+        if (null != s) {
+            String[] result = s.split(",");
+            return result;
+        } else {
+            LOGGER.error("Invalid category: " + webPageEntity);
+            return new String[] {"misc"};
+        }
     }
 
     private static String parsePrice(String price) {
