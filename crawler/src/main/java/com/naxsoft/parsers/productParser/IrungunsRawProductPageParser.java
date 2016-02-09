@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +21,37 @@ import java.util.regex.Pattern;
  */
 public class IrungunsRawProductPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(IrungunsRawProductPageParser.class);
+
+    private static final Map<String, String> mapping = new HashMap<>();
+
+    static {
+        mapping.put("Optics", "optic");
+        mapping.put("Ammunition", "ammo");
+        mapping.put("Previously Enjoyed Guns & Accessories", "firearm,misc");
+        mapping.put("Rifles", "firearm");
+        mapping.put("shotgun", "firearm");
+        mapping.put("Handguns", "firearm");
+        mapping.put("Antiques", "firearm");
+        mapping.put("Parts & Gear", "firearm,misc");
+    }
+
+    /**
+     * @param price
+     * @return
+     */
+    private static String parsePrice(String price) {
+        Matcher matcher = Pattern.compile("((\\d+|,)+\\.\\d+)").matcher(price);
+        if (matcher.find()) {
+            try {
+                return matcher.group(1).replace(",", "");
+//                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
+            } catch (Exception ignored) {
+                return Double.valueOf(matcher.group(1)).toString();
+            }
+        } else {
+            return price;
+        }
+    }
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -65,14 +94,18 @@ public class IrungunsRawProductPageParser extends AbstractRawPageParser {
             if (!description.isEmpty()) {
                 jsonBuilder.field("description", description);
             }
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+
             Iterator<Element> labels = document.select("table.productTbl > tbody > tr > td:nth-child(1)").iterator();
             Iterator<Element> values = document.select("table.productTbl > tbody > tr > td:nth-child(2)").iterator();
 
             while (labels.hasNext()) {
                 String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
                 String specValue = values.next().text();
-                jsonBuilder.field(specName, specValue);
+                if (specName.contains("Department")) {
+                    jsonBuilder.field("category", getNormalizedCategories(specValue));
+                } else {
+                    jsonBuilder.field(specName, specValue);
+                }
             }
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
@@ -84,32 +117,12 @@ public class IrungunsRawProductPageParser extends AbstractRawPageParser {
 
     }
 
-    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String category = webPageEntity.getCategory();
-        if (null != category) {
-            return category.split(",");
+    private String[] getNormalizedCategories(String category) {
+        if (mapping.containsKey(category)) {
+            return mapping.get(category).split(",");
         }
         return new String[]{"misc"};
     }
-
-    /**
-     * @param price
-     * @return
-     */
-    private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("((\\d+|,)+\\.\\d+)").matcher(price);
-        if (matcher.find()) {
-            try {
-                return matcher.group(1).replace(",", "");
-//                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
-            } catch (Exception ignored) {
-                return Double.valueOf(matcher.group(1)).toString();
-            }
-        } else {
-            return price;
-        }
-    }
-
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
