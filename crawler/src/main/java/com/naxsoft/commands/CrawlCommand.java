@@ -63,7 +63,6 @@ public class CrawlCommand implements Command {
      * @param pagesToParse Stream of webpages to process
      */
     private void process(Observable<WebPageEntity> pagesToParse) {
-        Semaphore semaphore = new Semaphore(0);
         pagesToParse
                 .flatMap(pageToParse -> {
                     Observable<WebPageEntity> result = null;

@@ -82,9 +82,11 @@ public class WebPageService {
                         count = (Long) query.list().get(0);
                         return count;
                     });
+                    LOGGER.info("Unparsed number of entries of type {} is {}", type, rowCount);
                     if (0L == rowCount) {
+                        subscriber.onNext(rowCount);
                         subscriber.onCompleted();
-                        return;
+                        break;
                     } else {
                         subscriber.onNext(rowCount);
                     }
