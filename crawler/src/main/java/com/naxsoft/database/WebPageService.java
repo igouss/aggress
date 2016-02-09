@@ -79,7 +79,7 @@ public class WebPageService {
                         String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
                         Query query = session.createQuery(queryString);
                         query.setString("type", type);
-                        count = (Long) query.iterate().next();
+                        count = (Long) query.list().get(0);
                         return count;
                     });
                     LOGGER.info("Unparsed number of entries of type {} is {}", type, rowCount);
