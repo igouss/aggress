@@ -79,7 +79,7 @@ public class WebPageService {
                         String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
                         Query query = session.createQuery(queryString);
                         query.setString("type", type);
-                        count = (Long) query.list().get(0);
+                        count = (Long) query.iterate().next();
                         return count;
                     });
                     LOGGER.info("Unparsed number of entries of type {} is {}", type, rowCount);
@@ -106,6 +106,9 @@ public class WebPageService {
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         final String query = "from WebPageEntity where type = '" + type + "' and parsed = false order by rand()";
-        return getUnparsedCount(type).flatMap(count -> database.scroll(query));
+        return getUnparsedCount(type).flatMap(count -> {
+            LOGGER.info("Scrolling over {} sql {}", count, query);
+            return database.scroll(query);
+        });
     }
 }
