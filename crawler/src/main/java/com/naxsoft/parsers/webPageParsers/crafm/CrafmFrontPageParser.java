@@ -26,6 +26,7 @@ public class CrafmFrontPageParser extends AbstractWebPageParser {
     public CrafmFrontPageParser(HttpClient client) {
         this.client = client;
     }
+
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
 

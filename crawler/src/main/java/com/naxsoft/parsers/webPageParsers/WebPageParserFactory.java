@@ -26,7 +26,6 @@ public class WebPageParserFactory {
     private final HttpClient client;
 
     /**
-     *
      * @param client
      */
     public WebPageParserFactory(HttpClient client) {
@@ -59,7 +58,6 @@ public class WebPageParserFactory {
     }
 
     /**
-     *
      * @param webPageEntity
      * @return
      */

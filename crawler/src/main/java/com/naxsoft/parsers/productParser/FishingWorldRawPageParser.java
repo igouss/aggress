@@ -24,7 +24,6 @@ public class FishingWorldRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingWorldRawPageParser.class);
 
     /**
-     *
      * @param price
      * @return
      */
@@ -74,7 +73,7 @@ public class FishingWorldRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("description", document.select("#details > div.column2.float-left").text());
             String allCategories = webPageEntity.getCategory();
             if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             }
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());

@@ -60,7 +60,7 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
                 }
             }
             jsonBuilder.field("description", document.select(".content blockquote").text());
-            jsonBuilder.array("category", getNormalizedCategories(webPageEntity));
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setWebpageId(webPageEntity.getId());
@@ -75,7 +75,6 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
         String[] result = webPageEntity.getCategory().split(",");
         return result;
     }
-
 
 
     @Override

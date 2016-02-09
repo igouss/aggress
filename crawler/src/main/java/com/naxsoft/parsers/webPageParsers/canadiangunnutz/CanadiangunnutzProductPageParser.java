@@ -48,7 +48,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
             return Observable.from(PageDownloader.download(client, cookies, webPage))
                     .filter(data -> null != data);
         } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Failed to download page" , e);
+            LOGGER.error("Failed to download page", e);
             e.printStackTrace();
         }
         return Observable.empty();

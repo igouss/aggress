@@ -39,10 +39,7 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
                 jsonBuilder.field("specialPrice", rp.Price);
                 jsonBuilder.field("unitsAvailable", rp.StockAmount);
                 jsonBuilder.field("description", rp.ExtendedDescription);
-                String allCategories = webPageEntity.getCategory();
-                if (allCategories != null) {
-                    jsonBuilder.array("category", allCategories.split(","));
-                }
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
 
                 for (int j = 0; j < rp.Attributes.length; ++j) {
                     jsonBuilder.field(
@@ -59,6 +56,14 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
         }
 
         return result;
+    }
+
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        return new String[]{"misc"};
     }
 
     @Override

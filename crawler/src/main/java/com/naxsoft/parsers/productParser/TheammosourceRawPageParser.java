@@ -42,10 +42,7 @@ public class TheammosourceRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productName", productName);
             jsonBuilder.field("productImage", document.select("#productMainImage img").attr("abs:src"));
             jsonBuilder.field("description", document.select("#productDescription").text());
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             Elements specialPrice = document.select("#productPrices .productSpecialPrice");
             if (!specialPrice.isEmpty()) {
                 jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices .normalprice").text()));
@@ -63,8 +60,15 @@ public class TheammosourceRawPageParser extends AbstractRawPageParser {
         return result;
     }
 
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        return new String[]{"misc"};
+    }
+
     /**
-     *
      * @param price
      * @return
      */

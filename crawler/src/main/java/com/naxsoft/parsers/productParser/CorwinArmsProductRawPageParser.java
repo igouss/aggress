@@ -61,7 +61,7 @@ public class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productImage", img);
             jsonBuilder.field("regularPrice", parsePrice(document.select(".field-name-commerce-price").text()));
             jsonBuilder.field("description", document.select("div.field-type-text-with-summary > div > div").text().replace("\u0160", "\n"));
-            jsonBuilder.array("category", getNormalizedCategories(webPageEntity));
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
 
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
@@ -80,7 +80,6 @@ public class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
     }
 
     /**
-     *
      * @param price
      * @return
      */

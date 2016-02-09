@@ -94,11 +94,11 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
             return result;
         } else {
             LOGGER.error("Invalid category: " + webPageEntity);
-            return new String[] {"misc"};
+            return new String[]{"misc"};
         }
     }
+
     /**
-     *
      * @param document
      * @return
      */
@@ -110,7 +110,6 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
 
 
     /**
-     *
      * @param price
      * @return
      */
@@ -130,7 +129,6 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
     }
 
     /**
-     *
      * @param document
      * @return
      */
@@ -143,7 +141,6 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
     }
 
     /**
-     *
      * @param document
      * @return
      */
@@ -153,7 +150,6 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
     }
 
     /**
-     *
      * @param document
      * @return
      */

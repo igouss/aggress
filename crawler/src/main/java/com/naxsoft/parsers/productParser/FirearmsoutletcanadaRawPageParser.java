@@ -22,7 +22,6 @@ public class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FirearmsoutletcanadaRawPageParser.class);
 
     /**
-     *
      * @param price
      * @return
      */
@@ -57,7 +56,7 @@ public class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productImage", document.select("img#image-main").attr("src"));
             jsonBuilder.field("regularPrice", parsePrice(document.select(".regular-price span").text()));
             jsonBuilder.field("description", document.select("#product-tabs > div > div:nth-child(2)").text());
-            jsonBuilder.array("category", webPageEntity.getCategory().split(","));
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());
@@ -65,6 +64,14 @@ public class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
         return result;
+    }
+
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        return new String[]{"misc"};
     }
 
     @Override

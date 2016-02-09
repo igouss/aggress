@@ -88,6 +88,7 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
         mapping.put("TRAIL CAMERAS", "misc");
         mapping.put("HUNTING CLOTHES", "misc");
     }
+
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
@@ -144,7 +145,7 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
             return result;
         } else {
             LOGGER.error("Invalid category: " + webPageEntity);
-            return new String[] {"misc"};
+            return new String[]{"misc"};
         }
     }
 

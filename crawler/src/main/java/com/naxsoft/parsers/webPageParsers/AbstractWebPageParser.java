@@ -20,7 +20,6 @@ public abstract class AbstractWebPageParser implements WebPageParser {
     };
 
     /**
-     *
      * @return
      */
     protected static AbstractCompletionHandler<List<Cookie>> getCookiesHandler() {

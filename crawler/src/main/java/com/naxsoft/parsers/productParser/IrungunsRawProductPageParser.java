@@ -65,10 +65,7 @@ public class IrungunsRawProductPageParser extends AbstractRawPageParser {
             if (!description.isEmpty()) {
                 jsonBuilder.field("description", description);
             }
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             Iterator<Element> labels = document.select("table.productTbl > tbody > tr > td:nth-child(1)").iterator();
             Iterator<Element> values = document.select("table.productTbl > tbody > tr > td:nth-child(2)").iterator();
 
@@ -87,8 +84,15 @@ public class IrungunsRawProductPageParser extends AbstractRawPageParser {
 
     }
 
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        return new String[]{"misc"};
+    }
+
     /**
-     *
      * @param price
      * @return
      */

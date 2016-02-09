@@ -43,13 +43,7 @@ public class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productImage", document.select(".main-product-image img").attr("abs:src"));
             jsonBuilder.field("description", document.select(".product-body").text());
             jsonBuilder.field("regularPrice", parsePrice(document.select("#price-group .product span").text()));
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             Iterator<Element> labels = document.select(".product-additional .field-label").iterator();
             Iterator<Element> values = document.select(".product-additional .field-items").iterator();
 
@@ -68,8 +62,15 @@ public class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
         return result;
     }
 
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        return new String[]{"misc"};
+    }
+
     /**
-     *
      * @param price
      * @return
      */

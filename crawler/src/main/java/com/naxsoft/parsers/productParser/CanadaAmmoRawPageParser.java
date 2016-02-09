@@ -59,9 +59,7 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
             LOGGER.info("Parsing {}, page={}", productName, webPageEntityUrl);
 
             jsonBuilder.field("productName", productName);
-//            jsonBuilder.field("category", document.select("div.page.product-details > div.page__header li:nth-child(2) > a").text());
             jsonBuilder.field("manufacturer", document.select(".product-details__title .product__manufacturer").text());
-
             jsonBuilder.field("productImage", document.select("img[itemprop=image]").attr("srcset"));
             String regularPriceStrike = document.select("div.product-details__main .product__price del").text();
             if ("".equals(regularPriceStrike)) {
@@ -72,7 +70,7 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
             }
 
             jsonBuilder.field("description", document.select("div.product-details__meta-wrap > div > div > div:nth-child(1) > section span").text());
-            jsonBuilder.array("category", getNormalizedCategories(webPageEntity));
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
 
             Iterator<Element> labels = document.select(".product-details__spec-label").iterator();
             Iterator<Element> values = document.select(".product-details__spec-value").iterator();
@@ -98,11 +96,11 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
             return result;
         } else {
             LOGGER.error("Invalid category: " + webPageEntity);
-            return new String[] {"misc"};
+            return new String[]{"misc"};
         }
     }
+
     /**
-     *
      * @param price
      * @return
      */

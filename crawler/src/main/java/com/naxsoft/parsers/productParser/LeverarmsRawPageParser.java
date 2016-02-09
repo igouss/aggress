@@ -63,10 +63,7 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
             }
 
             jsonBuilder.field("description", document.select(".product-collateral").text() + " " + document.select(".short-description").text());
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setWebpageId(webPageEntity.getId());
@@ -74,6 +71,14 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
         }
         products.add(product);
         return products;
+    }
+
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        return new String[]{"misc"};
     }
 
     @Override

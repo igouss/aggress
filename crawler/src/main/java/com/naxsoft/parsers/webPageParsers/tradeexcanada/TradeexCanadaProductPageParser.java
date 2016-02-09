@@ -38,7 +38,7 @@ public class TradeexCanadaProductPageParser extends AbstractWebPageParser {
                         return webPageEntity;
                     });
         }
-   }
+    }
 
     @Override
     public boolean canParse(WebPageEntity webPage) {

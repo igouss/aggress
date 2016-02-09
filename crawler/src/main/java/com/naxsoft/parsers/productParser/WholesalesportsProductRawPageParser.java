@@ -42,10 +42,7 @@ public class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productName", productName);
             jsonBuilder.field("productImage", document.select(".productImagePrimaryLink img").attr("abs:src"));
             jsonBuilder.field("manufacturer", document.select(".product-brand").text());
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             if (document.select(".new .price-value").isEmpty()) {
                 Elements price = document.select(".current .price-value");
                 if (!price.isEmpty()) {
@@ -68,8 +65,15 @@ public class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
         return result;
     }
 
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        return new String[]{"misc"};
+    }
+
     /**
-     *
      * @param price
      * @return
      */

@@ -22,7 +22,6 @@ public class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsRawPageParser.class);
 
     /**
-     *
      * @param price
      * @return
      */
@@ -67,7 +66,7 @@ public class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("description", document.select("#product_tabs_description_tabbed_contents > div").text());
             String allCategories = webPageEntity.getCategory();
             if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             }
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
@@ -76,6 +75,14 @@ public class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
         product.setWebpageId(webPageEntity.getId());
         result.add(product);
         return result;
+    }
+
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        return new String[]{"misc"};
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.util.HashSet;
 
 /**

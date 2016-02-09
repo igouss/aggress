@@ -43,7 +43,6 @@ public class ProductParserFactory {
     }
 
     /**
-     *
      * @param webPageEntity
      * @return
      */

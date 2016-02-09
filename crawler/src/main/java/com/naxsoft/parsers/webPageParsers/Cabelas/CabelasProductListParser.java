@@ -1,21 +1,17 @@
 package com.naxsoft.parsers.webPageParsers.cabelas;
 
-import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.Subscriber;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -72,7 +68,7 @@ public class CabelasProductListParser extends AbstractWebPageParser {
         } else {
             Elements subPages = document.select("#categories > ul > li > a");
             for (Element element : subPages) {
-                WebPageEntity subCategoryPage = getProductList( element.attr("abs:href"));
+                WebPageEntity subCategoryPage = getProductList(element.attr("abs:href"));
                 if (downloadResult.getSourcePage().getCategory() == null) {
                     subCategoryPage.setCategory(element.text());
                 } else {

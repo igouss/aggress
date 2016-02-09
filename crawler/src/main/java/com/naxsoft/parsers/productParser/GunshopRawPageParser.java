@@ -96,12 +96,12 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         for (String urlPattern : mapping.keySet()) {
-            if (webPageEntity.getUrl().contains(urlPattern)){
+            if (webPageEntity.getUrl().contains(urlPattern)) {
                 return mapping.get(urlPattern).split(",");
             }
         }
         LOGGER.error("Invalid category: " + webPageEntity);
-        return new String[] {"misc"};
+        return new String[]{"misc"};
     }
 
     @Override

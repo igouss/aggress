@@ -1,21 +1,17 @@
 package com.naxsoft.parsers.webPageParsers.hical;
 
-import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.Subscriber;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -44,7 +40,7 @@ public class HicalProductListParser extends AbstractWebPageParser {
                 webPageEntity.setUrl(el.attr("abs:href"));
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
-                webPageEntity.setCategory("n/a");
+                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
                 LOGGER.info("ProductList sub-page {}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -56,6 +52,7 @@ public class HicalProductListParser extends AbstractWebPageParser {
             webPageEntity.setUrl(el.attr("abs:href"));
             webPageEntity.setParsed(false);
             webPageEntity.setType("productPage");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }

@@ -2,7 +2,6 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import org.apache.lucene.geo3d.Tools;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
@@ -81,7 +80,7 @@ public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
                 }
             }
 
-            jsonBuilder.array("category", getNormalizedCategories(webPageEntity));
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());

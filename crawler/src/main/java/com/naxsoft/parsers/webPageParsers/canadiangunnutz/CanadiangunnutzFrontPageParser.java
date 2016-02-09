@@ -8,7 +8,6 @@ import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.utils.AppProperties;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
-import org.apache.commons.collections4.map.HashedMap;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;

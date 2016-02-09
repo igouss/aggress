@@ -1,20 +1,16 @@
 package com.naxsoft.parsers.webPageParsers.tradeexcanada;
 
-import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import com.ning.http.client.Response;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.Subscriber;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -41,7 +37,7 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
 
             if (element.text().contains("AAA Super Specials")) {
                 webPageEntity.setCategory("firearms,ammo");
-            }  else if (element.text().contains("Combination Guns")) {
+            } else if (element.text().contains("Combination Guns")) {
                 webPageEntity.setCategory("firearms");
             } else if (element.text().contains("Double Rifles")) {
                 webPageEntity.setCategory("firearms");
@@ -79,9 +75,9 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("https://www.tradeexcanada.com/products_list"));
 
         return Observable.create(subscriber -> {
-           for(WebPageEntity webPageEntity : webPageEntities) {
-               client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
-           }
+            for (WebPageEntity webPageEntity : webPageEntities) {
+                client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
+            }
         });
     }
 

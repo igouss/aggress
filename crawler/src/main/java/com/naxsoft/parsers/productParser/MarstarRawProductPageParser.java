@@ -40,10 +40,7 @@ public class MarstarRawProductPageParser extends AbstractRawPageParser {
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
             jsonBuilder.field("productName", productName);
             jsonBuilder.field("productImage", document.select("img[id=mainPic]").attr("abs:src"));
-            String allCategories = webPageEntity.getCategory();
-            if (allCategories != null) {
-                jsonBuilder.array("category", allCategories.split(","));
-            }
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             ArrayList<String> price = parsePrice(document.select(".priceAvail").text());
             if (price.isEmpty()) {
                 return products; // ignore
@@ -79,8 +76,15 @@ public class MarstarRawProductPageParser extends AbstractRawPageParser {
 
     }
 
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        return new String[]{"misc"};
+    }
+
     /**
-     *
      * @param price
      * @return
      */

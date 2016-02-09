@@ -21,7 +21,7 @@ public class PageDownloader {
     /**
      * Download page from the url.
      *
-     * @param client HTTPClient
+     * @param client        HTTPClient
      * @param webPageEntity Page to download
      * @return Stream of downloaded pages.
      */
@@ -32,7 +32,7 @@ public class PageDownloader {
     /**
      * Download page from the url.
      *
-     * @param parent Page to download
+     * @param parent  Page to download
      * @param client  HTTPClient
      * @param cookies HTML cookies
      * @return Stream of downloaded pages.

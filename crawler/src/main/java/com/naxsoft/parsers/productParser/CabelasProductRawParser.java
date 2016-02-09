@@ -79,7 +79,7 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
             return result;
         } else {
             LOGGER.error("Invalid category: " + webPageEntity);
-            return new String[] {"misc"};
+            return new String[]{"misc"};
         }
     }
 

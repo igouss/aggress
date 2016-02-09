@@ -22,7 +22,6 @@ public class NoopParser extends AbstractRawPageParser {
     }
 
     /**
-     *
      * @param webPageEntity
      * @return
      */
@@ -31,7 +30,6 @@ public class NoopParser extends AbstractRawPageParser {
     }
 
     /**
-     *
      * @param webPage
      * @return
      */

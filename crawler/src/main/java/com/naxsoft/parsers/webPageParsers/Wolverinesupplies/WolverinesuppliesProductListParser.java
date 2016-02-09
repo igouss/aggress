@@ -7,7 +7,6 @@ import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;

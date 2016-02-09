@@ -25,63 +25,63 @@ public class DantesportsProductRawPageParser extends AbstractRawPageParser {
     private static final Map<String, String> mapping = new HashMap<>();
 
     static {
-     mapping.put("Shotguns", "firearm");
-     mapping.put("Rifles", "firearm");
-     mapping.put("Restricted", "firearm");
-     mapping.put("Air Rifles", "firearm");
+        mapping.put("Shotguns", "firearm");
+        mapping.put("Rifles", "firearm");
+        mapping.put("Restricted", "firearm");
+        mapping.put("Air Rifles", "firearm");
 
-     mapping.put("Shotguns", "firearm");
-     mapping.put("Rifles", "firearm");
-     mapping.put("Prohibited", "firearm");
-     mapping.put("Restricted", "firearm");
+        mapping.put("Shotguns", "firearm");
+        mapping.put("Rifles", "firearm");
+        mapping.put("Prohibited", "firearm");
+        mapping.put("Restricted", "firearm");
 
-     mapping.put("CVA", "firearm");
-     mapping.put("Thompson/Center", "firearm");
+        mapping.put("CVA", "firearm");
+        mapping.put("Thompson/Center", "firearm");
 
-     mapping.put("Bushnell", "optic");
-     mapping.put("Burris", "optic");
-     mapping.put("Kaps", "optic");
-     mapping.put("Leupold", "optic");
-     mapping.put("Nightforce", "optic");
-     mapping.put("Nikon", "optic");
-     mapping.put("Redfield", "optic");
-     mapping.put("Swarovski", "optic");
-     mapping.put("Tasco", "optic");
-     mapping.put("Vortex", "optic");
-     mapping.put("Zeiss", "optic");
+        mapping.put("Bushnell", "optic");
+        mapping.put("Burris", "optic");
+        mapping.put("Kaps", "optic");
+        mapping.put("Leupold", "optic");
+        mapping.put("Nightforce", "optic");
+        mapping.put("Nikon", "optic");
+        mapping.put("Redfield", "optic");
+        mapping.put("Swarovski", "optic");
+        mapping.put("Tasco", "optic");
+        mapping.put("Vortex", "optic");
+        mapping.put("Zeiss", "optic");
 
-     mapping.put("Binoculars", "optic");
-     mapping.put("Holographic Sights", "optic");
-     mapping.put("Laser Sights", "optic");
-     mapping.put("Illuminated Dot Sights", "optic");
-     mapping.put("Rangefinders", "optic");
-     mapping.put("Accessories", "optic");
+        mapping.put("Binoculars", "optic");
+        mapping.put("Holographic Sights", "optic");
+        mapping.put("Laser Sights", "optic");
+        mapping.put("Illuminated Dot Sights", "optic");
+        mapping.put("Rangefinders", "optic");
+        mapping.put("Accessories", "optic");
 
-     mapping.put("Shotshells", "ammo");
-     mapping.put("Centerfire", "ammo");
-     mapping.put("Rimfire", "ammo");
+        mapping.put("Shotshells", "ammo");
+        mapping.put("Centerfire", "ammo");
+        mapping.put("Rimfire", "ammo");
 
-     mapping.put("Cases", "misc");
-     mapping.put("Ruger Firearm Accessories", "misc");
-     mapping.put("Gunsmithing Tools", "misc");
-     mapping.put("Shooting Rests", "misc");
-     mapping.put("Trail Camera", "misc");
-     mapping.put("Target Thrower", "misc");
-     mapping.put("Magazines", "misc");
-     mapping.put("Tactical Accessories", "misc");
-     mapping.put("Hearing Protection", "misc");
-     mapping.put("Knives", "misc");
-     mapping.put("ZEV Technologies", "misc");
+        mapping.put("Cases", "misc");
+        mapping.put("Ruger Firearm Accessories", "misc");
+        mapping.put("Gunsmithing Tools", "misc");
+        mapping.put("Shooting Rests", "misc");
+        mapping.put("Trail Camera", "misc");
+        mapping.put("Target Thrower", "misc");
+        mapping.put("Magazines", "misc");
+        mapping.put("Tactical Accessories", "misc");
+        mapping.put("Hearing Protection", "misc");
+        mapping.put("Knives", "misc");
+        mapping.put("ZEV Technologies", "misc");
 
-     mapping.put("CamPro", "reload");
-     mapping.put("Frankford Arsenal", "reload");
-     mapping.put("Redding", "reload");
-     mapping.put("Hornady", "reload");
+        mapping.put("CamPro", "reload");
+        mapping.put("Frankford Arsenal", "reload");
+        mapping.put("Redding", "reload");
+        mapping.put("Hornady", "reload");
 
-     mapping.put("Carbon Express", "misc");
+        mapping.put("Carbon Express", "misc");
     }
+
     /**
-     *
      * @param webPageEntity
      * @return
      * @throws Exception
@@ -112,7 +112,7 @@ public class DantesportsProductRawPageParser extends AbstractRawPageParser {
                 jsonBuilder.field("regularPrice", matcher.group().replace(",", ""));
             }
             jsonBuilder.field("description", document.select(".itemDescription").text());
-            jsonBuilder.array("category", getNormalizedCategories(webPageEntity));
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setWebpageId(webPageEntity.getId());
@@ -130,9 +130,10 @@ public class DantesportsProductRawPageParser extends AbstractRawPageParser {
             return result;
         } else {
             LOGGER.error("Invalid category: " + webPageEntity);
-            return new String[] {"misc"};
+            return new String[]{"misc"};
         }
     }
+
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("https://shop.dantesports.com/") && webPage.getType().equals("productPageRaw");

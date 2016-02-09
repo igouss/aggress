@@ -15,7 +15,6 @@ import java.util.Set;
  */
 public interface ProductParser {
     /**
-     *
      * @param webPage
      * @return
      * @throws Exception
@@ -23,7 +22,6 @@ public interface ProductParser {
     Set<ProductEntity> parse(WebPageEntity webPage) throws Exception;
 
     /**
-     *
      * @param webPage
      * @return
      */
