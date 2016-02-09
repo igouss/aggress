@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +23,31 @@ import java.util.regex.Pattern;
  */
 public class LeverarmsRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsRawPageParser.class);
+
+
+    private static final Map<String, String> mapping = new HashMap<>();
+
+    static {
+        mapping.put("Semi-Automatic Rifles", "firearm");
+        mapping.put("Bolt Action Rifles", "firearm");
+        mapping.put("Lever Action Rifles", "firearm");
+        mapping.put("Pistols", "firearm");
+        mapping.put("Semi-Automatic Pistols", "firearm");
+        mapping.put("Revolvers", "firearm");
+        mapping.put("Shotguns", "firearm");
+
+        mapping.put("Rifle Ammo", "ammo");
+        mapping.put("Pistol Ammo", "ammo");
+        mapping.put("Shotgun Ammo", "ammo");
+        mapping.put("Rimfire Ammo", "ammo");
+
+        mapping.put("Optics", "optic");
+
+        mapping.put("Mauser K98k", "firearm");
+        mapping.put("SKS", "firearm");
+        mapping.put("Used", "firearm");
+    }
+
 
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
@@ -75,8 +102,8 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
-        if (null != category) {
-            return category.split(",");
+        if (mapping.containsKey(category)) {
+            return mapping.get(category).split(",");
         }
         return new String[]{"misc"};
     }

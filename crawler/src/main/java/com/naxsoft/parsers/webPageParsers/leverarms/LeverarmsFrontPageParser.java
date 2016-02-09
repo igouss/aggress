@@ -5,6 +5,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import com.ning.http.client.ListenableFuture;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -28,6 +29,25 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
 
         Set<WebPageEntity> result = new HashSet<>(1);
 
+        Elements elements = document.select("#nav-sidebox li:not(.parent) a");
+
+        for (Element e : elements) {
+            WebPageEntity webPageEntity = new WebPageEntity();
+            webPageEntity.setUrl(e.attr("abs:href") + "?limit=all");
+            webPageEntity.setParsed(false);
+            webPageEntity.setType("productPage");
+            webPageEntity.setCategory(e.text());
+            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+            result.add(webPageEntity);
+        }
+        return result;
+    }
+
+    private Collection<WebPageEntity> parseSubPages(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
+        Set<WebPageEntity> result = new HashSet<>();
+
         Elements elements = document.select(".item h4 a");
 
         for (Element e : elements) {
@@ -35,7 +55,7 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(e.attr("abs:href"));
             webPageEntity.setParsed(false);
             webPageEntity.setType("productPage");
-            webPageEntity.setCategory("n/a");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -48,27 +68,13 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.leverarms.com/rifles.html?limit=all"));
-        webPageEntities.add(create("http://www.leverarms.com/pistols.html?limit=all"));
-        webPageEntities.add(create("http://www.leverarms.com/shotguns.html?limit=all"));
-        webPageEntities.add(create("http://www.leverarms.com/ammo.html?limit=all"));
-        webPageEntities.add(create("http://www.leverarms.com/accessories.html?limit=all"));
-        webPageEntities.add(create("http://www.leverarms.com/surplus-firearms.html?limit=all"));
-        webPageEntities.add(create("http://www.leverarms.com/used-firearms.html?limit=all"));
-        return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
+        ListenableFuture<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
+        return Observable.from(future)
                 .map(this::parseDocument)
-                .flatMap(Observable::from);
-    }
-
-    private static WebPageEntity create(String url) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        return webPageEntity;
+                .flatMap(Observable::from)
+                .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
+                .flatMap(Observable::from)
+                .flatMap(document -> Observable.from(parseSubPages(document)));
     }
 
     @Override
