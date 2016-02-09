@@ -84,6 +84,14 @@ public class FishingWorldRawPageParser extends AbstractRawPageParser {
         return products;
     }
 
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        return new String[]{"misc"};
+    }
+
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("https://fishingworld.ca") && webPage.getType().equals("productPageRaw");
