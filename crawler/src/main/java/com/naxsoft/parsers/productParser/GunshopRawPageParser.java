@@ -24,14 +24,10 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
     private static final Map<String, String> mapping = new HashMap<>();
 
     static {
-        mapping.put("Accessories", "misc");
-        mapping.put("All Firearms", "firearm");
-        mapping.put("Ammunition", "ammo");
-        mapping.put("Firearm Parts & Accessories", "misc");
-        mapping.put("Holsters & Accessories", "misc");
-        mapping.put("IPSC", "misc");
-        mapping.put("Optics(Sights & Scopes)", "optic");
-        mapping.put("Reloading Components", "reload");
+        mapping.put("/product-category/firearms/", "firearm");
+        mapping.put("/product-category/ammunition/", "ammo");
+        mapping.put("/product-category/optics/", "optic");
+        mapping.put("/product-category/reloading-components/", "reload");
     }
 
     /**
@@ -88,7 +84,7 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
                     jsonBuilder.field(name, values);
                 }
             }
-            jsonBuilder.field("category", getNormalizedCategories(document.select(".breadcrumbs li:nth-child(2) > a").text()));
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());
@@ -98,15 +94,14 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
         return result;
     }
 
-    private String[] getNormalizedCategories(String category) {
-        String s = mapping.get(category);
-        if (null != s) {
-            String[] result = s.split(",");
-            return result;
-        } else {
-            LOGGER.error("Invalid category: " + category);
-            return new String[] {"misc"};
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        for (String urlPattern : mapping.keySet()) {
+            if (webPageEntity.getUrl().contains(urlPattern)){
+                return mapping.get(urlPattern).split(",");
+            }
         }
+        LOGGER.error("Invalid category: " + webPageEntity);
+        return new String[] {"misc"};
     }
 
     @Override

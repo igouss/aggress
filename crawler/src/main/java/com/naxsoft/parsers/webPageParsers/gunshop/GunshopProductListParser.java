@@ -27,12 +27,13 @@ import java.util.Set;
 public class GunshopProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopProductListParser.class);
+
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
 
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".products li > a");
+        Elements elements = document.select(".wf-container figcaption > a");
         for (Element element : elements) {
             if (!element.select(".soldout").isEmpty()) {
                 continue;
@@ -41,6 +42,7 @@ public class GunshopProductListParser extends AbstractWebPageParser {
             webPageEntity.setUrl(element.attr("abs:href"));
             webPageEntity.setParsed(false);
             webPageEntity.setType("productPage");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }
@@ -59,6 +61,6 @@ public class GunshopProductListParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://gun-shop.ca/") && webPage.getType().equals("productList");
+        return (webPage.getUrl().startsWith("http://gun-shop.ca/") || webPage.getUrl().startsWith("https://gun-shop.ca/")) && webPage.getType().equals("productList");
     }
 }

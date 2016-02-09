@@ -6,9 +6,11 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +29,29 @@ import java.util.regex.Pattern;
 public class GunshopFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopFrontPageParser.class);
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Collection<WebPageEntity> categoriesDocument(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
+        Set<WebPageEntity> result = new HashSet<>(1);
+
+        Elements elements = document.select(".menu-item > a");
+
+        for (Element element : elements) {
+            WebPageEntity webPageEntity = new WebPageEntity();
+            webPageEntity.setUrl(element.attr("abs:href"));
+            if (!webPageEntity.getUrl().contains("product-category")) {
+                continue;
+            }
+            webPageEntity.setParsed(false);
+            webPageEntity.setType("tmp");
+            webPageEntity.setCategory(element.text());
+            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+            result.add(webPageEntity);
+        }
+        return result;
+    }
+
+    private Collection<WebPageEntity> parseSubpages(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
 
         Set<WebPageEntity> result = new HashSet<>(1);
@@ -44,6 +68,7 @@ public class GunshopFrontPageParser extends AbstractWebPageParser {
                 webPageEntity.setUrl(document.location() + "/page/" + i + "/");
                 webPageEntity.setParsed(false);
                 webPageEntity.setType("productList");
+                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -52,7 +77,7 @@ public class GunshopFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(document.location());
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("n/a");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -63,24 +88,15 @@ public class GunshopFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        return webPageEntity;
-    }
-
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://gun-shop.ca/browse/"));
-
-        return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+        ListenableFuture<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
+        return Observable.from(future)
+                .map(this::categoriesDocument)
                 .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from);
+                .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
+                .flatMap(Observable::from)
+                .flatMap(document -> Observable.from(parseSubpages(document)));
     }
 
     @Override
