@@ -80,6 +80,7 @@ public class ParseCommand implements Command {
      * @return
      */
     private Subscription indexProducts(Observable<ProductEntity> products, String index, String type) {
+        LOGGER.info("Indexing products");
         return elastic.index(products, index, type);
     }
 
