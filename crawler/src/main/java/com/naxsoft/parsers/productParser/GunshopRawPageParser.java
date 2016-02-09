@@ -106,6 +106,6 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://gun-shop.ca/") && webPage.getType().equals("productPageRaw");
+        return (webPage.getUrl().startsWith("http://gun-shop.ca/") || webPage.getUrl().startsWith("https://gun-shop.ca/")) && webPage.getType().equals("productPageRaw");
     }
 }
