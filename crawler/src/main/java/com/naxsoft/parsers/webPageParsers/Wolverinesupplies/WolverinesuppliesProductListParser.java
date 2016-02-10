@@ -44,6 +44,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
             WebPageEntity e = new WebPageEntity();
             e.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
             e.setType("productPage");
+            e.setCategory(webPageEntity.getCategory());
             LOGGER.info("productPage={}", e.getUrl());
             result.add(e);
         }
@@ -67,6 +68,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                 WebPageEntity webPageEntity = new WebPageEntity();
                 webPageEntity.setType("tmp");
                 webPageEntity.setUrl(productDetailsUrl);
+                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
                 result.add(webPageEntity);
             }
         }

@@ -70,6 +70,7 @@ public class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
         if (null != category) {
             return category.split(",");
         }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
 

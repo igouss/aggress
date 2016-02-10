@@ -72,8 +72,12 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
 
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String[] result = webPageEntity.getCategory().split(",");
-        return result;
+        String category = webPageEntity.getCategory();
+        if (category != null) {
+            return category.split(",");
+        }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        return new String[]{"misc"};
     }
 
 

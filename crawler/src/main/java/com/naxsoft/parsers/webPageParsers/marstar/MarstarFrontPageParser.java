@@ -20,19 +20,19 @@ public class MarstarFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=1")); // firearms
-        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=3")); // ammo
-        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=81526")); // Firearms
+        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=1", "firearm")); // firearms
+        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=3", "ammo")); // ammo
+        webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=81526", "firearm")); // Firearms
 
         return Observable.from(webPageEntities);
     }
 
-    private static WebPageEntity create(String url) {
+    private static WebPageEntity create(String url, String category) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
-        webPageEntity.setCategory("n/a");
+        webPageEntity.setCategory(category);
         return webPageEntity;
     }
 

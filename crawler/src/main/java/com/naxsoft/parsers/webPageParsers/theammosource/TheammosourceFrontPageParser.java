@@ -35,6 +35,7 @@ public class TheammosourceFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(el.attr("abs:href"));
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -48,8 +49,23 @@ public class TheammosourceFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=1")); // Ammo
-        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=2")); // FIREARMS
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=1", "ammo")); // Ammo
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=286", "ammo")); // Ammo
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=2", "firearm")); // FIREARMS
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=166", "firearm")); // FIREARMS
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=520", "firearm")); // FIREARMS
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=340", "misc")); // Misc
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=635", "misc")); // Misc
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=14", "misc")); // Misc
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=207", "misc")); // Misc
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=497", "misc")); // Misc
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=750", "misc")); // Misc
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=373", "misc")); // Misc
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=308", "misc")); // Misc
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=412", "misc")); // Misc
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=15", "reload")); // reload
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=222", "optic")); // optic
+        webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=21", "optic")); // optic
 
         return Observable.from(webPageEntities)
                 .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
@@ -58,11 +74,12 @@ public class TheammosourceFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from);
     }
 
-    private static WebPageEntity create(String url) {
+    private static WebPageEntity create(String url, String category) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
+        webPageEntity.setCategory(category);
         return webPageEntity;
     }
 

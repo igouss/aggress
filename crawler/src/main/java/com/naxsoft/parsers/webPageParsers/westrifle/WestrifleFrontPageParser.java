@@ -5,7 +5,9 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import com.ning.http.client.ListenableFuture;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +29,25 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
 
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("#allProductsListingTopNumber > strong:nth-child(3)");
+        Elements elements = document.select(".leftBoxContainer .category-top");
+        for(Element e : elements) {
+            WebPageEntity webPageEntity = new WebPageEntity();
+            webPageEntity.setUrl(e.attr("abs:href"));
+            webPageEntity.setParsed(false);
+            webPageEntity.setType("tmp");
+            webPageEntity.setCategory(e.text());
+            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+            result.add(webPageEntity);
+        }
+        return result;
+    }
+
+    private Collection<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+
+        Set<WebPageEntity> result = new HashSet<>();
+
+        Elements elements = document.select("#productsListingTopNumber > strong:nth-child(3)");
         int productTotal = Integer.parseInt(elements.text());
         int pageTotal = (int) Math.ceil(productTotal / 10.0);
 
@@ -36,7 +56,7 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(document.location() + "&page=" + i);
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("n/a");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -49,22 +69,15 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://westrifle.com/wrstore/index.php?main_page=products_all&disp_order=1"));
-        return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
+        ListenableFuture<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
+        return Observable.from(future)
                 .map(this::parseDocument)
-                .flatMap(Observable::from);
+                .flatMap(Observable::from)
+                .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
+                .flatMap(Observable::from)
+                .flatMap(document -> Observable.from(parseDocument2(document)));
     }
 
-    private static WebPageEntity create(String url) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        return webPageEntity;
-    }
 
     @Override
     public boolean canParse(WebPageEntity webPage) {

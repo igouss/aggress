@@ -33,16 +33,19 @@ public class MarstarProductListParser extends AbstractWebPageParser {
         Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
         for (Element e : elements) {
             WebPageEntity webPageEntity = getProductPage(e);
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }
         elements = document.select(".baseTable td:nth-child(1) > a");
         for (Element e : elements) {
             WebPageEntity webPageEntity = getProductPage(e);
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }
         elements = document.select("div.subcategoryName a");
         for (Element e : elements) {
             WebPageEntity webPageEntity = getProductList(e);
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }
         return result;

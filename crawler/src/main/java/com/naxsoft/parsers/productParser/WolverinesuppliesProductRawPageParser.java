@@ -8,17 +8,31 @@ package com.naxsoft.parsers.productParser;
 import com.google.gson.Gson;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import org.apache.commons.collections4.map.ListOrderedMap;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
+    private static Map<String, String> mapping = new ListOrderedMap<>();
+
+    static {
+        mapping.put("firearm", "firearm");
+        mapping.put("optics", "optic");
+        mapping.put("ammunition", "ammo");
+        mapping.put("ammo-reloading-equipment", "reload");
+        mapping.put("ammo-reloading-components", "reload");
+        mapping.put("reloading", "reload");
+
+    }
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -59,10 +73,12 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
     }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String category = webPageEntity.getCategory();
-        if (null != category) {
-            return category.split(",");
+        for (String category : mapping.keySet()) {
+            if (webPageEntity.getUrl().contains(category)) {
+                return mapping.get(category).split(",");
+            }
         }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
 

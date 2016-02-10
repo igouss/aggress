@@ -52,9 +52,9 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
             } else {
                 webPageEntity.setUrl(document.location() + "index " + i + ".html");
             }
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("n/a");
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -70,7 +70,13 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.wanstallsonline.com/firearms/"));
+        webPageEntities.add(create("http://www.wanstallsonline.com/firearms/", "firearm"));
+        webPageEntities.add(create("http://www.wanstallsonline.com/optics/", "optic"));
+        webPageEntities.add(create("http://www.wanstallsonline.com/tactical-accessories/", "misc"));
+        webPageEntities.add(create("http://www.wanstallsonline.com/gun-cleaning/", "misc"));
+        webPageEntities.add(create("http://www.wanstallsonline.com/storage-transport/", "misc"));
+        webPageEntities.add(create("http://www.wanstallsonline.com/hunting-shooting-supplies/", "misc"));
+        webPageEntities.add(create("http://www.wanstallsonline.com/firearms-ammunition", "ammo"));
         return Observable.from(webPageEntities)
                 .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
@@ -78,11 +84,12 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from);
     }
 
-    private static WebPageEntity create(String url) {
+    private static WebPageEntity create(String url, String category) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
+        webPageEntity.setCategory(category);
         return webPageEntity;
     }
 

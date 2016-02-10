@@ -95,10 +95,9 @@ public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
         if (null != s) {
             String[] result = s.split(",");
             return result;
-        } else {
-            LOGGER.error("Invalid category: " + webPageEntity);
-            return new String[]{"misc"};
         }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        return new String[]{"misc"};
     }
 
     /**

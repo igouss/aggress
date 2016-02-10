@@ -100,7 +100,7 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
                 return mapping.get(urlPattern).split(",");
             }
         }
-        LOGGER.error("Invalid category: " + webPageEntity);
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
 

@@ -21,18 +21,7 @@ public class WestrifleProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, webPage))
-                .filter(data -> {
-                    if (null != data) {
-                        return true;
-                    } else {
-                        LOGGER.error("failed to download web page {}", webPage.getUrl());
-                        return false;
-                    }
-                }).map(webPageEntity -> {
-                    webPageEntity.setCategory(webPage.getCategory());
-                    return webPageEntity;
-                });
+        return Observable.from(PageDownloader.download(client, webPage)).filter(data -> null != data);
     }
 
     @Override

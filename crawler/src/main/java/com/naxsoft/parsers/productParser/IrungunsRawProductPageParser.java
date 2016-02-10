@@ -102,7 +102,7 @@ public class IrungunsRawProductPageParser extends AbstractRawPageParser {
                 String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
                 String specValue = values.next().text();
                 if (specName.contains("Department")) {
-                    jsonBuilder.field("category", getNormalizedCategories(specValue));
+                    jsonBuilder.field("category", getNormalizedCategories(webPageEntity, specValue));
                 } else {
                     jsonBuilder.field(specName, specValue);
                 }
@@ -117,10 +117,11 @@ public class IrungunsRawProductPageParser extends AbstractRawPageParser {
 
     }
 
-    private String[] getNormalizedCategories(String category) {
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity, String category) {
         if (mapping.containsKey(category)) {
             return mapping.get(category).split(",");
         }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
 

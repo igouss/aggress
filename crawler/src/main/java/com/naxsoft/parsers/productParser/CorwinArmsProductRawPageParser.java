@@ -75,8 +75,11 @@ public class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
     }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String[] result = mapping.get(webPageEntity.getCategory()).split(",");
-        return result;
+        if (mapping.containsKey(webPageEntity.getCategory())) {
+            return mapping.get(webPageEntity.getCategory()).split(",");
+        }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        return new String[]{"misc"};
     }
 
     /**

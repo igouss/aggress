@@ -76,11 +76,12 @@ public class MarstarRawProductPageParser extends AbstractRawPageParser {
 
     }
 
-    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+    private static String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (null != category) {
             return category.split(",");
         }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
 

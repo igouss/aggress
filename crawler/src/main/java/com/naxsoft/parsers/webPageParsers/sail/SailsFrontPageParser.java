@@ -45,7 +45,7 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(el.attr("abs:href") + "?limit=36");
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("n/a");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -59,9 +59,10 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearms"));
-        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearm-accessories"));
-        webPageEntities.add(create("http://www.sail.ca/en/hunting/ammunition"));
+        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearms", "firearm"));
+        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearm-accessories", "firearm"));
+        webPageEntities.add(create("http://www.sail.ca/en/hunting/optics-and-shooting-accessories", "optic"));
+        webPageEntities.add(create("http://www.sail.ca/en/hunting/ammunition", "ammo"));
         return Observable.from(webPageEntities)
                 .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
@@ -69,12 +70,12 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from);
     }
 
-    private static WebPageEntity create(String url) {
+    private static WebPageEntity create(String url, String category) {
         WebPageEntity webPageEntity = new WebPageEntity();
         webPageEntity.setUrl(url);
         webPageEntity.setParsed(false);
         webPageEntity.setType("productList");
-        webPageEntity.setCategory("n/a");
+        webPageEntity.setCategory(category);
         return webPageEntity;
     }
 

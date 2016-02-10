@@ -76,9 +76,7 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
                 return products;
             }
 
-
             jsonBuilder.field("productName", productName);
-
             jsonBuilder.field("productImage", document.select(".product-img-box img").attr("abs:src"));
 
             Elements specialPrice = document.select(".special-price .price");
@@ -105,6 +103,7 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
         if (mapping.containsKey(category)) {
             return mapping.get(category).split(",");
         }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
 

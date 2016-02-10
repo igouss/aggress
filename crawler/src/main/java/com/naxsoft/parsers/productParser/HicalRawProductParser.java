@@ -86,10 +86,9 @@ public class HicalRawProductParser extends AbstractRawPageParser {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {
             return s.split(",");
-        } else {
-            LOGGER.error("Invalid category: " + webPageEntity);
-            return new String[]{"misc"};
         }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        return new String[]{"misc"};
     }
 
     /**
