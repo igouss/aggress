@@ -11,7 +11,6 @@ import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -94,11 +93,6 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
 
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-        parseDocument(webPageEntity, result, document);
-        return result;
-    }
-
-    private void parseDocument(WebPageEntity webPageEntity, HashSet<ProductEntity> result, Document document) throws IOException {
         String productName = document.select(".product_name").text();
         LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
@@ -119,6 +113,7 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
                 }
                 jsonBuilder.field("description", document.select(".product_section .description").text());
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+
                 Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
                 Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
                 while (labels.hasNext()) {
@@ -135,8 +130,9 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
             product.setWebpageId(webPageEntity.getId());
             result.add(product);
         }
-    }
 
+        return result;
+    }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());

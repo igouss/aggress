@@ -133,7 +133,9 @@ public class Database implements AutoCloseable, Cloneable {
         query.setCacheable(false);
         query.setReadOnly(true);
         query.setFetchSize(BATCH_SIZE);
-        return query.scroll(ScrollMode.FORWARD_ONLY);
+        LOGGER.info("Scroll SQL {}", query.getQueryString());
+        ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
+        return results;
     }
 
     /**

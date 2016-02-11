@@ -53,11 +53,14 @@ public class WebPageService {
     public int markParsed(WebPageEntity webPageEntity) {
         int rc = -1;
         if (0 == webPageEntity.getId()) {
-            LOGGER.error("Trying to save a webpage with id=0 {}", webPageEntity);
+//            LOGGER.error("Trying to save a webpage with id=0 {}", webPageEntity);
+            throw new RuntimeException("Trying to save a webpage with id=0" + webPageEntity);
         } else {
             rc = database.executeTransaction(session -> {
                 Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
-                return query.setLong("id", webPageEntity.getId()).executeUpdate();
+                query.setLong("id", webPageEntity.getId());
+                int affectedRows = query.executeUpdate();
+                return affectedRows;
             });
         }
         return rc;
@@ -84,7 +87,6 @@ public class WebPageService {
                     });
                     LOGGER.info("Unparsed number of entries of type {} is {}", type, rowCount);
                     if (0L == rowCount) {
-                        subscriber.onNext(rowCount);
                         subscriber.onCompleted();
                         break;
                     } else {

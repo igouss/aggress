@@ -29,7 +29,7 @@ public class WestrifleProductListParser extends AbstractWebPageParser {
 
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("#allProductsDefault > form > table > tbody > tr > td > a");
+        Elements elements = document.select(".itemTitle a");
         for (Element element : elements) {
             WebPageEntity webPageEntity = new WebPageEntity();
             webPageEntity.setUrl(element.attr("abs:href"));
