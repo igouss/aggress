@@ -28,7 +28,7 @@ public class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
 
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        String elements = document.select("div.amount-container > p").text();
+        String elements = document.select("#adj-nav-container > div.category-products > div.toolbar  div.amount-container > p").text();
         Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
         if (!matcher.find()) {
             LOGGER.error("Unable to parse total pages");
@@ -43,7 +43,7 @@ public class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setUrl(document.location() + "&p=" + i);
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("n/a");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -58,8 +58,8 @@ public class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("https://ellwoodepps.com/hunting/accessories.html?product_sold=3175", "firearm"));
-        webPageEntities.add(create("https://ellwoodepps.com/hunting/firearms.html?product_sold=3175", "tmp"));
+        webPageEntities.add(create("https://ellwoodepps.com/hunting/accessories.html?product_sold=3175", "accessories"));
+        webPageEntities.add(create("https://ellwoodepps.com/hunting/firearms.html?product_sold=3175", "firearm"));
 
         return Observable.from(webPageEntities)
                 .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
