@@ -37,7 +37,7 @@ public class CrawlCommand implements Command {
     public void run() throws CLIException {
         process(webPageService.getUnparsedByType("frontPage"));
         process(webPageService.getUnparsedByType("productList"));
-        process(webPageService.getUnparsedByType("productPage"));
+
 //        webPageService.getUnparsedCount("frontPage").take(1).subscribe(value -> {
 //            LOGGER.info("Unparsed frontPage = {}", value);
 //        });

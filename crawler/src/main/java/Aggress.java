@@ -12,6 +12,7 @@ import com.naxsoft.commands.*;
 import com.naxsoft.crawler.HttpClientImpl;
 import com.naxsoft.database.*;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
+import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.util.SslUtils;
 import joptsimple.OptionParser;
@@ -107,6 +108,7 @@ public class Aggress {
 
             context.setFetchClient(asyncFetchClient);
             context.setProductParserFactory(new ProductParserFactory());
+            context.setWebPageParserFactory(new WebPageParserFactory(asyncFetchClient));
 
             setProperty("jsse.enableSNIExtension", "false");
             setProperty("jdk.tls.trustNameService", "true");

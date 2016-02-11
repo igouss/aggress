@@ -10,6 +10,8 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.productParser.ProductParser;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
+import com.naxsoft.parsers.webPageParsers.WebPageParser;
+import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -33,6 +35,7 @@ public class ParseCommand implements Command {
     private ProductParserFactory productParserFactory = null;
     private MetricRegistry metrics = null;
     private String indexSuffix = null;
+    private WebPageParserFactory webPageParserFactory;
 
     public ParseCommand() {
         validCategories.add("n/a");
@@ -48,16 +51,34 @@ public class ParseCommand implements Command {
         productService = context.getProductService();
         elastic = context.getElastic();
         productParserFactory = context.getProductParserFactory();
+        webPageParserFactory = context.getWebPageParserFactory();
         metrics = context.getMetrics();
         indexSuffix = context.getIndexSuffix();
     }
 
     @Override
     public void run() throws CLIException {
-        Observable<WebPageEntity> productPageRaw = webPageService.getUnparsedByType("productPageRaw");
-        processProducts(productPageRaw);
-        indexProducts(productService.getProducts(), "product" + indexSuffix, "guns");
-        productService.markAllAsIndexed();
+        Observable<ProductEntity> products = webPageService.getUnparsedByType("productPage").flatMap(webPageEntity -> {
+            WebPageParser parser = webPageParserFactory.getParser(webPageEntity);
+            webPageService.markParsed(webPageEntity);
+            return parser.parse(webPageEntity);
+        }).map(pageToParse -> {
+            Set<ProductEntity> result = null;
+            try {
+                ProductParser parser = productParserFactory.getParser(pageToParse);
+                Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
+                Timer.Context time = parseTime.time();
+                result = parser.parse(pageToParse);
+                time.stop();
+            } catch (Exception e) {
+                LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
+            }
+            return result;
+        }).filter(webPageEntities -> null != webPageEntities)
+                .flatMap(Observable::from);
+        indexProducts(products, "product" + indexSuffix, "guns");
+
+
         LOGGER.info("Parsing complete");
     }
 
@@ -67,6 +88,7 @@ public class ParseCommand implements Command {
         productService = null;
         elastic = null;
         productParserFactory = null;
+        webPageParserFactory = null;
         metrics = null;
         indexSuffix = null;
     }
@@ -84,36 +106,5 @@ public class ParseCommand implements Command {
         return elastic.index(products, index, type);
     }
 
-    /**
-     * Parse stream of webpages and save product entries into the database
-     *
-     * @param pagesToParse Stream of pages to parse
-     */
-    private void processProducts(Observable<WebPageEntity> pagesToParse) {
-        pagesToParse
-                .map(pageToParse -> {
-                    Set<ProductEntity> result = null;
-                    try {
-                        ProductParser parser = productParserFactory.getParser(pageToParse);
-                        Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
-                        Timer.Context time = parseTime.time();
-                        result = parser.parse(pageToParse);
-                        time.stop();
-                        if (null != result) {
-                            pageToParse.setParsed(true);
-                            if (0 == webPageService.markParsed(pageToParse)) {
-                                LOGGER.error("Failed to make page as parsed {}", pageToParse);
-                                result = null;
-                            }
-                        } else {
-                            LOGGER.error("failed to parse {}", pageToParse);
-                        }
 
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
-                    }
-                    return result;
-                }).filter(webPageEntities -> null != webPageEntities)
-                .subscribe(productService::save, ex -> LOGGER.error("Parser Process Exception", ex));
-    }
 }

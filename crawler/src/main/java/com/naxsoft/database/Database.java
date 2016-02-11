@@ -140,12 +140,13 @@ public class Database implements AutoCloseable, Cloneable {
 
     /**
      * Get the observable result. Rows are loaded one at time from the database.
+     *
      * @param result Record set over which to iterate
      * @return Observable result stream
      */
     private static <T> Observable<T> scrollResults(ScrollableResults result) {
         return Observable.<T>create(subscriber -> {
-            while (!subscriber.isUnsubscribed() && result.next()) {
+            while (result.next()) {
                 LOGGER.info("Scroll row# {}", result.getRowNumber());
                 T t = (T) result.get(0);
                 if (null == t) {
@@ -154,9 +155,7 @@ public class Database implements AutoCloseable, Cloneable {
                     subscriber.onNext(t);
                 }
             }
-            if (!subscriber.isUnsubscribed()) {
-                subscriber.onCompleted();
-            }
+            subscriber.onCompleted();
         });
     }
 }
