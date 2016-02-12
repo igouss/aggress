@@ -9,7 +9,9 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,11 +133,10 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
 
         boolQueryBuilder.must(searchQuery);
-         if (null != category && !category.isEmpty()) {
+        if (null != category && !category.isEmpty() && !category.equalsIgnoreCase("all")) {
             boolQueryBuilder.must(QueryBuilders.existsQuery("category"));
             boolQueryBuilder.filter(QueryBuilders.termQuery("category", category));
         }
-
 
         LOGGER.info("{}", boolQueryBuilder);
 
