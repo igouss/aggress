@@ -25,14 +25,62 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
     private static Map<String, String> mapping = new ListOrderedMap<>();
 
     static {
-        mapping.put("firearm", "firearm");
-        mapping.put("optics", "optic");
-        mapping.put("ammunition", "ammo");
-        mapping.put("ammo-reloading-equipment", "reload");
-        mapping.put("ammo-reloading-components", "reload");
-        mapping.put("reloading", "reload");
+        mapping.put("Rifles", "firearm");
+        mapping.put("Surplus Rifles", "firearm");
+        mapping.put("Rimfire Rifles", "firearm");
+        mapping.put("Muzzleloaders", "firearm");
+        mapping.put("Hunting Rifles", "firearm");
+        mapping.put("Big Game Rifles", "firearm");
+        mapping.put("Tactical Rifles", "firearm");
+        mapping.put("Shotguns", "firearm");
+        mapping.put("Tactical Shotguns", "firearm");
+        mapping.put("Hunting Shotguns", "firearm");
+        mapping.put("Handguns", "firearm");
+        mapping.put("Surplus Handguns", "firearm");
+        mapping.put("Revolvers", "firearm");
+        mapping.put("Antique & Misc. Handguns", "firearm");
+        mapping.put("Semi Auto Handguns", "firearm");
+        mapping.put("Special Purpose", "firearm");
+        mapping.put("Airguns over 500FPS", "firearm");
+        mapping.put("Airguns under 500FPS", "firearm");
+        mapping.put("OEM Parts", "misc");
 
-    }
+
+        mapping.put("Hunting Scopes", "optic");
+        mapping.put("Tactical Scopes-sights", "optic");
+        mapping.put("Rimfire Scopes", "optic");
+        mapping.put("Nightvision", "optic");
+        mapping.put("Optics Accessories", "optic");
+        mapping.put("Observation", "optic");
+        mapping.put("Trail Camera", "optic");
+        mapping.put("Spotting Scopes", "optic");
+        mapping.put("Rangefinders", "optic");
+        mapping.put("Binoculars", "optic");
+        mapping.put("Mounting", "optic");
+        mapping.put("Scope Rings", "optic");
+        mapping.put("Scope Bases", "optic");
+
+
+        mapping.put("Muzzleloading", "ammo");
+        mapping.put("Air Gun Pellets", "ammo");
+        mapping.put("Handgun Ammo", "ammo");
+        mapping.put("Practice Ammo", "ammo");
+        mapping.put("Rimfire Ammo", "ammo");
+
+        mapping.put("Reloading", "reload");
+        mapping.put("Reloading Components", "reload");
+        mapping.put("Reloading Equipment", "reload");
+
+        mapping.put("Rifle Ammo", "ammo");
+        mapping.put("Premium Rifle Ammo", "ammo");
+        mapping.put("Hunting Rifle Ammo", "ammo");
+        mapping.put("FMJ Rifle Ammo", "ammo");
+        mapping.put("Big Game Rifle Ammo", "ammo");
+        mapping.put("Surplus Rifle Ammo", "ammo");
+        mapping.put("Shotgun Ammo", "ammo");
+        mapping.put("Shotgun Ammo -Steel", "ammo");
+        mapping.put("Shotgun Ammo -Lead", "ammo");
+  }
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {

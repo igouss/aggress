@@ -76,15 +76,13 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        ListenableFuture<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
-        Observable<WebPageEntity> tmpObservable = Observable.from(future)
-                .map((document) -> parseDocument(document))
+        return Observable.from(client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .map(this::parseDocument)
+                .flatMap(Observable::from)
+                .map(webPageEntity1 -> PageDownloader.download(client, webPageEntity1))
+                .flatMap(Observable::from)
+                .map(this::onCompleted)
                 .flatMap(Observable::from);
-
-        return tmpObservable.flatMap(tmp -> {
-            Future<WebPageEntity> result = PageDownloader.download(client, tmp);
-            return Observable.from(result);
-        }).flatMap(webPageEntity1 -> Observable.from(onCompleted(webPageEntity1)));
     }
 
 

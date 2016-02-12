@@ -74,27 +74,22 @@ public class WebPageService {
      */
     public Observable<Long> getUnparsedCount(String type) {
         return Observable.create(subscriber -> {
-            try {
-                long rowCount = 0L;
-                do {
-                    rowCount = database.executeQuery(session -> {
-                        Long count = 0L;
-                        String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
-                        Query query = session.createQuery(queryString);
-                        query.setString("type", type);
-                        count = (Long) query.list().get(0);
-                        return count;
-                    });
-                    LOGGER.info("Unparsed number of entries of type {} is {}", type, rowCount);
-                    if (0L == rowCount) {
-                        subscriber.onCompleted();
-                        break;
-                    } else {
-                        subscriber.onNext(rowCount);
-                    }
-                } while (true);
-            } catch (Exception e) {
-                subscriber.onError(e);
+            while (!subscriber.isUnsubscribed()) {
+                long rowCount = database.executeQuery(session -> {
+                    Long count = 0L;
+                    String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
+                    Query query = session.createQuery(queryString);
+                    query.setString("type", type);
+                    count = (Long) query.list().get(0);
+                    return count;
+                });
+                LOGGER.info("Unparsed number of entries of type {} is {}", type, rowCount);
+                if (0L == rowCount) {
+                    subscriber.onCompleted();
+                    break;
+                } else {
+                    subscriber.onNext(rowCount);
+                }
             }
         });
     }

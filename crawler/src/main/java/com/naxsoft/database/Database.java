@@ -146,7 +146,7 @@ public class Database implements AutoCloseable, Cloneable {
      */
     private static <T> Observable<T> scrollResults(ScrollableResults result) {
         return Observable.<T>create(subscriber -> {
-            while (result.next()) {
+            while (!subscriber.isUnsubscribed() && result.next()) {
                 LOGGER.info("Scroll row# {}", result.getRowNumber());
                 T t = (T) result.get(0);
                 if (null == t) {
