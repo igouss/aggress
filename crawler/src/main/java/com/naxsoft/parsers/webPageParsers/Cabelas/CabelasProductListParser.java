@@ -101,6 +101,7 @@ public class CabelasProductListParser extends AbstractWebPageParser {
         productPage.setUrl(url);
         productPage.setParsed(false);
         productPage.setType("productPage");
+        LOGGER.info("productPage={}", url);
         return productPage;
     }
 

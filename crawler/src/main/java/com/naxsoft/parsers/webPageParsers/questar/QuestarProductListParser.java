@@ -29,11 +29,12 @@ public class QuestarProductListParser extends AbstractWebPageParser {
 
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".productItemInfo a");
+        Elements elements = document.select("form > table > tbody > tr > td a");
         for (Element element : elements) {
             WebPageEntity webPageEntity = new WebPageEntity();
             webPageEntity.setUrl(element.attr("abs:href"));
             webPageEntity.setParsed(false);
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             webPageEntity.setType("productPage");
             LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);

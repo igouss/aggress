@@ -61,12 +61,12 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productName", productName);
             jsonBuilder.field("productImage", document.select(".wp-post-image").attr("src"));
 
-            String specialPrice = document.select(".price ins span").text();
+            String specialPrice = document.select(".entry-summary .price ins span").text();
             if ("".equals(specialPrice)) {
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".price .amount").text()));
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".entry-summary .amount").text()));
             } else {
                 jsonBuilder.field("specialPrice", parsePrice(specialPrice));
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".price .amount").text()));
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".entry-summary del .amount").text()));
             }
 
 
