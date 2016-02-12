@@ -95,7 +95,7 @@ require(['jquery', 'bootstrap', 'mustache'], function ($, bootStrap, m) {
                 }
 
                 $.each(element, function (key, value) {
-                    if (key == "productImage" || key == "productName" || key == "url" || value == "category" || value == "") {
+                    if (key == "productImage" || key == "productName" || key == "url" || key == "category" || value == "") {
                         // Useful for debugging. Do not show to the user.
                     } else {
                         var rowHtml = "";
