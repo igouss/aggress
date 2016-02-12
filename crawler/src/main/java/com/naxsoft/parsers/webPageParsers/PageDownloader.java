@@ -51,6 +51,8 @@ public class PageDownloader {
                     webPageEntity.setCategory(parent.getCategory());
                     result = webPageEntity;
                     LOGGER.info("productPageRaw={}", webPageEntity.getUrl());
+                } else {
+                    LOGGER.error("Bad HTTP code={} page={}", response.getStatusCode(), response.getUri());
                 }
                 return result;
             }

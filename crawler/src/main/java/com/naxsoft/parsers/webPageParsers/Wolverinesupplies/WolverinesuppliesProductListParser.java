@@ -31,22 +31,26 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
 
     public Set<WebPageEntity> onCompleted(WebPageEntity webPageEntity) {
         Set<WebPageEntity> result = new HashSet<>();
-        String productDetailsJson = webPageEntity.getContent();
-        Matcher itemNumberMatcher = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"").matcher(productDetailsJson);
-        StringBuilder sb = new StringBuilder();
+        try {
+            String productDetailsJson = webPageEntity.getContent();
+            Matcher itemNumberMatcher = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"").matcher(productDetailsJson);
+            StringBuilder sb = new StringBuilder();
 
-        while (itemNumberMatcher.find()) {
-            sb.append(itemNumberMatcher.group(1));
-            sb.append(',');
-        }
+            while (itemNumberMatcher.find()) {
+                sb.append(itemNumberMatcher.group(1));
+                sb.append(',');
+            }
 
-        if (0 != sb.length()) {
-            WebPageEntity e = new WebPageEntity();
-            e.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
-            e.setType("productPage");
-            e.setCategory(webPageEntity.getCategory());
-            LOGGER.info("productPage={}", e.getUrl());
-            result.add(e);
+            if (0 != sb.length()) {
+                WebPageEntity e = new WebPageEntity();
+                e.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
+                e.setType("productPage");
+                e.setCategory(webPageEntity.getCategory());
+                LOGGER.info("productPage={}", e.getUrl());
+                result.add(e);
+            }
+        } catch (NullPointerException npe) {
+            LOGGER.error("NPE = {}", webPageEntity, npe);
         }
         return result;
     }
@@ -81,6 +85,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                 .flatMap(Observable::from)
                 .map(webPageEntity1 -> PageDownloader.download(client, webPageEntity1))
                 .flatMap(Observable::from)
+                .filter(data -> null != data)
                 .map(this::onCompleted)
                 .flatMap(Observable::from);
     }
