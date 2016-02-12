@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Elastic implements AutoCloseable, Cloneable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Elastic.class);
+    public static final int BATCH_SIZE = 1;
     private TransportClient client = null;
 
     /**
@@ -67,7 +68,7 @@ public class Elastic implements AutoCloseable, Cloneable {
     }
 
     /**
-     *
+     * Close connection to ElasticSearch server
      */
     public void close() {
         if (null != client) {
@@ -90,7 +91,7 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @return
      */
     public Subscription index(Observable<ProductEntity> products, String index, String type) {
-        return products.buffer(200).map(list -> {
+        return products.buffer(BATCH_SIZE).map(list -> {
             BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
             for (ProductEntity p : list) {
                 try {
