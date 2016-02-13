@@ -37,7 +37,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         categories.put("Modern Military and Black Rifles", "firearm");
         categories.put("Rimfire Firearms", "firearm");
         categories.put("Optics and Sights", "optic");
-        categories.put("Factory Ammo and Reloading Equipment", "reload");
+        categories.put("Factory Ammo and Reloading Equipment", "reload,ammo");
     }
 
     private final HttpClient client;
