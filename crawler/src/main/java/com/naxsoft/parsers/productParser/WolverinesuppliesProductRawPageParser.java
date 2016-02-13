@@ -25,61 +25,65 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
     private static Map<String, String> mapping = new ListOrderedMap<>();
 
     static {
-        mapping.put("Rifles", "firearm");
-        mapping.put("Surplus Rifles", "firearm");
-        mapping.put("Rimfire Rifles", "firearm");
-        mapping.put("Muzzleloaders", "firearm");
-        mapping.put("Hunting Rifles", "firearm");
-        mapping.put("Big Game Rifles", "firearm");
-        mapping.put("Tactical Rifles", "firearm");
-        mapping.put("Shotguns", "firearm");
-        mapping.put("Tactical Shotguns", "firearm");
-        mapping.put("Hunting Shotguns", "firearm");
-        mapping.put("Handguns", "firearm");
-        mapping.put("Surplus Handguns", "firearm");
-        mapping.put("Revolvers", "firearm");
-        mapping.put("Antique & Misc. Handguns", "firearm");
-        mapping.put("Semi Auto Handguns", "firearm");
-        mapping.put("Special Purpose", "firearm");
-        mapping.put("Airguns over 500FPS", "firearm");
-        mapping.put("Airguns under 500FPS", "firearm");
-        mapping.put("OEM Parts", "misc");
+        mapping.put("rifles", "firearm");
+        mapping.put("surplus rifles", "firearm");
+        mapping.put("rimfire rifles", "firearm");
+        mapping.put("muzzleloaders", "firearm");
+        mapping.put("hunting rifles", "firearm");
+        mapping.put("big game rifles", "firearm");
+        mapping.put("tactical rifles", "firearm");
+        mapping.put("shotguns", "firearm");
+        mapping.put("tactical shotguns", "firearm");
+        mapping.put("hunting shotguns", "firearm");
+        mapping.put("handguns", "firearm");
+        mapping.put("surplus handguns", "firearm");
+        mapping.put("revolvers", "firearm");
+        mapping.put("antique & misc. handguns", "firearm");
+        mapping.put("semi auto handguns", "firearm");
+        mapping.put("special purpose", "firearm");
+        mapping.put("airguns over 500fps", "firearm");
+        mapping.put("airguns under 500fps", "firearm");
+        mapping.put("oem parts", "misc");
+
+        mapping.put("semi-auto handguns", "firearm");
+        mapping.put("commemorative", "firearm");
+        mapping.put("antique handguns", "firearm");
 
 
-        mapping.put("Hunting Scopes", "optic");
-        mapping.put("Tactical Scopes-sights", "optic");
-        mapping.put("Rimfire Scopes", "optic");
-        mapping.put("Nightvision", "optic");
-        mapping.put("Optics Accessories", "optic");
-        mapping.put("Observation", "optic");
-        mapping.put("Trail Camera", "optic");
-        mapping.put("Spotting Scopes", "optic");
-        mapping.put("Rangefinders", "optic");
-        mapping.put("Binoculars", "optic");
-        mapping.put("Mounting", "optic");
-        mapping.put("Scope Rings", "optic");
-        mapping.put("Scope Bases", "optic");
+        mapping.put("hunting scopes", "optic");
+        mapping.put("tactical scopes-sights", "optic");
+        mapping.put("rimfire scopes", "optic");
+        mapping.put("nightvision", "optic");
+        mapping.put("optics accessories", "optic");
+        mapping.put("observation", "optic");
+        mapping.put("trail camera", "optic");
+        mapping.put("spotting scopes", "optic");
+        mapping.put("rangefinders", "optic");
+        mapping.put("binoculars", "optic");
+        mapping.put("mounting", "optic");
+        mapping.put("scope rings", "optic");
+        mapping.put("scope bases", "optic");
 
 
-        mapping.put("Muzzleloading", "ammo");
-        mapping.put("Air Gun Pellets", "ammo");
-        mapping.put("Handgun Ammo", "ammo");
-        mapping.put("Practice Ammo", "ammo");
-        mapping.put("Rimfire Ammo", "ammo");
+        mapping.put("muzzleloading", "ammo");
+        mapping.put("air gun pellets", "ammo");
+        mapping.put("handgun ammo", "ammo");
+        mapping.put("practice ammo", "ammo");
+        mapping.put("rimfire ammo", "ammo");
 
-        mapping.put("Reloading", "reload");
-        mapping.put("Reloading Components", "reload");
-        mapping.put("Reloading Equipment", "reload");
+        mapping.put("reloading", "reload");
+        mapping.put("reloading components", "reload");
+        mapping.put("reloading equipment", "reload");
 
-        mapping.put("Rifle Ammo", "ammo");
-        mapping.put("Premium Rifle Ammo", "ammo");
-        mapping.put("Hunting Rifle Ammo", "ammo");
-        mapping.put("FMJ Rifle Ammo", "ammo");
-        mapping.put("Big Game Rifle Ammo", "ammo");
-        mapping.put("Surplus Rifle Ammo", "ammo");
-        mapping.put("Shotgun Ammo", "ammo");
-        mapping.put("Shotgun Ammo -Steel", "ammo");
-        mapping.put("Shotgun Ammo -Lead", "ammo");
+        mapping.put("rifle ammo", "ammo");
+        mapping.put("premium rifle ammo", "ammo");
+        mapping.put("hunting rifle ammo", "ammo");
+        mapping.put("fmj rifle ammo", "ammo");
+        mapping.put("big game rifle ammo", "ammo");
+        mapping.put("surplus rifle ammo", "ammo");
+        mapping.put("shotgun ammo", "ammo");
+        mapping.put("shotgun ammo -steel", "ammo");
+        mapping.put("shotgun ammo -lead", "ammo");
   }
 
     @Override
@@ -121,10 +125,8 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
     }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        for (String category : mapping.keySet()) {
-            if (webPageEntity.getUrl().contains(category)) {
-                return mapping.get(category).split(",");
-            }
+        if (mapping.containsKey(webPageEntity.getCategory().toLowerCase())) {
+            return mapping.get(webPageEntity.getCategory().toLowerCase()).split(",");
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};

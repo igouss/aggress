@@ -135,7 +135,8 @@ public class AlflahertysRawPageParser extends AbstractRawPageParser {
     }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String s = mapping.get(webPageEntity.getCategory());
+        String category = webPageEntity.getCategory().toUpperCase();
+        String s = mapping.get(category);
         if (null != s) {
             String[] result = s.split(",");
             return result;
