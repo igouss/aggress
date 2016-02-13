@@ -33,6 +33,10 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             String productName = document.select("div.postdetails h2").text();
+            if (productName.isEmpty()) {
+                productName = document.select("div.postbody h2.title").text();
+            }
+
             if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove") || productName.toLowerCase().contains("delete")) {
                 return products;
             }

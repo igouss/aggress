@@ -49,8 +49,12 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
         Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
 
-        String productName = document.select("#page-heading  h1").text();
+        String productName = document.select("h1.entry-title").first().text();
         LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+
+        if (!document.select(".entry-summary .out-of-stock").isEmpty()) {
+            return result;
+        }
 
         ProductEntity product = new ProductEntity();
         try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
