@@ -53,6 +53,7 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
         LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
         if (!document.select(".entry-summary .out-of-stock").isEmpty()) {
+            LOGGER.info("Product {} is out of stock. {}", productName, webPageEntity.getUrl());
             return result;
         }
 
