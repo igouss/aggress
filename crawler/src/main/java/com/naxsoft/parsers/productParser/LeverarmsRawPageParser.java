@@ -35,6 +35,8 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
         mapping.put("Semi-Automatic Pistols", "firearm");
         mapping.put("Revolvers", "firearm");
         mapping.put("Shotguns", "firearm");
+        mapping.put("Mauser K98k", "firearm,misc");
+        mapping.put("SKS", "firearm,misc");
 
         mapping.put("Rifle Ammo", "ammo");
         mapping.put("Pistol Ammo", "ammo");
@@ -43,8 +45,6 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
 
         mapping.put("Optics", "optic");
 
-        mapping.put("Mauser K98k", "firearm");
-        mapping.put("SKS", "firearm");
         mapping.put("Used", "firearm");
     }
 
