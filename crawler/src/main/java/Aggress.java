@@ -127,43 +127,50 @@ public class Aggress {
                 return (Long) query.uniqueResult();
             }));
 
+            if (options.has("server")) {
+                Command command = new HttpServerCommand();
+                command.setUp(context);
+                command.run();
+                command.tearDown();
+            }
+
             if (options.has("createESIndex")) {
-                CreateESIndexCommand command = new CreateESIndexCommand();
+                Command command = new CreateESIndexCommand();
                 command.setUp(context);
                 command.run();
                 command.tearDown();
             }
 
             if (options.has("createESMappings")) {
-                CreateESMappingCommand command = new CreateESMappingCommand();
+                Command command = new CreateESMappingCommand();
                 command.setUp(context);
                 command.run();
                 command.tearDown();
             }
 
             if (options.has("clean")) {
-                CleanDBCommand cleanDBCommand = new CleanDBCommand();
+                Command cleanDBCommand = new CleanDBCommand();
                 cleanDBCommand.setUp(context);
                 cleanDBCommand.run();
                 cleanDBCommand.tearDown();
             }
 
             if (options.has("populate")) {
-                PopulateDBCommand populateDBCommand = new PopulateDBCommand();
+                Command populateDBCommand = new PopulateDBCommand();
                 populateDBCommand.setUp(context);
                 populateDBCommand.run();
                 populateDBCommand.tearDown();
             }
 
             if (options.has("crawl")) {
-                CrawlCommand crawlCommand = new CrawlCommand();
+                Command crawlCommand = new CrawlCommand();
                 crawlCommand.setUp(context);
                 crawlCommand.run();
                 crawlCommand.tearDown();
             }
 
             if (options.has("parse")) {
-                ParseCommand parseCommand = new ParseCommand();
+                Command parseCommand = new ParseCommand();
                 parseCommand.setUp(context);
                 parseCommand.run();
                 parseCommand.tearDown();
@@ -195,6 +202,7 @@ public class Aggress {
         parser.accepts("parse");
         parser.accepts("createESIndex");
         parser.accepts("createESMappings");
+        parser.accepts("server");
 
         return parser.parse(args);
     }
