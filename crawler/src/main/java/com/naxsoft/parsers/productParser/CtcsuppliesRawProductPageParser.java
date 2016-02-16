@@ -10,7 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +23,12 @@ import java.util.regex.Pattern;
 public class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesRawProductPageParser.class);
 
+    private static final Map<String, String> mapping = new HashMap<>();
+
+    static {
+        mapping.put("Optics / Sights / Flashlights", "optic");
+    }
+
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
@@ -28,6 +36,9 @@ public class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
         String productName = document.select(".product-single h1").text();
         LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
+        if (document.select("#AddToCartText").text().equalsIgnoreCase("Sold Out")) {
+            return result;
+        }
 
         ProductEntity product = new ProductEntity();
         try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
@@ -51,14 +62,14 @@ public class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
     }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String category = webPageEntity.getCategory();
-        if (null != category) {
-            return category.split(",");
+        String s = mapping.get(webPageEntity.getCategory());
+        if (null != s) {
+            String[] result = s.split(",");
+            return result;
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
-
 
     /**
      * @param price

@@ -24,11 +24,27 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Collection<WebPageEntity> parseCategories(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
 
         Set<WebPageEntity> result = new HashSet<>(1);
 
+        Elements elements = document.select("nav:nth-child(2) > ul a");
+        for (Element e : elements) {
+            WebPageEntity webPageEntity = new WebPageEntity();
+            webPageEntity.setUrl(e.attr("abs:href"));
+            webPageEntity.setParsed(false);
+            webPageEntity.setType("productList");
+            webPageEntity.setCategory(e.text());
+            LOGGER.info("productList = {}", webPageEntity.getUrl());
+            result.add(webPageEntity);
+        }
+        return result;
+    }
+
+    private Collection<WebPageEntity> parseCategoryPages(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+        Set<WebPageEntity> result = new HashSet<>(1);
         Elements elements = document.select("ul.pagination-custom  a");
         int max = 0;
         for (Element element : elements) {
@@ -43,10 +59,10 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
         }
         for (int i = 1; i <= max; i++) {
             WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl("http://ctcsupplies.ca/collections/all?page=" + i);
+            webPageEntity.setUrl(downloadResult.getSourcePage().getUrl() + "?page=" + i);
             webPageEntity.setParsed(false);
             webPageEntity.setType("productList");
-            webPageEntity.setCategory("misc");
+            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
             LOGGER.info("productList = {}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -60,8 +76,13 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        ListenableFuture<DownloadResult> future = client.get("http://ctcsupplies.ca/collections/all", new DocumentCompletionHandler(parent));
-        return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
+        return Observable.from(client.get(parent.getUrl(), new DocumentCompletionHandler(parent)))
+                .map(this::parseCategories)
+                .flatMap(Observable::from)
+                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(Observable::from)
+                .map(this::parseCategoryPages)
+                .flatMap(Observable::from);
     }
 
     @Override
