@@ -126,17 +126,20 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @return
      */
     public Observable<Integer> createIndex(HttpClient client, String index, String type, String indexSuffix) {
+        String resourceName = "/elastic." + index + "." + type + ".index.json";
+        InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         try {
-            String resourceName = "/elastic." + index + "." + type + ".index.json";
             String newIndexName = index + indexSuffix;
             LOGGER.info("Creating index {} type {} from {}", newIndexName, type, resourceName);
-            InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
+
             String indexContent = null;
             indexContent = IOUtils.toString(resourceAsStream);
             String url = "http://127.0.0.1:9200/" + newIndexName;
             return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()));
         } catch (Exception e) {
             LOGGER.error("Failed to create index", e);
+        } finally {
+            IOUtils.closeQuietly(resourceAsStream);
         }
         return Observable.empty();
     }
@@ -149,18 +152,21 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @return
      */
     public Observable<Integer> createMapping(HttpClient client, String index, String type, String indexSuffix) {
-
+        String resourceName = "/elastic." + index + "." + type + ".mapping.json";
+        InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         try {
-            String resourceName = "/elastic." + index + "." + type + ".mapping.json";
+
             String newIndexName = index + indexSuffix;
             LOGGER.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
-            InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
+
             String indexContent = IOUtils.toString(resourceAsStream);
             String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
 
             return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()));
         } catch (IOException e) {
             LOGGER.error("Failed to create mapping", e);
+        } finally {
+            IOUtils.closeQuietly(resourceAsStream);
         }
         return Observable.empty();
     }

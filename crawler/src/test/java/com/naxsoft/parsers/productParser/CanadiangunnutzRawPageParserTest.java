@@ -22,10 +22,11 @@ public class CanadiangunnutzRawPageParserTest extends AbstractTest {
     @Test
     public void parse() throws Exception {
         SSLContext sc = SSLContext.getInstance("SSL");
+
+        InputStream pageStream = CabelasProductRawParserTest.class.getClassLoader().getResourceAsStream("canadiangunnutzProductPage.html");
+
         try (HttpClient client = new HttpClientImpl(sc)) {
             CanadiangunnutzRawPageParser parser = new CanadiangunnutzRawPageParser();
-            InputStream pageStream = CabelasProductRawParserTest.class.getClassLoader().getResourceAsStream("canadiangunnutzProductPage.html");
-
             WebPageEntity entity = new WebPageEntity();
             entity.setCategory("Firearm");
             entity.setContent(IOUtils.toString(pageStream));
@@ -34,6 +35,8 @@ public class CanadiangunnutzRawPageParserTest extends AbstractTest {
             Assert.assertEquals(1, result.size());
             ProductEntity product = result.iterator().next();
             Assert.assertEquals("", product.getJson());
+        } finally {
+            IOUtils.closeQuietly(pageStream);
         }
     }
 }
