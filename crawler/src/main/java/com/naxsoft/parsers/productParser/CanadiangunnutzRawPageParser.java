@@ -45,18 +45,31 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
             jsonBuilder.field("productName", productName);
 
             Elements images = document.select(".content blockquote img");
-            if (!images.isEmpty()) {
+            if (!images.isEmpty() && !images.first().attr("src").contains("images/smilies")) {
                 jsonBuilder.field("productImage", images.first().attr("abs:src"));
             } else {
-                images = document.select(".content blockquote a[href]");
-                if (!images.isEmpty()) {
-                    for (Element el : images) {
-                        if (el.attr("href").endsWith("jpg")) {
-                            jsonBuilder.field("productImage", el.attr("href"));
-                            break;
+                images = document.select(".content blockquote img");
+                boolean found = false;
+                for (Element el : images) {
+                    if (el.attr("src").contains("photobucket")) {
+                        jsonBuilder.field("productImage", el.attr("abs:src"));
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    images = document.select(".content blockquote a[href]");
+                    if (!images.isEmpty()) {
+                        for (Element el : images) {
+                            if (el.attr("href").endsWith("jpg")) {
+                                jsonBuilder.field("productImage", el.attr("href"));
+                                found = true;
+                                break;
+                            }
                         }
                     }
-                } else {
+                }
+                if (!found) {
                     images = document.select(".content img.attach");
                     if (!images.isEmpty()) {
                         jsonBuilder.field("productImage", images.first().attr("abs:src"));
