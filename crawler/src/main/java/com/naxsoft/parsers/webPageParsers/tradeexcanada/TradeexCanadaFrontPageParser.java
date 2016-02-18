@@ -36,25 +36,25 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
             webPageEntity.setType("productList");
 
             if (element.text().contains("AAA Super Specials")) {
-                webPageEntity.setCategory("firearms,ammo");
+                webPageEntity.setCategory("firearm,ammo");
             } else if (element.text().contains("Combination Guns")) {
-                webPageEntity.setCategory("firearms");
+                webPageEntity.setCategory("firearm");
             } else if (element.text().contains("Double Rifles")) {
-                webPageEntity.setCategory("firearms");
+                webPageEntity.setCategory("firearm");
             } else if (element.text().contains("Handguns")) {
-                webPageEntity.setCategory("firearms");
+                webPageEntity.setCategory("firearm");
             } else if (element.text().contains("Hunting and Sporting Arms")) {
-                webPageEntity.setCategory("firearms");
+                webPageEntity.setCategory("firearm");
             } else if (element.text().contains("Rifle")) {
-                webPageEntity.setCategory("firearms");
+                webPageEntity.setCategory("firearm");
             } else if (element.text().contains("Shotguns")) {
-                webPageEntity.setCategory("firearms");
+                webPageEntity.setCategory("firearm");
             } else if (element.text().contains("Ammunition")) {
                 webPageEntity.setCategory("ammo");
-            } else if (element.text().contains("Ammunition")) {
-                webPageEntity.setCategory("Reloading Components");
+            } else if (element.text().contains("Reloading Components")) {
+                webPageEntity.setCategory("reload");
             } else if (element.text().contains("Scopes")) {
-                webPageEntity.setCategory("optics");
+                webPageEntity.setCategory("optic");
             } else {
                 webPageEntity.setCategory("misc");
             }
@@ -74,11 +74,11 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create("https://www.tradeexcanada.com/products_list"));
 
-        return Observable.create(subscriber -> {
-            for (WebPageEntity webPageEntity : webPageEntities) {
-                client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
-            }
-        });
+        return Observable.from(webPageEntities)
+                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(Observable::from)
+                .map(this::parseDocument)
+                .flatMap(Observable::from);
     }
 
     private static WebPageEntity create(String url) {
