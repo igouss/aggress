@@ -78,6 +78,7 @@ public class TheammosourceRawPageParser extends AbstractRawPageParser {
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
+            LOGGER.error("failed to parse price {}", price);
             return price;
         }
     }

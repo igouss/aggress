@@ -91,6 +91,7 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {
+            LOGGER.error("failed to parse price {}", price);
             return price;
         }
     }

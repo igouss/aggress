@@ -93,6 +93,7 @@ public class MarstarRawProductPageParser extends AbstractRawPageParser {
         ArrayList<String> result = new ArrayList<>();
         Matcher matcher = Pattern.compile("((\\d+(\\.|,))+\\d\\d)+").matcher(price);
 
+
         while (matcher.find()) {
             result.add(matcher.group(1).replace(",", ""));
         }

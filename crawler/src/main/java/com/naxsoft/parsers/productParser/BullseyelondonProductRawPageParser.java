@@ -122,6 +122,7 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
                 result = Double.valueOf(matcher.group(1)).toString();
             }
         } else {
+            LOGGER.error("failed to parse price {}", price);
             result = price;
         }
         return result;

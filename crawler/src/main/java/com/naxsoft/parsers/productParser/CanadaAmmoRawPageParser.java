@@ -112,6 +112,7 @@ public class CanadaAmmoRawPageParser extends AbstractRawPageParser implements Pr
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {
+            LOGGER.error("failed to parse price {}", price);
             return price;
         }
     }
