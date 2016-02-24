@@ -85,13 +85,16 @@ public class ProductEntity {
 
         ProductEntity that = (ProductEntity) o;
 
+        if (!json.equals(that.json)) return false;
         return url.equals(that.url);
 
     }
 
     @Override
     public int hashCode() {
-        return url.hashCode();
+        int result = json.hashCode();
+        result = 31 * result + url.hashCode();
+        return result;
     }
 
     @Basic
@@ -124,5 +127,13 @@ public class ProductEntity {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    @Override
+    public String toString() {
+        return "ProductEntity{" +
+                "json='" + json + '\'' +
+                ", url='" + url + '\'' +
+                '}';
     }
 }

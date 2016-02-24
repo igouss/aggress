@@ -47,6 +47,7 @@ public class PopulateDBCommand implements Command {
             "http://www.magnumguns.ca/",
             "http://www.marstar.ca/",
             "http://store.prophetriver.com/",
+            "http://psmilitaria.50megs.com/",
             "https://shopquestar.com/",
             "http://www.sail.ca/",
             "http://www.theammosource.com/",
