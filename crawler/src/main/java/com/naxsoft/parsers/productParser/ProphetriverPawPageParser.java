@@ -52,7 +52,10 @@ public class ProphetriverPawPageParser  extends AbstractRawPageParser {
             jsonBuilder.field("url", webPageEntity.getUrl());
             jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
             jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select(".ProductThumbImage img").attr("abs:src"));
+            String img = document.select(".ProductThumbImage img").attr("abs:src");
+            if (!img.contains("DefaultProductImageCustom.jpg")) {
+                jsonBuilder.field("productImage", img);
+            }
             jsonBuilder.field("description", document.select(".ProductDescriptionContainer").text());
             jsonBuilder.field("regularPrice", parsePrice(document.select(".ProductPrice").text()));
             jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
