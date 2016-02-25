@@ -58,7 +58,13 @@ public class ParseCommand implements Command {
 
     @Override
     public void run() throws CLIException {
-        Observable<ProductEntity> products = webPageService.getUnparsedByType("productPage").flatMap(webPageEntity -> {
+        Observable<ProductEntity> products = getProductEntityObservable().onErrorResumeNext(getProductEntityObservable());
+        indexProducts(products, "product" + indexSuffix, "guns");
+        LOGGER.info("Parsing complete");
+    }
+
+    private Observable<ProductEntity> getProductEntityObservable() {
+        return webPageService.getUnparsedByType("productPage").flatMap(webPageEntity -> {
             WebPageParser parser = webPageParserFactory.getParser(webPageEntity);
             webPageService.markParsed(webPageEntity);
             return parser.parse(webPageEntity);
@@ -76,10 +82,6 @@ public class ParseCommand implements Command {
             return result;
         }).filter(webPageEntities -> null != webPageEntities)
                 .flatMap(Observable::from);
-        indexProducts(products, "product" + indexSuffix, "guns");
-
-
-        LOGGER.info("Parsing complete");
     }
 
     @Override
