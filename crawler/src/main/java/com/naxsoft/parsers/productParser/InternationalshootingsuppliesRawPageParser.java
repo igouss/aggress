@@ -42,7 +42,7 @@ public class InternationalshootingsuppliesRawPageParser extends AbstractRawPageP
 
             jsonBuilder.field("regularPrice", document.select("meta[itemprop=price]").attr("content"));
 
-            jsonBuilder.field("description", document.select("#tab-description").text());
+            jsonBuilder.field("description", document.select("#tab-description").text().replace("Product Description", ""));
             jsonBuilder.field("category", webPageEntity.getCategory().split(","));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
@@ -55,6 +55,6 @@ public class InternationalshootingsuppliesRawPageParser extends AbstractRawPageP
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.hical.ca/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().startsWith("http://internationalshootingsupplies.com/") && webPage.getType().equals("productPageRaw");
     }
 }

@@ -12,10 +12,9 @@ import rx.Observable;
 
 /**
  * Copyright NAXSoft 2015
- *
+ * <p>
  * Add initial dataset to the database.
  * The crawling is basically breath first search from that dataset
- *
  */
 public class PopulateDBCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(PopulateDBCommand.class);
@@ -42,6 +41,7 @@ public class PopulateDBCommand implements Command {
             "http://gotenda.com/",
             "http://gun-shop.ca/",
             "http://www.hical.ca/",
+            "http://internationalshootingsupplies.com/",
             "https://www.irunguns.us/",
             "http://www.leverarms.com/",
             "http://www.magnumguns.ca/",
@@ -77,7 +77,6 @@ public class PopulateDBCommand implements Command {
     }
 
     /**
-     *
      * @param sourceEntity
      * @return
      */
@@ -90,7 +89,6 @@ public class PopulateDBCommand implements Command {
     }
 
     /**
-     *
      * @param webPageEntities
      * @return
      */
@@ -103,7 +101,6 @@ public class PopulateDBCommand implements Command {
     }
 
     /**
-     *
      * @param sourceEntity
      * @return
      */

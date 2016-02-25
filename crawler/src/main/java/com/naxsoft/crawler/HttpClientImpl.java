@@ -7,6 +7,7 @@ import com.ning.http.client.Request;
 import com.ning.http.client.cookie.Cookie;
 import com.ning.http.client.extra.ThrottleRequestFilter;
 import com.ning.http.client.filter.FilterContext;
+import com.ning.http.client.resumable.ResumableIOExceptionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,6 @@ public class HttpClientImpl implements HttpClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientImpl.class);
 
     private final static int MAX_CONNECTIONS = 3;
-    public static final int REQUEST_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(60);
 
     private final AsyncHttpClient asyncHttpClient;
 
@@ -39,15 +39,8 @@ public class HttpClientImpl implements HttpClient {
                 .setAllowPoolingConnections(true)
                 .setAllowPoolingSslConnections(true)
                 .setMaxRequestRetry(10)
-                .setPooledConnectionIdleTimeout((int) TimeUnit.MILLISECONDS.convert(60, TimeUnit.SECONDS))
                 .setAcceptAnyCertificate(true)
-                .addIOExceptionFilter(ctx -> {
-                    LOGGER.error("ASyncHttpdClient error {} {}", ctx.getRequest().getUrl(), ctx.getIOException().getMessage());
-                    return new FilterContext.FilterContextBuilder(ctx)
-                            .request(ctx.getRequest())
-                            .replayRequest(true)
-                            .build();
-                })
+                .addIOExceptionFilter(new ResumableIOExceptionFilter())
                 .addRequestFilter(new ThrottleRequestFilter(MAX_CONNECTIONS))
                 .build();
         asyncHttpClient = new AsyncHttpClient(asyncHttpClientConfig);
@@ -91,7 +84,6 @@ public class HttpClientImpl implements HttpClient {
     public <R> ListenableFuture<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
         LOGGER.debug("Starting async http GET request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
-        requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirects(followRedirect);
         Request request = requestBuilder.build();
@@ -124,7 +116,6 @@ public class HttpClientImpl implements HttpClient {
     public <R> ListenableFuture<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
-        requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
         requestBuilder.setBody(content);
         requestBuilder.setFollowRedirects(true);
@@ -145,7 +136,6 @@ public class HttpClientImpl implements HttpClient {
     public <R> ListenableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         AsyncHttpClient.BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
-        requestBuilder.setRequestTimeout(REQUEST_TIMEOUT);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirects(true);
         Request request = requestBuilder.build();
