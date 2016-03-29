@@ -2,11 +2,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Aggress</title>
+    <title>com.naxsoft.Aggress</title>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/application.css"/>
     <!--/*
     not sure of this really makes page look better
     <link rel="stylesheet" href="css/bootstrap-theme.min.css" />
@@ -34,27 +35,27 @@
     <div class="row col-md-12">
         <div class="col-md-12">
             <!--/* TODO use form when JS is disabled? */-->
-                <div class="form-group">
-                    <div class="input-group">
-                        <input id="searchInput" type="search" class="form-control" placeholder="Search for..."/>
+            <div class="form-group">
+                <div class="input-group">
+                    <input id="searchInput" type="search" class="form-control" placeholder="Search for..."/>
                         <span class="input-group-btn">
                             <button class="btn btn-default" id="searchBtn" type="button">Go!</button>
                         </span>
-                    </div>
                 </div>
-                <div >
-                    <fieldset>
-                        <label for="category" class="sr-only">Select category</label>
-                        <select class="form-control" id="category">
-                            <option value="all" selected="selected">All Categories</option>
-                            <option value="firearm">Firearms</option>
-                            <option value="optic">Optics</option>
-                            <option value="ammo">Ammo</option>
-                            <option value="reload">Reloading Components</option>
-                            <option value="misc">Misc</option>
-                        </select>
-                    </fieldset>
-                </div>
+            </div>
+            <div>
+                <fieldset>
+                    <label for="category" class="sr-only">Select category</label>
+                    <select class="form-control" id="category">
+                        <option value="all" selected="selected">All Categories</option>
+                        <option value="firearm">Firearms</option>
+                        <option value="optic">Optics</option>
+                        <option value="ammo">Ammo</option>
+                        <option value="reload">Reloading Components</option>
+                        <option value="misc">Misc</option>
+                    </select>
+                </fieldset>
+            </div>
         </div>
     </div>
 
@@ -85,6 +86,7 @@
                 </li>
             </ul>
         </nav>
+
 </script>
 
 <!--/* Item display template */-->
@@ -92,7 +94,7 @@
         <div class="renderedItem">
           <div class="media-left">
             <a href="{{url}}">
-              <img class="media-object"  src="{{productImage}}" alt="{{productName}}"  height="128" width="128"/>
+              <img class="media-object" src="{{productImage}}" alt="{{productName}}" />
             </a>
           </div>
           <div class="media-body">
@@ -102,7 +104,7 @@
                 </tbody>
             </table>
             <p>
-                <a href="{{url}}" class="btn btn-primary " role="button">Visit</a>
+                <a href="{{url}}" class="btn btn-primary" role="button">Visit</a>
                 <a href="https://www.youtube.com/results?search_query={{productName}}" class="btn btn-danger" role="button">Youtube</a>
             </p>
           </div>

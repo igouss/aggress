@@ -2,7 +2,7 @@ package com.naxsoft.parsers.webPageParsers.hical;
 
 import com.naxsoft.AbstractTest;
 import com.naxsoft.crawler.HttpClient;
-import com.naxsoft.crawler.HttpClientImpl;
+import com.naxsoft.crawler.HttpClientNing;
 import com.naxsoft.entity.WebPageEntity;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class HicalProductParserTest extends AbstractTest {
     @Test
     public void parse() throws Exception {
         SSLContext sc = SSLContext.getInstance("SSL");
-        try (HttpClient httpClient = new HttpClientImpl(sc)) {
+        try (HttpClient httpClient = new HttpClientNing(sc)) {
             HicalProductParser parser = new HicalProductParser(httpClient);
 
             WebPageEntity webPageEntity = new WebPageEntity();

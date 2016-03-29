@@ -11,11 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collection;
 
 /**
  *
  */
+@Singleton
 public class ProductService {
     private final static Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
     private final Database database;
@@ -23,6 +26,7 @@ public class ProductService {
     /**
      * @param database
      */
+    @Inject
     public ProductService(Database database) {
         this.database = database;
     }

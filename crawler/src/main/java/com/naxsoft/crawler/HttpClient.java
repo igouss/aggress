@@ -73,4 +73,9 @@ public interface HttpClient extends AutoCloseable {
      * @return
      */
     <R> ListenableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
+
+    /**
+     * Close HTTP client
+     */
+    void close();
 }

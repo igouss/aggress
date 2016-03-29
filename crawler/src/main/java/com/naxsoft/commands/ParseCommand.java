@@ -2,12 +2,11 @@ package com.naxsoft.commands;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.naxsoft.ExecutionContext;
+import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.Elastic;
 import com.naxsoft.database.ProductService;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.ProductEntity;
-import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.productParser.ProductParser;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
@@ -16,8 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscription;
-import rx.schedulers.Schedulers;
 
+import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,32 +27,38 @@ import java.util.Set;
  */
 public class ParseCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(ParseCommand.class);
-    private final Set<String> validCategories = new HashSet<>();
-    private WebPageService webPageService = null;
-    private ProductService productService = null;
-    private Elastic elastic = null;
-    private ProductParserFactory productParserFactory = null;
-    private MetricRegistry metrics = null;
-    private String indexSuffix = null;
-    private WebPageParserFactory webPageParserFactory;
 
-    public ParseCommand() {
-        validCategories.add("n/a");
-        validCategories.add("firearms");
-        validCategories.add("reloading");
-        validCategories.add("ammo");
-        validCategories.add("misc");
+    private final static Set<String> VALID_CATEGORIES = new HashSet<>();
+    static {
+        VALID_CATEGORIES.add("n/a");
+        VALID_CATEGORIES.add("firearms");
+        VALID_CATEGORIES.add("reloading");
+        VALID_CATEGORIES.add("ammo");
+        VALID_CATEGORIES.add("misc");
     }
 
+    @Inject
+    protected WebPageService webPageService = null;
+    @Inject
+    protected ProductService productService = null;
+    @Inject
+    protected Elastic elastic = null;
+    @Inject
+    protected ProductParserFactory productParserFactory = null;
+    @Inject
+    protected MetricRegistry metrics = null;
+    @Inject
+    protected String indexSuffix = null;
+    @Inject
+    protected WebPageParserFactory webPageParserFactory;
+
+
     @Override
-    public void setUp(ExecutionContext context) throws CLIException {
-        webPageService = context.getWebPageService();
-        productService = context.getProductService();
-        elastic = context.getElastic();
-        productParserFactory = context.getProductParserFactory();
-        webPageParserFactory = context.getWebPageParserFactory();
-        metrics = context.getMetrics();
-        indexSuffix = context.getIndexSuffix();
+    public void setUp(ApplicationComponent applicationComponent) throws CLIException {
+        webPageService = applicationComponent.getWebPageService();
+        productService = applicationComponent.getProductService();
+        elastic = applicationComponent.getElastic();
+
     }
 
     @Override
@@ -71,6 +76,10 @@ public class ParseCommand implements Command {
         }).map(pageToParse -> {
             Set<ProductEntity> result = null;
             try {
+                if (VALID_CATEGORIES.contains(pageToParse.getCategory())) {
+                    LOGGER.warn("Invalid category: {}", pageToParse);
+                }
+
                 ProductParser parser = productParserFactory.getParser(pageToParse);
                 Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
                 Timer.Context time = parseTime.time();

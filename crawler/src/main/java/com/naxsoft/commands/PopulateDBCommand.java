@@ -1,7 +1,7 @@
 package com.naxsoft.commands;
 
 
-import com.naxsoft.ExecutionContext;
+import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.SourceService;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.SourceEntity;
@@ -113,9 +113,9 @@ public class PopulateDBCommand implements Command {
     }
 
     @Override
-    public void setUp(ExecutionContext context) throws io.vertx.core.cli.CLIException {
-        webPageService = context.getWebPageService();
-        sourceService = context.getSourceService();
+    public void setUp(ApplicationComponent applicationComponent) throws io.vertx.core.cli.CLIException {
+        webPageService = applicationComponent.getWebPageService();
+        sourceService = applicationComponent.getSourceService();
     }
 
     @Override

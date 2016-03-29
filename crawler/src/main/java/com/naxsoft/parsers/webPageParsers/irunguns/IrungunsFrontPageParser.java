@@ -5,6 +5,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import com.ning.http.client.ListenableFuture;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -47,7 +48,8 @@ public class IrungunsFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.create(subscriber -> client.get("https://www.irunguns.us/product_categories.php", new DocumentCompletionHandler(webPage)));
+        ListenableFuture<DownloadResult> future = client.get("https://www.irunguns.us/product_categories.php", new DocumentCompletionHandler(webPage));
+        return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
     }
 
     @Override

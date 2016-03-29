@@ -1,6 +1,6 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.ExecutionContext;
+import com.naxsoft.ApplicationComponent;
 
 /**
  * Copyright NAXSoft 2015
@@ -12,7 +12,7 @@ public interface Command {
     /**
      * Set up the command execution environment.
      */
-    void setUp(ExecutionContext context) throws CLIException;
+    void setUp(ApplicationComponent applicationComponent) throws CLIException;
 
     /**
      * Executes the command.

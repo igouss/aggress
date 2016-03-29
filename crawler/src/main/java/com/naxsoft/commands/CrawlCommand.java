@@ -2,7 +2,7 @@ package com.naxsoft.commands;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.naxsoft.ExecutionContext;
+import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import javax.inject.Inject;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -22,15 +23,20 @@ import java.util.concurrent.Semaphore;
 public class CrawlCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(CrawlCommand.class);
 
-    private WebPageService webPageService = null;
-    private WebPageParserFactory webPageParserFactory = null;
-    private MetricRegistry metrics = null;
+    @Inject
+    protected WebPageService webPageService = null;
+
+    @Inject
+    protected WebPageParserFactory webPageParserFactory = null;
+
+    @Inject
+    protected MetricRegistry metrics = null;
 
     @Override
-    public void setUp(ExecutionContext context) throws CLIException {
-        webPageService = context.getWebPageService();
-        webPageParserFactory = new WebPageParserFactory(context.getHTTPClient());
-        metrics = context.getMetrics();
+    public void setUp(ApplicationComponent applicationComponent) throws CLIException {
+        webPageService = applicationComponent.getWebPageService();
+        webPageParserFactory = applicationComponent.getWebPageParserFactory();
+        metrics = applicationComponent.getMetricRegistry();
     }
 
     @Override

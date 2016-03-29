@@ -15,9 +15,12 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.functions.Func1;
 
+import javax.inject.Singleton;
+
 /**
  * Database abstraction.
  */
+@Singleton
 public class Database implements AutoCloseable, Cloneable {
     private final static Logger LOGGER = LoggerFactory.getLogger(Database.class);
     private static final int BATCH_SIZE = 20;

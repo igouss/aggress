@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscription;
 
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
@@ -34,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
+@Singleton
 public class Elastic implements AutoCloseable, Cloneable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Elastic.class);
     public static final int BATCH_SIZE = 1;

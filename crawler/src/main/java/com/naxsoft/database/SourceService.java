@@ -10,9 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  *
  */
+@Singleton
 public class SourceService {
     private final static Logger LOGGER = LoggerFactory.getLogger(SourceService.class);
     private final Database database;
@@ -21,6 +25,7 @@ public class SourceService {
      *
      * @param database
      */
+    @Inject
     public SourceService(Database database) {
         this.database = database;
     }

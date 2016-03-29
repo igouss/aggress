@@ -116,3 +116,7 @@ aggress.*.db
 
 # junit optomization
 maxCore
+
+# dagger2 generated files
+generated
+generated_tests

@@ -1,29 +1,33 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.ExecutionContext;
+import com.naxsoft.ApplicationComponent;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.database.Elastic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 /**
  * Copyright NAXSoft 2015
- *
+ * <p>
  * Create Elasticsearch mapping
- *
  */
-public class CreateESMappingCommand implements Command{
+public class CreateESMappingCommand implements Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateESMappingCommand.class);
 
-    private Elastic elastic = null;
-    private HttpClient httpClient = null;
-    private String indexSuffix = null;
+    @Inject
+    protected Elastic elastic = null;
+    @Inject
+    protected HttpClient httpClient = null;
+    @Inject
+    protected String indexSuffix = null;
 
     @Override
-    public void setUp(ExecutionContext context) throws CLIException {
-        elastic = context.getElastic();
-        httpClient = context.getHTTPClient();
-        indexSuffix = context.getIndexSuffix();
+    public void setUp(ApplicationComponent applicationComponent) throws CLIException {
+        elastic = applicationComponent.getElastic();
+        httpClient = applicationComponent.getHttpClient();
+        indexSuffix = "";
     }
 
     @Override

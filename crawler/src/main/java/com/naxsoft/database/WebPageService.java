@@ -12,16 +12,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  *
  */
+@Singleton
 public class WebPageService {
     private final static Logger LOGGER = LoggerFactory.getLogger(WebPageService.class);
-    private final Database database;
+
+    @Inject
+    protected Database database;
 
     /**
      * @param database
      */
+    @Inject
     public WebPageService(Database database) {
         this.database = database;
     }

@@ -6,7 +6,6 @@ import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Request;
 import com.ning.http.client.cookie.Cookie;
 import com.ning.http.client.extra.ThrottleRequestFilter;
-import com.ning.http.client.filter.FilterContext;
 import com.ning.http.client.resumable.ResumableIOExceptionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,23 +15,22 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright NAXSoft 2015
  *
  * HTTP client. Can sent GET and POST requests
  */
-public class HttpClientImpl implements HttpClient {
+public class HttpClientNing implements HttpClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientNing.class);
 
     private final static int MAX_CONNECTIONS = 3;
 
     private final AsyncHttpClient asyncHttpClient;
 
 
-    public HttpClientImpl(SSLContext sslContext) {
+    public HttpClientNing(SSLContext sslContext) {
         AsyncHttpClientConfig asyncHttpClientConfig = new AsyncHttpClientConfig.Builder()
                 .setAcceptAnyCertificate(true)
                 .setSSLContext(sslContext)

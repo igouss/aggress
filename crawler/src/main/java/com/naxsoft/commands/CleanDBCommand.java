@@ -1,10 +1,16 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.ExecutionContext;
+
+import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.Database;
+import com.naxsoft.providers.DatabaseModule;
+import com.naxsoft.providers.DatabaseModule_GetFactory;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Copyright NAXSoft 2015
@@ -22,7 +28,10 @@ public class CleanDBCommand implements Command {
             "WebPageEntity",
             "ProductEntity"
     };
-    private Database db = null;
+
+    @Inject
+    protected Database db = null;
+
 
     /**
      * Delete all data from the database tables
@@ -41,8 +50,8 @@ public class CleanDBCommand implements Command {
     }
 
     @Override
-    public void setUp(ExecutionContext context) throws CLIException {
-        db = context.getDb();
+    public void setUp(ApplicationComponent applicationComponent) throws CLIException {
+        db = applicationComponent.getDatabase();
     }
 
     @Override

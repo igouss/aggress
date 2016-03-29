@@ -2,7 +2,7 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.AbstractTest;
 import com.naxsoft.crawler.HttpClient;
-import com.naxsoft.crawler.HttpClientImpl;
+import com.naxsoft.crawler.HttpClientNing;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.apache.commons.io.IOUtils;
@@ -21,11 +21,8 @@ public class CanadiangunnutzRawPageParserTest extends AbstractTest {
 
     @Test
     public void parse() throws Exception {
-        SSLContext sc = SSLContext.getInstance("SSL");
-
         InputStream pageStream = CabelasProductRawParserTest.class.getClassLoader().getResourceAsStream("canadiangunnutzProductPage.html");
-
-        try (HttpClient client = new HttpClientImpl(sc)) {
+        try {
             CanadiangunnutzRawPageParser parser = new CanadiangunnutzRawPageParser();
             WebPageEntity entity = new WebPageEntity();
             entity.setCategory("Firearm");
