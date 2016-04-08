@@ -1,2 +1,2 @@
-rootProject.name = 'sprut'
+rootProject.name = 'aggress'
 include 'common', 'crawler', 'frontend'
