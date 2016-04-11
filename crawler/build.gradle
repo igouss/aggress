@@ -3,6 +3,7 @@ plugins {
 }
 
 apply plugin: 'java'
+apply plugin: 'maven'
 
 dependencies {
     compile 'org.elasticsearch:elasticsearch:2.2.0'
@@ -39,7 +40,7 @@ dependencies {
     compile group: 'com.ning', name: 'async-http-client', version: '1.9.33'
     compile group: 'org.glassfish.grizzly', name: 'grizzly-websockets', version: '2.3.23'
     compile 'com.netflix.rxjava:rxjava-apache-http:0.20.7'
-
+    // testCompile 'org.testng:testng:6.0.1'
     compile 'junit:junit:4.12'
     compile 'org.jooq:jooq:3.7.1'
     compile 'io.vertx:vertx-core:3.1.0'
@@ -48,7 +49,7 @@ dependencies {
     compile 'com.google.dagger:dagger:2.1'
     compile "net.ltgt.gradle:gradle-apt-plugin:0.6"
     compile 'com.google.dagger:dagger-compiler:2.1'
-    apt 'com.google.dagger:dagger-compiler:2.1'
+    compile 'biz.paluch.redis:lettuce:4.1.1.Final'
     apt 'com.google.dagger:dagger-compiler:2.1'
 }
 
@@ -57,24 +58,41 @@ test {
     testLogging.showStackTraces = true;
     testLogging.showCauses = true;
     testLogging.showExceptions = true;
+    maxParallelForks = 5
+    forkEvery = 50
+    include '**/Test*.*'
+//    useTestNG()
+}
+
+task integrationTest(type: Test, dependsOn: "test") << {
+    include '**/IntegrationTest*.*'
 }
 
 
+test.onlyIf {
+    description = 'gradle -Dcrawler.test=true'
+    System.properties['crawler.test'] == 'true'
+}
+
 task copyLibs(type: Copy, dependsOn: clean) {
+    description = "Copy dependency files to build directory"
     into "build"
     from configurations.compile
 }
 
 task buildscriptDependencies << {
+    description = "Print project's dependencies"
     buildscript.configurations.classpath.each { println it }
 }
 
 task crawler(type:JavaExec) {
-   main = "com.naxsoft.Aggress"
-   classpath = sourceSets.main.runtimeClasspath
+    description = "Run crawler"
+    main = "com.naxsoft.Aggress"
+    classpath = sourceSets.main.runtimeClasspath
 }
 
 task crawlerjar(type: Jar) {
+    description = "Generate project jar file"
     manifest {
         attributes 'Implementation-Title': 'com.naxsoft.Aggress crawler',
                 'Implementation-Version': version,
@@ -86,4 +104,13 @@ task crawlerjar(type: Jar) {
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
+}
+
+configure(install.repositories.mavenInstaller) {
+    pom.project {
+        groupId 'com.naxsoft'
+        artifactId 'aggress-crawler'
+        version '1.0.0-SNAPSHOT'
+        description = 'Aggress web crawler'
+    }
 }

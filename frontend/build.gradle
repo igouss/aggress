@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 
 dependencies {
     compile 'org.slf4j:slf4j-simple:1.7.12'
@@ -37,4 +38,13 @@ task serverjar(type: Jar) {
 task libs(type: Sync) {
     from configurations.runtime
     into "$buildDir/libs"
+}
+
+configure(install.repositories.mavenInstaller) {
+    pom.project {
+        groupId 'com.naxsoft'
+        artifactId 'aggress-frontend'
+        version '1.0.0-SNAPSHOT'
+        description = 'Aggress frontend'
+    }
 }

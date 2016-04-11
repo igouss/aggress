@@ -1,7 +1,12 @@
+description "Agress web crawler project"
 group 'com.naxsoft'
 version '1.0-SNAPSHOT'
+
 apply plugin: 'java'
+apply plugin: 'maven'
+
 dependencies {
+    compile project(":common")
     compile project(":crawler")
     compile project(":frontend")
 }
@@ -15,11 +20,29 @@ allprojects {
     version '1.0-SNAPSHOT'
     sourceCompatibility = 1.8
     repositories {
+        mavenCentral()
         maven {
             url "http://jcenter.bintray.com"
         }
         maven {
             url "https://plugins.gradle.org/m2/"
         }
+    }
+}
+
+defaultTasks = ['clean', 'build']
+
+configure(install.repositories.mavenInstaller) {
+    pom.project {
+        groupId 'com.naxsoft'
+        artifactId 'aggress-root'
+        version '1.0.0-SNAPSHOT'
+        description = 'Aggress top level project'
+    }
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: "file:///Users/igoussev/Projects/repo/")
     }
 }
