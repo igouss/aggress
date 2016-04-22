@@ -10,23 +10,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 /**
  *
  */
-@Singleton
 public class SourceService {
     private final static Logger LOGGER = LoggerFactory.getLogger(SourceService.class);
-    private final Database database;
+    private final Persistent database;
 
     /**
      *
      * @param database
      */
-    @Inject
-    public SourceService(Database database) {
+    public SourceService(Persistent database) {
         this.database = database;
     }
 
@@ -44,7 +39,7 @@ public class SourceService {
      * @param sourceEntity
      * @return
      */
-    public boolean save(SourceEntity sourceEntity) {
+    public Observable<Boolean> save(SourceEntity sourceEntity) {
         return database.executeTransaction(session -> {
             LOGGER.debug("Saving {}", sourceEntity);
             session.insert(sourceEntity);

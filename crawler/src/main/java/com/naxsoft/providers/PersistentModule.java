@@ -1,5 +1,7 @@
 package com.naxsoft.providers;
 
+import com.naxsoft.database.Database;
+import com.naxsoft.database.Persistent;
 import dagger.Module;
 import dagger.Provides;
 
@@ -10,11 +12,11 @@ import javax.validation.constraints.NotNull;
  * Copyright NAXSoft 2015
  */
 @Module
-public class WebPageParserFactory {
+public class PersistentModule {
     @Provides
     @Singleton
     @NotNull
-    public WebPageParserFactory get() {
-        return new WebPageParserFactory();
+    public static Persistent get() {
+        return new Database();
     }
 }

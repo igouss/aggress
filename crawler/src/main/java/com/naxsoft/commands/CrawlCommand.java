@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import javax.inject.Inject;
-import java.util.concurrent.Semaphore;
 
 /**
  * Copyright NAXSoft 2015
@@ -80,10 +79,9 @@ public class CrawlCommand implements Command {
                         time.stop();
 
                         pageToParse.setParsed(true);
-                        if (0 == webPageService.markParsed(pageToParse)) {
+                        webPageService.markParsed(pageToParse).subscribe(value -> {
                             LOGGER.error("Failed to make page as parsed {}", pageToParse);
-                            result = null;
-                        }
+                        });
                     } catch (Exception e) {
                         LOGGER.error("Failed to process source {}", pageToParse.getUrl(), e);
                     }

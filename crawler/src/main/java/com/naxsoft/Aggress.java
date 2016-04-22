@@ -1,14 +1,10 @@
 package com.naxsoft;
 
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
 import com.naxsoft.commands.*;
-import com.naxsoft.database.Database;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +28,26 @@ public class Aggress {
         aggress.start(args);
     }
 
+    private static OptionSet parseCommandLineArguments(String[] args) {
+        OptionParser parser = new OptionParser();
+        parser.accepts("help");
+        parser.accepts("populate");
+        parser.accepts("clean");
+        parser.accepts("crawl");
+        parser.accepts("parse");
+        parser.accepts("createESIndex");
+        parser.accepts("createESMappings");
+        parser.accepts("server");
+
+        return parser.parse(args);
+    }
+
+    private static void showHelp() {
+        out.println("com.naxsoft.Aggress [-populate] [-clean] [-crawl] [-parse] [-createESIndex] [-createESMappings]");
+    }
+
     public void start(String[] args) {
-//        Factory<Database> dbProvider = DatabaseModule_GetFactory.create(new DatabaseModule());
+//        Factory<Database> dbProvider = DatabaseModule_GetFactory.create(new PersistentModule());
 //        Factory<HttpClient> clientProvider = HttpClientModule_GetFactory.create(new HttpClientModule());
 //        Aggress_MembersInjector.create(dbProvider, clientProvider).injectMembers(this);
         ApplicationComponent applicationComponent = DaggerApplicationComponent.create();
@@ -63,11 +77,6 @@ public class Aggress {
         try {
             setProperty("jsse.enableSNIExtension", "false");
             setProperty("jdk.tls.trustNameService", "true");
-
-            applicationComponent.getMetricRegistry().register(MetricRegistry.name(Database.class, "web_pages", "unparsed"), (Gauge<Long>) () -> applicationComponent.getDatabase().executeQuery(session -> {
-                Query query = session.createQuery("select count(id) from WebPageEntity where parsed = false");
-                return (Long) query.uniqueResult();
-            }));
 
             if (options.has("createESIndex")) {
                 Command command = new CreateESIndexCommand();
@@ -119,26 +128,7 @@ public class Aggress {
             applicationComponent.getDatabase().close();
             applicationComponent.getElastic().close();
             applicationComponent.getHttpClient().close();
-
         }
-    }
-
-    private static OptionSet parseCommandLineArguments(String[] args) {
-        OptionParser parser = new OptionParser();
-        parser.accepts("help");
-        parser.accepts("populate");
-        parser.accepts("clean");
-        parser.accepts("crawl");
-        parser.accepts("parse");
-        parser.accepts("createESIndex");
-        parser.accepts("createESMappings");
-        parser.accepts("server");
-
-        return parser.parse(args);
-    }
-
-    private static void showHelp() {
-        out.println("com.naxsoft.Aggress [-populate] [-clean] [-crawl] [-parse] [-createESIndex] [-createESMappings]");
     }
 
 }

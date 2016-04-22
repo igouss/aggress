@@ -17,6 +17,7 @@ dependencies {
 }
 
 task frontend(type:JavaExec) {
+    description = "Start fronted project"
    main = "com.naxsoft.Server"
    classpath = sourceSets.main.runtimeClasspath
 }

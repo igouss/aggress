@@ -18,9 +18,6 @@ import rx.Observable;
  */
 public class PopulateDBCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(PopulateDBCommand.class);
-    private static WebPageService webPageService = null;
-    private static SourceService sourceService = null;
-
     /**
      * Sites that crawler can walk and parse
      */
@@ -56,6 +53,8 @@ public class PopulateDBCommand implements Command {
             "http://www.wholesalesports.com/",
             "https://www.wolverinesupplies.com/",
     };
+    private static WebPageService webPageService = null;
+    private static SourceService sourceService = null;
 
 //    private static void populateSources() {
 //        Observable.from(SOURCES).map(PopulateDBCommand::from)
@@ -80,11 +79,8 @@ public class PopulateDBCommand implements Command {
      * @param sourceEntity
      * @return
      */
-    private static boolean save(SourceEntity sourceEntity) {
-        boolean rc = sourceService.save(sourceEntity);
-        if (!rc) {
-            LOGGER.error("Failed to save sourceEntity");
-        }
+    private static Observable<Boolean> save(SourceEntity sourceEntity) {
+        Observable<Boolean> rc = sourceService.save(sourceEntity);
         return rc;
     }
 
@@ -92,11 +88,8 @@ public class PopulateDBCommand implements Command {
      * @param webPageEntities
      * @return
      */
-    private static boolean save(WebPageEntity webPageEntities) {
-        boolean rc = webPageService.save(webPageEntities);
-        if (!rc) {
-            LOGGER.error("Failed to save webPageEntities");
-        }
+    private static Observable<Boolean> save(WebPageEntity webPageEntities) {
+        Observable<Boolean> rc = webPageService.save(webPageEntities);
         return rc;
     }
 

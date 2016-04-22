@@ -6,71 +6,37 @@
 package com.naxsoft.database;
 
 import com.naxsoft.entity.WebPageEntity;
-import org.hibernate.Query;
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 /**
  *
  */
-@Singleton
 public class WebPageService {
     private final static Logger LOGGER = LoggerFactory.getLogger(WebPageService.class);
 
-    @Inject
-    protected Database database;
+    protected Persistent database;
 
     /**
-     * @param database
+     * @param database Database driver
      */
-    @Inject
-    public WebPageService(Database database) {
+    public WebPageService(Persistent database) {
         this.database = database;
     }
 
     /**
-     * @param webPageEntity
-     * @return
+     * Persist webPage
+     *
+     * @param webPageEntity Webpage to persist
+     * @return true if sucesfully persisted, false otherwise
      */
-    public boolean save(WebPageEntity webPageEntity) {
-        Boolean rc = false;
-        try {
-            rc = database.executeTransaction(session -> {
-                LOGGER.debug("Saving {}", webPageEntity);
-                session.insert(webPageEntity);
-                return true;
-            });
-        } catch (ConstraintViolationException ex) {
-            LOGGER.info("A duplicate URL found, ignore", ex);
-        }
-        return rc;
+    public Observable<Boolean> save(WebPageEntity webPageEntity) {
+        return database.save(webPageEntity);
     }
 
-    /**
-     * Update page parsed status in the database
-     *
-     * @param webPageEntity Page to update
-     * @return The number of entities updated.
-     */
-    public int markParsed(WebPageEntity webPageEntity) {
-        int rc = -1;
-        if (0 == webPageEntity.getId()) {
-//            LOGGER.error("Trying to save a webpage with id=0 {}", webPageEntity);
-            throw new RuntimeException("Trying to save a webpage with id=0" + webPageEntity);
-        } else {
-            rc = database.executeTransaction(session -> {
-                Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
-                query.setLong("id", webPageEntity.getId());
-                int affectedRows = query.executeUpdate();
-                return affectedRows;
-            });
-        }
-        return rc;
+    public Observable<Long> getUnparsedCount() {
+        return database.getUnparsedCount();
     }
 
     /**
@@ -79,27 +45,39 @@ public class WebPageService {
      * @param type Column type to check against
      * @return row count in type
      */
-    public Observable<Long> getUnparsedCount(String type) {
+    private Observable<Long> getUnparsedCount(String type) {
         return Observable.create(subscriber -> {
             while (!subscriber.isUnsubscribed()) {
-                long rowCount = database.executeQuery(session -> {
-                    Long count = 0L;
-                    String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
-                    Query query = session.createQuery(queryString);
-                    query.setString("type", type);
-                    count = (Long) query.list().get(0);
-                    return count;
+                Observable<Long> unparsedCount = database.getUnparsedCount(type);
+                LOGGER.info("Unparsed number of entries of type {} is {}", type, unparsedCount);
+                unparsedCount.take(1).subscribe(value -> {
+                    if (0L == value) {
+                        subscriber.onCompleted();
+                    } else {
+                        subscriber.onNext(value);
+                    }
                 });
-                LOGGER.info("Unparsed number of entries of type {} is {}", type, rowCount);
-                if (0L == rowCount) {
-                    subscriber.onCompleted();
-                    break;
-                } else {
-                    subscriber.onNext(rowCount);
-                }
             }
         });
     }
+
+    /**
+     * Update page parsed status in the database
+     *
+     * @param webPageEntity Page to update
+     * @return The number of entities updated.
+     */
+    public Observable<Integer> markParsed(WebPageEntity webPageEntity) {
+        Observable<Integer> rc;
+        if (0 == webPageEntity.getId()) {
+//            LOGGER.error("Trying to save a webpage with id=0 {}", webPageEntity);
+            throw new RuntimeException("Trying to save a webpage with id=0" + webPageEntity);
+        } else {
+            rc = database.markWebPageAsParsed(webPageEntity.getId());
+        }
+        return rc;
+    }
+
 
     /**
      * Get stream of unparsed pages.
@@ -109,10 +87,6 @@ public class WebPageService {
      * @return Stream of unparsed pages of specefied type
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
-        final String query = "from WebPageEntity where type = '" + type + "' and parsed = false order by rand()";
-        return getUnparsedCount(type).flatMap(count -> {
-            LOGGER.info("Scrolling over {} sql {}", count, query);
-            return database.scroll(query);
-        });
+        return getUnparsedCount(type).flatMap(count -> database.getUnparsedByType(type));
     }
 }

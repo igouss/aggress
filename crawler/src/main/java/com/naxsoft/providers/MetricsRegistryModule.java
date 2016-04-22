@@ -1,7 +1,6 @@
 package com.naxsoft.providers;
 
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.database.Elastic;
 import dagger.Module;
 import dagger.Provides;
 
@@ -16,7 +15,7 @@ public class MetricsRegistryModule {
     @Provides
     @Singleton
     @NotNull
-    MetricRegistry get() {
+    public static MetricRegistry get() {
         return new MetricRegistry();
     }
 }

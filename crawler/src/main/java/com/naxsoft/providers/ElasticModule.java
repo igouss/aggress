@@ -15,7 +15,7 @@ public class ElasticModule {
     @Provides
     @Singleton
     @NotNull
-    Elastic getElastic() {
+    public static Elastic getElastic() {
         return new Elastic();
     }
 }

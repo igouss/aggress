@@ -4,10 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.database.*;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
-import com.naxsoft.providers.DatabaseModule;
-import com.naxsoft.providers.ElasticModule;
-import com.naxsoft.providers.HttpClientModule;
-import com.naxsoft.providers.MetricsRegistryModule;
+import com.naxsoft.providers.*;
 import dagger.Component;
 
 import javax.inject.Singleton;
@@ -17,13 +14,17 @@ import javax.inject.Singleton;
  */
 @Singleton
 @Component(modules = {
-        DatabaseModule.class
+        PersistentModule.class
         , HttpClientModule.class
         , ElasticModule.class
         , MetricsRegistryModule.class
+        , WebPageServiceModule.class
+        , SourceServiceModule.class
+        , ProductServiceModule.class
+        , WebPageParserFactoryModule.class
 }, dependencies = {})
 public interface ApplicationComponent {
-    Database getDatabase();
+    Persistent getDatabase();
 
     HttpClient getHttpClient();
 

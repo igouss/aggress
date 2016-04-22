@@ -2,15 +2,12 @@ package com.naxsoft.commands;
 
 
 import com.naxsoft.ApplicationComponent;
-import com.naxsoft.database.Database;
-import com.naxsoft.providers.DatabaseModule;
-import com.naxsoft.providers.DatabaseModule_GetFactory;
+import com.naxsoft.database.Persistent;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Copyright NAXSoft 2015
@@ -30,7 +27,7 @@ public class CleanDBCommand implements Command {
     };
 
     @Inject
-    protected Database db = null;
+    protected Persistent db = null;
 
 
     /**
@@ -40,12 +37,13 @@ public class CleanDBCommand implements Command {
      */
     private void hqlTruncate(String[] tables) {
         for (String table : tables) {
-            int rc = db.executeTransaction(session -> {
+            db.executeTransaction(session -> {
                 String hql = String.format("delete from %s", table);
                 Query query = session.createQuery(hql);
                 return query.executeUpdate();
+            }).subscribe(value -> {
+                LOGGER.debug("Deleted {} records from the table {}", value, table);
             });
-            LOGGER.debug("Deleted {} records from the table {}", rc, table);
         }
     }
 

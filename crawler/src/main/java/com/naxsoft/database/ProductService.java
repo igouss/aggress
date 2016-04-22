@@ -6,28 +6,23 @@
 package com.naxsoft.database;
 
 import com.naxsoft.entity.ProductEntity;
-import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collection;
 
 /**
  *
  */
-@Singleton
 public class ProductService {
     private final static Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
-    private final Database database;
+    private final Persistent database;
 
     /**
      * @param database
      */
-    @Inject
-    public ProductService(Database database) {
+    public ProductService(Persistent database) {
         this.database = database;
     }
 
@@ -35,31 +30,27 @@ public class ProductService {
      * @param products Save
      */
     public void save(Collection<ProductEntity> products) {
-        database.executeTransaction(session -> {
-            for (ProductEntity productEntity : products) {
-                session.insert(productEntity);
-            }
-            return true;
-        });
+        for (ProductEntity productEntity : products) {
+            database.save(productEntity);
+        }
     }
 
     /**
      * Get stream of unindexed products
+     *
      * @return Stream of unindexed products
      */
     public Observable<ProductEntity> getProducts() {
-        String queryString = "from ProductEntity";
-        return database.scroll(queryString);
+        return database.getProducts();
     }
 
     /**
      * Mark all products as indexed
      */
     public void markAllAsIndexed() {
-        int rc = database.executeTransaction(session -> {
-            Query query = session.createQuery("update ProductEntity as p set p.indexed = true");
-            return query.executeUpdate();
+        Observable<Integer> rc = database.markAllProductPagesAsIndexed();
+        rc.subscribe(value -> {
+            LOGGER.info("The number of entities affected: {}", rc);
         });
-        LOGGER.info("The number of entities affected: {}", rc);
     }
 }

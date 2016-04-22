@@ -1,7 +1,7 @@
 package com.naxsoft.providers;
 
 import com.naxsoft.database.Persistent;
-import com.naxsoft.database.WebPageService;
+import com.naxsoft.database.SourceService;
 import dagger.Module;
 import dagger.Provides;
 
@@ -12,11 +12,11 @@ import javax.validation.constraints.NotNull;
  * Copyright NAXSoft 2015
  */
 @Module(includes = {PersistentModule.class})
-public class WebPageServiceModule {
+public class SourceServiceModule {
     @Provides
     @Singleton
     @NotNull
-    public static WebPageService get(Persistent db) {
-        return new WebPageService(db);
+    public static SourceService get(Persistent db) {
+        return new SourceService(db);
     }
 }

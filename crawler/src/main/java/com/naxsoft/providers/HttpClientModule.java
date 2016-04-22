@@ -1,6 +1,5 @@
 package com.naxsoft.providers;
 
-import com.naxsoft.commands.CleanDBCommand;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.crawler.HttpClientNing;
 import com.ning.http.client.AsyncHttpClientConfig;
@@ -29,7 +28,7 @@ public class HttpClientModule {
     @Provides
     @Singleton
     @NotNull
-    HttpClient get() {
+    public static HttpClient get() {
         try {
             // Create a trust manager that does not validate certificate chains
             TrustManager[] trustAllCerts = new TrustManager[]{
