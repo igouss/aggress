@@ -5,6 +5,8 @@
 
 package com.naxsoft.entity;
 
+import com.google.gson.Gson;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
@@ -39,6 +41,17 @@ public class SourceEntity {
     private Timestamp modificationDate;
 
     public SourceEntity() {
+    }
+
+    /**
+     * Convert from JSON representation
+     *
+     * @param json SourceEntity in JSON format
+     * @return SourceEntity object
+     */
+    public static SourceEntity fromJson(String json) {
+        Gson gson = new Gson();
+        return gson.fromJson(json, SourceEntity.class);
     }
 
     @Basic
@@ -107,5 +120,15 @@ public class SourceEntity {
 
     public void setModificationDate(Timestamp modificationDate) {
         this.modificationDate = modificationDate;
+    }
+
+    /**
+     * Get JSON representation
+     *
+     * @return JSON representation
+     */
+    public String toJson() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
 }

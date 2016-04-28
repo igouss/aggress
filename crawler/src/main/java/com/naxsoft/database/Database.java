@@ -93,15 +93,6 @@ public class Database implements Persistent {
     }
 
     @Override
-    public Observable<Long> getUnparsedCount() {
-        Long result = executeQuery(session -> {
-            Query query = session.createQuery("select count(id) from WebPageEntity where parsed = false");
-            return (Long) query.uniqueResult();
-        });
-        return Observable.just(result);
-    }
-
-    @Override
     public Observable<Long> getUnparsedCount(String type) {
         Long result = executeQuery(session -> {
             Long count = 0L;
@@ -115,10 +106,10 @@ public class Database implements Persistent {
     }
 
     @Override
-    public Observable<Integer> markWebPageAsParsed(Long webPageEntryId) {
+    public Observable<Integer> markWebPageAsParsed(WebPageEntity webPageEntity) {
         return executeTransaction(session -> {
             Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
-            query.setLong("id", webPageEntryId);
+            query.setLong("id", webPageEntity.getId());
             return query.executeUpdate();
         });
     }

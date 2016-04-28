@@ -10,6 +10,7 @@ import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
 
@@ -68,27 +69,35 @@ public class CrawlCommand implements Command {
      * @param pagesToParse Stream of webpages to process
      */
     private void process(Observable<WebPageEntity> pagesToParse) {
-        pagesToParse
-                .flatMap(pageToParse -> {
-                    Observable<WebPageEntity> result = null;
-                    try {
-                        WebPageParser parser = webPageParserFactory.getParser(pageToParse);
-                        Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
-                        Timer.Context time = parseTime.time();
-                        result = parser.parse(pageToParse);
-                        time.stop();
+        Observable<WebPageEntity> parsedWebPageEntries = pagesToParse.flatMap(pageToParse -> {
+            Observable<WebPageEntity> result = null;
+            try {
+                WebPageParser parser = webPageParserFactory.getParser(pageToParse);
+                Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
+                Timer.Context time = parseTime.time();
+                result = parser.parse(pageToParse);
+                time.stop();
 
-                        pageToParse.setParsed(true);
-                        webPageService.markParsed(pageToParse).subscribe(value -> {
-                            LOGGER.error("Failed to make page as parsed {}", pageToParse);
-                        });
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to process source {}", pageToParse.getUrl(), e);
-                    }
-                    return result;
-                }).filter(webPageEntities -> null != webPageEntities)
+                pageToParse.setParsed(true);
+                webPageService.markParsed(pageToParse).subscribe(value -> {
+                    LOGGER.error("Page parsed {}", value);
+                }, error -> {
+                    LOGGER.error("Failed to make page as parsed", error);
+                }, () -> {
+                    LOGGER.debug("maeked as parsed");
+                });
+            } catch (Exception e) {
+                LOGGER.error("Failed to process source {}", pageToParse.getUrl(), e);
+            }
+            return result;
+        });
+        parsedWebPageEntries
+                .filter(webPageEntities -> null != webPageEntities)
+                .flatMap(webPageService::save)
+                .subscribeOn(Schedulers.immediate())
+                .toBlocking()
                 .subscribe(
-                        webPageService::save,
+                        result -> LOGGER.info("processed {}", result),
                         ex -> LOGGER.error("Crawler Process Exception", ex)
                 );
     }

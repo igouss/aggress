@@ -7,6 +7,8 @@ import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.async.RedisAsyncCommands;
 import com.lambdaworks.redis.pubsub.StatefulRedisPubSubConnection;
+import com.naxsoft.encoders.ProductEntityEncoder;
+import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.AppProperties;
@@ -14,10 +16,15 @@ import org.hibernate.StatelessSession;
 import rx.Observable;
 import rx.functions.Func1;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public class RedisDatabase implements Persistent {
+    @Inject
+    ProductEntityEncoder productEntityEncoder;
+    @Inject
+    WebPageEntityEncoder webPageEntityEncoder;
     private RedisClient redisClient;
     private StatefulRedisPubSubConnection<String, String> pubSub;
     private RedisConnectionPool<RedisAsyncCommands<String, String>> pool;
@@ -25,7 +32,6 @@ public class RedisDatabase implements Persistent {
 
     public RedisDatabase() {
         this(AppProperties.getProperty("redisHost"), Integer.parseInt(AppProperties.getProperty("redisPort")));
-
     }
 
     private RedisDatabase(String host, int port) {
@@ -35,6 +41,14 @@ public class RedisDatabase implements Persistent {
         connection = redisClient.connect();
     }
 
+    public void setProductEntityEncoder(ProductEntityEncoder productEntityEncoder) {
+        this.productEntityEncoder = productEntityEncoder;
+    }
+
+    public void setWebPageEntityEncoder(WebPageEntityEncoder webPageEntityEncoder) {
+        this.webPageEntityEncoder = webPageEntityEncoder;
+    }
+
     @Override
     public void close() {
         connection.close();
@@ -42,18 +56,15 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Observable<Long> getUnparsedCount() {
-        return null;
-    }
-
-    @Override
     public Observable<Long> getUnparsedCount(String type) {
-        return null;
+        return connection.reactive().scard("WebPageEntity." + type);
     }
 
     @Override
-    public Observable<Integer> markWebPageAsParsed(Long webPageEntryId) {
-        return null;
+    public Observable<Integer> markWebPageAsParsed(WebPageEntity entity) {
+        return connection.reactive()
+                .smove("WebPageEntity" + entity.getType(), "WebPageEntity.parsed" + entity.getType(), getKey(entity))
+                .map(value -> value ? 1 : 0);
     }
 
     @Override
@@ -63,24 +74,32 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public Observable<Boolean> save(ProductEntity productEntity) {
-        String key = productEntity.getUrl();
-        String value = "";
-        return connection.reactive().set(key, value).map(result -> result.equalsIgnoreCase("OK"));
+        String key = "ProductEntity";
+        String value = productEntityEncoder.encode(productEntity);
+        return connection.reactive()
+                .sadd(key, value).map(rc -> rc == 1);
     }
 
     @Override
     public Observable<Boolean> save(WebPageEntity webPageEntity) {
-        return null;
+        String key = getKey(webPageEntity);
+        String value = webPageEntityEncoder.encode(webPageEntity);
+        return connection.reactive()
+                .sadd(key, value).map(rc -> rc == 1);
+    }
+
+    private String getKey(WebPageEntity webPageEntity) {
+        return "WebPageEntity." + webPageEntity.getType();
     }
 
     @Override
     public Observable<ProductEntity> getProducts() {
-        return null;
+        return connection.reactive().smembers("ProductEntity").map(productEntityEncoder::decode);
     }
 
     @Override
     public Observable<WebPageEntity> getUnparsedByType(String type) {
-        return null;
+        return connection.reactive().smembers("WebPageEntity." + type).map(webPageEntityEncoder::decode);
     }
 
     @Override

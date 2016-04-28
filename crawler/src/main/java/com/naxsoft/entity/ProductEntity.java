@@ -7,6 +7,9 @@ package com.naxsoft.entity;
 
 import javax.persistence.*;
 
+/**
+ *
+ */
 @Entity
 @Table(
         name = "product",
@@ -16,11 +19,6 @@ import javax.persistence.*;
                 @Index(name = "ProductEntity_indexed_idx", columnList = "indexed")
         }
 )
-
-
-/**
- *
- */
 public class ProductEntity {
     /**
      *
@@ -49,6 +47,7 @@ public class ProductEntity {
 
     public ProductEntity() {
     }
+
 
     @Id
     @Column(

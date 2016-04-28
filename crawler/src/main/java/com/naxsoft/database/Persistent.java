@@ -9,11 +9,9 @@ import rx.functions.Func1;
 public interface Persistent extends AutoCloseable, Cloneable {
     void close();
 
-    Observable<Long> getUnparsedCount();
-
     Observable<Long> getUnparsedCount(String type);
 
-    Observable<Integer> markWebPageAsParsed(Long webPageEntryId);
+    Observable<Integer> markWebPageAsParsed(WebPageEntity webPageEntity);
 
     Observable<Integer> markAllProductPagesAsIndexed();
 

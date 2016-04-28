@@ -5,6 +5,7 @@
 
 package com.naxsoft.entity;
 
+import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import javax.persistence.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -116,6 +116,17 @@ public class WebPageEntity {
         return text.replaceAll("[^\\x00-\\x7F]", "");
     }
 
+    /**
+     * Convert from JSON representation
+     *
+     * @param json WebPageEntity in JSON format
+     * @return WebPageEntity object
+     */
+    public static WebPageEntity fromJson(String json) {
+        Gson gson = new Gson();
+        return gson.fromJson(json, WebPageEntity.class);
+    }
+
     @Id
     @Column(
             name = "id"
@@ -194,7 +205,6 @@ public class WebPageEntity {
     @Column(
             name = "url"
             , columnDefinition = "TEXT"
-//            , columnDefinition = "TEXT"
     )
     public String getUrl() {
         return this.url;
@@ -243,5 +253,15 @@ public class WebPageEntity {
                 ", url='" + url + '\'' +
                 ", category='" + category + '\'' +
                 '}';
+    }
+
+    /**
+     * Get JSON representation
+     *
+     * @return JSON representation
+     */
+    public String toJson() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
 }

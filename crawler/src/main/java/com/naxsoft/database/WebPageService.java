@@ -35,10 +35,6 @@ public class WebPageService {
         return database.save(webPageEntity);
     }
 
-    public Observable<Long> getUnparsedCount() {
-        return database.getUnparsedCount();
-    }
-
     /**
      * Keep producing unparsedCount till it is equals to 0
      *
@@ -46,19 +42,19 @@ public class WebPageService {
      * @return row count in type
      */
     private Observable<Long> getUnparsedCount(String type) {
-        return Observable.create(subscriber -> {
-            while (!subscriber.isUnsubscribed()) {
-                Observable<Long> unparsedCount = database.getUnparsedCount(type);
-                LOGGER.info("Unparsed number of entries of type {} is {}", type, unparsedCount);
-                unparsedCount.take(1).subscribe(value -> {
-                    if (0L == value) {
-                        subscriber.onCompleted();
-                    } else {
-                        subscriber.onNext(value);
-                    }
-                });
-            }
-        });
+        return database.getUnparsedCount(type);
+//        return Observable.create(subscriber -> {
+//            while (!subscriber.isUnsubscribed()) {
+//
+//                unparsedCount.subscribe(value -> {
+//                    if (0L == value) {
+//                        subscriber.onCompleted();
+//                    } else {
+//                        subscriber.onNext(value);
+//                    }
+//                });
+//            }
+//        });
     }
 
     /**
@@ -68,14 +64,14 @@ public class WebPageService {
      * @return The number of entities updated.
      */
     public Observable<Integer> markParsed(WebPageEntity webPageEntity) {
-        Observable<Integer> rc;
-        if (0 == webPageEntity.getId()) {
-//            LOGGER.error("Trying to save a webpage with id=0 {}", webPageEntity);
-            throw new RuntimeException("Trying to save a webpage with id=0" + webPageEntity);
-        } else {
-            rc = database.markWebPageAsParsed(webPageEntity.getId());
-        }
-        return rc;
+//        Observable<Integer> rc;
+//        if (0 == webPageEntity.getId()) {
+////            LOGGER.error("Trying to save a webpage with id=0 {}", webPageEntity);
+//            throw new RuntimeException("Trying to save a webpage with id=0" + webPageEntity);
+//        } else {
+//            rc = database.markWebPageAsParsed(webPageEntity);
+//        }
+        return database.markWebPageAsParsed(webPageEntity);
     }
 
 

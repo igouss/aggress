@@ -22,6 +22,7 @@ import javax.inject.Singleton;
         , SourceServiceModule.class
         , ProductServiceModule.class
         , WebPageParserFactoryModule.class
+        , EncoderModule.class
 }, dependencies = {})
 public interface ApplicationComponent {
     Persistent getDatabase();

@@ -8,8 +8,6 @@ import joptsimple.OptionSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.UnknownHostException;
-
 import static java.lang.System.out;
 import static java.lang.System.setProperty;
 
@@ -61,12 +59,12 @@ public class Aggress {
             showHelp();
             return;
         }
-        try {
-            applicationComponent.getElastic().connect("localhost", 9300);
-        } catch (UnknownHostException e) {
-            LOGGER.error("Failed to connect to elastic search", e);
-            return;
-        }
+//        try {
+//            applicationComponent.getElastic().connect("localhost", 9300);
+//        } catch (UnknownHostException e) {
+//            LOGGER.error("Failed to connect to elastic search", e);
+//            return;
+//        }
 
 //            elasticReporter = ElasticsearchReporter.forRegistry(metrics)
 //                    .hosts("localhost:9300")

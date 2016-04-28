@@ -24,34 +24,34 @@ public class PopulateDBCommand implements Command {
     private final static String[] SOURCES = {
             "http://www.alflahertys.com/",
             "http://www.bullseyelondon.com/",
-            "http://www.cabelas.ca/",
-            "https://www.canadaammo.com/",
-            "http://www.canadiangunnutz.com/",
-            "https://www.corwin-arms.com/",
-            "http://www.crafm.com/",
-            "http://ctcsupplies.ca/",
-            "https://shop.dantesports.com/",
-            "https://ellwoodepps.com/",
-            "http://www.firearmsoutletcanada.com/",
-            "https://fishingworld.ca/",
-            "http://frontierfirearms.ca/",
-            "http://gotenda.com/",
-            "http://gun-shop.ca/",
-            "http://www.hical.ca/",
-            "http://internationalshootingsupplies.com/",
-            "https://www.irunguns.us/",
-            "http://www.leverarms.com/",
-            "http://www.magnumguns.ca/",
-            "http://www.marstar.ca/",
-            "http://store.prophetriver.com/",
-            "http://psmilitaria.50megs.com/",
-            "https://shopquestar.com/",
-            "http://www.sail.ca/",
-            "http://www.theammosource.com/",
-            "https://www.tradeexcanada.com/",
-            "http://westrifle.com/",
-            "http://www.wholesalesports.com/",
-            "https://www.wolverinesupplies.com/",
+//            "http://www.cabelas.ca/",
+//            "https://www.canadaammo.com/",
+//            "http://www.canadiangunnutz.com/",
+//            "https://www.corwin-arms.com/",
+//            "http://www.crafm.com/",
+//            "http://ctcsupplies.ca/",
+//            "https://shop.dantesports.com/",
+//            "https://ellwoodepps.com/",
+//            "http://www.firearmsoutletcanada.com/",
+//            "https://fishingworld.ca/",
+//            "http://frontierfirearms.ca/",
+//            "http://gotenda.com/",
+//            "http://gun-shop.ca/",
+//            "http://www.hical.ca/",
+//            "http://internationalshootingsupplies.com/",
+//            "https://www.irunguns.us/",
+//            "http://www.leverarms.com/",
+//            "http://www.magnumguns.ca/",
+//            "http://www.marstar.ca/",
+//            "http://store.prophetriver.com/",
+//            "http://psmilitaria.50megs.com/",
+//            "https://shopquestar.com/",
+//            "http://www.sail.ca/",
+//            "http://www.theammosource.com/",
+//            "https://www.tradeexcanada.com/",
+//            "http://westrifle.com/",
+//            "http://www.wholesalesports.com/",
+//            "https://www.wolverinesupplies.com/",
     };
     private static WebPageService webPageService = null;
     private static SourceService sourceService = null;
@@ -65,7 +65,13 @@ public class PopulateDBCommand implements Command {
 
     private static void populateRoots() {
         Observable.from(SOURCES).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
-                .subscribe(PopulateDBCommand::save, ex -> LOGGER.error("PopulateRoots Exception", ex));
+                .flatMap(PopulateDBCommand::save)
+                .all(result -> result == Boolean.TRUE)
+                .subscribe(result -> {
+                    LOGGER.info("Roots populated: {}", result);
+                }, err -> {
+                    LOGGER.error("Failed to populate roots", err);
+                });
     }
 
     private static SourceEntity from(String sourceUrl) {
