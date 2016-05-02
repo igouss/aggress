@@ -23,7 +23,7 @@ public class PopulateDBCommand implements Command {
      */
     private final static String[] SOURCES = {
             "http://www.alflahertys.com/",
-            "http://www.bullseyelondon.com/",
+//            "http://www.bullseyelondon.com/",
 //            "http://www.cabelas.ca/",
 //            "https://www.canadaammo.com/",
 //            "http://www.canadiangunnutz.com/",

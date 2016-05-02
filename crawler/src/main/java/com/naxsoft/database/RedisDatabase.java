@@ -13,14 +13,19 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.AppProperties;
 import org.hibernate.StatelessSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class RedisDatabase implements Persistent {
+    private final static Logger LOGGER = LoggerFactory.getLogger(RedisDatabase.class);
+
     @Inject
     ProductEntityEncoder productEntityEncoder;
     @Inject
@@ -57,14 +62,32 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public Observable<Long> getUnparsedCount(String type) {
-        return connection.reactive().scard("WebPageEntity." + type);
+        return Observable.create(subscriber -> {
+            while (!subscriber.isUnsubscribed()) {
+                Long count = connection.sync().scard("WebPageEntity." + type);
+                LOGGER.info("getUnparsedCount {} = {}", type, count);
+                subscriber.onNext(count);
+                try {
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(30));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
-    public Observable<Integer> markWebPageAsParsed(WebPageEntity entity) {
+    public Observable<Integer> markWebPageAsParsed(WebPageEntity webPageEntity) {
+        String source = "WebPageEntity." + webPageEntity.getType();
+        String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
+        String member = webPageEntityEncoder.encode(webPageEntity);
+        LOGGER.info("Moving {} from {} to {}", member, source, destination);
         return connection.reactive()
-                .smove("WebPageEntity" + entity.getType(), "WebPageEntity.parsed" + entity.getType(), getKey(entity))
-                .map(value -> value ? 1 : 0);
+                .smove(source, destination, member)
+                .map(value -> {
+                    LOGGER.info("markWebPageAsParsed rc {}", value);
+                    return value ? 1 : 0;
+                });
     }
 
     @Override
@@ -76,6 +99,7 @@ public class RedisDatabase implements Persistent {
     public Observable<Boolean> save(ProductEntity productEntity) {
         String key = "ProductEntity";
         String value = productEntityEncoder.encode(productEntity);
+
         return connection.reactive()
                 .sadd(key, value).map(rc -> rc == 1);
     }
@@ -83,9 +107,10 @@ public class RedisDatabase implements Persistent {
     @Override
     public Observable<Boolean> save(WebPageEntity webPageEntity) {
         String key = getKey(webPageEntity);
-        String value = webPageEntityEncoder.encode(webPageEntity);
+        String member = webPageEntityEncoder.encode(webPageEntity);
+        LOGGER.info("Adding key={} member={}", key, member);
         return connection.reactive()
-                .sadd(key, value).map(rc -> rc == 1);
+                .sadd(key, member).map(rc -> rc == 1);
     }
 
     private String getKey(WebPageEntity webPageEntity) {

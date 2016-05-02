@@ -24,13 +24,13 @@ public class CrawlCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(CrawlCommand.class);
 
     @Inject
-    protected WebPageService webPageService = null;
+    WebPageService webPageService = null;
 
     @Inject
-    protected WebPageParserFactory webPageParserFactory = null;
+    WebPageParserFactory webPageParserFactory = null;
 
     @Inject
-    protected MetricRegistry metrics = null;
+    MetricRegistry metrics = null;
 
     @Override
     public void setUp(ApplicationComponent applicationComponent) throws CLIException {
@@ -69,36 +69,41 @@ public class CrawlCommand implements Command {
      * @param pagesToParse Stream of webpages to process
      */
     private void process(Observable<WebPageEntity> pagesToParse) {
-        Observable<WebPageEntity> parsedWebPageEntries = pagesToParse.flatMap(pageToParse -> {
-            Observable<WebPageEntity> result = null;
-            try {
-                WebPageParser parser = webPageParserFactory.getParser(pageToParse);
-                Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
-                Timer.Context time = parseTime.time();
-                result = parser.parse(pageToParse);
-                time.stop();
+        Observable<WebPageEntity> parsedWebPageEntries = pagesToParse
+                .observeOn(Schedulers.computation())
+                .flatMap(pageToParse -> {
+                    Observable<WebPageEntity> result = null;
+                    try {
+                        WebPageParser parser = webPageParserFactory.getParser(pageToParse);
+                        Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
+                        Timer.Context time = parseTime.time();
+                        result = parser.parse(pageToParse);
+                        time.stop();
 
-                pageToParse.setParsed(true);
-                webPageService.markParsed(pageToParse).subscribe(value -> {
-                    LOGGER.error("Page parsed {}", value);
-                }, error -> {
-                    LOGGER.error("Failed to make page as parsed", error);
-                }, () -> {
-                    LOGGER.debug("maeked as parsed");
+//                        pageToParse.setParsed(true);
+                        webPageService.markParsed(pageToParse)
+                                .toBlocking()
+                                .subscribe(value -> {
+                                    LOGGER.debug("Page parsed {}", value);
+                                }, error -> {
+                                    LOGGER.error("Failed to make page as parsed", error);
+                                });
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to process source {}", pageToParse.getUrl(), e);
+                    }
+                    return result;
                 });
-            } catch (Exception e) {
-                LOGGER.error("Failed to process source {}", pageToParse.getUrl(), e);
-            }
-            return result;
-        });
         parsedWebPageEntries
                 .filter(webPageEntities -> null != webPageEntities)
                 .flatMap(webPageService::save)
-                .subscribeOn(Schedulers.immediate())
                 .toBlocking()
                 .subscribe(
-                        result -> LOGGER.info("processed {}", result),
-                        ex -> LOGGER.error("Crawler Process Exception", ex)
+                        result -> {
+                            LOGGER.info("processed {}", result);
+                        },
+                        ex -> {
+                            LOGGER.error("Crawler Process Exception", ex);
+                        }
                 );
     }
 }

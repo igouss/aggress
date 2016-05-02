@@ -48,9 +48,8 @@ public class ProductService {
      * Mark all products as indexed
      */
     public void markAllAsIndexed() {
-        Observable<Integer> rc = database.markAllProductPagesAsIndexed();
-        rc.subscribe(value -> {
-            LOGGER.info("The number of entities affected: {}", rc);
+        database.markAllProductPagesAsIndexed().subscribe(value -> {
+            LOGGER.info("The number of entities affected: {}", value);
         });
     }
 }

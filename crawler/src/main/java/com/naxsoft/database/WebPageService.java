@@ -35,27 +35,6 @@ public class WebPageService {
         return database.save(webPageEntity);
     }
 
-    /**
-     * Keep producing unparsedCount till it is equals to 0
-     *
-     * @param type Column type to check against
-     * @return row count in type
-     */
-    private Observable<Long> getUnparsedCount(String type) {
-        return database.getUnparsedCount(type);
-//        return Observable.create(subscriber -> {
-//            while (!subscriber.isUnsubscribed()) {
-//
-//                unparsedCount.subscribe(value -> {
-//                    if (0L == value) {
-//                        subscriber.onCompleted();
-//                    } else {
-//                        subscriber.onNext(value);
-//                    }
-//                });
-//            }
-//        });
-    }
 
     /**
      * Update page parsed status in the database
@@ -71,6 +50,7 @@ public class WebPageService {
 //        } else {
 //            rc = database.markWebPageAsParsed(webPageEntity);
 //        }
+        LOGGER.info("Marking {} {} as parsed", webPageEntity.getType(), webPageEntity.getUrl());
         return database.markWebPageAsParsed(webPageEntity);
     }
 
@@ -83,6 +63,7 @@ public class WebPageService {
      * @return Stream of unparsed pages of specefied type
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
-        return getUnparsedCount(type).flatMap(count -> database.getUnparsedByType(type));
+        return database.getUnparsedCount(type).takeWhile(val -> val != 0).flatMap(count -> database.getUnparsedByType(type));
+
     }
 }
