@@ -73,7 +73,7 @@ public class ParseCommand implements Command {
     private Observable<ProductEntity> getProductEntityObservable() {
         return webPageService.getUnparsedByType("productPage").flatMap(webPageEntity -> {
             WebPageParser parser = webPageParserFactory.getParser(webPageEntity);
-            webPageService.markParsed(webPageEntity);
+            webPageService.markParsed(webPageEntity).subscribe();
             return parser.parse(webPageEntity);
         }).map(pageToParse -> {
             Set<ProductEntity> result = null;
