@@ -26,6 +26,21 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
     private final ListenableFuture<List<Cookie>> futureCookies;
 
+    public CanadiangunnutzProductListParser(HttpClient client) {
+        this.client = client;
+        Map<String, String> formParameters = new HashMap<>();
+        formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
+        formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
+        formParameters.put("vb_login_password_hint", "Password");
+        formParameters.put("s", "");
+        formParameters.put("securitytoken", "guest");
+        formParameters.put("do", "login");
+        formParameters.put("vb_login_md5password", "");
+        formParameters.put("vb_login_md5password_utf", "");
+
+        futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
+    }
+
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
 
@@ -41,11 +56,7 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                 if (select.first().text().contains("WTS")) {
                     element = element.select("a.title").first();
                     if (!element.text().toLowerCase().contains("remove")) {
-                        WebPageEntity webPageEntity = new WebPageEntity();
-                        webPageEntity.setUrl(element.attr("abs:href"));
-                        webPageEntity.setParsed(false);
-                        webPageEntity.setType("productPage");
-                        webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                         LOGGER.info("productPage={}", webPageEntity.getUrl());
                         result.add(webPageEntity);
                     }
@@ -53,21 +64,6 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
             }
         }
         return result;
-    }
-
-    public CanadiangunnutzProductListParser(HttpClient client) {
-        this.client = client;
-        Map<String, String> formParameters = new HashMap<>();
-        formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
-        formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
-        formParameters.put("vb_login_password_hint", "Password");
-        formParameters.put("s", "");
-        formParameters.put("securitytoken", "guest");
-        formParameters.put("do", "login");
-        formParameters.put("vb_login_md5password", "");
-        formParameters.put("vb_login_md5password_utf", "");
-
-        futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
     }
 
     @Override

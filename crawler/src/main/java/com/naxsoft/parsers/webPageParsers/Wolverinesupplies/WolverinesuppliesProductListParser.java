@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
+package com.naxsoft.parsers.webPageParsers.Wolverinesupplies;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -6,7 +6,6 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
-import com.ning.http.client.ListenableFuture;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -17,7 +16,6 @@ import rx.Observable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,10 +40,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
             }
 
             if (0 != sb.length()) {
-                WebPageEntity e = new WebPageEntity();
-                e.setUrl("https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb);
-                e.setType("productPage");
-                e.setCategory(webPageEntity.getCategory());
+                WebPageEntity e = new WebPageEntity(0L, "", "productPage", false, "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb, webPageEntity.getCategory());
                 LOGGER.info("productPage={}", e.getUrl());
                 result.add(e);
             }
@@ -69,10 +64,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
             if (categoryMatcher.find()) {
                 String productCategory = categoryMatcher.group();
                 String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setType("tmp");
-                webPageEntity.setUrl(productDetailsUrl);
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, productDetailsUrl, downloadResult.getSourcePage().getCategory());
                 result.add(webPageEntity);
             }
         }

@@ -21,8 +21,12 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class WestrifleFrontPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleFrontPageParser.class);
+    private final HttpClient client;
+
+    public WestrifleFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -31,11 +35,7 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
 
         Elements elements = document.select(".leftBoxContainer .category-top");
         for(Element e : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(e.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("tmp");
-            webPageEntity.setCategory(e.text());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, e.attr("abs:href"), e.text());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -52,19 +52,11 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
         int pageTotal = (int) Math.ceil(productTotal / 10.0);
 
         for (int i = 1; i <= pageTotal; i++) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(document.location() + "&page=" + i);
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0l, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public WestrifleFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

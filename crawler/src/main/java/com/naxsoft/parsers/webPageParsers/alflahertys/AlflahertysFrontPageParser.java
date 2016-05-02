@@ -106,11 +106,7 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
                 LOGGER.info("Ignoring category: " + e.text() + " " + e.attr("abs:href"));
                 continue;
             }
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(e.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(e.text());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, e.attr("abs:href"), e.text());
             LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }
@@ -133,20 +129,12 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
             }
         }
         if (max == 0) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(downloadResult.getSourcePage().getUrl());
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         } else {
             for (int i = 1; i <= max; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(downloadResult.getSourcePage().getUrl() + "?page=" + i);
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productList");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl() + "?page=" + i, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }
@@ -156,7 +144,6 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-
         return Observable.from(client.get(parent.getUrl(), new DocumentCompletionHandler(parent)))
                 .map(this::parseFrontPage)
                 .flatMap(Observable::from)
@@ -164,8 +151,6 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from)
                 .map(this::parseProductPage)
                 .flatMap(Observable::from);
-
-
     }
 
     @Override

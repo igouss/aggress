@@ -23,8 +23,12 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class GunshopFrontPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopFrontPageParser.class);
+    private final HttpClient client;
+
+    public GunshopFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> categoriesDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -34,14 +38,10 @@ public class GunshopFrontPageParser extends AbstractWebPageParser {
         Elements elements = document.select(".menu-item > a");
 
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, element.attr("abs:href"), element.text());
             if (!webPageEntity.getUrl().contains("product-category")) {
                 continue;
             }
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("tmp");
-            webPageEntity.setCategory(element.text());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -61,28 +61,16 @@ public class GunshopFrontPageParser extends AbstractWebPageParser {
             int pages = (int) Math.ceil((double) max / postsPerPage);
 
             for (int i = 1; i <= pages; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(document.location() + "/page/" + i + "/");
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productList");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         } else {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(document.location());
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public GunshopFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

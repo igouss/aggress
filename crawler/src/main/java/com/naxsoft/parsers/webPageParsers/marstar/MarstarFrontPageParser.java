@@ -17,6 +17,11 @@ public class MarstarFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
+    private static WebPageEntity create(String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+        return webPageEntity;
+    }
+
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
@@ -25,15 +30,6 @@ public class MarstarFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://www.marstar.ca/dynamic/category.jsp?catid=81526", "firearm")); // Firearms
 
         return Observable.from(webPageEntities);
-    }
-
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        webPageEntity.setCategory(category);
-        return webPageEntity;
     }
 
     @Override

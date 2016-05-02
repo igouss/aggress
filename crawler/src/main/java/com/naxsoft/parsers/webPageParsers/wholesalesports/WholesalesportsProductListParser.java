@@ -21,8 +21,12 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class WholesalesportsProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(WholesalesportsProductListParser.class);
+    private final HttpClient client;
+
+    public WholesalesportsProductListParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -31,19 +35,11 @@ public class WholesalesportsProductListParser extends AbstractWebPageParser {
 
         Elements elements = document.select(".productItemInfo a");
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public WholesalesportsProductListParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

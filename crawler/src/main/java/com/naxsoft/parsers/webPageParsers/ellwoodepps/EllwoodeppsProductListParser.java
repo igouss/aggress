@@ -21,6 +21,7 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class EllwoodeppsProductListParser extends AbstractWebPageParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsProductListParser.class);
     private final HttpClient client;
 
     public EllwoodeppsProductListParser(HttpClient client) {
@@ -34,24 +35,18 @@ public class EllwoodeppsProductListParser extends AbstractWebPageParser {
 
         Elements elements = document.select(".firearm-table");
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.select("td.firearm-name > a").attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
+            String category;
             if (downloadResult.getSourcePage().getCategory().equalsIgnoreCase("accessories")) {
-                webPageEntity.setCategory(element.select(".firearm-table > tbody > tr:nth-child(2) > td:nth-child(2)").text());
+                category = element.select(".firearm-table > tbody > tr:nth-child(2) > td:nth-child(2)").text();
             } else {
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                category = downloadResult.getSourcePage().getCategory();
             }
-
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.select("td.firearm-name > a").attr("abs:href"), category);
             LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
     }
-
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsProductListParser.class);
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {

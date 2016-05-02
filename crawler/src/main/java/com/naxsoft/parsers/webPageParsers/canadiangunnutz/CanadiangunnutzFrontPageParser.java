@@ -77,11 +77,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
             }
             for (String category : categories.keySet()) {
                 if (text.endsWith(category)) {
-                    WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(element.attr("abs:href"));
-                    webPageEntity.setParsed(false);
-                    webPageEntity.setType("productList");
-                    webPageEntity.setCategory(categories.get(category));
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), categories.get(category));
                     LOGGER.info("productList={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                     break;
@@ -104,11 +100,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
             int total = Integer.parseInt(matcher.group(3));
             int pages = (int) Math.ceil((double) total / postsPerPage);
             for (int i = 1; i <= pages; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(document.location() + "/page" + i);
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productList");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -123,8 +115,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl("http://www.canadiangunnutz.com/forum/forum.php");
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "", false, "http://www.canadiangunnutz.com/forum/forum.php", "");
         return Observable.from(futureCookies)
                 .map(cookies1 -> client.get(webPageEntity.getUrl(), cookies1, new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)

@@ -21,8 +21,12 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class HicalFrontPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(HicalFrontPageParser.class);
+    private final HttpClient client;
+
+    public HicalFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -31,19 +35,11 @@ public class HicalFrontPageParser extends AbstractWebPageParser {
 
         Elements elements = document.select(".SideCategoryListFlyout a");
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(element.text());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), element.text());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public HicalFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

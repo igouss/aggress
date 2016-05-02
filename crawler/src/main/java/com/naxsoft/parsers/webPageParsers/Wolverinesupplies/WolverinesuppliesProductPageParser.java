@@ -3,7 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
+package com.naxsoft.parsers.webPageParsers.Wolverinesupplies;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;

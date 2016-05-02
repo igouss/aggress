@@ -22,7 +22,17 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WanstallsonlineFrontPageParser.class);
     private final HttpClient client;
+
+    public WanstallsonlineFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity create(String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+        return webPageEntity;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -46,26 +56,18 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
         }
 
         for (int i = 1; i < max; i++) {
-            WebPageEntity webPageEntity = new WebPageEntity();
+            String url;
             if (1 == i) {
-                webPageEntity.setUrl(document.location());
+                url = document.location();
             } else {
-                webPageEntity.setUrl(document.location() + "index " + i + ".html");
+                url = document.location() + "index " + i + ".html";
             }
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
     }
-
-    public WanstallsonlineFrontPageParser(HttpClient client) {
-        this.client = client;
-    }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WanstallsonlineFrontPageParser.class);
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
@@ -82,15 +84,6 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
                 .flatMap(Observable::from);
-    }
-
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        webPageEntity.setCategory(category);
-        return webPageEntity;
     }
 
     @Override

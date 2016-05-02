@@ -20,8 +20,7 @@ public class HicalFrontPageParserTest extends AbstractTest {
         try (HttpClient httpClient = new HttpClientNing(sc)) {
             HicalFrontPageParser parser = new HicalFrontPageParser(httpClient);
 
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl("http://www.hical.ca/");
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "", false, "http://www.hical.ca/", "");
 
             Observable<WebPageEntity> observable = parser.parse(webPageEntity);
             Iterable<WebPageEntity> webPageEntities = observable.toBlocking().toIterable();

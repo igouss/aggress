@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.dantesports;
+package com.naxsoft.parsers.webPageParsers.Dantesports;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;

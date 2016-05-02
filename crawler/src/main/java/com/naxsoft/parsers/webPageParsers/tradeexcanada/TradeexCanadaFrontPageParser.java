@@ -20,8 +20,17 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaFrontPageParser.class);
+    private final HttpClient client;
+
+    public TradeexCanadaFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity create(String url) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, "N/A");
+        return webPageEntity;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -30,43 +39,37 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
 
         Elements elements = document.select(".view-content a");
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-
+            String category;
             if (element.text().contains("AAA Super Specials")) {
-                webPageEntity.setCategory("firearm,ammo");
+                category = "firearm,ammo";
             } else if (element.text().contains("Combination Guns")) {
-                webPageEntity.setCategory("firearm");
+                category = "firearm";
             } else if (element.text().contains("Double Rifles")) {
-                webPageEntity.setCategory("firearm");
+                category = "firearm";
             } else if (element.text().contains("Handguns")) {
-                webPageEntity.setCategory("firearm");
+                category = "firearm";
             } else if (element.text().contains("Hunting and Sporting Arms")) {
-                webPageEntity.setCategory("firearm");
+                category = "firearm";
             } else if (element.text().contains("Rifle")) {
-                webPageEntity.setCategory("firearm");
+                category = "firearm";
             } else if (element.text().contains("Shotguns")) {
-                webPageEntity.setCategory("firearm");
+                category = "firearm";
             } else if (element.text().contains("Ammunition")) {
-                webPageEntity.setCategory("ammo");
+                category = "ammo";
             } else if (element.text().contains("Reloading Components")) {
-                webPageEntity.setCategory("reload");
+                category = "reload";
             } else if (element.text().contains("Scopes")) {
-                webPageEntity.setCategory("optic");
+                category = "optic";
             } else {
-                webPageEntity.setCategory("misc");
+                category = "misc";
             }
+
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), category);
 
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public TradeexCanadaFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override
@@ -79,15 +82,6 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
                 .flatMap(Observable::from);
-    }
-
-    private static WebPageEntity create(String url) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        webPageEntity.setCategory("n/a");
-        return webPageEntity;
     }
 
     @Override

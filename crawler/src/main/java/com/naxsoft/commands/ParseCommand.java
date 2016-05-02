@@ -1,7 +1,6 @@
 package com.naxsoft.commands;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.Elastic;
 import com.naxsoft.database.ProductService;
@@ -29,6 +28,7 @@ public class ParseCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(ParseCommand.class);
 
     private final static Set<String> VALID_CATEGORIES = new HashSet<>();
+
     static {
         VALID_CATEGORIES.add("n/a");
         VALID_CATEGORIES.add("firearms");
@@ -57,6 +57,8 @@ public class ParseCommand implements Command {
     public void setUp(ApplicationComponent applicationComponent) throws CLIException {
         webPageService = applicationComponent.getWebPageService();
         productService = applicationComponent.getProductService();
+        webPageParserFactory = applicationComponent.getWebPageParserFactory();
+        productParserFactory = applicationComponent.getProductParserFactory();
         elastic = applicationComponent.getElastic();
 
     }
@@ -81,10 +83,7 @@ public class ParseCommand implements Command {
                 }
 
                 ProductParser parser = productParserFactory.getParser(pageToParse);
-                Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
-                Timer.Context time = parseTime.time();
                 result = parser.parse(pageToParse);
-                time.stop();
             } catch (Exception e) {
                 LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
             }

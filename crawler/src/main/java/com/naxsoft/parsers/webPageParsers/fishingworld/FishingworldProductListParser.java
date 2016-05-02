@@ -21,8 +21,12 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class FishingworldProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingworldProductListParser.class);
+    private final HttpClient client;
+
+    public FishingworldProductListParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -31,19 +35,11 @@ public class FishingworldProductListParser extends AbstractWebPageParser {
 
         Elements elements = document.select("#product-list h2 > a");
         for (Element el : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(el.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public FishingworldProductListParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

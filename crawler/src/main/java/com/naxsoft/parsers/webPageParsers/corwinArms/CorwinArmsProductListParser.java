@@ -35,11 +35,7 @@ public class CorwinArmsProductListParser extends AbstractWebPageParser {
 
         Elements elements = document.select("div.field.field-name-title.field-type-ds.field-label-hidden a");
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }

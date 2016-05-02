@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.dantesports;
+package com.naxsoft.parsers.webPageParsers.Dantesports;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -23,8 +23,12 @@ import java.util.regex.Pattern;
  * Copyright NAXSoft 2015
  */
 public class DantesportsProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsProductListParser.class);
+    private final HttpClient client;
+
+    public DantesportsProductListParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -37,11 +41,7 @@ public class DantesportsProductListParser extends AbstractWebPageParser {
             String onclick = element.attr("onclick");
             Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
             if (matcher.find()) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl("https://shop.dantesports.com/items_detail.php?iid=" + matcher.group());
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productPage");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, "https://shop.dantesports.com/items_detail.php?iid=" + matcher.group(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             } else {
@@ -49,11 +49,6 @@ public class DantesportsProductListParser extends AbstractWebPageParser {
             }
         }
         return result;
-    }
-
-
-    public DantesportsProductListParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

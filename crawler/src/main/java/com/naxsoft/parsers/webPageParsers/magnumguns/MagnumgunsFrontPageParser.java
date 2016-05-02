@@ -20,8 +20,17 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class MagnumgunsFrontPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(MagnumgunsFrontPageParser.class);
+    private final HttpClient client;
+
+    public MagnumgunsFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity create(String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+        return webPageEntity;
+    }
 
     private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -51,20 +60,12 @@ public class MagnumgunsFrontPageParser extends AbstractWebPageParser {
         }
 
         for (int i = 1; i <= max; i++) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(downloadResult.getSourcePage().getUrl() + "/page/" + i + "/");
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0l, "", "productList", false, downloadResult.getSourcePage().getUrl() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
             LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }
 
         return result;
-    }
-
-    public MagnumgunsFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override
@@ -76,15 +77,6 @@ public class MagnumgunsFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from)
                 .map(this::parseSubPages)
                 .flatMap(Observable::from);
-    }
-
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        webPageEntity.setCategory(category);
-        return webPageEntity;
     }
 
     @Override

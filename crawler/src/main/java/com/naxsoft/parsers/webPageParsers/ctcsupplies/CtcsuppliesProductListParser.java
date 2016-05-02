@@ -21,8 +21,12 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class CtcsuppliesProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesProductListParser.class);
+    private final HttpClient client;
+
+    public CtcsuppliesProductListParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -34,19 +38,11 @@ public class CtcsuppliesProductListParser extends AbstractWebPageParser {
             if (!element.select("span.badge.badge--sold-out").isEmpty()) {
                 continue;
             }
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public CtcsuppliesProductListParser(HttpClient client) {
-        this.client = client;
     }
 
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {

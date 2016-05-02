@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.wolverinesupplies;
+package com.naxsoft.parsers.webPageParsers.Wolverinesupplies;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -34,11 +34,7 @@ public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
         for (Element e : elements) {
             String linkUrl = e.attr("abs:href");
             if (null != linkUrl && !linkUrl.isEmpty() && linkUrl.contains("Products") && e.siblingElements().isEmpty()) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(linkUrl);
-                webPageEntity.setParsed(false);
-                webPageEntity.setCategory(e.text());
-                webPageEntity.setType("productList");
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, linkUrl, e.text());
                 LOGGER.info("ProductPageUrl={}", linkUrl);
                 result.add(webPageEntity);
             }

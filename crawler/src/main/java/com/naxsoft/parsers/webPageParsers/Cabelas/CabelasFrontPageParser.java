@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.cabelas;
+package com.naxsoft.parsers.webPageParsers.Cabelas;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -35,10 +35,7 @@ public class CabelasFrontPageParser extends AbstractWebPageParser {
         Elements elements = document.select("a[data-heading=Shooting]");
 
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), "");
             LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }

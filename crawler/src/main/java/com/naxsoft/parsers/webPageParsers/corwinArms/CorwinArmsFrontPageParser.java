@@ -38,12 +38,7 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
         for (Element e : elements) {
             String linkUrl = e.attr("abs:href");
 
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(linkUrl);
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(e.text());
-
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, linkUrl, e.text());
             LOGGER.info("Found on front page ={}", linkUrl);
             result.add(webPageEntity);
         }
@@ -60,20 +55,12 @@ public class CorwinArmsFrontPageParser extends AbstractWebPageParser {
         if (matcher.find()) {
             int max = Integer.parseInt(matcher.group(2));
             for (int i = 1; i <= max; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(document.location() + "?page=" + i);
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productList");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "?page=" + i, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         } else {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(document.location());
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }

@@ -21,8 +21,26 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class MarstarProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarProductListParser.class);
+    private final HttpClient client;
+
+    public MarstarProductListParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity getProductList(Element e, String category) {
+        String linkUrl = e.attr("abs:href") + "&displayOutOfStock=no";
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, linkUrl, category);
+        LOGGER.info("Found product list page {} url={}", e.text(), linkUrl);
+        return webPageEntity;
+    }
+
+    private static WebPageEntity getProductPage(Element e, String category) {
+        String linkUrl = e.attr("abs:href");
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, linkUrl, category);
+        LOGGER.info("Found product {} url={}", e.text(), linkUrl);
+        return webPageEntity;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -32,47 +50,20 @@ public class MarstarProductListParser extends AbstractWebPageParser {
         LOGGER.info("Parsing {}", document.select("h1").text());
         Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
         for (Element e : elements) {
-            WebPageEntity webPageEntity = getProductPage(e);
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = getProductPage(e, downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }
         elements = document.select(".baseTable td:nth-child(1) > a");
         for (Element e : elements) {
-            WebPageEntity webPageEntity = getProductPage(e);
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = getProductPage(e, downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }
         elements = document.select("div.subcategoryName a");
         for (Element e : elements) {
-            WebPageEntity webPageEntity = getProductList(e);
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = getProductList(e, downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    private static WebPageEntity getProductList(Element e) {
-        String linkUrl = e.attr("abs:href") + "&displayOutOfStock=no";
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(linkUrl);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        LOGGER.info("Found product list page {} url={}", e.text(), linkUrl);
-        return webPageEntity;
-    }
-
-    private static WebPageEntity getProductPage(Element e) {
-        String linkUrl = e.attr("abs:href");
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(linkUrl);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productPage");
-        LOGGER.info("Found product {} url={}", e.text(), linkUrl);
-        return webPageEntity;
-    }
-
-    public MarstarProductListParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

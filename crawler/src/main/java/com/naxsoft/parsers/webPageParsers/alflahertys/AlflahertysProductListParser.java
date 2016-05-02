@@ -42,11 +42,7 @@ public class AlflahertysProductListParser extends AbstractWebPageParser {
                 continue;
             }
 
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.parent().attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.parent().attr("abs:href"), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }

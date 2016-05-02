@@ -21,8 +21,12 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class QuestarProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(QuestarProductListParser.class);
+    private final HttpClient client;
+
+    public QuestarProductListParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -31,19 +35,11 @@ public class QuestarProductListParser extends AbstractWebPageParser {
 
         Elements elements = document.select("form > table > tbody > tr > td a");
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
-            webPageEntity.setType("productPage");
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public QuestarProductListParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

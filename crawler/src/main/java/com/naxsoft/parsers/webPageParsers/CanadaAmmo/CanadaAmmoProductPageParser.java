@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.canadaAmmo;
+package com.naxsoft.parsers.webPageParsers.CanadaAmmo;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -12,8 +12,8 @@ import rx.Observable;
  * Copyright NAXSoft 2015
  */
 public class CanadaAmmoProductPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoProductPageParser.class);
+    private final HttpClient client;
 
     public CanadaAmmoProductPageParser(HttpClient client) {
         this.client = client;

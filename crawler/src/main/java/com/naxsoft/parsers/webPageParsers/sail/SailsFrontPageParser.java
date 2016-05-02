@@ -32,6 +32,15 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
 
     private final HttpClient client;
 
+    public SailsFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity create(String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+        return webPageEntity;
+    }
+
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
 
@@ -41,19 +50,11 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
         Elements elements = document.select("ol.nav-2 a");
 
         for (Element el : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(el.attr("abs:href") + "?limit=36");
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, el.attr("abs:href") + "?limit=36", downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public SailsFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override
@@ -68,15 +69,6 @@ public class SailsFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
                 .flatMap(Observable::from);
-    }
-
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        webPageEntity.setCategory(category);
-        return webPageEntity;
     }
 
     @Override

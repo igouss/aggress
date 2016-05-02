@@ -1,15 +1,12 @@
 package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.AbstractTest;
-import com.naxsoft.crawler.HttpClient;
-import com.naxsoft.crawler.HttpClientNing;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.net.ssl.SSLContext;
 import java.io.InputStream;
 import java.util.Set;
 
@@ -24,10 +21,7 @@ public class CanadiangunnutzRawPageParserTest extends AbstractTest {
         InputStream pageStream = CabelasProductRawParserTest.class.getClassLoader().getResourceAsStream("canadiangunnutzProductPage.html");
         try {
             CanadiangunnutzRawPageParser parser = new CanadiangunnutzRawPageParser();
-            WebPageEntity entity = new WebPageEntity();
-            entity.setCategory("Firearm");
-            entity.setContent(IOUtils.toString(pageStream));
-            entity.setUrl("http://www.canadiangunnutz.com/forum/showthread.php/1355228-Lee-Enfield-EAL-3-digit-serial-Mint");
+            WebPageEntity entity = new WebPageEntity(0L, IOUtils.toString(pageStream), "", false, "http://www.canadiangunnutz.com/forum/showthread.php/1355228-Lee-Enfield-EAL-3-digit-serial-Mint", "Firearm");
             Set<ProductEntity> result = parser.parse(entity);
             Assert.assertEquals(1, result.size());
             ProductEntity product = result.iterator().next();

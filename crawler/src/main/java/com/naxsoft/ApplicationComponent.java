@@ -3,6 +3,7 @@ package com.naxsoft;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.database.*;
+import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.providers.*;
 import dagger.Component;
@@ -22,6 +23,7 @@ import javax.inject.Singleton;
         , SourceServiceModule.class
         , ProductServiceModule.class
         , WebPageParserFactoryModule.class
+        , ProductParserFactoryModule.class
         , EncoderModule.class
 }, dependencies = {})
 public interface ApplicationComponent {
@@ -36,6 +38,8 @@ public interface ApplicationComponent {
     SourceService getSourceService();
 
     WebPageParserFactory getWebPageParserFactory();
+
+    ProductParserFactory getProductParserFactory();
 
     ProductService getProductService();
 

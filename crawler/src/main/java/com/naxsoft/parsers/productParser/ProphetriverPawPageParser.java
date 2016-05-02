@@ -36,6 +36,20 @@ public class ProphetriverPawPageParser extends AbstractRawPageParser {
         mapping.put("Other Optics", "optic");
     }
 
+    /**
+     * @param price
+     * @return
+     */
+    private static String parsePrice(String price) {
+        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        if (matcher.find()) {
+            return matcher.group(1).replace(",", "");
+        } else {
+            LOGGER.error("failed to parse price {}", price);
+            return price;
+        }
+    }
+
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
@@ -44,7 +58,7 @@ public class ProphetriverPawPageParser extends AbstractRawPageParser {
 
         String productName = document.select(".BlockContent > h2").text();
         LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-        webPageEntity.setCategory(document.select("#ProductBreadcrumb > ul > li:nth-child(2) > a").text());
+        String category = document.select("#ProductBreadcrumb > ul > li:nth-child(2) > a").text();
 
         ProductEntity product = new ProductEntity();
         try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
@@ -58,7 +72,7 @@ public class ProphetriverPawPageParser extends AbstractRawPageParser {
             }
             jsonBuilder.field("description", document.select(".ProductDescriptionContainer").text());
             jsonBuilder.field("regularPrice", parsePrice(document.select(".ProductPrice").text()));
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+            jsonBuilder.field("category", getNormalizedCategories(category));
             jsonBuilder.endObject();
             product.setUrl(webPageEntity.getUrl());
             product.setJson(jsonBuilder.string());
@@ -68,26 +82,12 @@ public class ProphetriverPawPageParser extends AbstractRawPageParser {
         return result;
     }
 
-    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        if (mapping.containsKey(webPageEntity.getCategory())) {
-            return mapping.get(webPageEntity.getCategory()).split(",");
+    private String[] getNormalizedCategories(String category) {
+        if (mapping.containsKey(category)) {
+            return mapping.get(category).split(",");
         }
-        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        LOGGER.warn("Unknown category: {}", category);
         return new String[]{"misc"};
-    }
-
-    /**
-     * @param price
-     * @return
-     */
-    private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
-        if (matcher.find()) {
-            return matcher.group(1).replace(",", "");
-        } else {
-            LOGGER.error("failed to parse price {}", price);
-            return price;
-        }
     }
 
     @Override

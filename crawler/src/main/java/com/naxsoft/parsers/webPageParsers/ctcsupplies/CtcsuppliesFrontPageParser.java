@@ -5,7 +5,6 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import com.ning.http.client.ListenableFuture;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -21,8 +20,12 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
+    private final HttpClient client;
+
+    public CtcsuppliesFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseCategories(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -31,11 +34,7 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
 
         Elements elements = document.select("nav:nth-child(2) > ul a");
         for (Element e : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(e.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(e.text());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, e.attr("abs:href"), e.text());
             LOGGER.info("productList = {}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -58,20 +57,11 @@ public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
             }
         }
         for (int i = 1; i <= max; i++) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(downloadResult.getSourcePage().getUrl() + "?page=" + i);
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl() + "?page=" + i, downloadResult.getSourcePage().getCategory());
             LOGGER.info("productList = {}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-
-    public CtcsuppliesFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

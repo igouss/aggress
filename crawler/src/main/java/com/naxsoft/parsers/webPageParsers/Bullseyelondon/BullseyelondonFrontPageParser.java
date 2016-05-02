@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.bullseyelondon;
+package com.naxsoft.parsers.webPageParsers.Bullseyelondon;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -31,11 +31,7 @@ public class BullseyelondonFrontPageParser extends AbstractWebPageParser {
         Set<WebPageEntity> result = new HashSet<>(1);
         Elements elements = document.select(".vertnav-cat a");
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href") + "?limit=all");
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(element.text());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href") + "?limit=all", element.text());
             LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         }

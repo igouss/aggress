@@ -24,6 +24,15 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingworldFrontPageParser.class);
     private final HttpClient client;
 
+    public FishingworldFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity create(String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+        return webPageEntity;
+    }
+
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
 
@@ -37,38 +46,16 @@ public class FishingworldFrontPageParser extends AbstractWebPageParser {
             int pages = (int) Math.ceil((double) max / postsPerPage);
 
             for (int i = 1; i <= pages; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(document.location() + "?page=" + i);
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productList");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "?page=" + i, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         } else {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(document.location());
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-
-    public FishingworldFrontPageParser(HttpClient client) {
-        this.client = client;
-    }
-
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        webPageEntity.setCategory(category);
-        return webPageEntity;
     }
 
     @Override

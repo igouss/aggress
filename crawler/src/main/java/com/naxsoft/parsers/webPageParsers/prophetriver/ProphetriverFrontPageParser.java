@@ -20,8 +20,17 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class ProphetriverFrontPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(ProphetriverFrontPageParser.class);
+    private final HttpClient client;
+
+    public ProphetriverFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity create(String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+        return webPageEntity;
+    }
 
     private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -33,24 +42,11 @@ public class ProphetriverFrontPageParser extends AbstractWebPageParser {
         return result;
     }
 
-    public ProphetriverFrontPageParser(HttpClient client) {
-        this.client = client;
-    }
-
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return Observable.from(client.get("http://store.prophetriver.com/categories/", new DocumentCompletionHandler(parent)))
                 .map(this::parseFrontPage)
                 .flatMap(Observable::from);
-    }
-
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        webPageEntity.setCategory(category);
-        return webPageEntity;
     }
 
     @Override

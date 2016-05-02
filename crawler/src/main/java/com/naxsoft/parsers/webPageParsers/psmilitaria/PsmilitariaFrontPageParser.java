@@ -20,8 +20,17 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class PsmilitariaFrontPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaFrontPageParser.class);
+    private final HttpClient client;
+
+    public PsmilitariaFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity create(String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, url, category);
+        return webPageEntity;
+    }
 
     private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
@@ -32,10 +41,6 @@ public class PsmilitariaFrontPageParser extends AbstractWebPageParser {
             result.add(create(url, e.text()));
         }
         return result;
-    }
-
-    public PsmilitariaFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override
@@ -61,19 +66,7 @@ public class PsmilitariaFrontPageParser extends AbstractWebPageParser {
                 .map(webPageEntity -> PageDownloader.download(client, webPageEntity))
                 .flatMap(Observable::from)
                 .filter(data -> null != data)
-                .map(page -> {
-                    page.setType("productList");
-                    return page;
-                });
-    }
-
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productPage");
-        webPageEntity.setCategory(category);
-        return webPageEntity;
+                .map(page -> new WebPageEntity(page.getId(), page.getContent(), "productList", false, page.getUrl(), page.getCategory()));
     }
 
     @Override

@@ -21,8 +21,12 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class GotendaProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(GotendaProductListParser.class);
+    private final HttpClient client;
+
+    public GotendaProductListParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -32,28 +36,16 @@ public class GotendaProductListParser extends AbstractWebPageParser {
         Elements elements = document.select(".InfoArea a[title]");
         if (!elements.isEmpty()) {
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(element.attr("abs:href"));
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productPage");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         } else {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(downloadResult.getSourcePage().getUrl());
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public GotendaProductListParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

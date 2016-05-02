@@ -43,12 +43,7 @@ public class PageDownloader {
             public WebPageEntity onCompleted(com.ning.http.client.Response response) throws Exception {
                 WebPageEntity result = null;
                 if (200 == response.getStatusCode()) {
-                    WebPageEntity webPageEntity = new WebPageEntity();
-                    webPageEntity.setUrl(response.getUri().toUrl());
-                    webPageEntity.setContent(response.getResponseBody());
-                    webPageEntity.setParsed(false);
-                    webPageEntity.setType("productPageRaw");
-                    webPageEntity.setCategory(parent.getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, response.getResponseBody(), "productPageRaw", false, response.getUri().toUrl(), parent.getCategory());
                     result = webPageEntity;
                     LOGGER.info("productPageRaw={}", webPageEntity.getUrl());
                 } else {

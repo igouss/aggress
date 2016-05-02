@@ -21,8 +21,17 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class TradeexCanadaProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaProductListParser.class);
+    private final HttpClient client;
+
+    public TradeexCanadaProductListParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity create(String url) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, "");
+        return webPageEntity;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -32,10 +41,7 @@ public class TradeexCanadaProductListParser extends AbstractWebPageParser {
         if (document.location().contains("page=")) {
             Elements elements = document.select(".view-content a");
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(element.attr("abs:href"));
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productPage");
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), "");
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -49,22 +55,10 @@ public class TradeexCanadaProductListParser extends AbstractWebPageParser {
         return result;
     }
 
-    public TradeexCanadaProductListParser(HttpClient client) {
-        this.client = client;
-    }
-
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         ListenableFuture<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
         return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
-    }
-
-    private static WebPageEntity create(String url) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        return webPageEntity;
     }
 
     @Override

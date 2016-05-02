@@ -22,8 +22,8 @@ public class PopulateDBCommand implements Command {
      * Sites that crawler can walk and parse
      */
     private final static String[] SOURCES = {
-            "http://www.alflahertys.com/",
-//            "http://www.bullseyelondon.com/",
+//            "http://www.alflahertys.com/",
+            "http://www.bullseyelondon.com/",
 //            "http://www.cabelas.ca/",
 //            "https://www.canadaammo.com/",
 //            "http://www.canadiangunnutz.com/",
@@ -104,9 +104,7 @@ public class PopulateDBCommand implements Command {
      * @return
      */
     private static WebPageEntity from(SourceEntity sourceEntity) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(sourceEntity.getUrl());
-        webPageEntity.setType("frontPage");
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "frontPage", false, sourceEntity.getUrl(), "");
         LOGGER.info("Adding new root {}", webPageEntity.getUrl());
         return webPageEntity;
     }

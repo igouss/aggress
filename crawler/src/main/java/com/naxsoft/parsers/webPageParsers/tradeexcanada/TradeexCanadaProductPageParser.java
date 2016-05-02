@@ -20,22 +20,18 @@ public class TradeexCanadaProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        if (webPage.getUrl().contains("out-stock") || webPage.getUrl().contains("-sold")) {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+        if (parent.getUrl().contains("out-stock") || parent.getUrl().contains("-sold")) {
             return Observable.empty();
         } else {
-            return Observable.from(PageDownloader.download(client, webPage))
+            return Observable.from(PageDownloader.download(client, parent))
                     .filter(data -> {
                         if (null != data) {
                             return true;
                         } else {
-                            LOGGER.error("failed to download web page {}", webPage.getUrl());
+                            LOGGER.error("failed to download web page {}", parent.getUrl());
                             return false;
                         }
-                    })
-                    .map(webPageEntity -> {
-                        webPageEntity.setCategory(webPage.getCategory());
-                        return webPageEntity;
                     });
         }
     }

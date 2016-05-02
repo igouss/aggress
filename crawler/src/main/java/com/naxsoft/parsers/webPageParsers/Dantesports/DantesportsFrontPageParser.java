@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.dantesports;
+package com.naxsoft.parsers.webPageParsers.Dantesports;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -23,6 +23,10 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
     private final HttpClient client;
 
+    public DantesportsFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
+
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
 
@@ -31,22 +35,12 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
         Elements elements = document.select("#scol1 > div.scell_menu > li > a");
 
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href") + "&paging=0");
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(element.text());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href") + "&paging=0", element.text());
             LOGGER.info("productList={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
     }
-
-
-    public DantesportsFrontPageParser(HttpClient client) {
-        this.client = client;
-    }
-
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {

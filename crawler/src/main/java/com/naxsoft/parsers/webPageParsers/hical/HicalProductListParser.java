@@ -21,8 +21,12 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class HicalProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(HicalProductListParser.class);
+    private final HttpClient client;
+
+    public HicalProductListParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -36,11 +40,7 @@ public class HicalProductListParser extends AbstractWebPageParser {
             // add subpages
             elements = document.select("#CategoryPagingTop > div > ul > li > a");
             for (Element el : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(el.attr("abs:href"));
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productList");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("ProductList sub-page {}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -48,19 +48,11 @@ public class HicalProductListParser extends AbstractWebPageParser {
 
         elements = document.select("#frmCompare .ProductDetails a");
         for (Element el : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(el.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public HicalProductListParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

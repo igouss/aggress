@@ -21,8 +21,12 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class LeverarmsFrontPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsFrontPageParser.class);
+    private final HttpClient client;
+
+    public LeverarmsFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -32,11 +36,7 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
         Elements elements = document.select("#nav-sidebox li:not(.parent) a");
 
         for (Element e : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(e.attr("abs:href") + "?limit=all");
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(e.text());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, e.attr("abs:href") + "?limit=all", e.text());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -51,19 +51,11 @@ public class LeverarmsFrontPageParser extends AbstractWebPageParser {
         Elements elements = document.select(".item h4 a");
 
         for (Element e : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(e.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, e.attr("abs:href"), downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public LeverarmsFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

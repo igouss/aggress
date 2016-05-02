@@ -68,6 +68,15 @@ public class WebPageEntity {
     public WebPageEntity() {
     }
 
+    public WebPageEntity(Long id, String content, String type, boolean parsed, String url, String category) {
+        this.id = id;
+        this.content = compress(content);
+        this.type = type;
+        this.parsed = parsed;
+        this.url = url;
+        this.category = category;
+    }
+
     /**
      * ZIP the string and return Base64 representation
      *
@@ -138,10 +147,6 @@ public class WebPageEntity {
         return this.id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     /**
      * Get pages's HTML
      */
@@ -163,19 +168,6 @@ public class WebPageEntity {
         return "";
     }
 
-    /**
-     * Set page HTML
-     *
-     * @param content HTML content
-     */
-    public void setContent(String content) {
-        if (null != content) {
-            this.content = compress(removeNonASCII(content));
-        } else {
-            this.content = null;
-        }
-
-    }
 
     @Basic
     @Column(
@@ -185,9 +177,6 @@ public class WebPageEntity {
         return this.type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
 
     @Basic
     @Column(
@@ -197,9 +186,6 @@ public class WebPageEntity {
         return this.parsed;
     }
 
-    public void setParsed(boolean parsed) {
-        this.parsed = parsed;
-    }
 
     @Basic
     @Column(
@@ -210,9 +196,6 @@ public class WebPageEntity {
         return this.url;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
 
     @Basic
     @Column(
@@ -223,9 +206,6 @@ public class WebPageEntity {
         return category;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.canadaAmmo;
+package com.naxsoft.parsers.webPageParsers.CanadaAmmo;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -20,8 +20,8 @@ import java.util.HashSet;
  * Copyright NAXSoft 2015
  */
 public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoFrontPageParser.class);
+    private final HttpClient client;
 
     public CanadaAmmoFrontPageParser(HttpClient client) {
         this.client = client;
@@ -35,10 +35,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
         LOGGER.info("Parsing for sub-pages + {}", document.location());
 
         for (Element el : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(el.attr("abs:href") + "?count=72");
-            webPageEntity.setCategory(el.text());
-            webPageEntity.setType("tmp");
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, el.attr("abs:href") + "?count=72", el.text());
             result.add(webPageEntity);
         }
         return result;
@@ -51,20 +48,14 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
         HashSet<WebPageEntity> subResult = new HashSet<>();
         Elements elements = document.select("div.clearfix span.pagination a.nav-page");
         if (elements.isEmpty()) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(document.location());
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
             subResult.add(webPageEntity);
         } else {
             int i = Integer.parseInt(elements.first().text()) - 1;
             int end = Integer.parseInt(elements.last().text());
             for (; i <= end; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(document.location() + "&page=" + i);
-                webPageEntity.setType("productList");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
                 subResult.add(webPageEntity);
             }
@@ -77,7 +68,7 @@ public class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         ListenableFuture<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
         return Observable.from(future)
-                .map((document1) -> parseCategories(document1))
+                .map(this::parseCategories)
                 .flatMap(Observable::from)
                 .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
                 .flatMap(Observable::from)

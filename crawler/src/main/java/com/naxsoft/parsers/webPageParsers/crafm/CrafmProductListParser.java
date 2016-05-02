@@ -20,8 +20,8 @@ import java.util.*;
  * Copyright NAXSoft 2015
  */
 public class CrafmProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmProductListParser.class);
+    private final HttpClient client;
 
     public CrafmProductListParser(HttpClient client) {
         this.client = client;
@@ -35,11 +35,7 @@ public class CrafmProductListParser extends AbstractWebPageParser {
         Elements elements = document.select(".products-grid .item > a");
         for (Element e : elements) {
             String linkUrl = e.attr("abs:href");
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(linkUrl);
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, linkUrl, downloadResult.getSourcePage().getCategory());
             LOGGER.info("ProductPageUrl={}", linkUrl);
             result.add(webPageEntity);
         }

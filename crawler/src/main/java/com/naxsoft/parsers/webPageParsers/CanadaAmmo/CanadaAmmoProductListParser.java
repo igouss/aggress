@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.canadaAmmo;
+package com.naxsoft.parsers.webPageParsers.CanadaAmmo;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -20,8 +20,8 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class CanadaAmmoProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoProductListParser.class);
+    private final HttpClient client;
 
     public CanadaAmmoProductListParser(HttpClient client) {
         this.client = client;
@@ -33,11 +33,7 @@ public class CanadaAmmoProductListParser extends AbstractWebPageParser {
         Set<WebPageEntity> result = new HashSet<>(1);
         Elements elements = document.select("a.product__link");
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPage={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }

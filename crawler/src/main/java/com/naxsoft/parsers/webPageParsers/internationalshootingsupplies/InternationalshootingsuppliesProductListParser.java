@@ -23,7 +23,6 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class InternationalshootingsuppliesProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(InternationalshootingsuppliesProductListParser.class);
     private static final Collection<Cookie> cookies;
 
@@ -32,6 +31,12 @@ public class InternationalshootingsuppliesProductListParser extends AbstractWebP
         cookies.add(Cookie.newValidCookie("store_language", "english", false, null, null, Long.MAX_VALUE, false, false));
     }
 
+    private final HttpClient client;
+
+
+    public InternationalshootingsuppliesProductListParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -43,21 +48,12 @@ public class InternationalshootingsuppliesProductListParser extends AbstractWebP
                 continue;
             }
 
-            WebPageEntity webPageEntity = new WebPageEntity();
             String url = element.select("> a").attr("abs:href");
-            webPageEntity.setUrl(url);
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, url, downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-
-    public InternationalshootingsuppliesProductListParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

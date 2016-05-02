@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.cabelas;
+package com.naxsoft.parsers.webPageParsers.Cabelas;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -12,8 +12,8 @@ import rx.Observable;
  * Copyright NAXSoft 2015
  */
 public class CabellasProductPageParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(CabellasProductPageParser.class);
+    private final HttpClient client;
 
     public CabellasProductPageParser(HttpClient client) {
         this.client = client;

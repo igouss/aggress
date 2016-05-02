@@ -3,7 +3,6 @@ package com.naxsoft.parsers.webPageParsers.psmilitaria;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -21,12 +20,7 @@ public class PsmilitariaProductParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(parent.getUrl());
-        webPageEntity.setParsed(false);
-        webPageEntity.setCategory(parent.getCategory());
-        webPageEntity.setType("productPageRaw");
-        webPageEntity.setContent(parent.getContent());
+        WebPageEntity webPageEntity = new WebPageEntity(0L, parent.getContent(), "productPageRaw", false, parent.getUrl(), parent.getCategory());
         return Observable.just(webPageEntity);
     }
 

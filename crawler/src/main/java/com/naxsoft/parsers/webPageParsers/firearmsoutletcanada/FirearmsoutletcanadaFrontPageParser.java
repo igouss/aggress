@@ -23,6 +23,15 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FirearmsoutletcanadaFrontPageParser.class);
     private final HttpClient client;
 
+    public FirearmsoutletcanadaFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity create(String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+        return webPageEntity;
+    }
+
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
 
@@ -31,19 +40,11 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
         Elements elements = document.select(".products-grid .product-name > a");
 
         for (Element el : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(el.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory("n/a");
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, el.attr("abs:href"), "n/a");
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-    public FirearmsoutletcanadaFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override
@@ -66,15 +67,6 @@ public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from);
 
 
-    }
-
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        webPageEntity.setCategory(category);
-        return webPageEntity;
     }
 
     @Override

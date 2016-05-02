@@ -28,11 +28,7 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        webPageEntity.setCategory(category);
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
         return webPageEntity;
     }
 
@@ -55,11 +51,7 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
         }
 
         for (int i = 0; i < max; i++) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(document.location() + "&page=" + i);
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }

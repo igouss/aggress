@@ -23,7 +23,6 @@ import java.util.Set;
  * Copyright NAXSoft 2015
  */
 public class SailsProductListParser extends AbstractWebPageParser {
-    private final HttpClient client;
     private static final Logger LOGGER = LoggerFactory.getLogger(SailsProductListParser.class);
     private static final Collection<Cookie> cookies;
 
@@ -32,6 +31,12 @@ public class SailsProductListParser extends AbstractWebPageParser {
         cookies.add(Cookie.newValidCookie("store_language", "english", false, null, null, Long.MAX_VALUE, false, false));
     }
 
+    private final HttpClient client;
+
+
+    public SailsProductListParser(HttpClient client) {
+        this.client = client;
+    }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
@@ -43,31 +48,18 @@ public class SailsProductListParser extends AbstractWebPageParser {
         if (!document.location().contains("p=")) {
             Elements elements = document.select(".toolbar-bottom .pages a");
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(element.attr("abs:href"));
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productList");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
         Elements elements = document.select(".item > a");
         for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(element.attr("abs:href"));
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productPage");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
         return result;
-    }
-
-
-    public SailsProductListParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override

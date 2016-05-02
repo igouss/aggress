@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
@@ -33,6 +31,15 @@ public class InternationalshootingsuppliesFrontPageParser extends AbstractWebPag
     }
 
     private final HttpClient client;
+
+    public InternationalshootingsuppliesFrontPageParser(HttpClient client) {
+        this.client = client;
+    }
+
+    private static WebPageEntity create(String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+        return webPageEntity;
+    }
 
     private Collection<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
@@ -50,30 +57,17 @@ public class InternationalshootingsuppliesFrontPageParser extends AbstractWebPag
             }
         }
         if (max == 0) {
-            WebPageEntity webPageEntity = new WebPageEntity();
-            webPageEntity.setUrl(downloadResult.getSourcePage().getUrl());
-            webPageEntity.setParsed(false);
-            webPageEntity.setType("productList");
-            webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
             LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
             result.add(webPageEntity);
         } else {
             for (int i = 1; i <= max; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity();
-                webPageEntity.setUrl(downloadResult.getSourcePage().getUrl() + "page/" + i + "/");
-                webPageEntity.setParsed(false);
-                webPageEntity.setType("productList");
-                webPageEntity.setCategory(downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl() + "page/" + i + "/", downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }
         }
         return result;
-    }
-
-
-    public InternationalshootingsuppliesFrontPageParser(HttpClient client) {
-        this.client = client;
     }
 
     @Override
@@ -91,15 +85,6 @@ public class InternationalshootingsuppliesFrontPageParser extends AbstractWebPag
                 .flatMap(Observable::from)
                 .map(this::parseProductPage)
                 .flatMap(Observable::from);
-    }
-
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity();
-        webPageEntity.setUrl(url);
-        webPageEntity.setParsed(false);
-        webPageEntity.setType("productList");
-        webPageEntity.setCategory(category);
-        return webPageEntity;
     }
 
     @Override
