@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscription;
+import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -75,7 +76,7 @@ public class ParseCommand implements Command {
             WebPageParser parser = webPageParserFactory.getParser(webPageEntity);
             webPageService.markParsed(webPageEntity).subscribe();
             return parser.parse(webPageEntity);
-        }).map(pageToParse -> {
+        }).observeOn(Schedulers.computation()).map(pageToParse -> {
             Set<ProductEntity> result = null;
             try {
                 if (VALID_CATEGORIES.contains(pageToParse.getCategory())) {

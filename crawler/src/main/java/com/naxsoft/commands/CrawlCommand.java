@@ -13,6 +13,7 @@ import rx.Observable;
 import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
+import java.util.concurrent.Semaphore;
 
 /**
  * Copyright NAXSoft 2015
@@ -82,7 +83,6 @@ public class CrawlCommand implements Command {
 
 //                        pageToParse.setParsed(true);
                         webPageService.markParsed(pageToParse)
-                                .toBlocking()
                                 .subscribe(value -> {
                                     LOGGER.debug("Page parsed {}", value);
                                 }, error -> {
@@ -93,17 +93,25 @@ public class CrawlCommand implements Command {
                     }
                     return result;
                 });
+        Semaphore semaphore = new Semaphore(0);
+
         parsedWebPageEntries
                 .filter(webPageEntities -> null != webPageEntities)
                 .flatMap(webPageService::save)
-                .toBlocking()
                 .subscribe(
                         result -> {
                             LOGGER.info("processed {}", result);
                         },
                         ex -> {
                             LOGGER.error("Crawler Process Exception", ex);
-                        }
+                        },
+                        semaphore::release
                 );
+
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

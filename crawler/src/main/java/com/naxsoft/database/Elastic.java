@@ -30,6 +30,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,8 +38,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Singleton
 public class Elastic implements AutoCloseable, Cloneable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Elastic.class);
     public static final int BATCH_SIZE = 1;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Elastic.class);
     private TransportClient client = null;
 
     /**
@@ -93,7 +94,8 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @return
      */
     public Subscription index(Observable<ProductEntity> products, String index, String type) {
-        return products.buffer(BATCH_SIZE).map(list -> {
+        Semaphore semaphore = new Semaphore(0);
+        Subscription subscribe = products.buffer(BATCH_SIZE).map(list -> {
             BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
             for (ProductEntity p : list) {
                 try {
@@ -117,7 +119,13 @@ public class Elastic implements AutoCloseable, Cloneable {
                     } else {
                         LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
                     }
-                }, ex -> LOGGER.error("Index Exception", ex));
+                }, ex -> LOGGER.error("Index Exception", ex), semaphore::release);
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return subscribe;
     }
 
     /**

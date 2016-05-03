@@ -20,7 +20,6 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class RedisDatabase implements Persistent {
@@ -62,18 +61,7 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public Observable<Long> getUnparsedCount(String type) {
-        return Observable.create(subscriber -> {
-            while (!subscriber.isUnsubscribed()) {
-                Long count = connection.sync().scard("WebPageEntity." + type);
-                LOGGER.info("getUnparsedCount {} = {}", type, count);
-                subscriber.onNext(count);
-                try {
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(30));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        return connection.reactive().scard("WebPageEntity." + type);
     }
 
     @Override

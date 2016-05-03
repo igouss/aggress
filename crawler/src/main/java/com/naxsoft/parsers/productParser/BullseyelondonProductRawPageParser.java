@@ -40,63 +40,6 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
         mapping.put("Optics", "optic");
     }
 
-    @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> products = new HashSet<>();
-        ProductEntity product = new ProductEntity();
-        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-            String productName = document.select(".product-name h1").first().text().trim();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            document.select(".product-name h1").first().children().remove();
-            jsonBuilder.field("productName", productName);
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-            jsonBuilder.field("productImage", document.select("#product_addtocart_form > div.product-img-box > p > a > img").attr("src").trim());
-            jsonBuilder.field("regularPrice", getRegularPrice(document));
-            jsonBuilder.field("specialPrice", getSpecialPrice(document));
-
-            try {
-                jsonBuilder.field("freeShipping", BullseyelondonProductRawPageParser.getFreeShipping(document));
-            } catch (Exception ignored) {
-            }
-
-            jsonBuilder.field("unitsAvailable", BullseyelondonProductRawPageParser.getUnitsAvailable(document));
-            jsonBuilder.field("description", document.select(".short-description").text().trim());
-
-            Elements table = document.select("#product_tabs_additional_contents");
-
-            for (Element row : table.select("tr")) {
-                String th = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, row.select("th").text().replace(' ', '-'));
-                String td = row.select("td").text();
-                if (!th.equalsIgnoreCase("category")) {
-                    jsonBuilder.field(th, td);
-                }
-            }
-
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setWebpageId(webPageEntity.getId());
-            product.setJson(jsonBuilder.string());
-        }
-        products.add(product);
-        return products;
-    }
-
-
-    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String s = mapping.get(webPageEntity.getCategory());
-        if (null != s) {
-            String[] result = s.split(",");
-            return result;
-        }
-        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
-        return new String[]{"misc"};
-    }
-
     /**
      * @param document
      * @return
@@ -106,7 +49,6 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
         Matcher matcher = Pattern.compile("\\w+|\\s+").matcher(raw);
         return matcher.find() ? "true" : "false";
     }
-
 
     /**
      * @param price
@@ -163,6 +105,61 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
             result = raw;
         }
         return result;
+    }
+
+    @Override
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
+        HashSet<ProductEntity> products = new HashSet<>();
+        ProductEntity product = new ProductEntity();
+        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            String productName = document.select(".product-name h1").first().text().trim();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", webPageEntity.getUrl());
+            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            document.select(".product-name h1").first().children().remove();
+            jsonBuilder.field("productName", productName);
+            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+            jsonBuilder.field("productImage", document.select("#product_addtocart_form > div.product-img-box > p > a > img").attr("src").trim());
+            jsonBuilder.field("regularPrice", getRegularPrice(document));
+            jsonBuilder.field("specialPrice", getSpecialPrice(document));
+
+            try {
+                jsonBuilder.field("freeShipping", BullseyelondonProductRawPageParser.getFreeShipping(document));
+            } catch (Exception ignored) {
+            }
+
+            jsonBuilder.field("unitsAvailable", BullseyelondonProductRawPageParser.getUnitsAvailable(document));
+            jsonBuilder.field("description", document.select(".short-description").text().trim());
+
+            Elements table = document.select("#product_tabs_additional_contents");
+
+            for (Element row : table.select("tr")) {
+                String th = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, row.select("th").text().replace(' ', '-'));
+                String td = row.select("td").text();
+                if (!th.equalsIgnoreCase("category")) {
+                    jsonBuilder.field(th, td);
+                }
+            }
+
+            jsonBuilder.endObject();
+            product.setUrl(webPageEntity.getUrl());
+            product.setWebpageId(webPageEntity.getId());
+            product.setJson(jsonBuilder.string());
+        }
+        products.add(product);
+        return products;
+    }
+
+    private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String s = mapping.get(webPageEntity.getCategory());
+        if (null != s) {
+            return s.split(",");
+        }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        return new String[]{"misc"};
     }
 
     @Override

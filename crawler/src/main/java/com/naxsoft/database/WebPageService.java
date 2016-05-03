@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  */
@@ -63,7 +65,8 @@ public class WebPageService {
      * @return Stream of unparsed pages of specefied type
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
-        return database.getUnparsedCount(type).takeWhile(val -> val != 0).flatMap(count -> database.getUnparsedByType(type));
-
+        return database.getUnparsedCount(type).doOnNext(count -> LOGGER.info("getUnparsedCount {} = {}", type, count))
+                .repeatWhen(observable -> observable.delay(10, TimeUnit.SECONDS))
+                .takeWhile(val -> val != 0).flatMap(count -> database.getUnparsedByType(type));
     }
 }
