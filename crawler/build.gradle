@@ -48,7 +48,7 @@ dependencies {
     compile 'com.google.dagger:dagger:2.1'
     compile "net.ltgt.gradle:gradle-apt-plugin:0.6"
     compile 'com.google.dagger:dagger-compiler:2.1'
-    compile 'biz.paluch.redis:lettuce:4.1.1.Final'
+    compile 'biz.paluch.redis:lettuce:4.1.2.Final'
     compile 'org.apache.kafka:kafka-clients:0.9.0.0'
     apt 'com.google.dagger:dagger-compiler:2.1'
 }
