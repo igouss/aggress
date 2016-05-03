@@ -6,7 +6,11 @@ import com.lambdaworks.redis.RedisConnectionPool;
 import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.async.RedisAsyncCommands;
+import com.lambdaworks.redis.event.metrics.CommandLatencyEvent;
+import com.lambdaworks.redis.metrics.DefaultCommandLatencyCollectorOptions;
 import com.lambdaworks.redis.pubsub.StatefulRedisPubSubConnection;
+import com.lambdaworks.redis.resource.ClientResources;
+import com.lambdaworks.redis.resource.DefaultClientResources;
 import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
@@ -17,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,7 +44,16 @@ public class RedisDatabase implements Persistent {
     }
 
     private RedisDatabase(String host, int port) {
-        redisClient = RedisClient.create(RedisURI.Builder.redis(host, port).build());
+        ClientResources res = new DefaultClientResources
+                .Builder()
+                .commandLatencyCollectorOptions(DefaultCommandLatencyCollectorOptions.create())
+                .build();
+        redisClient = RedisClient.create(res, RedisURI.Builder.redis(host, port).build());
+        redisClient.getResources().eventBus().get()
+                .filter(redisEvent -> redisEvent instanceof CommandLatencyEvent)
+                .cast(CommandLatencyEvent.class)
+                .subscribeOn(Schedulers.trampoline())
+                .subscribe(e -> LOGGER.info(e.getLatencies().toString()));
         pubSub = redisClient.connectPubSub();
         pool = redisClient.asyncPool();
         connection = redisClient.connect();
