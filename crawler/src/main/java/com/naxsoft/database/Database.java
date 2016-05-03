@@ -81,9 +81,7 @@ public class Database implements Persistent {
         });
     }
 
-    /**
-     * Close connection to the underling database
-     */
+
     @Override
     public void close() {
         if (null != sessionFactory && !sessionFactory.isClosed()) {

@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.naxsoft.database;
 
 import com.naxsoft.entity.WebPageEntity;
@@ -45,13 +40,6 @@ public class WebPageService {
      * @return The number of entities updated.
      */
     public Observable<Integer> markParsed(WebPageEntity webPageEntity) {
-//        Observable<Integer> rc;
-//        if (0 == webPageEntity.getId()) {
-////            LOGGER.error("Trying to save a webpage with id=0 {}", webPageEntity);
-//            throw new RuntimeException("Trying to save a webpage with id=0" + webPageEntity);
-//        } else {
-//            rc = database.markWebPageAsParsed(webPageEntity);
-//        }
         LOGGER.info("Marking {} {} as parsed", webPageEntity.getType(), webPageEntity.getUrl());
         return database.markWebPageAsParsed(webPageEntity);
     }
@@ -60,9 +48,10 @@ public class WebPageService {
     /**
      * Get stream of unparsed pages.
      * Use scrolling
-     * @see <a href="http://blog.danlew.net/2016/01/25/rxjavas-repeatwhen-and-retrywhen-explained/">RxJava's repeatWhen and retryWhen, explained</a>
+     *
      * @param type Webpage type
      * @return Stream of unparsed pages of specefied type
+     * @see <a href="http://blog.danlew.net/2016/01/25/rxjavas-repeatwhen-and-retrywhen-explained/">RxJava's repeatWhen and retryWhen, explained</a>
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         return database.getUnparsedCount(type).doOnNext(count -> LOGGER.info("getUnparsedCount {} = {}", type, count))

@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.naxsoft.database;
 
 import com.naxsoft.entity.SourceEntity;
@@ -18,7 +13,6 @@ public class SourceService {
     private final Persistent database;
 
     /**
-     *
      * @param database
      */
     public SourceService(Persistent database) {
@@ -26,7 +20,6 @@ public class SourceService {
     }
 
     /**
-     *
      * @return
      */
     public Observable<SourceEntity> getSources() {
@@ -35,7 +28,6 @@ public class SourceService {
     }
 
     /**
-     *
      * @param sourceEntity
      * @return
      */

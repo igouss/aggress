@@ -138,6 +138,4 @@ public class RedisDatabase implements Persistent {
     public <T> Observable<T> scroll(String queryString) {
         return null;
     }
-
-
 }
