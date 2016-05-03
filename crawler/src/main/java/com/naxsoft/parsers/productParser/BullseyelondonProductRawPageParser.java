@@ -153,6 +153,10 @@ public class BullseyelondonProductRawPageParser extends AbstractRawPageParser im
         return products;
     }
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {

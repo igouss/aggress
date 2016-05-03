@@ -15,15 +15,15 @@ import java.util.Set;
  */
 public interface ProductParser {
     /**
-     * @param webPage
-     * @return
-     * @throws Exception
+     * @param webPage Page to parse
+     * @return All products on the pahe
+     * @throws Exception Parsing exeption
      */
     Set<ProductEntity> parse(WebPageEntity webPage) throws Exception;
 
     /**
-     * @param webPage
-     * @return
+     * @param webPage Can this parser process this page?
+     * @return True if the parser can parse the page, false otherwise
      */
     boolean canParse(WebPageEntity webPage);
 }

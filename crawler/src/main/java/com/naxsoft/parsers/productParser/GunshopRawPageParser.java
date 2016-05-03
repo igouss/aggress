@@ -77,9 +77,7 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
 
 
             jsonBuilder.field("description", document.select("#tab-description").text());
-            Iterator<Element> meta = document.select("product_meta span").iterator();
-            while (meta.hasNext()) {
-                Element next = meta.next();
+            for (Element next : document.select("product_meta span")) {
                 String name = next.data();
                 if (!name.equalsIgnoreCase("categories")) {
                     Elements values = next.select("a");
@@ -100,6 +98,10 @@ public class GunshopRawPageParser extends AbstractRawPageParser {
         return result;
     }
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         for (String urlPattern : mapping.keySet()) {
             if (webPageEntity.getUrl().contains(urlPattern)) {

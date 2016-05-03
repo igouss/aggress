@@ -1,13 +1,11 @@
 package com.naxsoft.parsers.productParser;
 
-import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +29,24 @@ public class GotendaRawParser implements ProductParser {
         mapping.put("Air guns", "firearm");
         mapping.put("Reloading", "reload");
         mapping.put("Optic", "optic");
+    }
+
+    /**
+     * @param price
+     * @return
+     */
+    private static String parsePrice(String price) {
+        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        if (matcher.find()) {
+            try {
+                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
+            } catch (Exception ignored) {
+                return Double.valueOf(matcher.group(1)).toString();
+            }
+        } else {
+            LOGGER.error("failed to parse price {}", price);
+            return price;
+        }
     }
 
     @Override
@@ -66,32 +82,17 @@ public class GotendaRawParser implements ProductParser {
         return products;
     }
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {
-            String[] result = s.split(",");
-            return result;
+            return s.split(",");
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
-    }
-
-    /**
-     * @param price
-     * @return
-     */
-    private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
-        if (matcher.find()) {
-            try {
-                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
-            } catch (Exception ignored) {
-                return Double.valueOf(matcher.group(1)).toString();
-            }
-        } else {
-            LOGGER.error("failed to parse price {}", price);
-            return price;
-        }
     }
 
     @Override

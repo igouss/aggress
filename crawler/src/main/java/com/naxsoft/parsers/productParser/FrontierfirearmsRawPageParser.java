@@ -78,6 +78,10 @@ public class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
         return result;
     }
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (null != category) {

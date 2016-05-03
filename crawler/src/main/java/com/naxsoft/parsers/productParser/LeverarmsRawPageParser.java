@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 public class LeverarmsRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsRawPageParser.class);
 
-
     private static final Map<String, String> mapping = new HashMap<>();
 
     static {
@@ -48,7 +47,10 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
         mapping.put("Used", "firearm");
     }
 
-
+    /**
+     * @param price
+     * @return
+     */
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
@@ -99,6 +101,11 @@ public class LeverarmsRawPageParser extends AbstractRawPageParser {
         return products;
     }
 
+    /**
+     *
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (mapping.containsKey(category)) {

@@ -1,20 +1,19 @@
 package com.naxsoft.parsers.productParser;
 
-import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import org.apache.lucene.geo3d.Tools;
-import org.apache.lucene.util.automaton.Operations;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,6 +28,20 @@ public class QuestarRawPageParser extends AbstractRawPageParser {
         mapping.put("Firearms-Handguns", "firearm");
         mapping.put("Firearms-Long Guns", "firearm");
         mapping.put("Sights/Lasers/Scopes", "optic");
+    }
+
+    /**
+     * @param price
+     * @return
+     */
+    private static String parsePrice(String price) {
+        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        if (matcher.find()) {
+            return matcher.group(1).replace(",", "");
+        } else {
+            LOGGER.error("failed to parse price {}", price);
+            return price;
+        }
     }
 
     @Override
@@ -58,28 +71,17 @@ public class QuestarRawPageParser extends AbstractRawPageParser {
         return result;
     }
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {
-            String[] result = s.split(",");
-            return result;
+            return s.split(",");
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
-    }
-
-    /**
-     * @param price
-     * @return
-     */
-    private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
-        if (matcher.find()) {
-            return matcher.group(1).replace(",", "");
-        } else {
-            LOGGER.error("failed to parse price {}", price);
-            return price;
-        }
     }
 
     @Override

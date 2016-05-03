@@ -37,6 +37,24 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
         mapping.put("Airsoft", "misc");
     }
 
+    /**
+     * @param price
+     * @return
+     */
+    private static String parsePrice(String price) {
+        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        if (matcher.find()) {
+            try {
+                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
+            } catch (Exception ignored) {
+                return Double.valueOf(matcher.group(1)).toString();
+            }
+        } else {
+            LOGGER.error("failed to parse price {}", price);
+            return price;
+        }
+    }
+
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
@@ -72,28 +90,18 @@ public class CabelasProductRawParser extends AbstractRawPageParser {
         return result;
     }
 
+    /**
+     *
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {
-            String[] result = s.split(",");
-            return result;
+            return s.split(",");
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
-    }
-
-    private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
-        if (matcher.find()) {
-            try {
-                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
-            } catch (Exception ignored) {
-                return Double.valueOf(matcher.group(1)).toString();
-            }
-        } else {
-            LOGGER.error("failed to parse price {}", price);
-            return price;
-        }
     }
 
     @Override

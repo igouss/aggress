@@ -118,6 +118,11 @@ public class IrungunsRawProductPageParser extends AbstractRawPageParser {
 
     }
 
+    /**
+     * @param webPageEntity
+     * @param category
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity, String category) {
         if (mapping.containsKey(category)) {
             return mapping.get(category).split(",");

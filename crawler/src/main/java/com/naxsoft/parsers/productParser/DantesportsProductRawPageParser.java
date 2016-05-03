@@ -123,11 +123,14 @@ public class DantesportsProductRawPageParser extends AbstractRawPageParser {
 
     }
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {
-            String[] result = s.split(",");
-            return result;
+            return s.split(",");
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};

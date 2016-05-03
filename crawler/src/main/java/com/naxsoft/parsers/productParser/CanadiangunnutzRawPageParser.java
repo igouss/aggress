@@ -87,7 +87,10 @@ public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
         return products;
     }
 
-
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (category != null) {

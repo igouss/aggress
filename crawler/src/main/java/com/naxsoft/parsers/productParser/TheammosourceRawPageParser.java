@@ -22,6 +22,20 @@ import java.util.regex.Pattern;
 public class TheammosourceRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceRawPageParser.class);
 
+    /**
+     * @param price
+     * @return
+     */
+    private static String parsePrice(String price) {
+        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        if (matcher.find()) {
+            return matcher.group(1).replace(",", "");
+        } else {
+            LOGGER.error("failed to parse price {}", price);
+            return price;
+        }
+    }
+
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
@@ -60,6 +74,10 @@ public class TheammosourceRawPageParser extends AbstractRawPageParser {
         return result;
     }
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (null != category) {
@@ -67,20 +85,6 @@ public class TheammosourceRawPageParser extends AbstractRawPageParser {
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
-    }
-
-    /**
-     * @param price
-     * @return
-     */
-    private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
-        if (matcher.find()) {
-            return matcher.group(1).replace(",", "");
-        } else {
-            LOGGER.error("failed to parse price {}", price);
-            return price;
-        }
     }
 
     @Override

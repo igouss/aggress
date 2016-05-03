@@ -48,6 +48,20 @@ public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
         mapping.put("Stocks", "misc");
     }
 
+    /**
+     * @param price
+     * @return
+     */
+    private static String parsePrice(String price) {
+        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        if (matcher.find()) {
+            return matcher.group(1).replace(",", "");
+        } else {
+            LOGGER.error("failed to parse price {}", price);
+            return price;
+        }
+    }
+
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> result = new HashSet<>();
@@ -90,28 +104,17 @@ public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
         return result;
     }
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {
-            String[] result = s.split(",");
-            return result;
+            return s.split(",");
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
-    }
-
-    /**
-     * @param price
-     * @return
-     */
-    private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
-        if (matcher.find()) {
-            return matcher.group(1).replace(",", "");
-        } else {
-            LOGGER.error("failed to parse price {}", price);
-            return price;
-        }
     }
 
     @Override

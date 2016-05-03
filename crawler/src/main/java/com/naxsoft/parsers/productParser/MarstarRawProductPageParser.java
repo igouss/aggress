@@ -25,6 +25,34 @@ import java.util.regex.Pattern;
 public class MarstarRawProductPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarRawProductPageParser.class);
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
+    private static String[] getNormalizedCategories(WebPageEntity webPageEntity) {
+        String category = webPageEntity.getCategory();
+        if (null != category) {
+            return category.split(",");
+        }
+        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        return new String[]{"misc"};
+    }
+
+    /**
+     * @param price
+     * @return
+     */
+    private static ArrayList<String> parsePrice(String price) {
+        ArrayList<String> result = new ArrayList<>();
+        Matcher matcher = Pattern.compile("((\\d+(\\.|,))+\\d\\d)+").matcher(price);
+
+
+        while (matcher.find()) {
+            result.add(matcher.group(1).replace(",", ""));
+        }
+        return result;
+    }
+
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
         HashSet<ProductEntity> products = new HashSet<>();
@@ -74,30 +102,6 @@ public class MarstarRawProductPageParser extends AbstractRawPageParser {
 
         return products;
 
-    }
-
-    private static String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String category = webPageEntity.getCategory();
-        if (null != category) {
-            return category.split(",");
-        }
-        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
-        return new String[]{"misc"};
-    }
-
-    /**
-     * @param price
-     * @return
-     */
-    private static ArrayList<String> parsePrice(String price) {
-        ArrayList<String> result = new ArrayList<>();
-        Matcher matcher = Pattern.compile("((\\d+(\\.|,))+\\d\\d)+").matcher(price);
-
-
-        while (matcher.find()) {
-            result.add(matcher.group(1).replace(",", ""));
-        }
-        return result;
     }
 
     @Override

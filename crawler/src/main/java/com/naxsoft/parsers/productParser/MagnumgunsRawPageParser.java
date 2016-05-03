@@ -6,7 +6,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +23,6 @@ import java.util.regex.Pattern;
 public class MagnumgunsRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsRawPageParser.class);
 
-
     private static final Map<String, String> mapping = new HashMap<>();
 
     static {
@@ -38,7 +36,10 @@ public class MagnumgunsRawPageParser extends AbstractRawPageParser {
         mapping.put("Youth", "firearm");
     }
 
-
+    /**
+     * @param price
+     * @return
+     */
     private static String parsePrice(String price) {
         Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
         if (matcher.find()) {
@@ -79,6 +80,11 @@ public class MagnumgunsRawPageParser extends AbstractRawPageParser {
         return products;
     }
 
+    /**
+     *
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         for (String categoryName : mapping.keySet()) {
             if (webPageEntity.getCategory().contains(categoryName)) {

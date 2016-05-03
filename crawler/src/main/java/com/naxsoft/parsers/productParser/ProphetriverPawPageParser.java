@@ -82,6 +82,10 @@ public class ProphetriverPawPageParser extends AbstractRawPageParser {
         return result;
     }
 
+    /**
+     * @param category
+     * @return
+     */
     private String[] getNormalizedCategories(String category) {
         if (mapping.containsKey(category)) {
             return mapping.get(category).split(",");

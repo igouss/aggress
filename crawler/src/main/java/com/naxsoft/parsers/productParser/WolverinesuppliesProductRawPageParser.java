@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -124,6 +123,10 @@ public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser
         return result;
     }
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         if (mapping.containsKey(webPageEntity.getCategory().toLowerCase())) {
             return mapping.get(webPageEntity.getCategory().toLowerCase()).split(",");

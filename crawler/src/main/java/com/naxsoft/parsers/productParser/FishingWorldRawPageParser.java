@@ -58,7 +58,6 @@ public class FishingWorldRawPageParser extends AbstractRawPageParser {
                 return products;
             }
 
-
             jsonBuilder.field("productName", productName);
 
             jsonBuilder.field("productImage", document.select(".product-image").attr("abs:src"));
@@ -84,6 +83,10 @@ public class FishingWorldRawPageParser extends AbstractRawPageParser {
         return products;
     }
 
+    /**
+     * @param webPageEntity
+     * @return
+     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (null != category) {
