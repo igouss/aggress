@@ -60,13 +60,13 @@ public class WebPageService {
     /**
      * Get stream of unparsed pages.
      * Use scrolling
-     *
+     * @see <a href="http://blog.danlew.net/2016/01/25/rxjavas-repeatwhen-and-retrywhen-explained/">RxJava's repeatWhen and retryWhen, explained</a>
      * @param type Webpage type
      * @return Stream of unparsed pages of specefied type
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         return database.getUnparsedCount(type).doOnNext(count -> LOGGER.info("getUnparsedCount {} = {}", type, count))
-                .repeatWhen(observable -> observable.delay(10, TimeUnit.SECONDS))
+                .repeatWhen(observable -> observable.delay(10, TimeUnit.SECONDS)) // Poll for data periodically using repeatWhen + delay
                 .takeWhile(val -> val != 0).flatMap(count -> database.getUnparsedByType(type));
     }
 }
