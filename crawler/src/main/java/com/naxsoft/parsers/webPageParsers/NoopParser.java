@@ -16,10 +16,12 @@ public class NoopParser extends AbstractWebPageParser {
     public NoopParser(HttpClient client) {
     }
 
+    @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return Observable.empty();
     }
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
         return false;
     }

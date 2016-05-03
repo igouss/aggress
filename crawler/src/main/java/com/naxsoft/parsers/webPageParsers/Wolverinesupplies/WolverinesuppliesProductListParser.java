@@ -71,6 +71,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         return result;
     }
 
+    @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return Observable.from(client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .map(this::parseDocument)
@@ -83,6 +84,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     }
 
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("https://www.wolverinesupplies.com/") && webPage.getType().equals("productList");
     }

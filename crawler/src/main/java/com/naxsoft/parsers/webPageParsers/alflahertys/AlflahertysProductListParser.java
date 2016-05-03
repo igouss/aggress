@@ -28,6 +28,10 @@ public class AlflahertysProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
+    /**
+     * @param downloadResult
+     * @return
+     */
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
 
@@ -49,11 +53,13 @@ public class AlflahertysProductListParser extends AbstractWebPageParser {
         return result;
     }
 
+    @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         ListenableFuture<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
         return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
     }
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("productList");
     }

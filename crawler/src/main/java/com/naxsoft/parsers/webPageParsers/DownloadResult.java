@@ -10,15 +10,27 @@ public class DownloadResult {
     private WebPageEntity sourcePage;
     private Document document;
 
+    /**
+     * @param sourcePage
+     * @param document
+     */
     public DownloadResult(WebPageEntity sourcePage, Document document) {
         this.sourcePage = sourcePage;
         this.document = document;
     }
 
+    /**
+     *
+     * @return
+     */
     public WebPageEntity getSourcePage() {
         return sourcePage;
     }
 
+    /**
+     *
+     * @return
+     */
     public Document getDocument() {
         return document;
     }

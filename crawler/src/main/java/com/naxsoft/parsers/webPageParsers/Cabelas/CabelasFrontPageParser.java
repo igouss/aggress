@@ -42,11 +42,13 @@ public class CabelasFrontPageParser extends AbstractWebPageParser {
         return result;
     }
 
+    @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         ListenableFuture<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
         return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
     }
 
+    @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.cabelas.ca/") && webPage.getType().equals("frontPage");
     }

@@ -158,4 +158,3 @@ public class AlflahertysFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("frontPage");
     }
 }
-
