@@ -100,7 +100,6 @@ public class CrawlCommand implements Command {
                 .flatMap(webPageService::save)
                 .subscribe(
                         result -> {
-                            LOGGER.info("processed {}", result);
                         },
                         ex -> {
                             LOGGER.error("Crawler Process Exception", ex);

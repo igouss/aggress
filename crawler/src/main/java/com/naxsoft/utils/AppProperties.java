@@ -31,7 +31,11 @@ public class AppProperties {
      * @param key Lookup key
      * @return Key value
      */
-    public static String getProperty(String key) {
-        return PROPERTIES.getProperty(key);
+    public static String getProperty(String key) throws PropertyNotFoundException {
+        String property = PROPERTIES.getProperty(key);
+        if (null == property) {
+            throw new PropertyNotFoundException("Unable to find property: " + key);
+        }
+        return property;
     }
 }

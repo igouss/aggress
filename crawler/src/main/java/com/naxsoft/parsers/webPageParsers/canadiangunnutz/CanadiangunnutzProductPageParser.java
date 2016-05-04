@@ -5,6 +5,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import com.naxsoft.utils.AppProperties;
+import com.naxsoft.utils.PropertyNotFoundException;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;
@@ -28,16 +29,19 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     public CanadiangunnutzProductPageParser(HttpClient client) {
         this.client = client;
         Map<String, String> formParameters = new HashMap<>();
-        formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
-        formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
-        formParameters.put("vb_login_password_hint", "Password");
-        formParameters.put("s", "");
-        formParameters.put("securitytoken", "guest");
-        formParameters.put("do", "login");
-        formParameters.put("vb_login_md5password", "");
-        formParameters.put("vb_login_md5password_utf", "");
-
-        futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
+        try {
+            formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
+            formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
+            formParameters.put("vb_login_password_hint", "Password");
+            formParameters.put("s", "");
+            formParameters.put("securitytoken", "guest");
+            formParameters.put("do", "login");
+            formParameters.put("vb_login_md5password", "");
+            formParameters.put("vb_login_md5password_utf", "");
+            futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
+        } catch (PropertyNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

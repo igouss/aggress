@@ -16,6 +16,7 @@ import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.AppProperties;
+import com.naxsoft.utils.PropertyNotFoundException;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class RedisDatabase implements Persistent {
     private RedisConnectionPool<RedisAsyncCommands<String, String>> pool;
     private StatefulRedisConnection<String, String> connection;
 
-    public RedisDatabase() {
+    public RedisDatabase() throws PropertyNotFoundException {
         this(AppProperties.getProperty("redisHost"), Integer.parseInt(AppProperties.getProperty("redisPort")));
     }
 
@@ -83,13 +84,9 @@ public class RedisDatabase implements Persistent {
         String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
         String member = webPageEntityEncoder.encode(webPageEntity);
-        LOGGER.info("Moving {} from {} to {}", member, source, destination);
         return connection.reactive()
                 .smove(source, destination, member)
-                .map(value -> {
-                    LOGGER.info("markWebPageAsParsed rc {}", value);
-                    return value ? 1 : 0;
-                });
+                .map(value -> value ? 1 : 0);
     }
 
     @Override
@@ -103,16 +100,15 @@ public class RedisDatabase implements Persistent {
         String value = productEntityEncoder.encode(productEntity);
 
         return connection.reactive()
-                .sadd(key, value).map(rc -> rc == 1);
+                .sadd(key, value).map(rc -> 1 == rc);
     }
 
     @Override
     public Observable<Boolean> save(WebPageEntity webPageEntity) {
         String key = getKey(webPageEntity);
         String member = webPageEntityEncoder.encode(webPageEntity);
-        LOGGER.info("Adding key={} member={}", key, member);
         return connection.reactive()
-                .sadd(key, member).map(rc -> rc == 1);
+                .sadd(key, member).map(rc -> 1 == rc);
     }
 
     private String getKey(WebPageEntity webPageEntity) {

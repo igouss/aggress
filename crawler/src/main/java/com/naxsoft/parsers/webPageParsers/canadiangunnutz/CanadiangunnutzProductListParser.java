@@ -6,6 +6,7 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.utils.AppProperties;
+import com.naxsoft.utils.PropertyNotFoundException;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
 import org.jsoup.nodes.Document;
@@ -29,16 +30,19 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     public CanadiangunnutzProductListParser(HttpClient client) {
         this.client = client;
         Map<String, String> formParameters = new HashMap<>();
-        formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
-        formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
-        formParameters.put("vb_login_password_hint", "Password");
-        formParameters.put("s", "");
-        formParameters.put("securitytoken", "guest");
-        formParameters.put("do", "login");
-        formParameters.put("vb_login_md5password", "");
-        formParameters.put("vb_login_md5password_utf", "");
-
-        futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
+        try {
+            formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
+            formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
+            formParameters.put("vb_login_password_hint", "Password");
+            formParameters.put("s", "");
+            formParameters.put("securitytoken", "guest");
+            formParameters.put("do", "login");
+            formParameters.put("vb_login_md5password", "");
+            formParameters.put("vb_login_md5password_utf", "");
+            futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
+        } catch (PropertyNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
