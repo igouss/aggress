@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.concurrent.Semaphore;
 
 /**
  * Copyright NAXSoft 2015
@@ -34,9 +35,19 @@ public class CleanDBCommand implements Command {
 
     @Override
     public void run() throws CLIException {
-        db.cleanUp(TABLES).subscribe(val -> {
-            LOGGER.info("{} records removed");
-        });
+        Semaphore semaphore = new Semaphore(0);
+        db.cleanUp(TABLES).subscribe(result -> {
+                    LOGGER.info("Rows deleted: {}", result);
+                },
+                ex -> {
+                    LOGGER.error("Crawler Process Exception", ex);
+                },
+                semaphore::release);
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

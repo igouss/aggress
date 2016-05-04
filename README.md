@@ -4,6 +4,8 @@
 ```
 canadiangunnutzLogin=
 canadiangunnutzPassword=
+redisHost=localhost
+redisPort=6379
 ```
 
 2) Import startssl certificates

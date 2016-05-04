@@ -130,7 +130,14 @@ public class RedisDatabase implements Persistent {
         Observable<Long> result = Observable.empty();
         for (String table : tables) {
             if (table.equalsIgnoreCase("WebPageEntity")) {
-                result = Observable.concat(result, connection.reactive().del("WebPageEntity.frontPage", "WebPageEntity.productList", "WebPageEntity.productPage.parsed", "WebPageEntity.frontPage.parsed", "WebPageEntity.productList.parsed", "WebPageEntity.productPage.parsed"));
+                result = Observable.concat(result, connection.reactive().del(
+                        "WebPageEntity.frontPage",
+                        "WebPageEntity.productList",
+                        "WebPageEntity.productPage.parsed",
+                        "WebPageEntity.frontPage.parsed",
+                        "WebPageEntity.productList.parsed",
+                        "WebPageEntity.productPage.parsed"
+                ));
             } else if (table.equalsIgnoreCase("ProductEntity")) {
                 result = Observable.concat(result, connection.reactive().del("ProductEntity"));
             }

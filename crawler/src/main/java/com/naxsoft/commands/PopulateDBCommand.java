@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import java.util.concurrent.Semaphore;
+
 /**
  * Copyright NAXSoft 2015
  * <p>
@@ -94,6 +96,7 @@ public class PopulateDBCommand implements Command {
 
     @Override
     public void run() throws CLIException {
+        Semaphore semaphore = new Semaphore(0);
         Observable.from(SOURCES).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
                 .flatMap(PopulateDBCommand::save)
                 .all(result -> result == Boolean.TRUE)
@@ -101,7 +104,12 @@ public class PopulateDBCommand implements Command {
                     LOGGER.info("Roots populated: {}", result);
                 }, err -> {
                     LOGGER.error("Failed to populate roots", err);
-                });
+                }, semaphore::release);
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
