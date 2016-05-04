@@ -2,7 +2,6 @@ package com.naxsoft.commands;
 
 
 import com.naxsoft.ApplicationComponent;
-import com.naxsoft.database.SourceService;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.SourceEntity;
 import com.naxsoft.entity.WebPageEntity;
@@ -54,7 +53,6 @@ public class PopulateDBCommand implements Command {
 //            "https://www.wolverinesupplies.com/",
     };
     private static WebPageService webPageService = null;
-    private static SourceService sourceService = null;
 
 //    private static void populateSources() {
 //        Observable.from(SOURCES).map(PopulateDBCommand::from)
@@ -63,31 +61,11 @@ public class PopulateDBCommand implements Command {
 //                .subscribe(PopulateDBCommand::save);
 //    }
 
-    private static void populateRoots() {
-        Observable.from(SOURCES).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
-                .flatMap(PopulateDBCommand::save)
-                .all(result -> result == Boolean.TRUE)
-                .subscribe(result -> {
-                    LOGGER.info("Roots populated: {}", result);
-                }, err -> {
-                    LOGGER.error("Failed to populate roots", err);
-                });
-    }
-
     private static SourceEntity from(String sourceUrl) {
         SourceEntity sourceEntity = new SourceEntity();
         sourceEntity.setEnabled(true);
         sourceEntity.setUrl(sourceUrl);
         return sourceEntity;
-    }
-
-    /**
-     * @param sourceEntity
-     * @return
-     */
-    private static Observable<Boolean> save(SourceEntity sourceEntity) {
-        Observable<Boolean> rc = sourceService.save(sourceEntity);
-        return rc;
     }
 
     /**
@@ -112,19 +90,22 @@ public class PopulateDBCommand implements Command {
     @Override
     public void setUp(ApplicationComponent applicationComponent) throws io.vertx.core.cli.CLIException {
         webPageService = applicationComponent.getWebPageService();
-        sourceService = applicationComponent.getSourceService();
     }
 
     @Override
     public void run() throws CLIException {
-//        populateSources();
-        populateRoots();
+        Observable.from(SOURCES).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
+                .flatMap(PopulateDBCommand::save)
+                .all(result -> result == Boolean.TRUE)
+                .subscribe(result -> {
+                    LOGGER.info("Roots populated: {}", result);
+                }, err -> {
+                    LOGGER.error("Failed to populate roots", err);
+                });
     }
 
     @Override
     public void tearDown() throws CLIException {
         webPageService = null;
-        sourceService = null;
     }
-
 }

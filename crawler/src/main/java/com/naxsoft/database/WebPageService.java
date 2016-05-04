@@ -56,6 +56,6 @@ public class WebPageService {
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         return database.getUnparsedCount(type).doOnNext(count -> LOGGER.info("getUnparsedCount {} = {}", type, count))
                 .repeatWhen(observable -> observable.delay(10, TimeUnit.SECONDS)) // Poll for data periodically using repeatWhen + delay
-                .takeWhile(val -> val != 0).flatMap(count -> database.getUnparsedByType(type));
+                .takeWhile(val -> val != 0).flatMap(count -> database.getUnparsedByType(type, count));
     }
 }

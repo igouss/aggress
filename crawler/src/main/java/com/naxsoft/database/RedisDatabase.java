@@ -17,11 +17,9 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
@@ -30,6 +28,8 @@ import javax.inject.Singleton;
 @Singleton
 public class RedisDatabase implements Persistent {
     private final static Logger LOGGER = LoggerFactory.getLogger(RedisDatabase.class);
+    private static final Long BATCH_SIZE = 20L;
+
 
     @Inject
     ProductEntityEncoder productEntityEncoder;
@@ -121,17 +121,20 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Observable<WebPageEntity> getUnparsedByType(String type) {
-        return connection.reactive().smembers("WebPageEntity." + type).map(webPageEntityEncoder::decode);
+    public Observable<WebPageEntity> getUnparsedByType(String type, Long count) {
+        return connection.reactive().srandmember("WebPageEntity." + type, Math.min(BATCH_SIZE, count)).map(webPageEntityEncoder::decode);
     }
 
     @Override
-    public <R> Observable<R> executeTransaction(Func1<StatelessSession, R> action) {
-        return null;
-    }
-
-    @Override
-    public <T> Observable<T> scroll(String queryString) {
-        return null;
+    public Observable<Long> cleanUp(String[] tables) {
+        Observable<Long> result = Observable.empty();
+        for (String table : tables) {
+            if (table.equalsIgnoreCase("WebPageEntity")) {
+                result = Observable.concat(result, connection.reactive().del("WebPageEntity.frontPage", "WebPageEntity.productList", "WebPageEntity.productPage.parsed", "WebPageEntity.frontPage.parsed", "WebPageEntity.productList.parsed", "WebPageEntity.productPage.parsed"));
+            } else if (table.equalsIgnoreCase("ProductEntity")) {
+                result = Observable.concat(result, connection.reactive().del("ProductEntity"));
+            }
+        }
+        return result;
     }
 }

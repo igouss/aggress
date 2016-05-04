@@ -3,7 +3,6 @@ package com.naxsoft.commands;
 
 import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.Persistent;
-import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,31 +20,12 @@ public class CleanDBCommand implements Command {
      * Tables to purge
      */
     private final static String[] TABLES = {
-            "SourceEntity",
             "WebPageEntity",
             "ProductEntity"
     };
 
     @Inject
     protected Persistent db = null;
-
-
-    /**
-     * Delete all data from the database tables
-     *
-     * @param tables Database tables to purge
-     */
-    private void hqlTruncate(String[] tables) {
-        for (String table : tables) {
-            db.executeTransaction(session -> {
-                String hql = String.format("delete from %s", table);
-                Query query = session.createQuery(hql);
-                return query.executeUpdate();
-            }).subscribe(value -> {
-                LOGGER.debug("Deleted {} records from the table {}", value, table);
-            });
-        }
-    }
 
     @Override
     public void setUp(ApplicationComponent applicationComponent) throws CLIException {
@@ -54,7 +34,9 @@ public class CleanDBCommand implements Command {
 
     @Override
     public void run() throws CLIException {
-        hqlTruncate(TABLES);
+        db.cleanUp(TABLES).subscribe(val -> {
+            LOGGER.info("{} records removed");
+        });
     }
 
     @Override

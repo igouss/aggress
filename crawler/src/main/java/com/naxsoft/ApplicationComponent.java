@@ -2,7 +2,10 @@ package com.naxsoft;
 
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
-import com.naxsoft.database.*;
+import com.naxsoft.database.Elastic;
+import com.naxsoft.database.Persistent;
+import com.naxsoft.database.ProductService;
+import com.naxsoft.database.WebPageService;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.providers.*;
@@ -20,7 +23,6 @@ import javax.inject.Singleton;
         , ElasticModule.class
         , MetricsRegistryModule.class
         , WebPageServiceModule.class
-        , SourceServiceModule.class
         , ProductServiceModule.class
         , WebPageParserFactoryModule.class
         , ProductParserFactoryModule.class
@@ -34,8 +36,6 @@ public interface ApplicationComponent {
     WebPageService getWebPageService();
 
     Elastic getElastic();
-
-    SourceService getSourceService();
 
     WebPageParserFactory getWebPageParserFactory();
 

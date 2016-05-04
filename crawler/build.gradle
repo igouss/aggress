@@ -38,7 +38,6 @@ dependencies {
 
     compile group: 'com.ning', name: 'async-http-client', version: '1.9.33'
     compile group: 'org.glassfish.grizzly', name: 'grizzly-websockets', version: '2.3.23'
-    compile 'com.netflix.rxjava:rxjava-apache-http:0.20.7'
     // testCompile 'org.testng:testng:6.0.1'
     compile 'junit:junit:4.12'
     compile 'org.jooq:jooq:3.7.1'
