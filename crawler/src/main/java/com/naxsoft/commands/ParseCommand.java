@@ -65,7 +65,7 @@ public class ParseCommand implements Command {
     }
 
     @Override
-    public void run() throws CLIException {
+    public void start() throws CLIException {
         Observable<ProductEntity> products = getProductEntityObservable().onErrorResumeNext(getProductEntityObservable());
         indexProducts(products, "product" + indexSuffix, "guns");
         LOGGER.info("Parsing complete");

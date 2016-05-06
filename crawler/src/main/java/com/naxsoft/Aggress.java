@@ -79,42 +79,42 @@ public class Aggress {
             if (options.has("createESIndex")) {
                 Command command = new CreateESIndexCommand();
                 command.setUp(applicationComponent);
-                command.run();
+                command.start();
                 command.tearDown();
             }
 
             if (options.has("createESMappings")) {
                 Command command = new CreateESMappingCommand();
                 command.setUp(applicationComponent);
-                command.run();
+                command.start();
                 command.tearDown();
             }
 
             if (options.has("clean")) {
                 Command cleanDBCommand = new CleanDBCommand();
                 cleanDBCommand.setUp(applicationComponent);
-                cleanDBCommand.run();
+                cleanDBCommand.start();
                 cleanDBCommand.tearDown();
             }
 
             if (options.has("populate")) {
                 Command populateDBCommand = new PopulateDBCommand();
                 populateDBCommand.setUp(applicationComponent);
-                populateDBCommand.run();
+                populateDBCommand.start();
                 populateDBCommand.tearDown();
             }
 
             if (options.has("crawl")) {
                 Command crawlCommand = new CrawlCommand();
                 crawlCommand.setUp(applicationComponent);
-                crawlCommand.run();
+                crawlCommand.start();
                 crawlCommand.tearDown();
             }
 
             if (options.has("parse")) {
                 Command parseCommand = new ParseCommand();
                 parseCommand.setUp(applicationComponent);
-                parseCommand.run();
+                parseCommand.start();
                 parseCommand.tearDown();
             }
         } catch (Exception e) {

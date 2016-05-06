@@ -31,7 +31,7 @@ public class CreateESMappingCommand implements Command {
     }
 
     @Override
-    public void run() throws CLIException {
+    public void start() throws CLIException {
         elastic.createMapping(httpClient, "product", "guns", indexSuffix)
                 .subscribe(rc -> {
                     LOGGER.info("Elastic create mapping rc = {}", rc);

@@ -19,7 +19,7 @@ public interface Command {
      *
      * @throws CLIException If anything went wrong.
      */
-    void run() throws CLIException;
+    void start() throws CLIException;
 
     /**
      * The command has been executed. Use this method to cleanup the environment.

@@ -34,7 +34,7 @@ public class CleanDBCommand implements Command {
     }
 
     @Override
-    public void run() throws CLIException {
+    public void start() throws CLIException {
         Semaphore semaphore = new Semaphore(0);
         db.cleanUp(TABLES).subscribe(result -> {
                     LOGGER.info("Rows deleted: {}", result);

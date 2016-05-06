@@ -41,7 +41,7 @@ public class CrawlCommand implements Command {
     }
 
     @Override
-    public void run() throws CLIException {
+    public void start() throws CLIException {
         process(webPageService.getUnparsedByType("frontPage"));
         process(webPageService.getUnparsedByType("productList"));
 

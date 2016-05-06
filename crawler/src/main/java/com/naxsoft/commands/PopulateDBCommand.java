@@ -5,6 +5,7 @@ import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.SourceEntity;
 import com.naxsoft.entity.WebPageEntity;
+import io.vertx.core.AbstractVerticle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -95,7 +96,7 @@ public class PopulateDBCommand implements Command {
     }
 
     @Override
-    public void run() throws CLIException {
+    public void start() throws CLIException {
         Semaphore semaphore = new Semaphore(0);
         Observable.from(SOURCES).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
                 .flatMap(PopulateDBCommand::save)

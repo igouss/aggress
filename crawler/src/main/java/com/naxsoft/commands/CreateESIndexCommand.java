@@ -32,7 +32,7 @@ public class CreateESIndexCommand implements Command {
     }
 
     @Override
-    public void run() throws CLIException {
+    public void start() throws CLIException {
         elastic.createIndex(httpClient, "product", "guns", indexSuffix)
                 .subscribe(rc -> {
                     LOGGER.info("Elastic create index rc = {}", rc);
