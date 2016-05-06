@@ -21,7 +21,7 @@ dependencies {
     compile group: 'com.internetitem', name: 'logback-elasticsearch-appender', version: '1.2'
 
 
-    compile group: 'io.reactivex', name: 'rxjava', version: '1.1.3'
+    compile group: 'io.reactivex', name: 'rxjava', version: '1.1.4'
 //    compile group: 'io.reactivex', name: 'rxjava-async-util', version: '0.21.0'
 //    compile group: 'io.reactivex', name: 'rxjava-computation-expressions', version: '0.21.0'
 //    compile group: 'io.reactivex', name: 'rxjava-debug', version: '1.0.1'
