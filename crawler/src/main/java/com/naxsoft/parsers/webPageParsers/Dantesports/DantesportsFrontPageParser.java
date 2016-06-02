@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -50,7 +51,7 @@ public class DantesportsFrontPageParser extends AbstractWebPageParser {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-        return Observable.from(client.get(webPage.getUrl(), cookies, new DocumentCompletionHandler(webPage)))
+        return Observable.from(client.get(webPage.getUrl(), cookies, new DocumentCompletionHandler(webPage)), Schedulers.io())
                 .map(this::parseDocument)
                 .flatMap(Observable::from);
     }

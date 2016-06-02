@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -78,6 +79,7 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("https://www.tradeexcanada.com/products_list"));
 
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument)

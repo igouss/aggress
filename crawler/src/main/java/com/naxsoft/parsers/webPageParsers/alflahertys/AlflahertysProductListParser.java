@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -56,7 +57,7 @@ public class AlflahertysProductListParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         ListenableFuture<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
-        return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
+        return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
     }
 
     @Override

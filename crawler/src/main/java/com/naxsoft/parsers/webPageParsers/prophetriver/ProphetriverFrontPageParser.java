@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -44,7 +45,7 @@ public class ProphetriverFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.from(client.get("http://store.prophetriver.com/categories/", new DocumentCompletionHandler(parent)))
+        return Observable.from(client.get("http://store.prophetriver.com/categories/", new DocumentCompletionHandler(parent)), Schedulers.io())
                 .map(this::parseFrontPage)
                 .flatMap(Observable::from);
     }

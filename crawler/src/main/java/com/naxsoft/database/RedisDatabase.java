@@ -81,6 +81,10 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public Observable<Integer> markWebPageAsParsed(WebPageEntity webPageEntity) {
+        if (webPageEntity == null) {
+            return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
+        }
+
         String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
         String member = webPageEntityEncoder.encode(webPageEntity);

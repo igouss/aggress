@@ -7,6 +7,7 @@ import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 /**
  * Copyright NAXSoft 2015
@@ -21,7 +22,7 @@ public class GunshopProductParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, webPage))
+        return Observable.from(PageDownloader.download(client, webPage), Schedulers.io())
                 .filter(data -> null != data);
     }
 

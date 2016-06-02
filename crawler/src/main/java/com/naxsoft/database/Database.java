@@ -105,6 +105,9 @@ public class Database implements Persistent {
 
     @Override
     public Observable<Integer> markWebPageAsParsed(WebPageEntity webPageEntity) {
+        if (webPageEntity == null) {
+            return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
+        }
         return executeTransaction(session -> {
             Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
             query.setLong("id", webPageEntity.getId());

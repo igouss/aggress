@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -63,6 +64,7 @@ public class PsmilitariaFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://psmilitaria.50megs.com/newitems.html", "firearm,misc"));
         webPageEntities.add(create("http://psmilitaria.50megs.com/tools.html", "reload"));
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .map(webPageEntity -> PageDownloader.download(client, webPageEntity))
                 .flatMap(Observable::from)
                 .filter(data -> null != data)

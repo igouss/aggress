@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscription;
+import rx.schedulers.Schedulers;
 
 import javax.inject.Singleton;
 import java.io.IOException;
@@ -145,7 +146,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             String indexContent = null;
             indexContent = IOUtils.toString(resourceAsStream);
             String url = "http://127.0.0.1:9200/" + newIndexName;
-            return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()));
+            return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
         } catch (Exception e) {
             LOGGER.error("Failed to create index", e);
         } finally {
@@ -172,7 +173,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             String indexContent = IOUtils.toString(resourceAsStream);
             String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
 
-            return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()));
+            return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
         } catch (IOException e) {
             LOGGER.error("Failed to create mapping", e);
         } finally {

@@ -1,6 +1,7 @@
 package com.naxsoft;
 
 import com.codahale.metrics.MetricRegistry;
+import com.lambdaworks.redis.event.EventBus;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.database.Elastic;
 import com.naxsoft.database.Persistent;
@@ -27,6 +28,7 @@ import javax.inject.Singleton;
         , WebPageParserFactoryModule.class
         , ProductParserFactoryModule.class
         , EncoderModule.class
+        , EventBusModule.class
 }, dependencies = {})
 public interface ApplicationComponent {
     Persistent getDatabase();
@@ -44,4 +46,6 @@ public interface ApplicationComponent {
     ProductService getProductService();
 
     MetricRegistry getMetricRegistry();
+
+    EventBus getEventBus();
 }

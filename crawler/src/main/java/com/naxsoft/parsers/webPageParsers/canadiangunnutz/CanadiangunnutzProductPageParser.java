@@ -11,6 +11,7 @@ import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -49,7 +50,7 @@ public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
         List<Cookie> cookies = null;
         try {
             cookies = futureCookies.get();
-            return Observable.from(PageDownloader.download(client, cookies, webPage))
+            return Observable.from(PageDownloader.download(client, cookies, webPage), Schedulers.io())
                     .filter(data -> null != data);
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Failed to download page", e);

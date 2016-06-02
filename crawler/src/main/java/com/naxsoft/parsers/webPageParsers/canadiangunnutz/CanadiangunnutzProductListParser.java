@@ -15,6 +15,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -74,7 +75,7 @@ public class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         try {
             List<Cookie> cookies = futureCookies.get();
-            return Observable.from(client.get(parent.getUrl(), cookies, new DocumentCompletionHandler(parent)))
+            return Observable.from(client.get(parent.getUrl(), cookies, new DocumentCompletionHandler(parent)), Schedulers.io())
                     .map(this::parseDocument)
                     .flatMap(Observable::from);
         } catch (InterruptedException | ExecutionException e) {

@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -41,7 +42,7 @@ public class BullseyelondonFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         ListenableFuture<DownloadResult> future = client.get(webPage.getUrl(), new DocumentCompletionHandler(webPage));
-        return Observable.from(future).map(this::parseDocument).flatMap(Observable::from);
+        return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -69,6 +70,7 @@ public class TheammosourceFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("http://www.theammosource.com/index.php?main_page=index&cPath=21", "optic")); // optic
 
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument)

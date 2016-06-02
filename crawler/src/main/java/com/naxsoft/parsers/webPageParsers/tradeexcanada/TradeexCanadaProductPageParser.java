@@ -7,6 +7,7 @@ import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 /**
  * Copyright NAXSoft 2015
@@ -24,7 +25,7 @@ public class TradeexCanadaProductPageParser extends AbstractWebPageParser {
         if (parent.getUrl().contains("out-stock") || parent.getUrl().contains("-sold")) {
             return Observable.empty();
         } else {
-            return Observable.from(PageDownloader.download(client, parent))
+            return Observable.from(PageDownloader.download(client, parent), Schedulers.io())
                     .filter(data -> {
                         if (null != data) {
                             return true;

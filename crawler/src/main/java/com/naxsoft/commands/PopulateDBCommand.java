@@ -5,10 +5,10 @@ import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.SourceEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.vertx.core.AbstractVerticle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.concurrent.Semaphore;
 
@@ -98,7 +98,10 @@ public class PopulateDBCommand implements Command {
     @Override
     public void start() throws CLIException {
         Semaphore semaphore = new Semaphore(0);
-        Observable.from(SOURCES).map(PopulateDBCommand::from).map(PopulateDBCommand::from)
+        Observable.from(SOURCES)
+                .observeOn(Schedulers.io())
+                .map(PopulateDBCommand::from)
+                .map(PopulateDBCommand::from)
                 .flatMap(PopulateDBCommand::save)
                 .all(result -> result == Boolean.TRUE)
                 .subscribe(result -> {

@@ -15,6 +15,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -120,7 +121,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
             e.printStackTrace();
         }
         WebPageEntity webPageEntity = new WebPageEntity(0L, "", "", false, "http://www.canadiangunnutz.com/forum/forum.php", "");
-        return Observable.from(futureCookies)
+        return Observable.from(futureCookies, Schedulers.io())
                 .map(cookies1 -> client.get(webPageEntity.getUrl(), cookies1, new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument)

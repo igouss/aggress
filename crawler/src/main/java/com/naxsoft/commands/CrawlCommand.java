@@ -2,9 +2,11 @@ package com.naxsoft.commands;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.lambdaworks.redis.event.EventBus;
 import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.events.WebPageEntityParseEvent;
 import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
@@ -32,12 +34,14 @@ public class CrawlCommand implements Command {
 
     @Inject
     MetricRegistry metrics = null;
+    private EventBus eventBus;
 
     @Override
     public void setUp(ApplicationComponent applicationComponent) throws CLIException {
         webPageService = applicationComponent.getWebPageService();
         webPageParserFactory = applicationComponent.getWebPageParserFactory();
         metrics = applicationComponent.getMetricRegistry();
+        eventBus = applicationComponent.getEventBus();
     }
 
     @Override
@@ -74,23 +78,27 @@ public class CrawlCommand implements Command {
                 .observeOn(Schedulers.computation())
                 .flatMap(pageToParse -> {
                     Observable<WebPageEntity> result = null;
-                    try {
-                        WebPageParser parser = webPageParserFactory.getParser(pageToParse);
-                        Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
-                        Timer.Context time = parseTime.time();
-                        result = parser.parse(pageToParse);
-                        time.stop();
 
-//                        pageToParse.setParsed(true);
-                        webPageService.markParsed(pageToParse)
-                                .subscribe(value -> {
-                                    LOGGER.debug("Page parsed {}", value);
-                                }, error -> {
-                                    LOGGER.error("Failed to make page as parsed", error);
-                                });
+                    eventBus.publish(new WebPageEntityParseEvent(pageToParse));
+
+                    WebPageParser parser = webPageParserFactory.getParser(pageToParse);
+                    Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
+                    Timer.Context time = parseTime.time();
+                    try {
+                        result = parser.parse(pageToParse);
                     } catch (Exception e) {
-                        LOGGER.error("Failed to process source {}", pageToParse.getUrl(), e);
+                        LOGGER.error("Failed to parse source {}", pageToParse.getUrl(), e);
+                    } finally {
+                        time.stop();
                     }
+
+                    webPageService.markParsed(pageToParse)
+                            .subscribe(value -> {
+                                LOGGER.debug("Page parsed {}", value);
+                            }, error -> {
+                                LOGGER.error("Failed to make page as parsed", error);
+                            });
+
                     return result;
                 });
         Semaphore semaphore = new Semaphore(0);

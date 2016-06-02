@@ -9,6 +9,7 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -62,6 +63,7 @@ public class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create("https://ellwoodepps.com/hunting/firearms.html?product_sold=3175", "firearm"));
 
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
                 .map(this::parseDocument)
