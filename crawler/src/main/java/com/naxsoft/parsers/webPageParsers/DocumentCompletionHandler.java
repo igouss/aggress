@@ -12,6 +12,9 @@ import org.jsoup.nodes.Document;
 public class DocumentCompletionHandler extends AbstractCompletionHandler<DownloadResult> {
     private WebPageEntity source;
 
+    /**
+     * @param source Requested page
+     */
     public DocumentCompletionHandler(WebPageEntity source) {
         this.source = source;
     }
@@ -19,7 +22,6 @@ public class DocumentCompletionHandler extends AbstractCompletionHandler<Downloa
     @Override
     public DownloadResult onCompleted(Response response) throws Exception {
         Document document = Jsoup.parse(response.getResponseBody(), response.getUri().toUrl());
-        DownloadResult result = new DownloadResult(source, document);
-        return result;
+        return new DownloadResult(source, document);
     }
 }

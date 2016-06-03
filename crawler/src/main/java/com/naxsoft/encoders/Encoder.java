@@ -3,14 +3,14 @@ package com.naxsoft.encoders;
 
 import com.google.gson.Gson;
 
-public class Encoder<T> {
+public class Encoder {
     /**
      * Convert from JSON representation
      *
      * @param json ProductEntity in JSON format
      * @return ProductEntity object
      */
-    protected static <T> T fromJson(String json, Class<T> clazzOfT) {
+    static <T> T fromJson(String json, Class<T> clazzOfT) {
         Gson gson = new Gson();
         return gson.fromJson(json, clazzOfT);
     }

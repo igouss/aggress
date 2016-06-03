@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.crawler.HttpClient;
@@ -12,13 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.InvalidClassException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- *
+ * Copyright NAXSoft 2015
  */
 public class WebPageParserFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageParserFactory.class);
@@ -27,7 +22,9 @@ public class WebPageParserFactory {
     private final HttpClient client;
 
     /**
-     * @param client
+     * Create new WebPageParserFactory that using reflection to locate all WebPageParsers in the classpath
+     *
+     * @param client HTTP client for WebPageParsers to use
      */
     @Inject
     public WebPageParserFactory(HttpClient client) {
@@ -36,21 +33,22 @@ public class WebPageParserFactory {
         Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
         Set<Class<? extends WebPageParser>> classes = reflections.getSubTypesOf(WebPageParser.class);
 
+        Class<?> asyncFetchClient = null;
+        for (Class iface : client.getClass().getInterfaces()) {
+            if (iface.getCanonicalName().equals("com.naxsoft.crawler.HttpClient")) {
+                asyncFetchClient = iface;
+            }
+        }
+
         for (Class<? extends WebPageParser> clazz : classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
                     LOGGER.info("Instantiating {}", clazz.getName());
-                    Class<?>[] interfaces = client.getClass().getInterfaces();
-                    Class<?> asyncFetchClient = null;
-                    for (Class iface : interfaces) {
-                        if (iface.getCanonicalName().equals("com.naxsoft.crawler.HttpClient")) {
-                            asyncFetchClient = iface;
-                        }
-                    }
-                    if (null == asyncFetchClient) {
-                        throw new InvalidClassException("Class " + clazz.getCanonicalName() + "should implement com.naxsoft.crawler.HttpClient");
-                    }
-                    WebPageParser webPageParser = clazz.getConstructor(asyncFetchClient).newInstance(client);
+
+                    Constructor<? extends WebPageParser> constructor = clazz.getDeclaredConstructor(asyncFetchClient);
+                    constructor.setAccessible(true);
+
+                    WebPageParser webPageParser = constructor.newInstance(client);
                     this.parsers.add(webPageParser);
                 } catch (Exception e) {
                     LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
@@ -60,8 +58,10 @@ public class WebPageParserFactory {
     }
 
     /**
-     * @param webPageEntity
-     * @return
+     * Get a WebPageParser that is capable of parsing webPageEntity
+     *
+     * @param webPageEntity Page to parse
+     * @return WebPageParser that if capable of parsing webPageEntity
      */
     public WebPageParser getParser(WebPageEntity webPageEntity) {
         for (WebPageParser parser : parsers) {

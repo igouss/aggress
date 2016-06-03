@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class QuestarRawPageParser extends AbstractRawPageParser {
+class QuestarRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuestarRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
 

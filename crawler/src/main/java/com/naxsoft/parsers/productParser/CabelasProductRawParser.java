@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class CabelasProductRawParser extends AbstractRawPageParser {
+class CabelasProductRawParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CabelasProductRawParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
 

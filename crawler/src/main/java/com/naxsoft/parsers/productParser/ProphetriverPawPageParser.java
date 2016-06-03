@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class ProphetriverPawPageParser extends AbstractRawPageParser {
+class ProphetriverPawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductRawParser.class);
     private static Map<String, String> mapping = new HashMap<>();
 

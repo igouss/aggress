@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
+class WholesalesportsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WholesalesportsFrontPageParser.class);
     private final HttpClient client;
 
@@ -29,8 +29,7 @@ public class WholesalesportsFrontPageParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
-        return webPageEntity;
+        return new WebPageEntity(0L, "", "productList", false, url, category);
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {

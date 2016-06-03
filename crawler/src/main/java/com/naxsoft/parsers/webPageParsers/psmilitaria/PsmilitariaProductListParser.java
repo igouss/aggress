@@ -3,7 +3,6 @@ package com.naxsoft.parsers.webPageParsers.psmilitaria;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.prophetriver.ProphetriverProductListParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -11,8 +10,8 @@ import rx.Observable;
 /**
  * Copyright NAXSoft 2015
  */
-public class PsmilitariaProductListParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProphetriverProductListParser.class);
+class PsmilitariaProductListParser extends AbstractWebPageParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaProductListParser.class);
     private final HttpClient client;
 
     public PsmilitariaProductListParser(HttpClient client) {

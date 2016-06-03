@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class MagnumgunsFrontPageParser extends AbstractWebPageParser {
+class MagnumgunsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MagnumgunsFrontPageParser.class);
     private final HttpClient client;
 

@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class FishingworldFrontPageParser extends AbstractWebPageParser {
+class FishingworldFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingworldFrontPageParser.class);
     private final HttpClient client;
 

@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser {
+class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(InternationalshootingsuppliesFrontPageParser.class);
     private static final Collection<Cookie> cookies;
 

@@ -10,17 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class InternationalshootingsuppliesRawPageParser extends AbstractRawPageParser {
+class InternationalshootingsuppliesRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(HicalRawProductParser.class);
 
     @Override

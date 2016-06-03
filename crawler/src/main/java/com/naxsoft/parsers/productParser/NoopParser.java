@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
@@ -12,13 +7,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- *
+ * Copyright NAXSoft 2015
  */
-public class NoopParser extends AbstractRawPageParser {
+class NoopParser extends AbstractRawPageParser {
     /**
      *
      */
-    public NoopParser() {
+    NoopParser() {
     }
 
     /**

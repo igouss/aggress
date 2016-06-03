@@ -74,6 +74,8 @@ public class CrawlCommand implements Command {
      * @param pagesToParse Stream of webpages to process
      */
     private void process(Observable<WebPageEntity> pagesToParse) {
+        Semaphore processCompleteSemaphore = new Semaphore(0);
+
         Observable<WebPageEntity> parsedWebPageEntries = pagesToParse
                 .observeOn(Schedulers.computation())
                 .flatMap(pageToParse -> {
@@ -101,7 +103,6 @@ public class CrawlCommand implements Command {
 
                     return result;
                 });
-        Semaphore semaphore = new Semaphore(0);
 
         parsedWebPageEntries
                 .filter(webPageEntities -> null != webPageEntities)
@@ -112,11 +113,11 @@ public class CrawlCommand implements Command {
                         ex -> {
                             LOGGER.error("Crawler Process Exception", ex);
                         },
-                        semaphore::release
+                        processCompleteSemaphore::release
                 );
 
         try {
-            semaphore.acquire();
+            processCompleteSemaphore.acquire();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

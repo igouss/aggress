@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Copyright NAXSoft 2015
  */
-public class DantesportsFrontPageParser extends AbstractWebPageParser {
+class DantesportsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
     private final HttpClient client;
 

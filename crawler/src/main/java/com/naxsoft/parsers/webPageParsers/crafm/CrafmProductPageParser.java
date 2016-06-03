@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Copyright NAXSoft 2015
  */
-public class CrafmProductPageParser extends AbstractWebPageParser {
+class CrafmProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmProductPageParser.class);
     private final HttpClient client;
     private final List<Cookie> cookies;

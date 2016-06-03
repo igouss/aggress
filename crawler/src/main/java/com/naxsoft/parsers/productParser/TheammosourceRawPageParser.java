@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class TheammosourceRawPageParser extends AbstractRawPageParser {
+class TheammosourceRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceRawPageParser.class);
 
     /**

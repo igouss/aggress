@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.naxsoft.entity;
 
 import com.google.gson.Gson;
@@ -80,9 +75,9 @@ public class WebPageEntity {
     /**
      * ZIP the string and return Base64 representation
      *
-     * @param text
-     * @return
-     * @throws IOException
+     * @param text Value to compress
+     * @return Compressed Value
+     * @throws IOException in case of compression error
      */
     private static String compress(String text) {
         ByteArrayOutputStream rstBao = new ByteArrayOutputStream();
@@ -106,9 +101,9 @@ public class WebPageEntity {
     /**
      * Unzip a BASE64 string
      *
-     * @param zippedBase64Str
-     * @return
-     * @throws IOException
+     * @param zippedBase64Str value to decompress
+     * @return Decompresed value
+     * @throws IOException in case of decompression error
      */
     private static String decompress(String zippedBase64Str) throws IOException {
         byte[] bytes = Base64.getDecoder().decode(zippedBase64Str);
@@ -121,6 +116,12 @@ public class WebPageEntity {
         }
     }
 
+    /**
+     * Remove all non-ascii values from text
+     *
+     * @param text Value to sanitize
+     * @return String with only ascii values present.
+     */
     private static String removeNonASCII(String text) {
         return text.replaceAll("[^\\x00-\\x7F]", "");
     }
@@ -168,7 +169,6 @@ public class WebPageEntity {
         return "";
     }
 
-
     @Basic
     @Column(
             name = "type"
@@ -177,7 +177,6 @@ public class WebPageEntity {
         return this.type;
     }
 
-
     @Basic
     @Column(
             name = "parsed"
@@ -185,7 +184,6 @@ public class WebPageEntity {
     public boolean isParsed() {
         return this.parsed;
     }
-
 
     @Basic
     @Column(
@@ -196,7 +194,6 @@ public class WebPageEntity {
         return this.url;
     }
 
-
     @Basic
     @Column(
             name = "category"
@@ -205,7 +202,6 @@ public class WebPageEntity {
     public String getCategory() {
         return category;
     }
-
 
     @Override
     public boolean equals(Object o) {

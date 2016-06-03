@@ -8,7 +8,9 @@ import dagger.Provides;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 
-
+/**
+ * Copyright NAXSoft 2015
+ */
 @Module(includes = {PersistentModule.class})
 public class ProductServiceModule {
     @Provides
@@ -17,5 +19,4 @@ public class ProductServiceModule {
     public static ProductService getElastic(Persistent db) {
         return new ProductService(db);
     }
-
 }

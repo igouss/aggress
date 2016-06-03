@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class PsmilitariaFrontPageParser extends AbstractWebPageParser {
+class PsmilitariaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaFrontPageParser.class);
     private final HttpClient client;
 

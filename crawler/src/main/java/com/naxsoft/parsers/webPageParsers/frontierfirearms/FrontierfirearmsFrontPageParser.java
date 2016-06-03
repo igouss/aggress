@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
+class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsFrontPageParser.class);
     private final HttpClient client;
 

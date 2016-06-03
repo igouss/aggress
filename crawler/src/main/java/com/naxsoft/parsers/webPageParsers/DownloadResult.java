@@ -11,8 +11,8 @@ public class DownloadResult {
     private Document document;
 
     /**
-     * @param sourcePage
-     * @param document
+     * @param sourcePage Page that was requested
+     * @param document Parsed HTML Page
      */
     public DownloadResult(WebPageEntity sourcePage, Document document) {
         this.sourcePage = sourcePage;
@@ -20,16 +20,16 @@ public class DownloadResult {
     }
 
     /**
-     *
-     * @return
+     * Requested page
+     * @return Requested page
      */
     public WebPageEntity getSourcePage() {
         return sourcePage;
     }
 
     /**
-     *
-     * @return
+     * Parsed result
+     * @return Parsed result
      */
     public Document getDocument() {
         return document;

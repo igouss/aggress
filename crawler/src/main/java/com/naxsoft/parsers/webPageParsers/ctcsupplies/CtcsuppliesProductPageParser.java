@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class CtcsuppliesProductPageParser extends AbstractWebPageParser {
+class CtcsuppliesProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesProductPageParser.class);
     private final HttpClient client;
 

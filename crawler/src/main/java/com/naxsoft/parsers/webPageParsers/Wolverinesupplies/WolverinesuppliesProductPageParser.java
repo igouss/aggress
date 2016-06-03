@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.naxsoft.parsers.webPageParsers.Wolverinesupplies;
 
 import com.naxsoft.crawler.HttpClient;

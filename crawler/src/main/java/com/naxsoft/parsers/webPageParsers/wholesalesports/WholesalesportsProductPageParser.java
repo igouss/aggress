@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class WholesalesportsProductPageParser extends AbstractWebPageParser {
+class WholesalesportsProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WholesalesportsProductPageParser.class);
     private final HttpClient client;
 

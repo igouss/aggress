@@ -6,7 +6,6 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,14 +17,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
+class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
     private final HttpClient client;
-    private final ListenableFuture<List<Cookie>> futureCookies;
+    private final Future<List<Cookie>> futureCookies;
 
     public CanadiangunnutzProductPageParser(HttpClient client) {
         this.client = client;

@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class GotendaRawParser implements ProductParser {
+class GotendaRawParser implements ProductParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotendaRawParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
 

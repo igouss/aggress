@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class GotendaFrontPageParser extends AbstractWebPageParser {
+class GotendaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotendaFrontPageParser.class);
     private final HttpClient client;
 

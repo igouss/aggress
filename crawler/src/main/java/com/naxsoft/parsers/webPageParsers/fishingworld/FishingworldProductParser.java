@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class FishingworldProductParser extends AbstractWebPageParser {
+class FishingworldProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingworldProductParser.class);
     private final HttpClient client;
 

@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class GunshopRawPageParser extends AbstractRawPageParser {
+class GunshopRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
 

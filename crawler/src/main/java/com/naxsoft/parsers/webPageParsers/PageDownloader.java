@@ -26,7 +26,7 @@ public class PageDownloader {
      * @return Stream of downloaded pages.
      */
     public static Future<WebPageEntity> download(HttpClient client, WebPageEntity webPageEntity) {
-        return download(client, Collections.EMPTY_LIST, webPageEntity);
+        return download(client, Collections.emptyList(), webPageEntity);
     }
 
     /**

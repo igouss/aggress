@@ -7,7 +7,6 @@ import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,13 +18,14 @@ import rx.schedulers.Schedulers;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
+class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzFrontPageParser.class);
 
     private static final Map<String, String> categories = new HashMap<>();
@@ -43,7 +43,7 @@ public class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     }
 
     private final HttpClient client;
-    private final ListenableFuture<List<Cookie>> futureCookies;
+    private final Future<List<Cookie>> futureCookies;
     private List<Cookie> cookies = null;
 
     public CanadiangunnutzFrontPageParser(HttpClient client) {

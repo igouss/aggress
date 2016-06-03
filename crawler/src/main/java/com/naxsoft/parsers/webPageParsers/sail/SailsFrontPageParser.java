@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class SailsFrontPageParser extends AbstractWebPageParser {
+class SailsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SailsFrontPageParser.class);
     private static final Collection<Cookie> cookies;
 

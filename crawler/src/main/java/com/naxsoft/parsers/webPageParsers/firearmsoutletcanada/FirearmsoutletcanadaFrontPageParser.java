@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
+class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FirearmsoutletcanadaFrontPageParser.class);
     private final HttpClient client;
 

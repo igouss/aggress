@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class MarstarProductParser extends AbstractWebPageParser {
+class MarstarProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarProductParser.class);
     private final HttpClient client;
 

@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class MagnumgunsProductParser extends AbstractWebPageParser {
+class MagnumgunsProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MagnumgunsProductParser.class);
     private final HttpClient client;
 

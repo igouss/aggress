@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class FrontierfirearmsProductParser extends AbstractWebPageParser {
+class FrontierfirearmsProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsProductParser.class);
     private final HttpClient client;
 

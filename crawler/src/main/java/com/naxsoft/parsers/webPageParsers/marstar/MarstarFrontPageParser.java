@@ -10,7 +10,7 @@ import java.util.HashSet;
 /**
  * Copyright NAXSoft 2015
  */
-public class MarstarFrontPageParser extends AbstractWebPageParser {
+class MarstarFrontPageParser extends AbstractWebPageParser {
     private final HttpClient client;
 
     public MarstarFrontPageParser(HttpClient client) {

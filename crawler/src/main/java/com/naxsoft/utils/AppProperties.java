@@ -8,13 +8,14 @@ import java.util.Properties;
 
 /**
  * Copyright NAXSoft 2015
+ * User configurable application configuration state
  */
 public class AppProperties {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppProperties.class);
     private static final Properties PROPERTIES = new Properties();
 
     /**
-     * Load PROPERTIES on start-up
+     * Read properties file on start-up
      */
     static {
         try {
@@ -28,6 +29,7 @@ public class AppProperties {
 
     /**
      * Return application property
+     *
      * @param key Lookup key
      * @return Key value
      */

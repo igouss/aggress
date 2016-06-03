@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class ProphetriverFrontPageParser extends AbstractWebPageParser {
+class ProphetriverFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProphetriverFrontPageParser.class);
     private final HttpClient client;
 

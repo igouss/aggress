@@ -1,15 +1,10 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.entity.WebPageEntity;
 import rx.Observable;
 
 /**
- *
+ * Copyright NAXSoft 2015
  */
 public interface WebPageParser {
     /**
@@ -17,7 +12,6 @@ public interface WebPageParser {
      *
      * @param webPage Page to parse
      * @return All sub-pages
-     * @throws Exception
      */
     Observable<WebPageEntity> parse(WebPageEntity webPage);
 

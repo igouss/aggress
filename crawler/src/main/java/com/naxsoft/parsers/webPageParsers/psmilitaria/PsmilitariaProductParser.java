@@ -10,7 +10,7 @@ import rx.Observable;
 /**
  * Copyright NAXSoft 2015
  */
-public class PsmilitariaProductParser extends AbstractWebPageParser {
+class PsmilitariaProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaProductParser.class);
     private final HttpClient client;
 

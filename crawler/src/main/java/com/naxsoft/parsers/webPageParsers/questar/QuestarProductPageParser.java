@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class QuestarProductPageParser extends AbstractWebPageParser {
+class QuestarProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuestarProductPageParser.class);
     private final HttpClient client;
 

@@ -5,10 +5,12 @@ import com.naxsoft.entity.WebPageEntity;
 /**
  *
  */
-public class WebPageEntityEncoder extends Encoder<WebPageEntity> {
+public class WebPageEntityEncoder extends Encoder {
     /**
-     * @param value
-     * @return
+     * Deserialize WebPageEntity from json into Java object
+     *
+     * @param value Serialized value
+     * @return Java object
      */
     public WebPageEntity decode(String value) {
         return fromJson(value, WebPageEntity.class);

@@ -64,20 +64,17 @@ public class PopulateDBCommand implements Command {
 //                .subscribe(PopulateDBCommand::save);
 //    }
 
+    /**
+     * Create new SourceEntity object for with sourceUrl
+     *
+     * @param sourceUrl address of source page
+     * @return
+     */
     private static SourceEntity from(String sourceUrl) {
         SourceEntity sourceEntity = new SourceEntity();
         sourceEntity.setEnabled(true);
         sourceEntity.setUrl(sourceUrl);
         return sourceEntity;
-    }
-
-    /**
-     * @param webPageEntities
-     * @return
-     */
-    private static Observable<Boolean> save(WebPageEntity webPageEntities) {
-        Observable<Boolean> rc = webPageService.save(webPageEntities);
-        return rc;
     }
 
     /**
@@ -102,7 +99,7 @@ public class PopulateDBCommand implements Command {
                 .observeOn(Schedulers.io())
                 .map(PopulateDBCommand::from)
                 .map(PopulateDBCommand::from)
-                .flatMap(PopulateDBCommand::save)
+                .flatMap(webPageService::save)
                 .all(result -> result == Boolean.TRUE)
                 .subscribe(result -> {
                     LOGGER.info("Roots populated: {}", result);

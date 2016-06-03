@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
+class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzRawPageParser.class);
 
     @Override

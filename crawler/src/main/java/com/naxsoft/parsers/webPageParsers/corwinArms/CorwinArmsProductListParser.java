@@ -5,7 +5,6 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import com.ning.http.client.ListenableFuture;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -17,11 +16,12 @@ import rx.schedulers.Schedulers;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class CorwinArmsProductListParser extends AbstractWebPageParser {
+class CorwinArmsProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsProductListParser.class);
     private final HttpClient client;
 
@@ -45,7 +45,7 @@ public class CorwinArmsProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        ListenableFuture<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
+        Future<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
         return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
     }
 

@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class WestrifleProductPageParser extends AbstractWebPageParser {
+class WestrifleProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductPageParser.class);
     private final HttpClient client;
 

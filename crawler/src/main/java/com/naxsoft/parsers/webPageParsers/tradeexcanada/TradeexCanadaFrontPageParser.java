@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
+class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaFrontPageParser.class);
     private final HttpClient client;
 
@@ -29,8 +29,7 @@ public class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(String url) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, "N/A");
-        return webPageEntity;
+        return new WebPageEntity(0L, "", "productList", false, url, "N/A");
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {

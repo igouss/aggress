@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-public class BullseyelondonProductPageParser extends AbstractWebPageParser {
+class BullseyelondonProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(BullseyelondonProductPageParser.class);
     private final HttpClient client;
 

@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class QuestarFrontPageParser extends AbstractWebPageParser {
+class QuestarFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuestarFrontPageParser.class);
     private final HttpClient client;
 

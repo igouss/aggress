@@ -6,10 +6,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Copyright NAXSoft 2015
- *
+ * <p>
  * Base class to handle completed page download.
  * Logs on errors.
- *
  */
 public abstract class AbstractCompletionHandler<R> extends AsyncCompletionHandler<R> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCompletionHandler.class);

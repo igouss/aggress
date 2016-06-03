@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class TradeexCanadaProductPageParser extends AbstractWebPageParser {
+class TradeexCanadaProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaProductPageParser.class);
     private final HttpClient client;
 

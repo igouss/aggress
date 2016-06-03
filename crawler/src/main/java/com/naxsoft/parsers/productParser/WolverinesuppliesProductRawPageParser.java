@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.naxsoft.parsers.productParser;
 
 import com.google.gson.Gson;
@@ -19,7 +14,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
+class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
     private static Map<String, String> mapping = new ListOrderedMap<>();
 

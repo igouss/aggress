@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.naxsoft.parsers.productParser;
 
 import com.google.common.base.CaseFormat;
@@ -23,7 +18,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BullseyelondonProductRawPageParser extends AbstractRawPageParser implements ProductParser {
+class BullseyelondonProductRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(BullseyelondonProductRawPageParser.class);
 
     private static final Map<String, String> mapping = new HashMap<>();

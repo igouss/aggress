@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class EllwoodeppsRawProductParser extends AbstractRawPageParser {
+class EllwoodeppsRawProductParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsRawProductParser.class);
 
     private static final Map<String, String> mapping = new HashMap<>();

@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class FishingWorldRawPageParser extends AbstractRawPageParser {
+class FishingWorldRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingWorldRawPageParser.class);
 
     /**

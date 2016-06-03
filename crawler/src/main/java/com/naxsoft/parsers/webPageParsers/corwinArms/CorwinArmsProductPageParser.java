@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class CorwinArmsProductPageParser extends AbstractWebPageParser {
+class CorwinArmsProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsProductPageParser.class);
     private final HttpClient client;
 

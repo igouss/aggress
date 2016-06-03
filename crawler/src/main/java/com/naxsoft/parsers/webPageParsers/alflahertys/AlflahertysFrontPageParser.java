@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class AlflahertysFrontPageParser extends AbstractWebPageParser {
+class AlflahertysFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysFrontPageParser.class);
 
     private final HttpClient client;

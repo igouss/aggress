@@ -71,6 +71,9 @@ public class ParseCommand implements Command {
         LOGGER.info("Parsing complete");
     }
 
+    /**
+     * @return
+     */
     private Observable<ProductEntity> getProductEntityObservable() {
         return webPageService.getUnparsedByType("productPage").flatMap(webPageEntity -> {
             WebPageParser parser = webPageParserFactory.getParser(webPageEntity);
@@ -116,6 +119,4 @@ public class ParseCommand implements Command {
         LOGGER.info("Indexing products");
         return elastic.index(products, index, type);
     }
-
-
 }

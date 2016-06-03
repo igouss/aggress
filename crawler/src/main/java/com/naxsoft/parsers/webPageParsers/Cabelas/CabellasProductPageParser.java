@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class CabellasProductPageParser extends AbstractWebPageParser {
+class CabellasProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CabellasProductPageParser.class);
     private final HttpClient client;
 

@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
+class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WanstallsonlineFrontPageParser.class);
     private final HttpClient client;
 
@@ -31,8 +31,7 @@ public class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
-        return webPageEntity;
+        return new WebPageEntity(0L, "", "productList", false, url, category);
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {

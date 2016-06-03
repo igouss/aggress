@@ -4,8 +4,6 @@ import com.naxsoft.ApplicationComponent;
 
 /**
  * Copyright NAXSoft 2015
- *
- *
  */
 public interface Command {
 

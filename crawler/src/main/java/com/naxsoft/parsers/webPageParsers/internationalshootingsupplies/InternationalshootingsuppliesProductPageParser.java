@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class InternationalshootingsuppliesProductPageParser extends AbstractWebPageParser {
+class InternationalshootingsuppliesProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(InternationalshootingsuppliesProductPageParser.class);
 
     private final HttpClient client;

@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class MarstarRawProductPageParser extends AbstractRawPageParser {
+class MarstarRawProductPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarRawProductPageParser.class);
 
     /**
@@ -108,5 +108,4 @@ public class MarstarRawProductPageParser extends AbstractRawPageParser {
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().startsWith("http://www.marstar.ca/") && webPage.getType().equals("productPageRaw");
     }
-
 }

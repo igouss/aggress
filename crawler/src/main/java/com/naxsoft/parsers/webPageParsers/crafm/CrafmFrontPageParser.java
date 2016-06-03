@@ -5,7 +5,6 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,11 +15,12 @@ import rx.Observable;
 import rx.schedulers.Schedulers;
 
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class CrafmFrontPageParser extends AbstractWebPageParser {
+class CrafmFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmFrontPageParser.class);
     private final HttpClient client;
 
@@ -48,7 +48,7 @@ public class CrafmFrontPageParser extends AbstractWebPageParser {
         List<Cookie> cookies = new ArrayList<>(1);
         cookies.add(Cookie.newValidCookie("store", "english", false, null, null, Long.MAX_VALUE, false, false));
 
-        ListenableFuture<DownloadResult> future = client.get("http://www.crafm.com/catalogue/", cookies, new DocumentCompletionHandler(webPage));
+        Future<DownloadResult> future = client.get("http://www.crafm.com/catalogue/", cookies, new DocumentCompletionHandler(webPage));
         return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
     }
 

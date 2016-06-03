@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class AlflahertysRawPageParser extends AbstractRawPageParser {
+class AlflahertysRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
     private static Map<String, String> mapping = new HashMap<>();
 

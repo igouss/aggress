@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,8 +20,22 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class PsmilitariaRawPageParser extends AbstractRawPageParser {
+class PsmilitariaRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaRawPageParser.class);
+
+    /**
+     * @param price
+     * @return
+     */
+    private static String parsePrice(String price) {
+        Matcher matcher = Pattern.compile("\\$\\s?((\\d+|,)+\\s?\\.\\d+)").matcher(price);
+        if (matcher.find()) {
+            return matcher.group(1).replace(",", "");
+        } else {
+            LOGGER.error("failed to parse price {}", price);
+            return "";
+        }
+    }
 
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
@@ -62,20 +74,6 @@ public class PsmilitariaRawPageParser extends AbstractRawPageParser {
 
         }
         return result;
-    }
-
-    /**
-     * @param price
-     * @return
-     */
-    private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$\\s?((\\d+|,)+\\s?\\.\\d+)").matcher(price);
-        if (matcher.find()) {
-            return matcher.group(1).replace(",", "");
-        } else {
-            LOGGER.error("failed to parse price {}", price);
-            return "";
-        }
     }
 
     @Override

@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
+class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
     private final HttpClient client;
 

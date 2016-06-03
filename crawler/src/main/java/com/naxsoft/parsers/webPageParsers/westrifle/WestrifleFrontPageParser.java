@@ -5,7 +5,6 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import com.ning.http.client.ListenableFuture;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -17,11 +16,12 @@ import rx.schedulers.Schedulers;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class WestrifleFrontPageParser extends AbstractWebPageParser {
+class WestrifleFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleFrontPageParser.class);
     private final HttpClient client;
 
@@ -53,7 +53,7 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
         int pageTotal = (int) Math.ceil(productTotal / 10.0);
 
         for (int i = 1; i <= pageTotal; i++) {
-            WebPageEntity webPageEntity = new WebPageEntity(0l, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
             LOGGER.info("Product page listing={}", webPageEntity.getUrl());
             result.add(webPageEntity);
         }
@@ -62,7 +62,7 @@ public class WestrifleFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        ListenableFuture<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
+        Future<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
         return Observable.from(future, Schedulers.io())
                 .map(this::parseDocument)
                 .flatMap(Observable::from)

@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  */
-public class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
+class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesRawProductPageParser.class);
 
     private static final Map<String, String> mapping = new HashMap<>();

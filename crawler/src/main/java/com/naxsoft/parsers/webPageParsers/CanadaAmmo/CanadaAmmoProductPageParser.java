@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class CanadaAmmoProductPageParser extends AbstractWebPageParser {
+class CanadaAmmoProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoProductPageParser.class);
     private final HttpClient client;
 

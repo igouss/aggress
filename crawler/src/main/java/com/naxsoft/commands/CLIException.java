@@ -2,10 +2,8 @@ package com.naxsoft.commands;
 
 /**
  * Copyright NAXSoft 2015
- *
- *
  */
-public class CLIException extends RuntimeException {
+class CLIException extends RuntimeException {
 
     /**
      * Creates a new instance of {@link CLIException}.
@@ -25,5 +23,4 @@ public class CLIException extends RuntimeException {
     public CLIException(String message, Exception cause) {
         super(message, cause);
     }
-
 }

@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class HicalProductParser extends AbstractWebPageParser {
+class HicalProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(HicalProductParser.class);
     private final HttpClient client;
 

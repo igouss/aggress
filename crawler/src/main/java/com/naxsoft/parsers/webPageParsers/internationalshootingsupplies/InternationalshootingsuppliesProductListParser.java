@@ -5,7 +5,6 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,11 +18,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class InternationalshootingsuppliesProductListParser extends AbstractWebPageParser {
+class InternationalshootingsuppliesProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(InternationalshootingsuppliesProductListParser.class);
     private static final Collection<Cookie> cookies;
 
@@ -59,7 +59,7 @@ public class InternationalshootingsuppliesProductListParser extends AbstractWebP
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        ListenableFuture<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
+        Future<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
         return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
     }
 

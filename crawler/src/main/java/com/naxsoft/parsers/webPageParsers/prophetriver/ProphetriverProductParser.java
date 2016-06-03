@@ -12,7 +12,7 @@ import rx.schedulers.Schedulers;
 /**
  * Copyright NAXSoft 2015
  */
-public class ProphetriverProductParser extends AbstractWebPageParser {
+class ProphetriverProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProphetriverProductParser.class);
     private final HttpClient client;
 
