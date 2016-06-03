@@ -5,6 +5,7 @@ import com.naxsoft.entity.WebPageEntity;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
@@ -63,14 +64,19 @@ public class WebPageParserFactory {
      * @param webPageEntity Page to parse
      * @return WebPageParser that if capable of parsing webPageEntity
      */
-    public WebPageParser getParser(WebPageEntity webPageEntity) {
+    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+        WebPageParser parserToUse = null;
         for (WebPageParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
                 LOGGER.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
-                return parser;
+                parserToUse = parser;
+                break;
             }
         }
-        LOGGER.warn("Failed to find a web-page parser for action = {}, url = {}", webPageEntity.getType(), webPageEntity.getUrl());
-        return new NoopParser(client);
+        if (parserToUse == null) {
+            LOGGER.warn("Failed to find a web-page parser for action = {}, url = {}", webPageEntity.getType(), webPageEntity.getUrl());
+            parserToUse = new NoopParser(client);
+        }
+        return parserToUse.parse(webPageEntity);
     }
 }

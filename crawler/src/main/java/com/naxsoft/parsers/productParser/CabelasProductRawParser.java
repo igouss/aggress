@@ -56,38 +56,42 @@ class CabelasProductRawParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        try {
+            HashSet<ProductEntity> result = new HashSet<>();
 
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-        String productName = document.select("h1.product-heading").text();
-        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            String productName = document.select("h1.product-heading").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        ProductEntity product = new ProductEntity();
-        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select("#product-image img").attr("src"));
+            ProductEntity product = new ProductEntity();
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                jsonBuilder.field("productName", productName);
+                jsonBuilder.field("productImage", document.select("#product-image img").attr("src"));
 
-            Elements specialPrice = document.select(".productDetails-secondary .price-secondary");
-            Elements regularPrice = document.select(".productDetails-secondary .price-primary");
-            if (!specialPrice.isEmpty()) {
-                jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
-                jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
-            } else {
-                jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
+                Elements specialPrice = document.select(".productDetails-secondary .price-secondary");
+                Elements regularPrice = document.select(".productDetails-secondary .price-primary");
+                if (!specialPrice.isEmpty()) {
+                    jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
+                    jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
+                } else {
+                    jsonBuilder.field("regularPrice", parsePrice(regularPrice.text()));
+                }
+                jsonBuilder.field("description", document.select(".productDetails-section .row").text());
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setJson(jsonBuilder.string());
             }
-            jsonBuilder.field("description", document.select(".productDetails-section .row").text());
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
+            product.setWebpageId(webPageEntity.getId());
+            result.add(product);
+            return result;
+        } catch (Exception e) {
+            throw new ProductParseException(e);
         }
-        product.setWebpageId(webPageEntity.getId());
-        result.add(product);
-        return result;
     }
 
     /**

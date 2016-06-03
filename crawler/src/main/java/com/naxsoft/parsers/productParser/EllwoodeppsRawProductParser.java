@@ -63,45 +63,49 @@ class EllwoodeppsRawProductParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        try {
+            HashSet<ProductEntity> result = new HashSet<>();
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        if (!document.select(".firearm-links-sold").isEmpty()) {
-            return result;
-        }
-
-        String productName = document.select(".product-name span").text();
-        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-
-        ProductEntity product = new ProductEntity();
-        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", productName);
-
-            jsonBuilder.field("regularPrice", parsePrice(document.select(".price").text()));
-
-            Iterator<Element> labels = document.select("th.label").iterator();
-            Iterator<Element> values = document.select("td.data").iterator();
-
-            while (labels.hasNext()) {
-                String specName = labels.next().text();
-                String specValue = values.next().text();
-                if (!specValue.isEmpty()) {
-                    jsonBuilder.field(specName, specValue);
-                }
+            if (!document.select(".firearm-links-sold").isEmpty()) {
+                return result;
             }
 
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
+            String productName = document.select(".product-name span").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+
+            ProductEntity product = new ProductEntity();
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                jsonBuilder.field("productName", productName);
+
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".price").text()));
+
+                Iterator<Element> labels = document.select("th.label").iterator();
+                Iterator<Element> values = document.select("td.data").iterator();
+
+                while (labels.hasNext()) {
+                    String specName = labels.next().text();
+                    String specValue = values.next().text();
+                    if (!specValue.isEmpty()) {
+                        jsonBuilder.field(specName, specValue);
+                    }
+                }
+
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setJson(jsonBuilder.string());
+            }
+            product.setWebpageId(webPageEntity.getId());
+            result.add(product);
+            return result;
+        } catch (Exception e) {
+            throw new ProductParseException(e);
         }
-        product.setWebpageId(webPageEntity.getId());
-        result.add(product);
-        return result;
     }
 
     /**

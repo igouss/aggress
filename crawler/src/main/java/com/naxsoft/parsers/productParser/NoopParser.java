@@ -3,32 +3,20 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
  */
 class NoopParser extends AbstractRawPageParser {
-    /**
-     *
-     */
-    NoopParser() {
+    @Override
+    public Set<ProductEntity> parse(WebPageEntity webPage) throws ProductParseException {
+        return Collections.emptySet();
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) {
-        return new HashSet<>();
-    }
-
-    /**
-     * @param webPage
-     * @return
-     */
+    @Override
     public boolean canParse(WebPageEntity webPage) {
-        return false;
+        return true;
     }
 }

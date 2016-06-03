@@ -7,7 +7,7 @@ import com.naxsoft.database.Elastic;
 import com.naxsoft.database.Persistent;
 import com.naxsoft.database.ProductService;
 import com.naxsoft.database.WebPageService;
-import com.naxsoft.parsers.productParser.ProductParserFactory;
+import com.naxsoft.parsers.productParser.ProductParserFacade;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.providers.*;
 import dagger.Component;
@@ -41,7 +41,7 @@ public interface ApplicationComponent {
 
     WebPageParserFactory getWebPageParserFactory();
 
-    ProductParserFactory getProductParserFactory();
+    ProductParserFacade getProductParserFactory();
 
     ProductService getProductService();
 

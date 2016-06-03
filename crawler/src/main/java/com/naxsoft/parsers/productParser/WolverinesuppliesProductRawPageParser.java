@@ -78,44 +78,48 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         mapping.put("shotgun ammo", "ammo");
         mapping.put("shotgun ammo -steel", "ammo");
         mapping.put("shotgun ammo -lead", "ammo");
-  }
+    }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
-        Gson gson = new Gson();
-        RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        try {
+            HashSet<ProductEntity> result = new HashSet<>();
+            Gson gson = new Gson();
+            RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
 
-        for (RawProduct rp : rawProducts) {
-            LOGGER.info("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
-            ProductEntity product = new ProductEntity();
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", "https://www.wolverinesupplies.com/ProductDetail/" + rp.ItemNumber);
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                jsonBuilder.field("productName", rp.Title);
-                jsonBuilder.field("productImage", "https://www.wolverinesupplies.com/images/items/Large/" + rp.ImageFile + rp.ImageExtension);
-                jsonBuilder.field("regularPrice", rp.ListPrice);
-                jsonBuilder.field("specialPrice", rp.Price);
-                jsonBuilder.field("unitsAvailable", rp.StockAmount);
-                jsonBuilder.field("description", rp.ExtendedDescription);
-                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+            for (RawProduct rp : rawProducts) {
+                LOGGER.info("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
+                ProductEntity product = new ProductEntity();
+                try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                    jsonBuilder.startObject();
+                    jsonBuilder.field("url", "https://www.wolverinesupplies.com/ProductDetail/" + rp.ItemNumber);
+                    jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                    jsonBuilder.field("productName", rp.Title);
+                    jsonBuilder.field("productImage", "https://www.wolverinesupplies.com/images/items/Large/" + rp.ImageFile + rp.ImageExtension);
+                    jsonBuilder.field("regularPrice", rp.ListPrice);
+                    jsonBuilder.field("specialPrice", rp.Price);
+                    jsonBuilder.field("unitsAvailable", rp.StockAmount);
+                    jsonBuilder.field("description", rp.ExtendedDescription);
+                    jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
 
-                for (int j = 0; j < rp.Attributes.length; ++j) {
-                    jsonBuilder.field(
-                            rp.Attributes[j].AttributeName.toLowerCase(),
-                            rp.Attributes[j].AttributeValue);
+                    for (int j = 0; j < rp.Attributes.length; ++j) {
+                        jsonBuilder.field(
+                                rp.Attributes[j].AttributeName.toLowerCase(),
+                                rp.Attributes[j].AttributeValue);
+                    }
+
+                    jsonBuilder.endObject();
+                    product.setUrl(webPageEntity.getUrl());
+                    product.setJson(jsonBuilder.string());
                 }
-
-                jsonBuilder.endObject();
-                product.setUrl(webPageEntity.getUrl());
-                product.setJson(jsonBuilder.string());
+                product.setWebpageId(webPageEntity.getId());
+                result.add(product);
             }
-            product.setWebpageId(webPageEntity.getId());
-            result.add(product);
-        }
 
-        return result;
+            return result;
+        } catch (Exception e) {
+            throw new ProductParseException(e);
+        }
     }
 
     /**

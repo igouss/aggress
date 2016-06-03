@@ -14,7 +14,7 @@ public interface ProductParser {
      * @return All products on the pahe
      * @throws Exception Parsing exeption
      */
-    Set<ProductEntity> parse(WebPageEntity webPage) throws Exception;
+    Set<ProductEntity> parse(WebPageEntity webPage) throws ProductParseException;
 
     /**
      * @param webPage Can this parser process this page?

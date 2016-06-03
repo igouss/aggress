@@ -38,42 +38,45 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        try {
+            HashSet<ProductEntity> result = new HashSet<>();
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
+            Elements products = document.select("body > p");
 
-        Elements products = document.select("body > p");
-
-        for (Element el : products) {
-            String elText = el.text().trim();
-            elText = elText.replace((char) 160, (char) 32);
-            if (elText.trim().isEmpty() || elText.contains("mainpage") || elText.contains("Main Page.") || elText.trim().equals(",")) {
-                continue;
-            }
-            String productName = elText;
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-
-            ProductEntity product = new ProductEntity();
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                jsonBuilder.field("productName", productName);
-                String price = parsePrice(productName);
-                if (!price.isEmpty()) {
-                    jsonBuilder.field("regularPrice", price);
+            for (Element el : products) {
+                String elText = el.text().trim();
+                elText = elText.replace((char) 160, (char) 32);
+                if (elText.trim().isEmpty() || elText.contains("mainpage") || elText.contains("Main Page.") || elText.trim().equals(",")) {
+                    continue;
                 }
-                jsonBuilder.field("category", webPageEntity.getCategory().split(","));
-                jsonBuilder.endObject();
-                product.setUrl(webPageEntity.getUrl());
-                product.setJson(jsonBuilder.string());
-            }
-            product.setWebpageId(webPageEntity.getId());
-            result.add(product);
+                String productName = elText;
+                LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
+                ProductEntity product = new ProductEntity();
+                try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                    jsonBuilder.startObject();
+                    jsonBuilder.field("url", webPageEntity.getUrl());
+                    jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                    jsonBuilder.field("productName", productName);
+                    String price = parsePrice(productName);
+                    if (!price.isEmpty()) {
+                        jsonBuilder.field("regularPrice", price);
+                    }
+                    jsonBuilder.field("category", webPageEntity.getCategory().split(","));
+                    jsonBuilder.endObject();
+                    product.setUrl(webPageEntity.getUrl());
+                    product.setJson(jsonBuilder.string());
+                }
+                product.setWebpageId(webPageEntity.getId());
+                result.add(product);
+
+            }
+            return result;
+        } catch (Exception e) {
+            throw new ProductParseException(e);
         }
-        return result;
     }
 
     @Override

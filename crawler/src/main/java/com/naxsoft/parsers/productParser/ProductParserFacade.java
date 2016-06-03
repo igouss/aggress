@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -13,11 +14,11 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class ProductParserFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProductParserFactory.class);
+public class ProductParserFacade {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductParserFacade.class);
     private final Set<ProductParser> parsers = new HashSet<>();
 
-    public ProductParserFactory() {
+    public ProductParserFacade() {
         Reflections reflections = new Reflections("com.naxsoft.parsers.productParser");
         Set<Class<? extends ProductParser>> classes = reflections.getSubTypesOf(ProductParser.class);
 
@@ -44,14 +45,19 @@ public class ProductParserFactory {
      * @param webPageEntity page to parse
      * @return Parser capable of parsing the page
      */
-    public ProductParser getParser(WebPageEntity webPageEntity) {
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        ProductParser parserToUse = null;
         for (ProductParser parser : parsers) {
             if (parser.canParse(webPageEntity)) {
                 LOGGER.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
-                return parser;
+                parserToUse = parser;
+                break;
             }
         }
-        LOGGER.warn("Failed to find a document parser for action = {} url = {}", webPageEntity.getType(), webPageEntity.getUrl());
-        return new NoopParser();
+        if (parserToUse == null) {
+            LOGGER.warn("Failed to find a document parser for action = {} url = {}", webPageEntity.getType(), webPageEntity.getUrl());
+            parserToUse = new NoopParser();
+        }
+        return parserToUse.parse(webPageEntity);
     }
 }

@@ -45,30 +45,34 @@ class QuestarRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        try {
+            HashSet<ProductEntity> result = new HashSet<>();
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        String productName = document.select("#main > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td:nth-child(3) > table > tbody > tr:nth-child(1)").text();
-        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            String productName = document.select("#main > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td:nth-child(3) > table > tbody > tr:nth-child(1)").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        ProductEntity product = new ProductEntity();
-        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select("a[rel=lightbox] img").attr("abs:src"));
-            jsonBuilder.field("description", document.select("#main > table > tbody > tr:nth-child(2) > td").text());
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-            jsonBuilder.field("regularPrice", parsePrice(document.select("#main td > span.price").text()));
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
+            ProductEntity product = new ProductEntity();
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                jsonBuilder.field("productName", productName);
+                jsonBuilder.field("productImage", document.select("a[rel=lightbox] img").attr("abs:src"));
+                jsonBuilder.field("description", document.select("#main > table > tbody > tr:nth-child(2) > td").text());
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+                jsonBuilder.field("regularPrice", parsePrice(document.select("#main td > span.price").text()));
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setJson(jsonBuilder.string());
+            }
+            product.setWebpageId(webPageEntity.getId());
+            result.add(product);
+            return result;
+        } catch (Exception e) {
+            throw new ProductParseException(e);
         }
-        product.setWebpageId(webPageEntity.getId());
-        result.add(product);
-        return result;
     }
 
     /**

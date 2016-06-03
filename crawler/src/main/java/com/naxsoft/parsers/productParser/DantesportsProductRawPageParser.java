@@ -9,6 +9,7 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -87,36 +88,40 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
      * @throws Exception
      */
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
         HashSet<ProductEntity> products = new HashSet<>();
         ProductEntity product = new ProductEntity();
-        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+        try {
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-            String productName = document.select(".naitem").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+                Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+                String productName = document.select(".naitem").text();
+                LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-            if (!document.select(".outofstock").isEmpty()) {
-                return products;
+                if (!document.select(".outofstock").isEmpty()) {
+                    return products;
+                }
+
+                jsonBuilder.field("productName", productName);
+                jsonBuilder.field("productImage", document.select(".itemImgDiv img.itemDetailImg").attr("abs:src"));
+
+                String priceText = document.select(".itemDetailPrice").text().replace("\\xEF\\xBF\\xBD", " ");
+                Matcher matcher = Pattern.compile("(\\d+|,+)+\\.\\d\\d").matcher(priceText);
+                if (matcher.find()) {
+                    jsonBuilder.field("regularPrice", matcher.group().replace(",", ""));
+                }
+                jsonBuilder.field("description", document.select(".itemDescription").text());
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setWebpageId(webPageEntity.getId());
+                product.setJson(jsonBuilder.string());
             }
-
-            jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select(".itemImgDiv img.itemDetailImg").attr("abs:src"));
-
-            String priceText = document.select(".itemDetailPrice").text().replace("\\xEF\\xBF\\xBD", " ");
-            Matcher matcher = Pattern.compile("(\\d+|,+)+\\.\\d\\d").matcher(priceText);
-            if (matcher.find()) {
-                jsonBuilder.field("regularPrice", matcher.group().replace(",", ""));
-            }
-            jsonBuilder.field("description", document.select(".itemDescription").text());
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setWebpageId(webPageEntity.getId());
-            product.setJson(jsonBuilder.string());
+        } catch (IOException e) {
+            throw new ProductParseException(e);
         }
         products.add(product);
         return products;

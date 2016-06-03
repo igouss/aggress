@@ -1,13 +1,11 @@
 package com.naxsoft.commands;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import com.lambdaworks.redis.event.EventBus;
 import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.events.WebPageEntityParseEvent;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,15 +81,10 @@ public class CrawlCommand implements Command {
 
                     eventBus.publish(new WebPageEntityParseEvent(pageToParse));
 
-                    WebPageParser parser = webPageParserFactory.getParser(pageToParse);
-                    Timer parseTime = metrics.timer(MetricRegistry.name(parser.getClass(), "parseTime"));
-                    Timer.Context time = parseTime.time();
                     try {
-                        result = parser.parse(pageToParse);
+                        result = webPageParserFactory.parse(pageToParse);
                     } catch (Exception e) {
                         LOGGER.error("Failed to parse source {}", pageToParse.getUrl(), e);
-                    } finally {
-                        time.stop();
                     }
 
                     webPageService.markParsed(pageToParse)

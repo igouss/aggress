@@ -37,41 +37,45 @@ class TheammosourceRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        try {
+            HashSet<ProductEntity> result = new HashSet<>();
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        String productName = document.select("#productListHeading").text();
-        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            String productName = document.select("#productListHeading").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        if (document.select("#productDetailsList > li:nth-child(2)").text().equals("0 Units in Stock")) {
-            return result;
-        }
-
-        ProductEntity product = new ProductEntity();
-        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select("#productMainImage img").attr("abs:src"));
-            jsonBuilder.field("description", document.select("#productDescription").text());
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-            Elements specialPrice = document.select("#productPrices .productSpecialPrice");
-            if (!specialPrice.isEmpty()) {
-                jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices .normalprice").text()));
-                jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
-            } else {
-                jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices #retail").text()));
+            if (document.select("#productDetailsList > li:nth-child(2)").text().equals("0 Units in Stock")) {
+                return result;
             }
 
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
+            ProductEntity product = new ProductEntity();
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                jsonBuilder.field("productName", productName);
+                jsonBuilder.field("productImage", document.select("#productMainImage img").attr("abs:src"));
+                jsonBuilder.field("description", document.select("#productDescription").text());
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+                Elements specialPrice = document.select("#productPrices .productSpecialPrice");
+                if (!specialPrice.isEmpty()) {
+                    jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices .normalprice").text()));
+                    jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
+                } else {
+                    jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices #retail").text()));
+                }
+
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setJson(jsonBuilder.string());
+            }
+            product.setWebpageId(webPageEntity.getId());
+            result.add(product);
+            return result;
+        } catch (Exception e) {
+            throw new ProductParseException(e);
         }
-        product.setWebpageId(webPageEntity.getId());
-        result.add(product);
-        return result;
     }
 
     /**

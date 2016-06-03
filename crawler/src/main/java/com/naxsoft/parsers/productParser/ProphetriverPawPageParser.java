@@ -51,35 +51,39 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        try {
+            HashSet<ProductEntity> result = new HashSet<>();
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
 
-        String productName = document.select(".BlockContent > h2").text();
-        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-        String category = document.select("#ProductBreadcrumb > ul > li:nth-child(2) > a").text();
+            String productName = document.select(".BlockContent > h2").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            String category = document.select("#ProductBreadcrumb > ul > li:nth-child(2) > a").text();
 
-        ProductEntity product = new ProductEntity();
-        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", productName);
-            String img = document.select(".ProductThumbImage img").attr("abs:src");
-            if (!img.contains("DefaultProductImageCustom.jpg")) {
-                jsonBuilder.field("productImage", img);
+            ProductEntity product = new ProductEntity();
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                jsonBuilder.field("productName", productName);
+                String img = document.select(".ProductThumbImage img").attr("abs:src");
+                if (!img.contains("DefaultProductImageCustom.jpg")) {
+                    jsonBuilder.field("productImage", img);
+                }
+                jsonBuilder.field("description", document.select(".ProductDescriptionContainer").text());
+                jsonBuilder.field("regularPrice", parsePrice(document.select(".ProductPrice").text()));
+                jsonBuilder.field("category", getNormalizedCategories(category));
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setJson(jsonBuilder.string());
             }
-            jsonBuilder.field("description", document.select(".ProductDescriptionContainer").text());
-            jsonBuilder.field("regularPrice", parsePrice(document.select(".ProductPrice").text()));
-            jsonBuilder.field("category", getNormalizedCategories(category));
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
+            product.setWebpageId(webPageEntity.getId());
+            result.add(product);
+            return result;
+        } catch (Exception e) {
+            throw new ProductParseException(e);
         }
-        product.setWebpageId(webPageEntity.getId());
-        result.add(product);
-        return result;
     }
 
     /**

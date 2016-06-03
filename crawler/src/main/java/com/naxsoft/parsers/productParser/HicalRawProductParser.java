@@ -59,41 +59,45 @@ class HicalRawProductParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        try {
+            HashSet<ProductEntity> result = new HashSet<>();
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-        String productName = document.select("h2[itemprop='name']").text();
-        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            String productName = document.select("h2[itemprop='name']").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        ProductEntity product = new ProductEntity();
-        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", productName);
+            ProductEntity product = new ProductEntity();
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                jsonBuilder.field("productName", productName);
 
-            String regularPrice = document.select("#ProductDetails div.DetailRow.PriceRow > div.Value > em").text();
-            String specialPrice = document.select("#ProductDetails div.Value > strike").text();
-            if ("".equals(specialPrice)) {
-                jsonBuilder.field("regularPrice", parsePrice(regularPrice));
-            } else {
-                jsonBuilder.field("specialPrice", parsePrice(specialPrice));
-                jsonBuilder.field("regularPrice", parsePrice(regularPrice));
+                String regularPrice = document.select("#ProductDetails div.DetailRow.PriceRow > div.Value > em").text();
+                String specialPrice = document.select("#ProductDetails div.Value > strike").text();
+                if ("".equals(specialPrice)) {
+                    jsonBuilder.field("regularPrice", parsePrice(regularPrice));
+                } else {
+                    jsonBuilder.field("specialPrice", parsePrice(specialPrice));
+                    jsonBuilder.field("regularPrice", parsePrice(regularPrice));
+                }
+                jsonBuilder.field("productImage", document.select("#ProductDetails .ProductThumbImage img").attr("src"));
+                jsonBuilder.field("description", document.select("#ProductDescription").text().trim());
+
+
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setJson(jsonBuilder.string());
             }
-            jsonBuilder.field("productImage", document.select("#ProductDetails .ProductThumbImage img").attr("src"));
-            jsonBuilder.field("description", document.select("#ProductDescription").text().trim());
-
-
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
+            product.setWebpageId(webPageEntity.getId());
+            result.add(product);
+            return result;
+        } catch (Exception e) {
+            throw new ProductParseException(e);
         }
-        product.setWebpageId(webPageEntity.getId());
-        result.add(product);
-        return result;
     }
 
     /**

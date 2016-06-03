@@ -45,57 +45,61 @@ class GunshopRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        try {
+            HashSet<ProductEntity> result = new HashSet<>();
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
 
-        String productName = document.select("h1.entry-title").first().text();
-        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            String productName = document.select("h1.entry-title").first().text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        if (!document.select(".entry-summary .out-of-stock").isEmpty()) {
-            LOGGER.info("Product {} is out of stock. {}", productName, webPageEntity.getUrl());
-            return result;
-        }
-
-        ProductEntity product = new ProductEntity();
-        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-
-            jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select(".wp-post-image").attr("src"));
-
-            String specialPrice = document.select(".entry-summary .price ins span").text();
-            if ("".equals(specialPrice)) {
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".entry-summary .amount").text()));
-            } else {
-                jsonBuilder.field("specialPrice", parsePrice(specialPrice));
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".entry-summary del .amount").text()));
+            if (!document.select(".entry-summary .out-of-stock").isEmpty()) {
+                LOGGER.info("Product {} is out of stock. {}", productName, webPageEntity.getUrl());
+                return result;
             }
 
+            ProductEntity product = new ProductEntity();
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-            jsonBuilder.field("description", document.select("#tab-description").text());
-            for (Element next : document.select("product_meta span")) {
-                String name = next.data();
-                if (!name.equalsIgnoreCase("categories")) {
-                    Elements values = next.select("a");
-                    List<String> tmp = new ArrayList<>();
-                    for (Element e : values) {
-                        tmp.add(e.text());
-                    }
-                    jsonBuilder.field(name, values);
+                jsonBuilder.field("productName", productName);
+                jsonBuilder.field("productImage", document.select(".wp-post-image").attr("src"));
+
+                String specialPrice = document.select(".entry-summary .price ins span").text();
+                if ("".equals(specialPrice)) {
+                    jsonBuilder.field("regularPrice", parsePrice(document.select(".entry-summary .amount").text()));
+                } else {
+                    jsonBuilder.field("specialPrice", parsePrice(specialPrice));
+                    jsonBuilder.field("regularPrice", parsePrice(document.select(".entry-summary del .amount").text()));
                 }
+
+
+                jsonBuilder.field("description", document.select("#tab-description").text());
+                for (Element next : document.select("product_meta span")) {
+                    String name = next.data();
+                    if (!name.equalsIgnoreCase("categories")) {
+                        Elements values = next.select("a");
+                        List<String> tmp = new ArrayList<>();
+                        for (Element e : values) {
+                            tmp.add(e.text());
+                        }
+                        jsonBuilder.field(name, values);
+                    }
+                }
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setJson(jsonBuilder.string());
             }
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
+            product.setWebpageId(webPageEntity.getId());
+            result.add(product);
+            return result;
+        } catch (Exception e) {
+            throw new ProductParseException(e);
         }
-        product.setWebpageId(webPageEntity.getId());
-        result.add(product);
-        return result;
     }
 
     /**

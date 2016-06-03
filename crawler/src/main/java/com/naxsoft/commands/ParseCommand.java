@@ -6,9 +6,8 @@ import com.naxsoft.database.Elastic;
 import com.naxsoft.database.ProductService;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.ProductEntity;
-import com.naxsoft.parsers.productParser.ProductParser;
-import com.naxsoft.parsers.productParser.ProductParserFactory;
-import com.naxsoft.parsers.webPageParsers.WebPageParser;
+import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsers.productParser.ProductParserFacade;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,7 @@ public class ParseCommand implements Command {
     @Inject
     protected Elastic elastic = null;
     @Inject
-    protected ProductParserFactory productParserFactory = null;
+    protected ProductParserFacade productParserFactory = null;
     @Inject
     protected MetricRegistry metrics = null;
     @Inject
@@ -76,18 +75,16 @@ public class ParseCommand implements Command {
      */
     private Observable<ProductEntity> getProductEntityObservable() {
         return webPageService.getUnparsedByType("productPage").flatMap(webPageEntity -> {
-            WebPageParser parser = webPageParserFactory.getParser(webPageEntity);
+            Observable<WebPageEntity> result = webPageParserFactory.parse(webPageEntity);
             webPageService.markParsed(webPageEntity).subscribe();
-            return parser.parse(webPageEntity);
+            return result;
         }).observeOn(Schedulers.computation()).map(pageToParse -> {
             Set<ProductEntity> result = null;
             try {
                 if (VALID_CATEGORIES.contains(pageToParse.getCategory())) {
                     LOGGER.warn("Invalid category: {}", pageToParse);
                 }
-
-                ProductParser parser = productParserFactory.getParser(pageToParse);
-                result = parser.parse(pageToParse);
+                result = productParserFactory.parse(pageToParse);
             } catch (Exception e) {
                 LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
             }

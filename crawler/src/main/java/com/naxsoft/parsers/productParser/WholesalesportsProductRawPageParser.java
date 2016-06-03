@@ -37,46 +37,50 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws Exception {
-        HashSet<ProductEntity> result = new HashSet<>();
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+        try {
+            HashSet<ProductEntity> result = new HashSet<>();
 
-        Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-        String productName = document.select("h1.product-name").text();
-        LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            String productName = document.select("h1.product-name").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-        if (2 == document.select("div.alert.negative").size()) {
-            return result;
-        }
-
-        ProductEntity product = new ProductEntity();
-        try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", webPageEntity.getUrl());
-            jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-            jsonBuilder.field("productName", productName);
-            jsonBuilder.field("productImage", document.select(".productImagePrimaryLink img").attr("abs:src"));
-            jsonBuilder.field("manufacturer", document.select(".product-brand").text());
-            jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-            if (document.select(".new .price-value").isEmpty()) {
-                Elements price = document.select(".current .price-value");
-                if (!price.isEmpty()) {
-                    jsonBuilder.field("regularPrice", parsePrice(price.text()));
-                } else {
-                    price = document.select("div.productDescription span.price-value");
-                    jsonBuilder.field("regularPrice", parsePrice(price.text()));
-                }
-            } else {
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".old .price-value").text()));
-                jsonBuilder.field("specialPrice", parsePrice(document.select(".new .price-value").text()));
+            if (2 == document.select("div.alert.negative").size()) {
+                return result;
             }
-            jsonBuilder.field("description", document.select(".summary").text());
-            jsonBuilder.endObject();
-            product.setUrl(webPageEntity.getUrl());
-            product.setJson(jsonBuilder.string());
+
+            ProductEntity product = new ProductEntity();
+            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", webPageEntity.getUrl());
+                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+                jsonBuilder.field("productName", productName);
+                jsonBuilder.field("productImage", document.select(".productImagePrimaryLink img").attr("abs:src"));
+                jsonBuilder.field("manufacturer", document.select(".product-brand").text());
+                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+                if (document.select(".new .price-value").isEmpty()) {
+                    Elements price = document.select(".current .price-value");
+                    if (!price.isEmpty()) {
+                        jsonBuilder.field("regularPrice", parsePrice(price.text()));
+                    } else {
+                        price = document.select("div.productDescription span.price-value");
+                        jsonBuilder.field("regularPrice", parsePrice(price.text()));
+                    }
+                } else {
+                    jsonBuilder.field("regularPrice", parsePrice(document.select(".old .price-value").text()));
+                    jsonBuilder.field("specialPrice", parsePrice(document.select(".new .price-value").text()));
+                }
+                jsonBuilder.field("description", document.select(".summary").text());
+                jsonBuilder.endObject();
+                product.setUrl(webPageEntity.getUrl());
+                product.setJson(jsonBuilder.string());
+            }
+            product.setWebpageId(webPageEntity.getId());
+            result.add(product);
+            return result;
+        } catch (Exception e) {
+            throw new ProductParseException(e);
         }
-        product.setWebpageId(webPageEntity.getId());
-        result.add(product);
-        return result;
     }
 
     /**

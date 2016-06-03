@@ -1,6 +1,6 @@
 package com.naxsoft.providers;
 
-import com.naxsoft.parsers.productParser.ProductParserFactory;
+import com.naxsoft.parsers.productParser.ProductParserFacade;
 import dagger.Module;
 import dagger.Provides;
 
@@ -15,7 +15,7 @@ public class ProductParserFactoryModule {
     @Provides
     @Singleton
     @NotNull
-    public static ProductParserFactory get() {
-        return new ProductParserFactory();
+    public static ProductParserFacade get() {
+        return new ProductParserFacade();
     }
 }
