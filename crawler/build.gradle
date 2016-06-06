@@ -6,7 +6,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 dependencies {
-    compile 'org.elasticsearch:elasticsearch:2.2.0'
+    compile 'org.elasticsearch:elasticsearch:2.3.3'
     compile 'org.jsoup:jsoup:1.8.3'
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.2.Final'
     compile group: 'org.hibernate', name: 'hibernate-hikaricp', version: '5.0.2.Final'
