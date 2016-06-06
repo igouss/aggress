@@ -53,7 +53,7 @@ dependencies {
 }
 
 sourceSets {
-    main {
+    generated {
         java {
             srcDir 'src/main/generated'
         }
