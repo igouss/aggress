@@ -1,9 +1,7 @@
 description "Agress web crawler project"
-group 'com.naxsoft'
-version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
-apply plugin: 'maven'
+apply plugin: 'idea'
 
 dependencies {
     compile project(":common")
@@ -12,12 +10,12 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.7'
+    gradleVersion = '2.13'
 }
 
 allprojects {
-    group = 'com.naxsoft'
-    version '1.0-SNAPSHOT'
+    group "com.naxsoft"
+    version "1.0-SNAPSHOT"
     sourceCompatibility = 1.8
     repositories {
         mavenCentral()
@@ -30,19 +28,19 @@ allprojects {
     }
 }
 
+idea {
+    project {
+        ipr.withXml { xmlFile ->
+            // enable 'Annotation Processors'
+            xmlFile.asNode().component.find {
+                it.@name == 'CompilerConfiguration'
+            }['annotationProcessing'][0].replaceNode {
+                annotationProcessing {
+                    profile(default: true, name: 'Default', useClasspath: 'true', enabled: true)
+                }
+            }
+        }
+    }
+}
+
 defaultTasks = ['clean', 'build']
-
-configure(install.repositories.mavenInstaller) {
-    pom.project {
-        groupId 'com.naxsoft'
-        artifactId 'aggress-root'
-        version '1.0.0-SNAPSHOT'
-        description = 'Aggress top level project'
-    }
-}
-
-uploadArchives {
-    repositories.mavenDeployer {
-        repository(url: "file:///Users/igoussev/Projects/repo/")
-    }
-}

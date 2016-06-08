@@ -3,7 +3,6 @@ plugins {
 }
 
 apply plugin: 'java'
-apply plugin: 'maven'
 
 project.ext.sourceCompatibility = JavaVersion.VERSION_1_8
 project.ext.targetCompatibility = JavaVersion.VERSION_1_8
@@ -102,13 +101,4 @@ task crawlerjar(type: Jar) << {
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
-}
-
-configure(install.repositories.mavenInstaller) {
-    pom.project {
-        groupId 'com.naxsoft'
-        artifactId 'aggress-crawler'
-        version '1.0.0-SNAPSHOT'
-        description = 'Aggress web crawler'
-    }
 }

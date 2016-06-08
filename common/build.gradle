@@ -1,15 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'maven'
 
 dependencies {
 }
-
-configure(install.repositories.mavenInstaller) {
-    pom.project {
-        groupId 'com.naxsoft'
-        artifactId 'aggress-common'
-        version '1.0.0-SNAPSHOT'
-        description = 'Aggress common code'
-    }
-}
-

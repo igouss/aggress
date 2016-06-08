@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'maven'
 
 dependencies {
     compile 'ch.qos.logback:logback-core:1.1.3'
@@ -38,13 +37,4 @@ task serverjar(type: Jar) {
 task libs(type: Sync) {
     from configurations.runtime
     into "$buildDir/libs"
-}
-
-configure(install.repositories.mavenInstaller) {
-    pom.project {
-        groupId 'com.naxsoft'
-        artifactId 'aggress-frontend'
-        version '1.0.0-SNAPSHOT'
-        description = 'Aggress frontend'
-    }
 }
