@@ -4,8 +4,10 @@ plugins {
 
 apply plugin: 'java'
 
-project.ext.sourceCompatibility = JavaVersion.VERSION_1_8
-project.ext.targetCompatibility = JavaVersion.VERSION_1_8
+ext {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 dependencies {
     compile 'org.elasticsearch:elasticsearch:2.3.3'
@@ -43,9 +45,14 @@ dependencies {
 }
 
 sourceSets {
-    generated {
+    main {
         java {
             srcDir 'src/main/generated'
+        }
+    }
+    test {
+        java {
+            srcDir 'src/main/generated_tests'
         }
     }
 }
