@@ -78,18 +78,21 @@ public class ParseCommand implements Command {
             Observable<WebPageEntity> result = webPageParserFactory.parse(webPageEntity);
             webPageService.markParsed(webPageEntity).subscribe();
             return result;
-        }).observeOn(Schedulers.computation()).map(pageToParse -> {
-            Set<ProductEntity> result = null;
-            try {
-                if (VALID_CATEGORIES.contains(pageToParse.getCategory())) {
-                    LOGGER.warn("Invalid category: {}", pageToParse);
-                }
-                result = productParserFactory.parse(pageToParse);
-            } catch (Exception e) {
-                LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
-            }
-            return result;
-        }).filter(webPageEntities -> null != webPageEntities)
+        }).observeOn(Schedulers.computation())
+                .filter(pageToParse -> pageToParse != null)
+                .doOnNext(pageToParse -> {
+                    if (!VALID_CATEGORIES.contains(pageToParse.getCategory())) {
+                        LOGGER.warn("Invalid category: {}", pageToParse);
+                    }
+                }).map(pageToParse -> {
+                    Set<ProductEntity> result = null;
+                    try {
+                        result = productParserFactory.parse(pageToParse);
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
+                    }
+                    return result;
+                }).filter(webPageEntities -> null != webPageEntities)
                 .flatMap(Observable::from);
     }
 
