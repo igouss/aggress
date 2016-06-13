@@ -11,7 +11,7 @@ public class TestAppProperties extends AbstractTest {
     @Test
     public void canReadProperties() {
         try {
-            Assert.assertTrue(!AppProperties.getProperty("canadiangunnutzLogin").isEmpty());
+            Assert.assertTrue(!AppProperties.getProperty("canadiangunnutzLogin").getValue().isEmpty());
         } catch (PropertyNotFoundException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception");

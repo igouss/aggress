@@ -41,7 +41,7 @@ public class RedisDatabase implements Persistent {
     private StatefulRedisConnection<String, String> connection;
 
     public RedisDatabase() throws PropertyNotFoundException {
-        this(AppProperties.getProperty("redisHost"), Integer.parseInt(AppProperties.getProperty("redisPort")));
+        this(AppProperties.getProperty("redisHost").getValue(), Integer.parseInt(AppProperties.getProperty("redisPort").getValue()));
     }
 
     private RedisDatabase(String host, int port) {
