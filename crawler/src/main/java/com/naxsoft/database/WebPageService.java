@@ -1,11 +1,13 @@
 package com.naxsoft.database;
 
+import com.github.davidmoten.rx.slf4j.Logging;
 import com.naxsoft.entity.WebPageEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.concurrent.TimeUnit;
+
 
 /**
  *
@@ -54,8 +56,10 @@ public class WebPageService {
      * @see <a href="http://blog.danlew.net/2016/01/25/rxjavas-repeatwhen-and-retrywhen-explained/">RxJava's repeatWhen and retryWhen, explained</a>
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
-        return database.getUnparsedCount(type).doOnNext(count -> LOGGER.info("getUnparsedCount {} = {}", type, count))
+        return database.getUnparsedCount(type)
+                .lift(Logging.<Long>logger("WebPageService::getUnparsedByType").onNextFormat(type + "=%d").log())
                 .repeatWhen(observable -> observable.delay(10, TimeUnit.SECONDS)) // Poll for data periodically using repeatWhen + delay
-                .takeWhile(val -> val != 0).flatMap(count -> database.getUnparsedByType(type, count));
+                .takeWhile(val -> val != 0)
+                .flatMap(count -> database.getUnparsedByType(type, count));
     }
 }
