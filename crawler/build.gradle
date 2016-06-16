@@ -1,13 +1,27 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
+        // classpath 'org.codehaus.groovy:groovy-backports-compat23:2.3.5' // uncomment if you're using Gradle 1.x
+    }
+}
+
 plugins {
     id "net.ltgt.apt" version "0.6"
 }
 
 apply plugin: 'java'
+apply plugin: 'com.github.ben-manes.versions' // gradle dependencyUpdates
+
 
 ext {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
+
 
 dependencies {
     compile 'org.elasticsearch:elasticsearch:2.3.3'
@@ -42,7 +56,7 @@ dependencies {
     compile 'biz.paluch.redis:lettuce:4.1.2.Final'
     compile 'org.apache.kafka:kafka-clients:0.9.0.0'
     compile 'com.github.davidmoten:rxjava-slf4j:0.6.2' // https://github.com/davidmoten/rxjava-slf4j
-    compile 'com.github.davidmoten:rxjava-extras:0.7.9.1' // https://github.com/davidmoten/rxjava-extras
+    compile 'com.github.davidmoten:rxjava-extras:0.7.9.5' // https://github.com/davidmoten/rxjava-extras
     apt 'com.google.dagger:dagger-compiler:2.2'
 }
 
