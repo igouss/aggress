@@ -72,7 +72,8 @@ public class Elastic implements AutoCloseable, Cloneable {
      */
     public void close() {
         if (null != client) {
-            this.client.close();
+            client.close();
+            client = null;
         }
     }
 
