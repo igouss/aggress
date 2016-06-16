@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -139,7 +140,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             LOGGER.info("Creating index {} type {} from {}", newIndexName, type, resourceName);
 
             String indexContent = null;
-            indexContent = IOUtils.toString(resourceAsStream);
+            indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
             String url = "http://127.0.0.1:9200/" + newIndexName;
             return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
         } catch (Exception e) {
@@ -165,7 +166,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             String newIndexName = index + indexSuffix;
             LOGGER.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
 
-            String indexContent = IOUtils.toString(resourceAsStream);
+            String indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
             String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
 
             return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());

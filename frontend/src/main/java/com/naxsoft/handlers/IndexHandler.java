@@ -6,7 +6,6 @@ import io.undertow.util.Headers;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -37,7 +36,7 @@ public class IndexHandler extends AbstractHTTPRequestHandler {
         if (context.isInvalidateTemplateCache()) {
             templateEngine.clearTemplateCacheFor(REGULAR_NAME);
         }
-        HashMap<String, String> variables = new HashMap<>();
+        HashMap<String, Object> variables = new HashMap<>();
         Context context = new Context(Locale.getDefault(), variables);
         String result = templateEngine.process(REGULAR_NAME, context);
 

@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -110,7 +111,7 @@ public class WebPageEntity {
         GZIPInputStream zi = null;
         try {
             zi = new GZIPInputStream(new ByteArrayInputStream(bytes));
-            return IOUtils.toString(zi);
+            return IOUtils.toString(zi, Charset.forName("UTF-8"));
         } finally {
             IOUtils.closeQuietly(zi);
         }

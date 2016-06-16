@@ -29,7 +29,7 @@ import javax.inject.Singleton;
 public class RedisDatabase implements Persistent {
     private final static Logger LOGGER = LoggerFactory.getLogger(RedisDatabase.class);
     private static final Long BATCH_SIZE = 20L;
-
+    ClientResources res;
 
     @Inject
     ProductEntityEncoder productEntityEncoder;
@@ -45,8 +45,8 @@ public class RedisDatabase implements Persistent {
     }
 
     private RedisDatabase(String host, int port) {
-        ClientResources res = new DefaultClientResources
-                .Builder()
+        res = DefaultClientResources
+                .builder()
                 .commandLatencyCollectorOptions(DefaultCommandLatencyCollectorOptions.create())
                 .build();
         redisClient = RedisClient.create(res, RedisURI.Builder.redis(host, port).build());
@@ -70,8 +70,9 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public void close() {
-        connection.close();
         redisClient.shutdown();
+        connection.close();
+        res.shutdown();
     }
 
     @Override

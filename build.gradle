@@ -1,7 +1,7 @@
 description "Agress web crawler project"
 
-apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'java'
 
 dependencies {
     compile project(":common")
@@ -16,7 +16,6 @@ task wrapper(type: Wrapper) {
 allprojects {
     group "com.naxsoft"
     version "1.0-SNAPSHOT"
-    sourceCompatibility = 1.8
     repositories {
         mavenCentral()
         maven {
