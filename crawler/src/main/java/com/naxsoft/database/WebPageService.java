@@ -42,7 +42,7 @@ public class WebPageService {
      * @return The number of entities updated.
      */
     public Observable<Integer> markParsed(WebPageEntity webPageEntity) {
-        LOGGER.info("Marking {} {} as parsed", webPageEntity.getType(), webPageEntity.getUrl());
+        LOGGER.debug("Marking {} {} as parsed", webPageEntity.getType(), webPageEntity.getUrl());
         return database.markWebPageAsParsed(webPageEntity);
     }
 
@@ -57,7 +57,7 @@ public class WebPageService {
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         return database.getUnparsedCount(type)
-                .lift(Logging.<Long>logger("WebPageService::getUnparsedByType").onNextFormat(type + "=%d").log())
+                .lift(Logging.<Long>logger("WebPageService::getUnparsedByType").onNextFormat(type + "=%s").log())
                 .repeatWhen(observable -> observable.delay(10, TimeUnit.SECONDS)) // Poll for data periodically using repeatWhen + delay
                 .takeWhile(val -> val != 0)
                 .flatMap(count -> database.getUnparsedByType(type, count));
