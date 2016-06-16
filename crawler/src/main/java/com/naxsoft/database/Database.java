@@ -2,12 +2,16 @@ package com.naxsoft.database;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import org.hibernate.*;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -91,7 +95,7 @@ public class Database implements Persistent {
             Long count = 0L;
             String queryString = "select count (id) from WebPageEntity as w where w.parsed = false and w.type = :type";
             Query query = session.createQuery(queryString);
-            query.setString("type", type);
+            query.setParameter("type", type);
             count = (Long) query.list().get(0);
             return count;
         });
@@ -105,7 +109,7 @@ public class Database implements Persistent {
         }
         return executeTransaction(session -> {
             Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
-            query.setLong("id", webPageEntity.getId());
+            query.setParameter("id", webPageEntity.getId());
             return query.executeUpdate();
         });
     }
@@ -247,5 +251,3 @@ public class Database implements Persistent {
                 ScrollableResults::close);
     }
 }
-
-

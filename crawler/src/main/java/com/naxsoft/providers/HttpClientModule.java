@@ -26,8 +26,8 @@ public class HttpClientModule {
     public static HttpClient get() {
         HttpClient httpClient;
 
-        SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
         try {
+            SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
             SslContext sslContext = sslContextBuilder.build();
             httpClient = new AhcHttpClient(sslContext);
         } catch (SSLException e) {

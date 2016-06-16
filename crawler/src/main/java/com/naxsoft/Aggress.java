@@ -8,6 +8,8 @@ import joptsimple.OptionSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 import static java.lang.System.out;
 import static java.lang.System.setProperty;
 
@@ -120,13 +122,16 @@ public class Aggress {
         } catch (Exception e) {
             LOGGER.error("Application failure", e);
         } finally {
-            if (null != elasticReporter) {
-                elasticReporter.stop();
+            try {
+                if (null != elasticReporter) {
+                    elasticReporter.stop();
+                }
+                applicationComponent.getDatabase().close();
+                applicationComponent.getElastic().close();
+                applicationComponent.getHttpClient().close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            applicationComponent.getDatabase().close();
-            applicationComponent.getElastic().close();
-            applicationComponent.getHttpClient().close();
         }
     }
-
 }
