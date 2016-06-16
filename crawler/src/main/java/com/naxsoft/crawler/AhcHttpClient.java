@@ -33,6 +33,7 @@ public class AhcHttpClient implements HttpClient {
                 .setSslContext(sslContext)
                 .setMaxRequestRetry(10)
                 .setAcceptAnyCertificate(true)
+                .setProxyServerSelector(new TorProxySelector())
                 .addIOExceptionFilter(new ResumableIOExceptionFilter())
                 .addRequestFilter(new ThrottleRequestFilter(MAX_CONNECTIONS))
                 .build();
@@ -44,7 +45,7 @@ public class AhcHttpClient implements HttpClient {
      *
      * @param url     Page address
      * @param handler Completion handler
-     * @param <R> Type of the value that will be returned by the associated Future
+     * @param <R>     Type of the value that will be returned by the associated Future
      * @return a Future of type T
      */
 
@@ -59,7 +60,7 @@ public class AhcHttpClient implements HttpClient {
      * @param url     Page address
      * @param cookies Request cookies
      * @param handler Completion handler
-     * @param <R> Type of the value that will be returned by the associated Future
+     * @param <R>     Type of the value that will be returned by the associated Future
      * @return a Future of type T
      */
     @Override
@@ -74,7 +75,7 @@ public class AhcHttpClient implements HttpClient {
      * @param cookies        Request cookies
      * @param handler        Completion handler
      * @param followRedirect Follow HTTP redirects
-     * @param <R> Type of the value that will be returned by the associated Future
+     * @param <R>            Type of the value that will be returned by the associated Future
      * @return a Future of type T
      */
     @Override
@@ -93,7 +94,7 @@ public class AhcHttpClient implements HttpClient {
      * @param url     Page address
      * @param content Content to send in a POST request
      * @param handler Completion handler
-     * @param <R> Type of the value that will be returned by the associated Future
+     * @param <R>     Type of the value that will be returned by the associated Future
      * @return a Future of type T
      */
     @Override
@@ -108,7 +109,7 @@ public class AhcHttpClient implements HttpClient {
      * @param content Content to send in a POST request
      * @param cookies Request cookies
      * @param handler Completion handler
-     * @param <R> Type of the value that will be returned by the associated Future
+     * @param <R>     Type of the value that will be returned by the associated Future
      * @return a Future of type T
      */
     @Override
@@ -126,10 +127,10 @@ public class AhcHttpClient implements HttpClient {
      * Execute HTTP POST operation
      *
      * @param url            Page address
-     * @param formParameters HTTP Form paramaters
+     * @param formParameters HTTP Form parameters
      * @param cookies        Request cookies
      * @param handler        Completion handler
-     * @param <R> Type of the value that will be returned by the associated Future
+     * @param <R>            Type of the value that will be returned by the associated Future
      * @return a Future of type T
      */
     @Override
@@ -144,7 +145,6 @@ public class AhcHttpClient implements HttpClient {
         for (Map.Entry<String, String> e : entries) {
             requestBuilder.addFormParam(e.getKey(), e.getValue());
         }
-
         return asyncHttpClient.executeRequest(request, handler);
     }
 
