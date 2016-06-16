@@ -1,6 +1,6 @@
 package com.naxsoft.crawler;
 
-import com.ning.http.client.AsyncCompletionHandler;
+import org.asynchttpclient.AsyncCompletionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

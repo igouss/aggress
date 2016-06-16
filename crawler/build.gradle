@@ -30,7 +30,7 @@ dependencies {
     compile 'org.apache.commons:commons-collections4:4.1'
     compile 'com.google.code.gson:gson:2.7'
     compile 'commons-io:commons-io:2.5'
-    compile 'com.ning:async-http-client:1.9.38'
+    compile 'org.asynchttpclient:async-http-client:2.0.6'
     compile 'org.glassfish.grizzly:grizzly-websockets:2.3.25'
     compile 'junit:junit:4.12'
     compile 'org.jooq:jooq:3.8.2'
@@ -47,18 +47,6 @@ dependencies {
     apt 'com.google.dagger:dagger-compiler:2.5'
 }
 
-sourceSets {
-    main {
-        java {
-            srcDir 'src/main/generated'
-        }
-    }
-    test {
-        java {
-            srcDir 'src/main/generated_tests'
-        }
-    }
-}
 
 test {
     testLogging.showStandardStreams = true;

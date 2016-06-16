@@ -3,7 +3,8 @@ package com.naxsoft.parsers.webPageParsers;
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
-import com.ning.http.client.cookie.Cookie;
+import org.asynchttpclient.Response;
+import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class PageDownloader {
     public static Future<WebPageEntity> download(HttpClient client, List<Cookie> cookies, WebPageEntity parent) {
         return client.get(parent.getUrl(), cookies, new AbstractCompletionHandler<WebPageEntity>() {
             @Override
-            public WebPageEntity onCompleted(com.ning.http.client.Response response) throws Exception {
+            public WebPageEntity onCompleted(Response response) throws Exception {
                 WebPageEntity result = null;
                 if (200 == response.getStatusCode()) {
                     WebPageEntity webPageEntity = new WebPageEntity(0L, response.getResponseBody(), "productPageRaw", false, response.getUri().toUrl(), parent.getCategory());

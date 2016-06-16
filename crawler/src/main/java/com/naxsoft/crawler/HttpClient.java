@@ -1,7 +1,8 @@
 package com.naxsoft.crawler;
 
-import com.ning.http.client.AsyncCompletionHandler;
-import com.ning.http.client.cookie.Cookie;
+
+import org.asynchttpclient.AsyncCompletionHandler;
+import org.asynchttpclient.cookie.Cookie;
 
 import java.util.Collection;
 import java.util.Map;
@@ -84,5 +85,5 @@ public interface HttpClient extends AutoCloseable {
     /**
      * Close HTTP client
      */
-    void close();
+    void close() throws java.io.IOException;
 }

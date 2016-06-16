@@ -1,8 +1,9 @@
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.crawler.AbstractCompletionHandler;
-import com.ning.http.client.AsyncCompletionHandler;
-import com.ning.http.client.cookie.Cookie;
+import org.asynchttpclient.AsyncCompletionHandler;
+import org.asynchttpclient.Response;
+import org.asynchttpclient.cookie.Cookie;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public abstract class AbstractWebPageParser implements WebPageParser {
      */
     private final static AsyncCompletionHandler<List<Cookie>> COOKIE_HANDLER = new AbstractCompletionHandler<List<Cookie>>() {
         @Override
-        public List<Cookie> onCompleted(com.ning.http.client.Response response) throws Exception {
+        public List<Cookie> onCompleted(Response response) throws Exception {
             return response.getCookies();
         }
     };

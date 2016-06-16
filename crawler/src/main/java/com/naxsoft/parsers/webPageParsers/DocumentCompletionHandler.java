@@ -2,7 +2,7 @@ package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
-import com.ning.http.client.Response;
+import org.asynchttpclient.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
