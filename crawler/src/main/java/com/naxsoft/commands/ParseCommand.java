@@ -81,7 +81,7 @@ public class ParseCommand implements Command {
         }).observeOn(Schedulers.computation())
                 .filter(pageToParse -> pageToParse != null)
                 .doOnNext(pageToParse -> {
-                    if (!VALID_CATEGORIES.contains(pageToParse.getCategory())) {
+                    if (!VALID_CATEGORIES.contains(pageToParse.getCategory().toLowerCase())) {
                         LOGGER.warn("Invalid category: {}", pageToParse);
                     }
                 }).map(pageToParse -> {
