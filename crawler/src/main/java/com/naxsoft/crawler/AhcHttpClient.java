@@ -1,10 +1,13 @@
 package com.naxsoft.crawler;
 
+import com.naxsoft.utils.AppProperties;
+import com.naxsoft.utils.PropertyNotFoundException;
 import io.netty.handler.ssl.SslContext;
 import org.asynchttpclient.*;
 import org.asynchttpclient.cookie.Cookie;
 import org.asynchttpclient.filter.ThrottleRequestFilter;
 import org.asynchttpclient.handler.resumable.ResumableIOExceptionFilter;
+import org.asynchttpclient.proxy.ProxyServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +29,22 @@ public class AhcHttpClient implements HttpClient {
     private final static int MAX_CONNECTIONS = 3;
 
     private final AsyncHttpClient asyncHttpClient;
+    private ProxyServer proxyServer = null;
 
     public AhcHttpClient(SslContext sslContext) {
+        try {
+            String proxyHost = AppProperties.getProperty("proxy.host").getValue();
+            int proxyPort = Integer.parseInt(AppProperties.getProperty("proxy.port").getValue());
+            proxyServer = new ProxyServer.Builder(proxyHost, proxyPort).build();
+            LOGGER.info("Proxy: {}:{}", proxyServer.getHost(), proxyServer.getPort());
+        } catch (PropertyNotFoundException ignore) {
+            LOGGER.info("Proxy: no proxy");
+        }
         AsyncHttpClientConfig asyncHttpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setAcceptAnyCertificate(true)
                 .setSslContext(sslContext)
                 .setMaxRequestRetry(10)
                 .setAcceptAnyCertificate(true)
-                .setProxyServerSelector(new TorProxySelector())
                 .addIOExceptionFilter(new ResumableIOExceptionFilter())
                 .addRequestFilter(new ThrottleRequestFilter(MAX_CONNECTIONS))
                 .build();
@@ -84,8 +95,13 @@ public class AhcHttpClient implements HttpClient {
         BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirect(followRedirect);
+        requestBuilder.setProxyServer(getProxyServer());
         Request request = requestBuilder.build();
         return asyncHttpClient.executeRequest(request, handler);
+    }
+
+    private ProxyServer getProxyServer() {
+        return proxyServer;
     }
 
     /**
@@ -119,6 +135,8 @@ public class AhcHttpClient implements HttpClient {
         requestBuilder.setCookies(cookies);
         requestBuilder.setBody(content);
         requestBuilder.setFollowRedirect(true);
+        requestBuilder.setProxyServer(getProxyServer());
+
         Request request = requestBuilder.build();
         return asyncHttpClient.executeRequest(request, handler);
     }
@@ -139,6 +157,8 @@ public class AhcHttpClient implements HttpClient {
         BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirect(true);
+        requestBuilder.setProxyServer(getProxyServer());
+
         Request request = requestBuilder.build();
 
         Set<Map.Entry<String, String>> entries = formParameters.entrySet();
