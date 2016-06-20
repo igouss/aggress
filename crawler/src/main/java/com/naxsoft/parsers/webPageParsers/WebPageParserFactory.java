@@ -44,7 +44,7 @@ public class WebPageParserFactory {
         for (Class<? extends WebPageParser> clazz : classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
-                    LOGGER.info("Instantiating {}", clazz.getName());
+                    LOGGER.debug("Instantiating {}", clazz.getName());
 
                     Constructor<? extends WebPageParser> constructor = clazz.getDeclaredConstructor(asyncFetchClient);
                     constructor.setAccessible(true);
