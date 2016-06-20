@@ -83,26 +83,24 @@ public class CrawlCommand implements Command {
 
                     try {
                         result = webPageParserFactory.parse(pageToParse);
+                        webPageService.markParsed(pageToParse)
+                                .subscribe(value -> {
+                                    LOGGER.debug("Page parsed {}", value);
+                                }, error -> {
+                                    LOGGER.error("Failed to make page as parsed", error);
+                                });
                     } catch (Exception e) {
                         LOGGER.error("Failed to parse source {}", pageToParse.getUrl(), e);
                     }
-
-                    webPageService.markParsed(pageToParse)
-                            .subscribe(value -> {
-                                LOGGER.debug("Page parsed {}", value);
-                            }, error -> {
-                                LOGGER.error("Failed to make page as parsed", error);
-                            });
 
                     return result;
                 });
 
         parsedWebPageEntries
                 .filter(webPageEntities -> null != webPageEntities)
-                .flatMap(webPageService::save)
+                .retry()
                 .subscribe(
-                        result -> {
-                        },
+                        webPageService::save,
                         ex -> {
                             LOGGER.error("Crawler Process Exception", ex);
                         },

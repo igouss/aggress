@@ -1,7 +1,6 @@
 package com.naxsoft.crawler;
 
 
-import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.cookie.Cookie;
 
 import java.util.Collection;
@@ -20,9 +19,9 @@ public interface HttpClient extends AutoCloseable {
      * @param url     Page address
      * @param handler Completion handler
      * @param <R>     resource type returned by Completion handler
-     * @return
+     * @return a Future of type R
      */
-    <R> Future<R> get(String url, AsyncCompletionHandler<R> handler);
+    <R> Future<R> get(String url, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP GET request
@@ -31,9 +30,9 @@ public interface HttpClient extends AutoCloseable {
      * @param cookies Request cookies
      * @param handler Completion handler
      * @param <R>     result of an asynchronous computation.
-     * @return
+     * @return a Future of type R
      */
-    <R> Future<R> get(String url, Collection<Cookie> cookies, AsyncCompletionHandler<R> handler);
+    <R> Future<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP GET request
@@ -43,9 +42,9 @@ public interface HttpClient extends AutoCloseable {
      * @param handler        Completion handler
      * @param followRedirect Follow HTTP redirects
      * @param <R>            result of an asynchronous computation.
-     * @return
+     * @return a Future of type R
      */
-    <R> Future<R> get(String url, Collection<Cookie> cookies, AsyncCompletionHandler<R> handler, boolean followRedirect);
+    <R> Future<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect);
 
     /**
      * Perform an HTTP POST request
@@ -54,9 +53,9 @@ public interface HttpClient extends AutoCloseable {
      * @param content Content to send in a POST request
      * @param handler Completion handler
      * @param <R>     result of an asynchronous computation.
-     * @return
+     * @return a Future of type R
      */
-    <R> Future<R> post(String url, String content, AsyncCompletionHandler<R> handler);
+    <R> Future<R> post(String url, String content, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP POST request
@@ -66,9 +65,9 @@ public interface HttpClient extends AutoCloseable {
      * @param cookies Request cookies
      * @param handler Completion handler
      * @param <R>     result of an asynchronous computation.
-     * @return
+     * @return a Future of type R
      */
-    <R> Future<R> post(String url, String content, Collection<Cookie> cookies, AsyncCompletionHandler<R> handler);
+    <R> Future<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP POST request
@@ -78,9 +77,9 @@ public interface HttpClient extends AutoCloseable {
      * @param cookies        Request cookies
      * @param handler        Completion handler
      * @param <R>            result of an asynchronous computation.
-     * @return
+     * @return a Future of type R
      */
-    <R> Future<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AsyncCompletionHandler<R> handler);
+    <R> Future<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
 
     /**
      * Close HTTP client

@@ -1,13 +1,10 @@
 package com.naxsoft.crawler;
 
-import com.naxsoft.utils.AppProperties;
-import com.naxsoft.utils.PropertyNotFoundException;
 import io.netty.handler.ssl.SslContext;
 import org.asynchttpclient.*;
 import org.asynchttpclient.cookie.Cookie;
 import org.asynchttpclient.filter.ThrottleRequestFilter;
 import org.asynchttpclient.handler.resumable.ResumableIOExceptionFilter;
-import org.asynchttpclient.proxy.ProxyServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,17 +26,12 @@ public class AhcHttpClient implements HttpClient {
     private final static int MAX_CONNECTIONS = 3;
 
     private final AsyncHttpClient asyncHttpClient;
-    private ProxyServer proxyServer = null;
+
+    private final ProxyManager proxyManager;
 
     public AhcHttpClient(SslContext sslContext) {
-        try {
-            String proxyHost = AppProperties.getProperty("proxy.host").getValue();
-            int proxyPort = Integer.parseInt(AppProperties.getProperty("proxy.port").getValue());
-            proxyServer = new ProxyServer.Builder(proxyHost, proxyPort).build();
-            LOGGER.info("Proxy: {}:{}", proxyServer.getHost(), proxyServer.getPort());
-        } catch (PropertyNotFoundException ignore) {
-            LOGGER.info("Proxy: no proxy");
-        }
+        proxyManager = new ProxyManager();
+
         AsyncHttpClientConfig asyncHttpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setAcceptAnyCertificate(true)
                 .setSslContext(sslContext)
@@ -61,7 +53,7 @@ public class AhcHttpClient implements HttpClient {
      */
 
     @Override
-    public <R> Future<R> get(String url, AsyncCompletionHandler<R> handler) {
+    public <R> Future<R> get(String url, AbstractCompletionHandler<R> handler) {
         return get(url, Collections.emptyList(), handler);
     }
 
@@ -75,7 +67,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Future<R> get(String url, Collection<Cookie> cookies, AsyncCompletionHandler<R> handler) {
+    public <R> Future<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         return get(url, cookies, handler, true);
     }
 
@@ -90,19 +82,19 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Future<R> get(String url, Collection<Cookie> cookies, AsyncCompletionHandler<R> handler, boolean followRedirect) {
+    public <R> Future<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
         LOGGER.debug("Starting async http GET request url = {}", url);
         BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirect(followRedirect);
-        requestBuilder.setProxyServer(getProxyServer());
+        requestBuilder.setProxyServer(proxyManager.getProxyServer());
         Request request = requestBuilder.build();
+
+        handler.setProxyManager(proxyManager);
+
         return asyncHttpClient.executeRequest(request, handler);
     }
 
-    private ProxyServer getProxyServer() {
-        return proxyServer;
-    }
 
     /**
      * Execute HTTP POST operation
@@ -114,7 +106,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Future<R> post(String url, String content, AsyncCompletionHandler<R> handler) {
+    public <R> Future<R> post(String url, String content, AbstractCompletionHandler<R> handler) {
         return post(url, content, Collections.emptyList(), handler);
     }
 
@@ -129,15 +121,17 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Future<R> post(String url, String content, Collection<Cookie> cookies, AsyncCompletionHandler<R> handler) {
+    public <R> Future<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setCookies(cookies);
         requestBuilder.setBody(content);
         requestBuilder.setFollowRedirect(true);
-        requestBuilder.setProxyServer(getProxyServer());
-
+        requestBuilder.setProxyServer(proxyManager.getProxyServer());
         Request request = requestBuilder.build();
+
+        handler.setProxyManager(proxyManager);
+
         return asyncHttpClient.executeRequest(request, handler);
     }
 
@@ -152,14 +146,16 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Future<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AsyncCompletionHandler<R> handler) {
+    public <R> Future<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirect(true);
-        requestBuilder.setProxyServer(getProxyServer());
+        requestBuilder.setProxyServer(proxyManager.getProxyServer());
 
         Request request = requestBuilder.build();
+
+        handler.setProxyManager(proxyManager);
 
         Set<Map.Entry<String, String>> entries = formParameters.entrySet();
         for (Map.Entry<String, String> e : entries) {
