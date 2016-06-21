@@ -5,7 +5,6 @@ import com.naxsoft.utils.PropertyNotFoundException;
 import org.asynchttpclient.proxy.ProxyServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.ArrayList;
 
@@ -21,14 +20,14 @@ class ProxyManager {
             int proxyPort = Integer.parseInt(AppProperties.getProperty("proxy.port").getValue());
             proxyServers.add(new ProxyServer.Builder(proxyHost, proxyPort).build());
         } catch (PropertyNotFoundException e) {
-            throw new InvalidStateException("unable to find procies");
+            LOGGER.warn("unable to find proxy");
         }
     }
 
     synchronized ProxyServer getProxyServer() {
         ProxyServer result = null;
         if (proxyServers.isEmpty()) {
-            LOGGER.info("No proxy");
+            LOGGER.info("no proxy");
         } else {
             result = proxyServers.get(current++);
             if (current >= proxyServers.size()) {
