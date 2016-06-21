@@ -48,6 +48,11 @@ dependencies {
     apt 'com.google.dagger:dagger-compiler:2.5'
 }
 
+javadoc {
+    options {
+        windowTitle = "Aggress Crawler Javadoc ${project.version}"
+    }
+}
 
 test {
     testLogging.showStandardStreams = true;
