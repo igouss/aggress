@@ -71,7 +71,6 @@ public class RedisDatabase implements Persistent {
     @Override
     public void close() {
         redisClient.shutdown();
-        connection.close();
         res.shutdown();
     }
 
