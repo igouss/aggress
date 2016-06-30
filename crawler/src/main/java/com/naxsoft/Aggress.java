@@ -1,5 +1,6 @@
 package com.naxsoft;
 
+import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
 import com.naxsoft.commands.*;
@@ -121,6 +122,7 @@ public class Aggress {
                 applicationComponent.getDatabase().close();
                 applicationComponent.getElastic().close();
                 applicationComponent.getHttpClient().close();
+                ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
             } catch (Exception e) {
                 e.printStackTrace();
             }
