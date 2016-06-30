@@ -1,5 +1,9 @@
 package com.naxsoft.parsers.webPageParsers;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.FileAppender;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import org.reflections.Reflections;
@@ -45,6 +49,21 @@ public class WebPageParserFactory {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
                     LOGGER.debug("Instantiating {}", clazz.getName());
+
+                    ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz);
+                    FileAppender<ILoggingEvent> vendor = new FileAppender<>();
+                    vendor.setAppend(true);
+                    vendor.setFile("logs/" + clazz.getName() + ".log");
+                    vendor.setName(clazz.getName());
+                    vendor.setContext(logger.getLoggerContext());
+                    PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+                    encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
+                    encoder.setContext(logger.getLoggerContext());
+                    encoder.start();
+                    vendor.setEncoder(encoder);
+                    vendor.start();
+                    logger.setLevel(Level.ALL);
+                    logger.addAppender(vendor);
 
                     Constructor<? extends WebPageParser> constructor = clazz.getDeclaredConstructor(asyncFetchClient);
                     constructor.setAccessible(true);
