@@ -32,19 +32,20 @@ public class ProductParserFacade {
                     LOGGER.info("Instantiating {}", clazz.getName());
 
                     ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz);
-                    FileAppender<ILoggingEvent> vendor = new FileAppender<>();
-                    vendor.setAppend(true);
-                    vendor.setFile("logs/" + clazz.getName() + ".log");
-                    vendor.setName(clazz.getName());
-                    vendor.setContext(logger.getLoggerContext());
+                    FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
+                    fileAppender.setAppend(true);
+                    fileAppender.setFile("logs/" + clazz.getName() + ".log");
+                    fileAppender.setName(clazz.getName());
+                    fileAppender.setContext(logger.getLoggerContext());
                     PatternLayoutEncoder encoder = new PatternLayoutEncoder();
                     encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
                     encoder.setContext(logger.getLoggerContext());
+                    encoder.setImmediateFlush(false);
                     encoder.start();
-                    vendor.setEncoder(encoder);
-                    vendor.start();
+                    fileAppender.setEncoder(encoder);
                     logger.setLevel(Level.ALL);
-                    logger.addAppender(vendor);
+
+                    logger.addAppender(fileAppender);
 
 
                     Constructor<? extends ProductParser> constructor = clazz.getDeclaredConstructor();
