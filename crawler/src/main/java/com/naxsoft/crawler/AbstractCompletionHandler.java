@@ -31,6 +31,7 @@ public abstract class AbstractCompletionHandler<R> extends AsyncCompletionHandle
 
     private void handleProxyFailure(Throwable t) {
         String message = t.getMessage(); // Connection refused: no further information: /127.0.0.1:8080
+        LOGGER.error(message);
         Pattern p = Pattern.compile("/(.+):");
         Matcher m = p.matcher(message);
         if (m.find()) {
