@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="false" scan="false" scanPeriod="30 seconds" packagingData="true">
+<configuration debug="false" scan="false" scanPeriod="30 seconds" packagingData="false">
+    <contextName>com.naxsoft.aggress</contextName>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <!-- encoders are assigned the type
-             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <root level="debug">
-        <appender-ref ref="STDOUT"/>
-    </root>
-
     <logger name="com.lambdaworks.redis" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
     <logger name="org.asynchttpclient" level="INFO"/>
     <logger name="org.elasticsearch" level="INFO"/>
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+    </root>
 </configuration>
