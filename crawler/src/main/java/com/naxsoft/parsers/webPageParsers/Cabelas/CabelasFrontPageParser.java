@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.Cabelas;
+package com.naxsoft.parsers.webPageParsers.cabelas;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;

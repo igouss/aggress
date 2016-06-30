@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.CanadaAmmo;
+package com.naxsoft.parsers.webPageParsers.canadaAmmo;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;

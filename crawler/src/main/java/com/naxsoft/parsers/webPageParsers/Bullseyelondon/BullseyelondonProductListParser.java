@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.Bullseyelondon;
+package com.naxsoft.parsers.webPageParsers.bullseyelondon;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
