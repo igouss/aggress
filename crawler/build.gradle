@@ -75,12 +75,6 @@ test.onlyIf {
     System.properties['crawler.test'] == 'true'
 }
 
-task copyLibs(type: Copy, dependsOn: clean) << {
-    description = "Copy dependency files to build directory"
-    into "build"
-    from configurations.compile
-}
-
 task buildscriptDependencies << {
     description = "Print project's dependencies"
     buildscript.configurations.classpath.each { println it }
@@ -106,3 +100,12 @@ task crawlerjar(type: Jar) << {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+
+task copyLibs(type: Copy) {
+    group = 'Publishing'
+    description = 'Create 23.zip distribution archive'
+    from configurations.compile
+    into "$buildDir/dist"
+}
+

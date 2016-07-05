@@ -1,0 +1,104 @@
+version: '2'
+volumes:
+  crawler_volume:
+  web_volume:
+  elasticsearch_volume:
+  redis_volume:
+
+networks:
+  intranet:
+  front-tier:
+    driver: bridge
+
+
+
+services:
+  frontend:
+    labels:
+        com.naxsoft.frontend.description: "Web interface"
+    container_name: aggress-frontend
+    build: aggress
+    image: aggress:latest
+    ports:
+      - "80:80"
+    links:
+      - elasticsearch
+    volumes:
+      - web_volume:/opt/project
+    depends_on:
+      - elasticsearch
+    env_file:
+      - common.env
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: 100
+    networks:
+      - intranet
+      - front-tier
+
+  crawler:
+    labels:
+        com.naxsoft.crawler.description: "Web crawler and indexer"
+    container_name: aggress-crawler
+    build: crawler
+    image: crawler:latest
+    links:
+      - elasticsearch
+      - redis:database
+    volumes:
+      - crawler_volume:/opt/project
+    depends_on:
+      - elasticsearch
+      - redis
+    env_file:
+      - common.env
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: 100
+    networks:
+      - intranet
+
+  elasticsearch:
+    labels:
+        com.naxsoft.elasticsearch.description: "Search engine"
+    container_name: aggress-elasticsearch
+    build: elasticsearch
+    image: crawler:latest
+    volumes:
+      - elasticsearch_volume:/opt/project
+      ./elasticsearch/config:/usr/share/elasticsearch/config
+    env_file:
+      - common.env
+    expose:
+     - "9200"
+     - "9300"
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: 100
+    networks:
+      - intranet
+
+  redis:
+    labels:
+        com.naxsoft.redis.description: "Data storage server"
+    container_name: aggress-redis
+    build: redis
+    volumes:
+      - redis_volume:/opt/project
+    expose:
+      - "6379"
+    env_file:
+      - common.env
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: 100
+    networks:
+      - intranet
