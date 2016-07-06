@@ -88,6 +88,7 @@ services:
     labels:
         com.naxsoft.redis.description: "Data storage server"
     container_name: aggress-redis
+    command: redis-server --appendonly yes
     build: redis
     volumes:
       - redis_volume:/opt/project

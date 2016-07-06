@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import static java.lang.System.out;
 import static java.lang.System.setProperty;
 
-public class Aggress {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Aggress.class);
+public class Crawler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
 
 
     /**
@@ -23,7 +23,7 @@ public class Aggress {
      * @param args Command line arguments
      */
     public static void main(String[] args) {
-        Aggress aggress = new Aggress();
+        Crawler aggress = new Crawler();
         aggress.start(args);
     }
 
@@ -42,7 +42,7 @@ public class Aggress {
     }
 
     private static void showHelp() {
-        out.println("com.naxsoft.Aggress [-populate] [-clean] [-crawl] [-parse] [-createESIndex] [-createESMappings]");
+        out.println("com.naxsoft.Crawler [-populate] [-clean] [-crawl] [-parse] [-createESIndex] [-createESMappings]");
     }
 
     public void start(String[] args) {

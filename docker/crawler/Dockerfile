@@ -1,14 +1,22 @@
-FROM java:8-jre
+# Crawler
+#
+# VERSION               0.0.1
+# HEALTHCHECK healthcheck.sh
+
+FROM java:8-jre-alpine
+MAINTAINER Iouri Goussev
+
 ENV PROJECT_ROOT .
 ENV APP_DIR /opt/aggress
-RUN mkdir $APP_DIR
+ENV LOG_DIR $APP_DIR/logs
+
+RUN groupadd -r aggress && useradd -r -g aggress crawler
+USER crawler
+
+RUN mkdir $APP_DIR $LOG_DIR
+VOLUME ["$LOG_DIR"]
 WORKDIR $APP_DIR
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		ca-certificates \
-		wget \
-	&& rm -rf /var/lib/apt/lists/*
-
+COPY ["dist", "$APP_DIR"]
 # grab gosu for easy step-down from root
 ENV GOSU_VERSION 1.7
 RUN set -x \
@@ -21,11 +29,6 @@ RUN set -x \
 	&& chmod +x /usr/local/bin/gosu \
 	&& gosu nobody true
 
-# add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
-RUN groupadd -r redis && useradd -r -g redis redis
+ENTRYPOINT ["/run.sh"]
+CMD ["java"]
 
-ADD $PROJECT_ROOT/run.sh $APP_DIR/run.sh
-ADD $PROJECT_ROOT/run.sh $APP_DIR/run.sh
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["elasticsearch"]

@@ -37,6 +37,8 @@ public class AppProperties {
         String property = PROPERTIES.getProperty(key);
         if (null == property) {
             throw new PropertyNotFoundException("Unable to find property: " + key);
+        } else if (property.startsWith("$")) {
+            property = System.getenv(key.substring(1));
         }
         return new Property<>(property);
     }
