@@ -70,7 +70,6 @@ services:
     image: crawler:latest
     volumes:
       - elasticsearch_volume:/opt/project
-      ./elasticsearch/config:/usr/share/elasticsearch/config
     env_file:
       - common.env
     expose:
