@@ -20,7 +20,9 @@ public class Rx {
                     element.getFileName(),
                     element.getLineNumber());
 
-            throw new OnErrorNotImplementedException(msg, throwable);
+            new Thread(() -> {
+                throw new OnErrorNotImplementedException(msg, throwable);
+            }).start();
         };
     }
 }
