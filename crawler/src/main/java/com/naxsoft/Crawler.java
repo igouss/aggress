@@ -15,7 +15,6 @@ import static java.lang.System.setProperty;
 public class Crawler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
 
-
     /**
      * Crawler application.
      * Walks websites, parses product pages and sends the result to elasticsearch.
@@ -23,6 +22,9 @@ public class Crawler {
      * @param args Command line arguments
      */
     public static void main(String[] args) {
+        setProperty("jsse.enableSNIExtension", "false");
+        setProperty("jdk.tls.trustNameService", "true");
+
         Crawler aggress = new Crawler();
         aggress.start(args);
     }
@@ -46,71 +48,39 @@ public class Crawler {
     }
 
     public void start(String[] args) {
-//        Factory<Database> dbProvider = DatabaseModule_GetFactory.create(new PersistentModule());
-//        Factory<HttpClient> clientProvider = HttpClientModule_GetFactory.create(new HttpClientModule());
-//        Aggress_MembersInjector.create(dbProvider, clientProvider).injectMembers(this);
         ApplicationComponent applicationComponent = DaggerApplicationComponent.create();
 
-
         final ScheduledReporter elasticReporter = Slf4jReporter.forRegistry(applicationComponent.getMetricRegistry()).outputTo(LOGGER).build();
-        final OptionSet options = parseCommandLineArguments(args);
-
-
-        if (!options.hasOptions() || options.has("help")) {
-            showHelp();
-            return;
-        }
-
-//            elasticReporter = ElasticsearchReporter.forRegistry(metrics)
-//                    .hosts("localhost:9300")
-//                    .build();
-//            elasticReporter.start(1, TimeUnit.SECONDS);
-
 
         try {
-            setProperty("jsse.enableSNIExtension", "false");
-            setProperty("jdk.tls.trustNameService", "true");
+            final OptionSet options = parseCommandLineArguments(args);
+            if (!options.hasOptions() || options.has("help")) {
+                showHelp();
+                return;
+            }
 
             if (options.has("createESIndex")) {
-                Command command = new CreateESIndexCommand();
-                command.setUp(applicationComponent);
-                command.start();
-                command.tearDown();
+                createESIndex(applicationComponent);
             }
 
             if (options.has("createESMappings")) {
-                Command command = new CreateESMappingCommand();
-                command.setUp(applicationComponent);
-                command.start();
-                command.tearDown();
+                createESMappings(applicationComponent);
             }
 
             if (options.has("clean")) {
-                Command cleanDBCommand = new CleanDBCommand();
-                cleanDBCommand.setUp(applicationComponent);
-                cleanDBCommand.start();
-                cleanDBCommand.tearDown();
+                cleanDb(applicationComponent);
             }
 
             if (options.has("populate")) {
-                Command populateDBCommand = new PopulateDBCommand();
-                populateDBCommand.setUp(applicationComponent);
-                populateDBCommand.start();
-                populateDBCommand.tearDown();
+                populateDb(applicationComponent);
             }
 
             if (options.has("crawl")) {
-                Command crawlCommand = new CrawlCommand();
-                crawlCommand.setUp(applicationComponent);
-                crawlCommand.start();
-                crawlCommand.tearDown();
+                crawl(applicationComponent);
             }
 
             if (options.has("parse")) {
-                Command parseCommand = new ParseCommand();
-                parseCommand.setUp(applicationComponent);
-                parseCommand.start();
-                parseCommand.tearDown();
+                parse(applicationComponent);
             }
         } catch (Exception e) {
             LOGGER.error("Application failure", e);
@@ -127,5 +97,77 @@ public class Crawler {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Parse HTML pages stored in database in send them to elasticsearch for indexing
+     *
+     * @param applicationComponent
+     */
+    private void parse(ApplicationComponent applicationComponent) {
+        Command parseCommand = new ParseCommand();
+        parseCommand.setUp(applicationComponent);
+        parseCommand.start();
+        parseCommand.tearDown();
+    }
+
+    /**
+     * Crawl websites for products and store product pages in database
+     *
+     * @param applicationComponent
+     */
+    private void crawl(ApplicationComponent applicationComponent) {
+        Command crawlCommand = new CrawlCommand();
+        crawlCommand.setUp(applicationComponent);
+        crawlCommand.start();
+        crawlCommand.tearDown();
+    }
+
+    /**
+     * Populate database with initial dataset
+     *
+     * @param applicationComponent
+     */
+    private void populateDb(ApplicationComponent applicationComponent) {
+        Command populateDBCommand = new PopulateDBCommand();
+        populateDBCommand.setUp(applicationComponent);
+        populateDBCommand.start();
+        populateDBCommand.tearDown();
+    }
+
+    /**
+     * Clean-up database from stale data
+     *
+     * @param applicationComponent
+     */
+    private void cleanDb(ApplicationComponent applicationComponent) {
+        Command cleanDBCommand = new CleanDBCommand();
+        cleanDBCommand.setUp(applicationComponent);
+        cleanDBCommand.start();
+        cleanDBCommand.tearDown();
+    }
+
+    /**
+     * Prepare Elasticsearch mapping
+     *
+     * @param applicationComponent
+     */
+    private void createESMappings(ApplicationComponent applicationComponent) {
+        Command command = new CreateESMappingCommand();
+        command.setUp(applicationComponent);
+        command.start();
+        command.tearDown();
+    }
+
+    /**
+     * Create elasticsearch index
+     *
+     * @param applicationComponent
+     */
+    private void createESIndex(ApplicationComponent applicationComponent) {
+        Command command = new CreateESIndexCommand();
+        command.setUp(applicationComponent);
+        command.start();
+        command.tearDown();
     }
 }
