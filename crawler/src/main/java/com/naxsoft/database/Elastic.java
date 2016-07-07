@@ -51,7 +51,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             this.client.addTransportAddress(new InetSocketTransportAddress(java.net.InetAddress.getByName(hostname), port));
 
             while (true) {
-                LOGGER.info("Waiting for elastic to connect to a node...");
+                LOGGER.info("Waiting for elastic to connect to a node {}:{}...", hostname, port);
                 int connectedNodes = this.client.connectedNodes().size();
                 if (0 != connectedNodes) {
                     LOGGER.info("Connection established");

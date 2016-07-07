@@ -11,41 +11,41 @@ ext {
 }
 
 dependencies {
-    compile 'org.elasticsearch:elasticsearch:2.3.3'
-    compile 'org.jsoup:jsoup:1.9.2'
-    compile 'org.hibernate:hibernate-core:5.2.0.Final'
-    compile 'org.hibernate:hibernate-hikaricp:5.2.0.Final'
-    compile 'org.hibernate:hibernate-ehcache:5.2.0.Final'
-    compile 'org.hibernate:hibernate-validator:5.2.0.Final'
-    compile 'ch.qos.logback:logback-core:1.1.7'
-    compile 'ch.qos.logback:logback-classic:1.1.7'
-    compile 'org.glassfish.web:el-impl:2.2.1-b05'
-    compile 'org.postgresql:postgresql:9.4.1208'
-    compile 'com.impossibl.pgjdbc-ng:pgjdbc-ng:0.6'
-    compile 'com.internetitem:logback-elasticsearch-appender:1.2'
-    compile 'io.reactivex:rxjava:1.1.6'
-    compile 'org.reflections:reflections:0.9.10'
-    compile 'io.dropwizard.metrics:metrics-core:3.1.2'
-    compile 'org.elasticsearch:metrics-elasticsearch-reporter:2.2.0'
-    compile 'org.apache.commons:commons-collections4:4.1'
-    compile 'com.google.code.gson:gson:2.7'
-    compile 'commons-io:commons-io:2.5'
-    compile 'org.asynchttpclient:async-http-client:2.0.9'
-    compile 'org.glassfish.grizzly:grizzly-websockets:2.3.25'
-    compile 'junit:junit:4.12'
-    compile 'org.jooq:jooq:3.8.2'
-    compile 'io.vertx:vertx-core:3.3.0'
-    compile 'com.h2database:h2:1.4.192'
-    compile 'net.sf.jopt-simple:jopt-simple:5.0.2'
-    compile 'com.google.dagger:dagger:2.5'
+    compile "org.elasticsearch:elasticsearch:2.3.3"
+    compile "org.jsoup:jsoup:1.9.2"
+    compile "org.hibernate:hibernate-core:5.2.0.Final"
+    compile "org.hibernate:hibernate-hikaricp:5.2.0.Final"
+    compile "org.hibernate:hibernate-ehcache:5.2.0.Final"
+    compile "org.hibernate:hibernate-validator:5.2.0.Final"
+    compile "ch.qos.logback:logback-core:1.1.7"
+    compile "ch.qos.logback:logback-classic:1.1.7"
+    compile "org.glassfish.web:el-impl:2.2.1-b05"
+    compile "org.postgresql:postgresql:9.4.1208"
+    compile "com.impossibl.pgjdbc-ng:pgjdbc-ng:0.6"
+    compile "com.internetitem:logback-elasticsearch-appender:1.2"
+    compile "io.reactivex:rxjava:1.1.6"
+    compile "org.reflections:reflections:0.9.10"
+    compile "io.dropwizard.metrics:metrics-core:3.1.2"
+    compile "org.elasticsearch:metrics-elasticsearch-reporter:2.2.0"
+    compile "org.apache.commons:commons-collections4:4.1"
+    compile "com.google.code.gson:gson:2.7"
+    compile "commons-io:commons-io:2.5"
+    compile "org.asynchttpclient:async-http-client:2.0.9"
+    compile "org.glassfish.grizzly:grizzly-websockets:2.3.25"
+    compile "junit:junit:4.12"
+    compile "org.jooq:jooq:3.8.2"
+    compile "io.vertx:vertx-core:3.3.0"
+    compile "com.h2database:h2:1.4.192"
+    compile "net.sf.jopt-simple:jopt-simple:5.0.2"
+    compile "com.google.dagger:dagger:2.5"
     compile "net.ltgt.gradle:gradle-apt-plugin:0.6"
-    compile 'com.google.dagger:dagger-compiler:2.5'
-    compile 'biz.paluch.redis:lettuce:4.2.1.Final'
-    compile 'org.apache.commons:commons-pool2:2.4.2'
-    compile 'org.apache.kafka:kafka-clients:0.10.0.0'
-    compile 'com.github.davidmoten:rxjava-slf4j:0.6.2' // https://github.com/davidmoten/rxjava-slf4j
-    compile 'com.github.davidmoten:rxjava-extras:0.7.9.9' // https://github.com/davidmoten/rxjava-extras
-    apt 'com.google.dagger:dagger-compiler:2.5'
+    compile "com.google.dagger:dagger-compiler:2.5"
+    compile "biz.paluch.redis:lettuce:4.2.1.Final"
+    compile "org.apache.commons:commons-pool2:2.4.2"
+    compile "org.apache.kafka:kafka-clients:0.10.0.0"
+    compile "com.github.davidmoten:rxjava-slf4j:0.6.2" // https://github.com/davidmoten/rxjava-slf4j
+    compile "com.github.davidmoten:rxjava-extras:0.7.9.9" // https://github.com/davidmoten/rxjava-extras
+    apt "com.google.dagger:dagger-compiler:2.5"
 }
 
 javadoc {
@@ -61,51 +61,24 @@ test {
     testLogging.showExceptions = true;
     maxParallelForks = 5
     forkEvery = 50
-    include '**/Test*.*'
+    include "**/Test*.*"
 //    useTestNG()
 }
 
 task integrationTest(type: Test, dependsOn: "test") << {
-    include '**/IntegrationTest*.*'
+    include "**/IntegrationTest*.*"
 }
 
 
 test.onlyIf {
-    description = 'gradle -Dcrawler.test=true'
-    System.properties['crawler.test'] == 'true'
+    description = "gradle -Dcrawler.test=true"
+    System.properties["crawler.test"] == "true"
 }
-
-task buildscriptDependencies << {
-    description = "Print project's dependencies"
-    buildscript.configurations.classpath.each { println it }
-}
-
-task crawler(type:JavaExec) {
-    description = "Run crawler"
-    main = "com.naxsoft.Aggress"
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-task crawlerjar(type: Jar) << {
-    description = "Generate project jar file"
-    manifest {
-        attributes 'Implementation-Title': 'com.naxsoft.Aggress crawler',
-                'Implementation-Version': version,
-                'Built-By': System.getProperty('user.name'),
-                'Built-Date': new Date(),
-                'Built-JDK': System.getProperty('java.version'),
-                'Main-Class': 'com.naxsoft.Aggress'
-    }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
-
 
 task copyLibs(type: Copy) {
-    group = 'Publishing'
-    description = 'Create 23.zip distribution archive'
+    group = "Publishing"
+    description = "Copy app and all dependencies to build/libs"
     from configurations.compile
     into "$buildDir/libs"
+    dependsOn jar
 }
-

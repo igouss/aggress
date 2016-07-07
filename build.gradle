@@ -1,7 +1,7 @@
 description "Agress web crawler project"
 
-apply plugin: 'idea'
-apply plugin: 'java'
+apply plugin: "idea"
+apply plugin: "java"
 
 dependencies {
     compile project(":common")
@@ -10,7 +10,7 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.13'
+    gradleVersion = "2.13"
 }
 
 allprojects {
@@ -32,4 +32,4 @@ allprojects {
     }
 }
 
-defaultTasks = ['clean', 'build']
+defaultTasks = ["clean", "build"]

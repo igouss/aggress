@@ -14,9 +14,8 @@ services:
   frontend:
     labels:
         com.naxsoft.frontend.description: "Web interface"
-    container_name: aggress-frontend
+    container_name: frontend
     build: frontend
-    image: aggress:latest
     ports:
       - "80:80"
     links:
@@ -34,9 +33,8 @@ services:
   crawler:
     labels:
         com.naxsoft.crawler.description: "Web crawler and indexer"
-    container_name: aggress-crawler
+    container_name: crawler
     build: crawler
-    image: crawler:latest
     links:
       - elasticsearch
       - redis:database
@@ -53,9 +51,8 @@ services:
   elasticsearch:
     labels:
         com.naxsoft.elasticsearch.description: "Search engine"
-    container_name: aggress-elasticsearch
+    container_name: elasticsearch
     build: elasticsearch
-    image: crawler:latest
     volumes:
       - elasticsearch_volume:/opt/project
     env_file:
@@ -69,7 +66,7 @@ services:
   redis:
     labels:
         com.naxsoft.redis.description: "Data storage server"
-    container_name: aggress-redis
+    container_name: redis
     command: redis-server --appendonly yes
     build: redis
     volumes:
@@ -80,3 +77,4 @@ services:
       - common.env
     networks:
       - intranet
+

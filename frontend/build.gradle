@@ -10,16 +10,16 @@ ext {
 }
 
 dependencies {
-    compile 'ch.qos.logback:logback-core:1.1.7'
-    compile 'ch.qos.logback:logback-classic:1.1.7'
-    compile 'junit:junit:4.12'
-    compile 'org.elasticsearch:elasticsearch:2.3.3'
-    compile 'com.vividsolutions:jts:1.13'
+    compile "ch.qos.logback:logback-core:1.1.7"
+    compile "ch.qos.logback:logback-classic:1.1.7"
+    compile "junit:junit:4.12"
+    compile "org.elasticsearch:elasticsearch:2.3.3"
+    compile "com.vividsolutions:jts:1.13"
 
-    compile 'io.undertow:undertow-core:1.3.22.Final'
-    compile 'io.undertow:undertow-websockets-jsr:1.3.22.Final'
-    compile 'org.thymeleaf:thymeleaf:3.0.0.RELEASE'
-    compile 'io.vertx:vertx-core:3.3.0'
+    compile "io.undertow:undertow-core:1.3.22.Final"
+    compile "io.undertow:undertow-websockets-jsr:1.3.22.Final"
+    compile "org.thymeleaf:thymeleaf:3.0.0.RELEASE"
+    compile "io.vertx:vertx-core:3.3.0"
 }
 
 task frontend(type:JavaExec) {
@@ -28,21 +28,10 @@ task frontend(type:JavaExec) {
    classpath = sourceSets.main.runtimeClasspath
 }
 
-task serverjar(type: Jar) {
-    manifest {
-        attributes 'Implementation-Title': 'Aggress server',
-                'Implementation-Version': version,
-                'Built-By': System.getProperty('user.name'),
-                'Built-Date': new Date(),
-                'Built-JDK': System.getProperty('java.version'),
-                'Main-Class': 'com.naxsoft.Server'
-    }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
-
-task libs(type: Sync) {
-    from configurations.runtime
+task copyLibs(type: Copy) {
+    group = "Publishing"
+    description = "Copy app and all dependencies to build/libs"
+    from configurations.compile
     into "$buildDir/libs"
+    dependsOn jar
 }
