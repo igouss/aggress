@@ -106,6 +106,6 @@ task copyLibs(type: Copy) {
     group = 'Publishing'
     description = 'Create 23.zip distribution archive'
     from configurations.compile
-    into "$buildDir/dist"
+    into "$buildDir/libs"
 }
 

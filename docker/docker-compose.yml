@@ -10,14 +10,12 @@ networks:
   front-tier:
     driver: bridge
 
-
-
 services:
   frontend:
     labels:
         com.naxsoft.frontend.description: "Web interface"
     container_name: aggress-frontend
-    build: aggress
+    build: frontend
     image: aggress:latest
     ports:
       - "80:80"
@@ -29,11 +27,6 @@ services:
       - elasticsearch
     env_file:
       - common.env
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: 100
     networks:
       - intranet
       - front-tier
@@ -54,11 +47,6 @@ services:
       - redis
     env_file:
       - common.env
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: 100
     networks:
       - intranet
 
@@ -75,11 +63,6 @@ services:
     expose:
      - "9200"
      - "9300"
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: 100
     networks:
       - intranet
 
@@ -95,10 +78,5 @@ services:
       - "6379"
     env_file:
       - common.env
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: 100
     networks:
       - intranet

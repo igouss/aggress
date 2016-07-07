@@ -1,6 +1,8 @@
 package com.naxsoft.providers;
 
 import com.naxsoft.database.Elastic;
+import com.naxsoft.utils.AppProperties;
+import com.naxsoft.utils.PropertyNotFoundException;
 import dagger.Module;
 import dagger.Provides;
 import org.slf4j.Logger;
@@ -24,10 +26,12 @@ public class ElasticModule {
 
         Elastic elastic = new Elastic();
         try {
-            elastic.connect("localhost", 9300);
+            elastic.connect(AppProperties.getProperty("elasticHost").getValue(), Integer.parseInt(AppProperties.getProperty("elasticPort").getValue()));
             return elastic;
         } catch (UnknownHostException e) {
             LOGGER.error("Failed to connect to elastic search", e);
+        } catch (PropertyNotFoundException e) {
+            LOGGER.error("Failed to load elasticProperty: " + e.getMessage(), e);
         }
         return null;
     }
