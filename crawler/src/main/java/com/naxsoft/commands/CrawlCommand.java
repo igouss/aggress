@@ -1,11 +1,9 @@
 package com.naxsoft.commands;
 
 import com.codahale.metrics.MetricRegistry;
-import com.lambdaworks.redis.event.EventBus;
 import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.events.WebPageEntityParseEvent;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +30,12 @@ public class CrawlCommand implements Command {
 
     @Inject
     MetricRegistry metrics = null;
-    private EventBus eventBus;
 
     @Override
     public void setUp(ApplicationComponent applicationComponent) throws CLIException {
         webPageService = applicationComponent.getWebPageService();
         webPageParserFactory = applicationComponent.getWebPageParserFactory();
         metrics = applicationComponent.getMetricRegistry();
-        eventBus = applicationComponent.getEventBus();
     }
 
     @Override
@@ -67,47 +63,31 @@ public class CrawlCommand implements Command {
     }
 
     /**
-     * Process the stream of unparsed webpages. Processed web pages are saved into the database.
+     * Process the stream of unparsed webpages. Processed web pages are saved into the
+     * database and the page is marked as parsed
      *
      * @param pagesToParse Stream of webpages to process
      */
     private void process(Observable<WebPageEntity> pagesToParse) {
         Semaphore processCompleteSemaphore = new Semaphore(0);
 
-        Observable<WebPageEntity> parsedWebPageEntries = pagesToParse
+        pagesToParse
                 .observeOn(Schedulers.computation())
-                .flatMap(pageToParse -> {
-                    Observable<WebPageEntity> result = null;
-
-                    eventBus.publish(new WebPageEntityParseEvent(pageToParse));
-
-                    try {
-                        result = webPageParserFactory.parse(pageToParse);
-                        webPageService.markParsed(pageToParse)
-                                .subscribe(value -> {
-                                    LOGGER.debug("Page parsed {}", value);
-                                }, error -> {
-                                    LOGGER.error("Failed to make page as parsed", error);
-                                });
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to parse source {}", pageToParse.getUrl(), e);
-                    }
-
-                    return result;
+                .subscribe(pageToParse -> {
+                    webPageParserFactory.parse(pageToParse)
+                            .doOnNext(parseResult -> {
+                                // Successfully parsed
+                                if (parseResult != null) {
+                                    webPageService.markParsed(pageToParse);
+                                } else {
+                                    LOGGER.warn("Parser was unable to find anything on {}", pageToParse);
+                                }
+                            })
+                            .filter(parseResult -> null != parseResult)
+                            .flatMap(webPageService::save)
+                            .retry()
+                            .subscribe(res -> LOGGER.info("Save {}", res), ex -> LOGGER.error("Crawler Process Exception", ex), processCompleteSemaphore::release);
                 });
-
-        parsedWebPageEntries
-                .filter(webPageEntities -> null != webPageEntities)
-                .flatMap(webPageService::save)
-                .retry()
-                .subscribe(res -> LOGGER.info("Save {}", res)
-                        ,
-                        ex -> {
-                            LOGGER.error("Crawler Process Exception", ex);
-                        },
-                        processCompleteSemaphore::release
-                );
-
         try {
             processCompleteSemaphore.acquire();
         } catch (InterruptedException e) {
