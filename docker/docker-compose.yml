@@ -58,8 +58,14 @@ services:
     command: redis-server --appendonly yes
     build: redis
     volumes:
-      - redis_volume:/opt/project
+      - redis_volume:/data
     expose:
       - "6379"
     env_file:
       - common.env
+
+  redis-cli:
+    image: redis:latest
+    links:
+      - redis
+    command: redis-cli -h redis
