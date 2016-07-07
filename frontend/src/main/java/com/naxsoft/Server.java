@@ -59,8 +59,8 @@ public class Server {
         sessionAttachmentHandler.setNext(pathHandler);
 
         Undertow server = Undertow.builder()
-                .addHttpListener(8080, "localhost")
-                .addHttpListener(8090, "localhost")
+                .addHttpListener(8080, "0.0.0.0")
+                .addHttpListener(8090, "0.0.0.0")
                 .setHandler(pathHandler) // new SimpleErrorPageHandler().setNext
                 .build();
         try {

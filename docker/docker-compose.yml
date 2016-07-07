@@ -5,11 +5,6 @@ volumes:
   elasticsearch_volume:
   redis_volume:
 
-networks:
-  intranet:
-  front-tier:
-    driver: bridge
-
 services:
   frontend:
     labels:
@@ -26,9 +21,6 @@ services:
       - elasticsearch
     env_file:
       - common.env
-    networks:
-      - intranet
-      - front-tier
 
   crawler:
     labels:
@@ -45,8 +37,6 @@ services:
       - redis
     env_file:
       - common.env
-    networks:
-      - intranet
 
   elasticsearch:
     labels:
@@ -60,8 +50,6 @@ services:
     expose:
      - "9200"
      - "9300"
-    networks:
-      - intranet
 
   redis:
     labels:
@@ -75,6 +63,3 @@ services:
       - "6379"
     env_file:
       - common.env
-    networks:
-      - intranet
-
