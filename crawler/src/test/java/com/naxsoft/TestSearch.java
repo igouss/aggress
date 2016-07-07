@@ -7,7 +7,6 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -31,8 +30,25 @@ public class TestSearch {
             "specialPrice",
             "productName",
     };
-    final Elastic elastic = new Elastic();
+    private final Elastic elastic = new Elastic();
     private final String indexSuffix = "";
+
+    private static String searchResultToJson(SearchResponse searchResponse) {
+        SearchHit[] searchHits = searchResponse.getHits().getHits();
+        StringBuilder builder = new StringBuilder();
+        int length = searchHits.length;
+        builder.append("[");
+        for (int i = 0; i < length; i++) {
+            if (i == length - 1) {
+                builder.append(searchHits[i].getSourceAsString());
+            } else {
+                builder.append(searchHits[i].getSourceAsString());
+                builder.append(",");
+            }
+        }
+        builder.append("]");
+        return builder.toString();
+    }
 
     @Before
     public void before() throws Throwable {
@@ -46,7 +62,6 @@ public class TestSearch {
 
     @Test
     public void should_return_one() throws Exception {
-        Generator generator = new Generator();
         ArrayList<ProductEntity> data = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
             data.add(Generator.generate("product " + i, "description " + i, "category " + i, "http://site/product" + i));
@@ -63,7 +78,6 @@ public class TestSearch {
 
     @Test
     public void should_return_zero() throws Exception {
-        Generator generator = new Generator();
         ArrayList<ProductEntity> data = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
             data.add(Generator.generate("product " + i, "description " + i, "category " + i, "http://site/product" + i));
@@ -80,7 +94,6 @@ public class TestSearch {
 
     @Test
     public void should_return_two() throws Exception {
-        Generator generator = new Generator();
         ArrayList<ProductEntity> data = new ArrayList<>();
 
         data.add(Generator.generate("product 22 hello", "description 22 foo", "category 22", "http://site/product22foo"));
@@ -96,7 +109,7 @@ public class TestSearch {
         Assert.assertEquals("Must match exactly 0", 2, hits2.getTotalHits());
     }
 
-    protected ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
+    private ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
 
@@ -125,22 +138,5 @@ public class TestSearch {
 
     private Subscription indexProducts(Observable<ProductEntity> products, String index, String type) {
         return elastic.index(products, index, type);
-    }
-
-    private static String searchResultToJson(SearchResponse searchResponse) {
-        SearchHit[] searchHits = searchResponse.getHits().getHits();
-        StringBuilder builder = new StringBuilder();
-        int length = searchHits.length;
-        builder.append("[");
-        for (int i = 0; i < length; i++) {
-            if (i == length - 1) {
-                builder.append(searchHits[i].getSourceAsString());
-            } else {
-                builder.append(searchHits[i].getSourceAsString());
-                builder.append(",");
-            }
-        }
-        builder.append("]");
-        return builder.toString();
     }
 }

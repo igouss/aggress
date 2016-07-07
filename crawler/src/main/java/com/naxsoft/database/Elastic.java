@@ -40,8 +40,9 @@ public class Elastic implements AutoCloseable, Cloneable {
     private TransportClient client = null;
 
     /**
-     * @param hostname
-     * @param port
+     * Connect to ElasticSearch server
+     * @param hostname ElasticSearch server hostname
+     * @param port ElasticSearch server port
      * @throws UnknownHostException
      */
     public void connect(String hostname, int port) throws UnknownHostException {
@@ -64,7 +65,6 @@ public class Elastic implements AutoCloseable, Cloneable {
                 }
             }
         }
-
     }
 
     /**
@@ -83,7 +83,6 @@ public class Elastic implements AutoCloseable, Cloneable {
     public Client getClient() {
         return this.client;
     }
-
 
     /**
      * @param products
