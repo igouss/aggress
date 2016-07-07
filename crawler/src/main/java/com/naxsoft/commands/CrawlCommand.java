@@ -98,9 +98,10 @@ public class CrawlCommand implements Command {
 
         parsedWebPageEntries
                 .filter(webPageEntities -> null != webPageEntities)
+                .flatMap(webPageService::save)
                 .retry()
-                .subscribe(
-                        webPageService::save,
+                .subscribe(res -> LOGGER.info("Save {}", res)
+                        ,
                         ex -> {
                             LOGGER.error("Crawler Process Exception", ex);
                         },

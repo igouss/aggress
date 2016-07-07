@@ -23,7 +23,7 @@ public class AhcHttpClient implements HttpClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AhcHttpClient.class);
 
-    private final static int MAX_CONNECTIONS = 3;
+    private final static int MAX_CONNECTIONS = 1;
 
     private final AsyncHttpClient asyncHttpClient;
 
