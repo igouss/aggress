@@ -2,6 +2,8 @@ package com.naxsoft;
 
 import com.naxsoft.handlers.IndexHandler;
 import com.naxsoft.handlers.SearchHandler;
+import com.naxsoft.utils.AppProperties;
+import com.naxsoft.utils.PropertyNotFoundException;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.predicate.Predicates;
@@ -42,7 +44,7 @@ public class Server {
      * @param args Application command line args
      * @throws UnknownHostException Thrown when we try to connect to invalid elasticsearch client
      */
-    public static void main(final String[] args) throws UnknownHostException {
+    public static void main(final String[] args) throws UnknownHostException, PropertyNotFoundException {
         TemplateEngine templateEngine = getTemplateEngine();
         TransportClient esClient = getTransportClient();
 
@@ -107,10 +109,10 @@ public class Server {
      * @return Elasticsearch client
      * @throws UnknownHostException Thrown when we try to connect to invalid host
      */
-    private static TransportClient getTransportClient() throws UnknownHostException {
+    private static TransportClient getTransportClient() throws UnknownHostException, PropertyNotFoundException {
         Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         TransportClient client = new TransportClient.Builder().settings(settings).build();
-        client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
+        client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(AppProperties.getProperty("elasticHost").getValue()), Integer.parseInt(AppProperties.getProperty("elasticPort").getValue())));
 
         while (true) {
             LOGGER.info("Waiting for elastic to connect to a node...");

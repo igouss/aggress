@@ -20,6 +20,7 @@ dependencies {
     compile "io.undertow:undertow-websockets-jsr:1.3.22.Final"
     compile "org.thymeleaf:thymeleaf:3.0.0.RELEASE"
     compile "io.vertx:vertx-core:3.3.0"
+    compile project(':common')
 }
 
 task frontend(type:JavaExec) {

@@ -1,4 +1,6 @@
 apply plugin: "java"
 
 dependencies {
+    compile "ch.qos.logback:logback-core:1.1.7"
+    compile "ch.qos.logback:logback-classic:1.1.7"
 }

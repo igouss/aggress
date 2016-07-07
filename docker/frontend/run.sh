@@ -1,14 +1,5 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-if [ "$1" = 'postgres' ]; then
-    chown -R postgres "$PGDATA"
-
-    if [ -z "$(ls -A "$PGDATA")" ]; then
-        gosu postgres initdb
-    fi
-
-    exec gosu postgres "$@"
-fi
-
-exec "$@"
+CLASSPATH=$(find "." -name '*.jar' | xargs echo | tr ' ' ':')
+java -Djdk.tls.allowUnsafeServerCertChange=true -Dsun.security.ssl.allowUnsafeRenegotiation=true -cp ${CLASSPATH} com.naxsoft.Server

@@ -45,6 +45,7 @@ dependencies {
     compile "org.apache.kafka:kafka-clients:0.10.0.0"
     compile "com.github.davidmoten:rxjava-slf4j:0.6.2" // https://github.com/davidmoten/rxjava-slf4j
     compile "com.github.davidmoten:rxjava-extras:0.7.9.9" // https://github.com/davidmoten/rxjava-extras
+    compile project(':common')
     apt "com.google.dagger:dagger-compiler:2.5"
 }
 

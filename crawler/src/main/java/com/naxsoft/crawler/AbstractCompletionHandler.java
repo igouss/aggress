@@ -43,7 +43,7 @@ public abstract class AbstractCompletionHandler<R> extends AsyncCompletionHandle
         }
     }
 
-    public void setProxyManager(ProxyManager proxyManager) {
+    void setProxyManager(ProxyManager proxyManager) {
         this.proxyManager = proxyManager;
     }
 }
