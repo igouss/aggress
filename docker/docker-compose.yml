@@ -1,9 +1,8 @@
 version: '2'
 volumes:
-  crawler_volume:
-  web_volume:
-  elasticsearch_volume:
-  redis_volume:
+  elasticsearch_vol:
+  redis_vol:
+  logs_vol:
 
 services:
   frontend:
@@ -16,7 +15,8 @@ services:
     links:
       - elasticsearch
     volumes:
-      - web_volume:/opt/project
+      - logs_vol:/opt/frontend/logs
+      - ../frontend/basedir:/opt/frontend/basedir
     depends_on:
       - elasticsearch
     env_file:
@@ -31,7 +31,7 @@ services:
       - elasticsearch
       - redis:database
     volumes:
-      - crawler_volume:/opt/project
+      - logs_vol:/opt/crawler/logs
     depends_on:
       - elasticsearch
       - redis
@@ -44,7 +44,8 @@ services:
     container_name: elasticsearch
     build: elasticsearch
     volumes:
-      - elasticsearch_volume:/opt/project
+      - elasticsearch_vol:/usr/share/elasticsearch/data
+      - logs_vol:/usr/share/elasticsearch/data/logs
     env_file:
       - common.env
     expose:
@@ -58,7 +59,7 @@ services:
     command: redis-server --appendonly yes
     build: redis
     volumes:
-      - redis_volume:/data
+      - redis_vol:/data
     expose:
       - "6379"
     env_file:
