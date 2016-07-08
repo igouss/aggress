@@ -30,7 +30,7 @@ public class WebPageService {
      * @param webPageEntity Webpage to persist
      * @return true if sucesfully persisted, false otherwise
      */
-    public Observable<Boolean> save(WebPageEntity webPageEntity) {
+    public Observable<Long> save(WebPageEntity webPageEntity) {
         return database.save(webPageEntity);
     }
 
@@ -58,7 +58,10 @@ public class WebPageService {
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         return database.getUnparsedCount(type)
                 .lift(Logging.<Long>logger("WebPageService::getUnparsedByType").onNextFormat(type + "=%s").log())
-                .repeatWhen(observable -> observable.delay(10, TimeUnit.SECONDS)) // Poll for data periodically using repeatWhen + delay
+                .repeatWhen(observable -> {
+                    LOGGER.info("Retrying getUnparsedByType {}", type);
+                    return observable.delay(10, TimeUnit.SECONDS);
+                }) // Poll for data periodically using repeatWhen + delay
                 .takeWhile(val -> val != 0)
                 .flatMap(count -> database.getUnparsedByType(type, count));
     }
