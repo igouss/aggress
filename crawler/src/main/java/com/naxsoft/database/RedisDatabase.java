@@ -80,17 +80,19 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Observable<Integer> markWebPageAsParsed(WebPageEntity webPageEntity) {
+    public Observable<? extends Number> markWebPageAsParsed(WebPageEntity webPageEntity) {
         if (webPageEntity == null) {
             return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
         }
 
-        String source = "WebPageEntity." + webPageEntity.getType();
+//        String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
         String member = webPageEntityEncoder.encode(webPageEntity);
         return connection.reactive()
-                .smove(source, destination, member)
-                .map(value -> value ? 1 : 0);
+                .sadd(destination, member);
+//        return connection.reactive()
+//                .smove(source, destination, member)
+//                .map(value -> value ? 1 : 0);
     }
 
     @Override
@@ -126,7 +128,10 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public Observable<WebPageEntity> getUnparsedByType(String type, Long count) {
-        return connection.reactive().srandmember("WebPageEntity." + type, Math.min(BATCH_SIZE, count)).map(webPageEntityEncoder::decode);
+        String key = "WebPageEntity." + type;
+        long popCount = Math.min(BATCH_SIZE, count);
+        return connection.reactive().spop(key, popCount).map(webPageEntityEncoder::decode);
+//        return connection.reactive().srandmember(key, popCount).map(webPageEntityEncoder::decode);
     }
 
     @Override
