@@ -37,7 +37,7 @@ class ProphetriverProductListParser extends AbstractWebPageParser {
         Elements elements = document.select(".ProductLink a");
         for (Element element : elements) {
             WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), null);
-            LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+            LOGGER.info("productPageUrl={}, parent={}", webPageEntity.getUrl(), downloadResult.getSourcePage().getUrl());
             result.add(webPageEntity);
         }
         return result;
