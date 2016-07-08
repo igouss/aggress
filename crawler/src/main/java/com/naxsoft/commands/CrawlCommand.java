@@ -73,21 +73,18 @@ public class CrawlCommand implements Command {
 
         pagesToParse
                 .observeOn(Schedulers.computation())
-                .subscribe(pageToParse -> {
+                .map(pageToParse -> {
                     webPageParserFactory.parse(pageToParse)
-                            .doOnNext(parseResult -> {
-                                // Successfully parsed
-                                if (parseResult != null) {
-                                    webPageService.markParsed(pageToParse);
-                                } else {
-                                    LOGGER.warn("Parser was unable to find anything on {}", pageToParse);
-                                }
-                            })
                             .filter(parseResult -> null != parseResult)
                             .flatMap(webPageService::save)
-                            .retry()
-                            .subscribe(res -> LOGGER.info("Save {}", res), ex -> LOGGER.error("Crawler Process Exception", ex), processCompleteSemaphore::release);
-                });
+                            .subscribe(res -> LOGGER.trace("Save {}", res), ex -> LOGGER.error("Crawler Process Exception", ex));
+                    return pageToParse;
+                }).subscribe(
+                val -> {
+                    webPageService.markParsed(val).subscribe(saveResult -> LOGGER.info("Parsed {}", val));
+                },
+                err -> LOGGER.error("Failed to crawl", err),
+                processCompleteSemaphore::release);
         try {
             processCompleteSemaphore.acquire();
         } catch (InterruptedException e) {
