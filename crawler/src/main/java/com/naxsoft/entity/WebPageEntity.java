@@ -81,6 +81,10 @@ public class WebPageEntity {
      * @throws IOException in case of compression error
      */
     private static String compress(String text) {
+        if (text.isEmpty()) {
+            return text;
+        }
+
         ByteArrayOutputStream rstBao = new ByteArrayOutputStream();
         GZIPOutputStream zos;
         try {
@@ -107,6 +111,9 @@ public class WebPageEntity {
      * @throws IOException in case of decompression error
      */
     private static String decompress(String zippedBase64Str) throws IOException {
+        if (zippedBase64Str.isEmpty()) {
+            return zippedBase64Str;
+        }
         byte[] bytes = Base64.getDecoder().decode(zippedBase64Str);
         GZIPInputStream zi = null;
         try {
