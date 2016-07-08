@@ -24,7 +24,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param webPageEntity page to make as parsed
      * @return Number of entries affected. Should be 1 on success.
      */
-    Observable<Integer> markWebPageAsParsed(WebPageEntity webPageEntity);
+    Observable<? extends Number> markWebPageAsParsed(WebPageEntity webPageEntity);
 
     /**
      * Mark all ProductEntity as parsed
