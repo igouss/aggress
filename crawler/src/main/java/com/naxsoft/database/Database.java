@@ -123,33 +123,33 @@ public class Database implements Persistent {
     }
 
     @Override
-    public Observable<Boolean> save(ProductEntity productEntity) {
-        Observable<Boolean> rc;
+    public Observable<Long> save(ProductEntity productEntity) {
+        Observable<Long> rc;
         try {
             rc = executeTransaction(session -> {
                 LOGGER.debug("Saving {}", productEntity);
                 session.insert(productEntity);
-                return true;
+                return 1L;
             });
         } catch (ConstraintViolationException ex) {
             LOGGER.info("A duplicate URL found, ignore", ex);
-            rc = Observable.just(false);
+            rc = Observable.just(0L);
         }
         return rc;
     }
 
     @Override
-    public Observable<Boolean> save(WebPageEntity webPageEntity) {
-        Observable<Boolean> rc;
+    public Observable<Long> save(WebPageEntity webPageEntity) {
+        Observable<Long> rc;
         try {
             rc = executeTransaction(session -> {
                 LOGGER.debug("Saving {}", webPageEntity);
                 session.insert(webPageEntity);
-                return true;
+                return 1L;
             });
         } catch (ConstraintViolationException ex) {
             LOGGER.info("A duplicate URL found, ignore", ex);
-            rc = Observable.just(false);
+            rc = Observable.just(0L);
         }
         return rc;
     }

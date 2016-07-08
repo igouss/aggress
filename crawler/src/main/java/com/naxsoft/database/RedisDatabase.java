@@ -99,20 +99,20 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Observable<Boolean> save(ProductEntity productEntity) {
+    public Observable<Long> save(ProductEntity productEntity) {
         String key = "ProductEntity";
         String value = productEntityEncoder.encode(productEntity);
 
         return connection.reactive()
-                .sadd(key, value).map(rc -> 1 == rc);
+                .sadd(key, value);
     }
 
     @Override
-    public Observable<Boolean> save(WebPageEntity webPageEntity) {
+    public Observable<Long> save(WebPageEntity webPageEntity) {
         String key = getKey(webPageEntity);
         String member = webPageEntityEncoder.encode(webPageEntity);
         return connection.reactive()
-                .sadd(key, member).map(rc -> 1 == rc);
+                .sadd(key, member);
     }
 
     private String getKey(WebPageEntity webPageEntity) {

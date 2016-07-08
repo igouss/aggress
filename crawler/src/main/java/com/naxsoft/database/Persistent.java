@@ -39,7 +39,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param productEntity entity to persist
      * @return True of success, false otherwise
      */
-    Observable<Boolean> save(ProductEntity productEntity);
+    Observable<Long> save(ProductEntity productEntity);
 
     /**
      * Persist WebPageEntity
@@ -47,7 +47,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param webPageEntity entity to persist
      * @return True of success, false otherwise
      */
-    Observable<Boolean> save(WebPageEntity webPageEntity);
+    Observable<Long> save(WebPageEntity webPageEntity);
 
     /**
      * Get all ProductEntity from the storage
