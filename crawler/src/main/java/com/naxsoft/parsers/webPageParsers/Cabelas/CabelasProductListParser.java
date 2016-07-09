@@ -37,7 +37,6 @@ class CabelasProductListParser extends AbstractWebPageParser {
 
     private static boolean isTerminalSubcategory(DownloadResult downloadResult) {
         Document document = downloadResult.getDocument();
-
         return (1 == document.select(".categories .active").size()) || document.select("h1").text().equals("Thanks for visiting Cabelas.ca!");
     }
 
@@ -48,50 +47,52 @@ class CabelasProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
-        if (isTerminalSubcategory(downloadResult)) {
-            if (document.baseUri().contains("pagenumber")) {
-                Elements elements = document.select(".productCard-heading a");
-                for (Element element : elements) {
-                    WebPageEntity webPageEntity = productPage(element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                    result.add(webPageEntity);
-                }
-            } else {
-                Elements subPages = document.select("#main footer > nav span, #main footer > nav a");
-                if (!subPages.isEmpty()) {
-                    int max = 1;
-                    for (Element subpage : subPages) {
-                        try {
-                            int page = Integer.parseInt(subpage.text());
-                            if (page > max) {
-                                max = page;
-                            }
-                        } catch (Exception ignored) {
-                            // ignore
-                        }
-                    }
-                    for (int i = 1; i <= max; i++) {
-                        WebPageEntity webPageEntity = getProductList(document.location() + "?pagenumber=" + i, downloadResult.getSourcePage().getCategory());
+
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            if (isTerminalSubcategory(downloadResult)) {
+                if (document.baseUri().contains("pagenumber")) {
+                    Elements elements = document.select(".productCard-heading a");
+                    for (Element element : elements) {
+                        WebPageEntity webPageEntity = productPage(element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                         result.add(webPageEntity);
                     }
                 } else {
-                    WebPageEntity webPageEntity = getProductList(document.location() + "?pagenumber=" + 1, downloadResult.getSourcePage().getCategory());
-                    result.add(webPageEntity);
+                    Elements subPages = document.select("#main footer > nav span, #main footer > nav a");
+                    if (!subPages.isEmpty()) {
+                        int max = 1;
+                        for (Element subpage : subPages) {
+                            try {
+                                int page = Integer.parseInt(subpage.text());
+                                if (page > max) {
+                                    max = page;
+                                }
+                            } catch (Exception ignored) {
+                                // ignore
+                            }
+                        }
+                        for (int i = 1; i <= max; i++) {
+                            WebPageEntity webPageEntity = getProductList(document.location() + "?pagenumber=" + i, downloadResult.getSourcePage().getCategory());
+                            result.add(webPageEntity);
+                        }
+                    } else {
+                        WebPageEntity webPageEntity = getProductList(document.location() + "?pagenumber=" + 1, downloadResult.getSourcePage().getCategory());
+                        result.add(webPageEntity);
+                    }
                 }
-            }
-        } else {
-            Elements subPages = document.select("#categories > ul > li > a");
-            for (Element element : subPages) {
-                String category;
-                if (downloadResult.getSourcePage().getCategory() == null) {
-                    category = element.text();
-                } else {
-                    category = downloadResult.getSourcePage().getCategory();
+            } else {
+                Elements subPages = document.select("#categories > ul > li > a");
+                for (Element element : subPages) {
+                    String category;
+                    if (downloadResult.getSourcePage().getCategory() == null) {
+                        category = element.text();
+                    } else {
+                        category = downloadResult.getSourcePage().getCategory();
+                    }
+                    WebPageEntity subCategoryPage = getProductList(element.attr("abs:href"), category);
+                    result.add(subCategoryPage);
                 }
-                WebPageEntity subCategoryPage = getProductList(element.attr("abs:href"), category);
-                result.add(subCategoryPage);
             }
         }
         return result;

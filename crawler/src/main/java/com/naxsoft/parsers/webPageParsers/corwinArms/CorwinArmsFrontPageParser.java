@@ -32,38 +32,41 @@ class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select("#block-menu-menu-catalogue > div > ul a");
-        for (Element e : elements) {
-            String linkUrl = e.attr("abs:href");
 
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, linkUrl, e.text());
-            LOGGER.info("Found on front page ={}", linkUrl);
-            result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("#block-menu-menu-catalogue > div > ul a");
+            for (Element e : elements) {
+                String linkUrl = e.attr("abs:href");
+
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, linkUrl, e.text());
+                LOGGER.info("Found on front page ={}", linkUrl);
+                result.add(webPageEntity);
+            }
         }
         return result;
     }
 
     private Collection<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".pager li.pager-current");
-        Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
-        if (matcher.find()) {
-            int max = Integer.parseInt(matcher.group(2));
-            for (int i = 1; i <= max; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "?page=" + i, downloadResult.getSourcePage().getCategory());
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".pager li.pager-current");
+            Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
+            if (matcher.find()) {
+                int max = Integer.parseInt(matcher.group(2));
+                for (int i = 1; i <= max; i++) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "?page=" + i, downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                }
+            } else {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
-        } else {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
         }
         return result;
     }

@@ -85,18 +85,23 @@ public class WebPageParserFactory {
      * @return WebPageParser that if capable of parsing webPageEntity
      */
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        WebPageParser parserToUse = null;
-        for (WebPageParser parser : parsers) {
-            if (parser.canParse(webPageEntity)) {
-                LOGGER.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
-                parserToUse = parser;
-                break;
+        try {
+            WebPageParser parserToUse = null;
+            for (WebPageParser parser : parsers) {
+                if (parser.canParse(webPageEntity)) {
+                    LOGGER.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
+                    parserToUse = parser;
+                    break;
+                }
             }
+            if (parserToUse == null) {
+                LOGGER.warn("Failed to find a web-page parser for action = {}, url = {}", webPageEntity.getType(), webPageEntity.getUrl());
+                parserToUse = new NoopParser(client);
+            }
+            return parserToUse.parse(webPageEntity);
+        } catch (Exception e) {
+            LOGGER.error("Failed tp parse", e);
+            return Observable.empty();
         }
-        if (parserToUse == null) {
-            LOGGER.warn("Failed to find a web-page parser for action = {}, url = {}", webPageEntity.getType(), webPageEntity.getUrl());
-            parserToUse = new NoopParser(client);
-        }
-        return parserToUse.parse(webPageEntity);
     }
 }

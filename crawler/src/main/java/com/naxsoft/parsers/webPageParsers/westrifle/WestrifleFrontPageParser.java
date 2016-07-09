@@ -30,32 +30,36 @@ class WestrifleFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".leftBoxContainer .category-top");
-        for(Element e : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, e.attr("abs:href"), e.text());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".leftBoxContainer .category-top");
+            for (Element e : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, e.attr("abs:href"), e.text());
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }
 
     private Collection<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>();
 
-        Elements elements = document.select("#productsListingTopNumber > strong:nth-child(3)");
-        int productTotal = Integer.parseInt(elements.text());
-        int pageTotal = (int) Math.ceil(productTotal / 10.0);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
 
-        for (int i = 1; i <= pageTotal; i++) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+
+            Elements elements = document.select("#productsListingTopNumber > strong:nth-child(3)");
+            int productTotal = Integer.parseInt(elements.text());
+            int pageTotal = (int) Math.ceil(productTotal / 10.0);
+
+            for (int i = 1; i <= pageTotal; i++) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

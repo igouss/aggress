@@ -32,21 +32,22 @@ class DantesportsProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("#store div.listItem");
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("#store div.listItem");
 
-        for (Element element : elements) {
-            String onclick = element.attr("onclick");
-            Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
-            if (matcher.find()) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, "https://shop.dantesports.com/items_detail.php?iid=" + matcher.group(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
-                result.add(webPageEntity);
-            } else {
-                LOGGER.info("Product id not found: {}", document.location());
+            for (Element element : elements) {
+                String onclick = element.attr("onclick");
+                Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
+                if (matcher.find()) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, "https://shop.dantesports.com/items_detail.php?iid=" + matcher.group(), downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                } else {
+                    LOGGER.info("Product id not found: {}", document.location());
+                }
             }
         }
         return result;

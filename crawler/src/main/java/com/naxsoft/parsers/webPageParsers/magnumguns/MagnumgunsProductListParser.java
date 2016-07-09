@@ -30,16 +30,17 @@ class MagnumgunsProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".product > a.product_item_link");
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".product > a.product_item_link");
 
-        for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+            for (Element element : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

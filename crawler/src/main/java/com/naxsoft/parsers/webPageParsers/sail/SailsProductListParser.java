@@ -40,25 +40,26 @@ class SailsProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        // on first pass we don't specify p=1
-        // add all subpages
-        if (!document.location().contains("p=")) {
-            Elements elements = document.select(".toolbar-bottom .pages a");
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            // on first pass we don't specify p=1
+            // add all subpages
+            if (!document.location().contains("p=")) {
+                Elements elements = document.select(".toolbar-bottom .pages a");
+                for (Element element : elements) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                }
+            }
+            Elements elements = document.select(".item > a");
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
-        }
-        Elements elements = document.select(".item > a");
-        for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
         }
         return result;
     }

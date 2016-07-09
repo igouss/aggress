@@ -30,15 +30,16 @@ class ProphetriverProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".ProductLink a");
-        for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), null);
-            LOGGER.info("productPageUrl={}, parent={}", webPageEntity.getUrl(), downloadResult.getSourcePage().getUrl());
-            result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".ProductLink a");
+            for (Element element : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), null);
+                LOGGER.info("productPageUrl={}, parent={}", webPageEntity.getUrl(), downloadResult.getSourcePage().getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

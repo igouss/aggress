@@ -34,11 +34,14 @@ class ProphetriverFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
         Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select("#AccordianWrapper a");
-        for (Element e : elements) {
-            result.add(create(e.attr("abs:href"), null));
+
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("#AccordianWrapper a");
+            for (Element e : elements) {
+                result.add(create(e.attr("abs:href"), null));
+            }
         }
         return result;
     }

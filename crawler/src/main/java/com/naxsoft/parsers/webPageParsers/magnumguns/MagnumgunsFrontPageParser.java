@@ -34,38 +34,43 @@ class MagnumgunsFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
         Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select(".product-category > a");
-        for (Element e : elements) {
-            String url = e.attr("abs:href");
-            result.add(create(url, e.text()));
+
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".product-category > a");
+            for (Element e : elements) {
+                String url = e.attr("abs:href");
+                result.add(create(url, e.text()));
+            }
         }
         return result;
     }
 
     private Collection<WebPageEntity> parseSubPages(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
+
         Document document = downloadResult.getDocument();
-        Elements elements = document.select(".woocommerce-pagination li > .page-numbers");
-        int max = 0;
-        for (Element element : elements) {
-            try {
-                int tmp = Integer.parseInt(element.text());
-                if (tmp > max) {
-                    max = tmp;
+        if (document != null) {
+            Elements elements = document.select(".woocommerce-pagination li > .page-numbers");
+            int max = 0;
+            for (Element element : elements) {
+                try {
+                    int tmp = Integer.parseInt(element.text());
+                    if (tmp > max) {
+                        max = tmp;
+                    }
+                } catch (NumberFormatException ignore) {
+                    // ignore
                 }
-            } catch (NumberFormatException ignore) {
-                // ignore
+            }
+
+            for (int i = 1; i <= max; i++) {
+                WebPageEntity webPageEntity = new WebPageEntity(0l, "", "productList", false, downloadResult.getSourcePage().getUrl() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
+                LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
+                result.add(webPageEntity);
             }
         }
-
-        for (int i = 1; i <= max; i++) {
-            WebPageEntity webPageEntity = new WebPageEntity(0l, "", "productList", false, downloadResult.getSourcePage().getUrl() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
-            LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
-            result.add(webPageEntity);
-        }
-
         return result;
     }
 

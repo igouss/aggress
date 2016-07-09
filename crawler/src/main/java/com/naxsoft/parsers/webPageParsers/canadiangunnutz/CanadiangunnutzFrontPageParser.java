@@ -66,26 +66,27 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("h2.forumtitle > a");
-        if (elements.isEmpty()) {
-            LOGGER.error("No results on page");
-        }
-
-        for (Element element : elements) {
-            String text = element.text();
-            if (!text.startsWith("Exchange of")) {
-                continue;
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("h2.forumtitle > a");
+            if (elements.isEmpty()) {
+                LOGGER.error("No results on page");
             }
-            for (String category : categories.keySet()) {
-                if (text.endsWith(category)) {
-                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), categories.get(category));
-                    LOGGER.info("productList={}", webPageEntity.getUrl());
-                    result.add(webPageEntity);
-                    break;
+
+            for (Element element : elements) {
+                String text = element.text();
+                if (!text.startsWith("Exchange of")) {
+                    continue;
+                }
+                for (String category : categories.keySet()) {
+                    if (text.endsWith(category)) {
+                        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), categories.get(category));
+                        LOGGER.info("productList={}", webPageEntity.getUrl());
+                        result.add(webPageEntity);
+                        break;
+                    }
                 }
             }
         }
@@ -93,21 +94,22 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Element element = document.select("#threadpagestats").first();
-        String text = element.text();
-        Matcher matcher = Pattern.compile("Threads (\\d+) to (\\d+) of (\\d+)").matcher(text);
-        if (matcher.find()) {
-            int postsPerPage = Integer.parseInt(matcher.group(2));
-            int total = Integer.parseInt(matcher.group(3));
-            int pages = (int) Math.ceil((double) total / postsPerPage);
-            for (int i = 1; i <= pages; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productList={}", webPageEntity.getUrl());
-                result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Element element = document.select("#threadpagestats").first();
+            String text = element.text();
+            Matcher matcher = Pattern.compile("Threads (\\d+) to (\\d+) of (\\d+)").matcher(text);
+            if (matcher.find()) {
+                int postsPerPage = Integer.parseInt(matcher.group(2));
+                int total = Integer.parseInt(matcher.group(3));
+                int pages = (int) Math.ceil((double) total / postsPerPage);
+                for (int i = 1; i <= pages; i++) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("productList={}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                }
             }
         }
         return result;

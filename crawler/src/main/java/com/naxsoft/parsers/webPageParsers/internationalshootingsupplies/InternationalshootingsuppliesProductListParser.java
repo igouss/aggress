@@ -40,19 +40,21 @@ class InternationalshootingsuppliesProductListParser extends AbstractWebPagePars
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Set<WebPageEntity> result = new HashSet<>(1);
         Document document = downloadResult.getDocument();
 
-        Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select(".product-thumbnail");
-        for (Element element : elements) {
-            if (!element.select(".out-of-stock").isEmpty()) {
-                continue;
-            }
+        if (document != null) {
+            Elements elements = document.select(".product-thumbnail");
+            for (Element element : elements) {
+                if (!element.select(".out-of-stock").isEmpty()) {
+                    continue;
+                }
 
-            String url = element.select("> a").attr("abs:href");
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, url, downloadResult.getSourcePage().getCategory());
-            LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+                String url = element.select("> a").attr("abs:href");
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, url, downloadResult.getSourcePage().getCategory());
+                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

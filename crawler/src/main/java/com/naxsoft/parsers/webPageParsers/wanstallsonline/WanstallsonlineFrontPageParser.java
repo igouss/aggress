@@ -35,36 +35,38 @@ class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        int max = 1;
-        Elements elements = document.select(".navigationtable td[valign=middle] > a");
-        for (Element el : elements) {
-            try {
-                Matcher matcher = Pattern.compile("\\d+").matcher(el.text());
-                if (matcher.find()) {
-                    int num = Integer.parseInt(matcher.group());
-                    if (num > max) {
-                        max = num;
-                    }
-                }
-            } catch (Exception ignored) {
-                // ignore
-            }
-        }
+        Document document = downloadResult.getDocument();
 
-        for (int i = 1; i < max; i++) {
-            String url;
-            if (1 == i) {
-                url = document.location();
-            } else {
-                url = document.location() + "index " + i + ".html";
+        if (document != null) {
+            int max = 1;
+            Elements elements = document.select(".navigationtable td[valign=middle] > a");
+            for (Element el : elements) {
+                try {
+                    Matcher matcher = Pattern.compile("\\d+").matcher(el.text());
+                    if (matcher.find()) {
+                        int num = Integer.parseInt(matcher.group());
+                        if (num > max) {
+                            max = num;
+                        }
+                    }
+                } catch (Exception ignored) {
+                    // ignore
+                }
             }
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, downloadResult.getSourcePage().getCategory());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+
+            for (int i = 1; i < max; i++) {
+                String url;
+                if (1 == i) {
+                    url = document.location();
+                } else {
+                    url = document.location() + "index " + i + ".html";
+                }
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, downloadResult.getSourcePage().getCategory());
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

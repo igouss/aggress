@@ -30,21 +30,22 @@ class EllwoodeppsProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".firearm-table");
-        for (Element element : elements) {
-            String category;
-            if (downloadResult.getSourcePage().getCategory().equalsIgnoreCase("accessories")) {
-                category = element.select(".firearm-table > tbody > tr:nth-child(2) > td:nth-child(2)").text();
-            } else {
-                category = downloadResult.getSourcePage().getCategory();
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".firearm-table");
+            for (Element element : elements) {
+                String category;
+                if (downloadResult.getSourcePage().getCategory().equalsIgnoreCase("accessories")) {
+                    category = element.select(".firearm-table > tbody > tr:nth-child(2) > td:nth-child(2)").text();
+                } else {
+                    category = downloadResult.getSourcePage().getCategory();
+                }
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.select("td.firearm-name > a").attr("abs:href"), category);
+                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
             }
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.select("td.firearm-name > a").attr("abs:href"), category);
-            LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
         }
         return result;
     }

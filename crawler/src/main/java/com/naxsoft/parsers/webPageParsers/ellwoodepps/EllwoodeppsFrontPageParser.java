@@ -34,24 +34,25 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        String elements = document.select("#adj-nav-container > div.category-products > div.toolbar  div.amount-container > p").text();
-        Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
-        if (!matcher.find()) {
-            LOGGER.error("Unable to parse total pages");
-            return result;
-        }
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            String elements = document.select("#adj-nav-container > div.category-products > div.toolbar  div.amount-container > p").text();
+            Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
+            if (!matcher.find()) {
+                LOGGER.error("Unable to parse total pages");
+                return result;
+            }
 
-        int productTotal = Integer.parseInt(matcher.group(1));
-        int pageTotal = (int) Math.ceil(productTotal / 100.0);
+            int productTotal = Integer.parseInt(matcher.group(1));
+            int pageTotal = (int) Math.ceil(productTotal / 100.0);
 
-        for (int i = 1; i <= pageTotal; i++) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&p=" + i, downloadResult.getSourcePage().getCategory());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+            for (int i = 1; i <= pageTotal; i++) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&p=" + i, downloadResult.getSourcePage().getCategory());
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

@@ -34,23 +34,24 @@ class TradeexCanadaProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        if (document.location().contains("page=")) {
-            Elements elements = document.select(".view-content a");
-            for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), "");
-                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
-                result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            if (document.location().contains("page=")) {
+                Elements elements = document.select(".view-content a");
+                for (Element element : elements) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), "");
+                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                }
+            } else {
+                Elements subPages = document.select(".pager a");
+                for (Element subPage : subPages) {
+                    result.add(create(subPage.attr("abs:href")));
+                }
+                result.add(create(document.location() + "?page=0"));
             }
-        } else {
-            Elements subPages = document.select(".pager a");
-            for (Element subPage : subPages) {
-                result.add(create(subPage.attr("abs:href")));
-            }
-            result.add(create(document.location() + "?page=0"));
         }
         return result;
     }

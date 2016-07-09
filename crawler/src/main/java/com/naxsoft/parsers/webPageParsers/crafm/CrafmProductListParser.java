@@ -29,16 +29,17 @@ class CrafmProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".products-grid .item > a");
-        for (Element e : elements) {
-            String linkUrl = e.attr("abs:href");
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, linkUrl, downloadResult.getSourcePage().getCategory());
-            LOGGER.info("ProductPageUrl={}", linkUrl);
-            result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".products-grid .item > a");
+            for (Element e : elements) {
+                String linkUrl = e.attr("abs:href");
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, linkUrl, downloadResult.getSourcePage().getCategory());
+                LOGGER.info("ProductPageUrl={}", linkUrl);
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

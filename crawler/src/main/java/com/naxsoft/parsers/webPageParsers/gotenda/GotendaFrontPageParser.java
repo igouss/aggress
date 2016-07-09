@@ -34,22 +34,27 @@ class GotendaFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
         Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select(".HorizontalDisplay> li.NavigationElement > a");
-        for (Element e : elements) {
-            String url = e.attr("abs:href") + "&PageSize=60&Page=1";
-            result.add(create(url, e.text()));
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".HorizontalDisplay> li.NavigationElement > a");
+            for (Element e : elements) {
+                String url = e.attr("abs:href") + "&PageSize=60&Page=1";
+                result.add(create(url, e.text()));
+            }
         }
         return result;
     }
 
     private Collection<WebPageEntity> parseSubPages(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
         Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select(".InfoArea h3 a");
-        for (Element e : elements) {
-            result.add(create(e.attr("abs:href") + "&PageSize=60&Page=1", downloadResult.getSourcePage().getCategory()));
+
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".InfoArea h3 a");
+            for (Element e : elements) {
+                result.add(create(e.attr("abs:href") + "&PageSize=60&Page=1", downloadResult.getSourcePage().getCategory()));
+            }
         }
         return result;
     }

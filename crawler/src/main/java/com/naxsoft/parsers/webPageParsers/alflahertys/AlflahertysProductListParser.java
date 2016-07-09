@@ -34,22 +34,25 @@ class AlflahertysProductListParser extends AbstractWebPageParser {
      * @return
      */
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        Set<WebPageEntity> result = new HashSet<>(1);
+
         Document document = downloadResult.getDocument();
 
-        Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select("div.info");
+        if (document != null) {
+            Elements elements = document.select("div.info");
 
-        for (Element element : elements) {
-            if (!element.select(".sold_out").isEmpty()) {
-                continue;
-            }
-            if (element.select(".title").text().contains("Sold out")) {
-                continue;
-            }
+            for (Element element : elements) {
+                if (!element.select(".sold_out").isEmpty()) {
+                    continue;
+                }
+                if (element.select(".title").text().contains("Sold out")) {
+                    continue;
+                }
 
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.parent().attr("abs:href"), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), document.location());
-            result.add(webPageEntity);
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.parent().attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), document.location());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

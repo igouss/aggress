@@ -29,16 +29,17 @@ class DantesportsFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("#scol1 > div.scell_menu > li > a");
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("#scol1 > div.scell_menu > li > a");
 
-        for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href") + "&paging=0", element.text());
-            LOGGER.info("productList={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+            for (Element element : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href") + "&paging=0", element.text());
+                LOGGER.info("productList={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

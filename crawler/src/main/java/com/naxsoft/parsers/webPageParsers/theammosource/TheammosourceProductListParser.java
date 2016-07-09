@@ -30,31 +30,32 @@ class TheammosourceProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".categoryListBoxContents > a");
-        if (!elements.isEmpty()) {
-            for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
-                result.add(webPageEntity);
-            }
-        } else {
-            if (!document.location().contains("&page=")) {
-                elements = document.select("#productsListingListingTopLinks > a");
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".categoryListBoxContents > a");
+            if (!elements.isEmpty()) {
                 for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl());
+                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
-            }
-            elements = document.select(".itemTitle a");
-            for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
-                result.add(webPageEntity);
+            } else {
+                if (!document.location().contains("&page=")) {
+                    elements = document.select("#productsListingListingTopLinks > a");
+                    for (Element element : elements) {
+                        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                        LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl());
+                        result.add(webPageEntity);
+                    }
+                }
+                elements = document.select(".itemTitle a");
+                for (Element element : elements) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                }
             }
         }
         return result;

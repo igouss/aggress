@@ -33,16 +33,17 @@ class TheammosourceFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".categoryListBoxContents > a");
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".categoryListBoxContents > a");
 
-        for (Element el : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+            for (Element el : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

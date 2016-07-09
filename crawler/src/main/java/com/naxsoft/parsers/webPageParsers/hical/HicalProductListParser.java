@@ -30,28 +30,28 @@ class HicalProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements;
+            // Add sub categories
+            if (!document.location().contains("page=")) {
+                // add subpages
+                elements = document.select("#CategoryPagingTop > div > ul > li > a");
+                for (Element el : elements) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("ProductList sub-page {}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                }
+            }
 
-        Elements elements;
-        // Add sub categories
-        if (!document.location().contains("page=")) {
-            // add subpages
-            elements = document.select("#CategoryPagingTop > div > ul > li > a");
+            elements = document.select("#frmCompare .ProductDetails a");
             for (Element el : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("ProductList sub-page {}", webPageEntity.getUrl());
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
-        }
-
-        elements = document.select("#frmCompare .ProductDetails a");
-        for (Element el : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
         }
         return result;
     }

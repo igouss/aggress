@@ -52,21 +52,22 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("div[ng-init]");
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("div[ng-init]");
 
-        for (Element e : elements) {
-            String linkUrl = e.attr("ng-init");
-            Matcher categoryMatcher = Pattern.compile("\'\\d+\'").matcher(linkUrl);
+            for (Element e : elements) {
+                String linkUrl = e.attr("ng-init");
+                Matcher categoryMatcher = Pattern.compile("\'\\d+\'").matcher(linkUrl);
 
-            if (categoryMatcher.find()) {
-                String productCategory = categoryMatcher.group();
-                String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, productDetailsUrl, downloadResult.getSourcePage().getCategory());
-                result.add(webPageEntity);
+                if (categoryMatcher.find()) {
+                    String productCategory = categoryMatcher.group();
+                    String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, productDetailsUrl, downloadResult.getSourcePage().getCategory());
+                    result.add(webPageEntity);
+                }
             }
         }
         return result;

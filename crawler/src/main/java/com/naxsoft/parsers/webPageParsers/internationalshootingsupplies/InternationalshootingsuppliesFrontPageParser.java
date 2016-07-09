@@ -44,28 +44,31 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
 
     private Collection<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
+
         Document document = downloadResult.getDocument();
-        Elements elements = document.select(".general-pagination a");
-        int max = 0;
-        for (Element element : elements) {
-            try {
-                int tmp = Integer.parseInt(element.text());
-                if (tmp > max) {
-                    max = tmp;
+        if (document != null) {
+            Elements elements = document.select(".general-pagination a");
+            int max = 0;
+            for (Element element : elements) {
+                try {
+                    int tmp = Integer.parseInt(element.text());
+                    if (tmp > max) {
+                        max = tmp;
+                    }
+                } catch (NumberFormatException ignore) {
+                    // ignore
                 }
-            } catch (NumberFormatException ignore) {
-                // ignore
             }
-        }
-        if (max == 0) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
-            result.add(webPageEntity);
-        } else {
-            for (int i = 1; i <= max; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl() + "page/" + i + "/", downloadResult.getSourcePage().getCategory());
+            if (max == 0) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
+            } else {
+                for (int i = 1; i <= max; i++) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl() + "page/" + i + "/", downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
+                    result.add(webPageEntity);
+                }
             }
         }
         return result;

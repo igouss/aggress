@@ -27,14 +27,16 @@ class BullseyelondonFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select(".vertnav-cat a");
-        for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href") + "?limit=all", element.text());
-            LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
-            result.add(webPageEntity);
+
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".vertnav-cat a");
+            for (Element element : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href") + "?limit=all", element.text());
+                LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

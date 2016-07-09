@@ -47,23 +47,24 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("#threads .threadtitle");
-        if (elements.isEmpty()) {
-            LOGGER.error("No results on page");
-        }
-        for (Element element : elements) {
-            Elements select = element.select(".prefix");
-            if (!select.isEmpty()) {
-                if (select.first().text().contains("WTS")) {
-                    element = element.select("a.title").first();
-                    if (!element.text().toLowerCase().contains("remove")) {
-                        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                        LOGGER.info("productPage={}", webPageEntity.getUrl());
-                        result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("#threads .threadtitle");
+            if (elements.isEmpty()) {
+                LOGGER.error("No results on page");
+            }
+            for (Element element : elements) {
+                Elements select = element.select(".prefix");
+                if (!select.isEmpty()) {
+                    if (select.first().text().contains("WTS")) {
+                        element = element.select("a.title").first();
+                        if (!element.text().toLowerCase().contains("remove")) {
+                            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                            LOGGER.info("productPage={}", webPageEntity.getUrl());
+                            result.add(webPageEntity);
+                        }
                     }
                 }
             }

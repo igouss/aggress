@@ -30,18 +30,20 @@ class CtcsuppliesProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select("a.grid-link");
 
-        for (Element element : elements) {
-            if (!element.select("span.badge.badge--sold-out").isEmpty()) {
-                continue;
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("a.grid-link");
+
+            for (Element element : elements) {
+                if (!element.select("span.badge.badge--sold-out").isEmpty()) {
+                    continue;
+                }
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
             }
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
         }
         return result;
     }

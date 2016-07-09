@@ -30,16 +30,18 @@ class IrungunsFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("#content .widthLimit a");
-        for (Element e : elements) {
-            String linkUrl = e.attr("abs:href");
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, linkUrl, "");
-            LOGGER.info("ProductPageUrl={}", linkUrl);
-            result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+
+        if (document != null) {
+            Elements elements = document.select("#content .widthLimit a");
+            for (Element e : elements) {
+                String linkUrl = e.attr("abs:href");
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, linkUrl, "");
+                LOGGER.info("ProductPageUrl={}", linkUrl);
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

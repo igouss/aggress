@@ -33,27 +33,28 @@ class WholesalesportsFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        int max = 1;
-        Elements elements = document.select(".pagination a");
-        for (Element el : elements) {
-            try {
-                int num = Integer.parseInt(el.text());
-                if (num > max) {
-                    max = num;
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            int max = 1;
+            Elements elements = document.select(".pagination a");
+            for (Element el : elements) {
+                try {
+                    int num = Integer.parseInt(el.text());
+                    if (num > max) {
+                        max = num;
+                    }
+                } catch (Exception ignored) {
+                    // ignore
                 }
-            } catch (Exception ignored) {
-                // ignore
             }
-        }
 
-        for (int i = 0; i < max; i++) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+            for (int i = 0; i < max; i++) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

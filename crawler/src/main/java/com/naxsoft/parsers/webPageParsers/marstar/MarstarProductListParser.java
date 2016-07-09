@@ -44,25 +44,26 @@ class MarstarProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        LOGGER.info("Parsing {}", document.select("h1").text());
-        Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
-        for (Element e : elements) {
-            WebPageEntity webPageEntity = getProductPage(e, downloadResult.getSourcePage().getCategory());
-            result.add(webPageEntity);
-        }
-        elements = document.select(".baseTable td:nth-child(1) > a");
-        for (Element e : elements) {
-            WebPageEntity webPageEntity = getProductPage(e, downloadResult.getSourcePage().getCategory());
-            result.add(webPageEntity);
-        }
-        elements = document.select("div.subcategoryName a");
-        for (Element e : elements) {
-            WebPageEntity webPageEntity = getProductList(e, downloadResult.getSourcePage().getCategory());
-            result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            LOGGER.info("Parsing {}", document.select("h1").text());
+            Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
+            for (Element e : elements) {
+                WebPageEntity webPageEntity = getProductPage(e, downloadResult.getSourcePage().getCategory());
+                result.add(webPageEntity);
+            }
+            elements = document.select(".baseTable td:nth-child(1) > a");
+            for (Element e : elements) {
+                WebPageEntity webPageEntity = getProductPage(e, downloadResult.getSourcePage().getCategory());
+                result.add(webPageEntity);
+            }
+            elements = document.select("div.subcategoryName a");
+            for (Element e : elements) {
+                WebPageEntity webPageEntity = getProductList(e, downloadResult.getSourcePage().getCategory());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

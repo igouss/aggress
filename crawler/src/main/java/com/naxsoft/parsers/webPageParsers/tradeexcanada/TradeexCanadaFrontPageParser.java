@@ -33,41 +33,42 @@ class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".view-content a");
-        for (Element element : elements) {
-            String category;
-            if (element.text().contains("AAA Super Specials")) {
-                category = "firearm,ammo";
-            } else if (element.text().contains("Combination Guns")) {
-                category = "firearm";
-            } else if (element.text().contains("Double Rifles")) {
-                category = "firearm";
-            } else if (element.text().contains("Handguns")) {
-                category = "firearm";
-            } else if (element.text().contains("Hunting and Sporting Arms")) {
-                category = "firearm";
-            } else if (element.text().contains("Rifle")) {
-                category = "firearm";
-            } else if (element.text().contains("Shotguns")) {
-                category = "firearm";
-            } else if (element.text().contains("Ammunition")) {
-                category = "ammo";
-            } else if (element.text().contains("Reloading Components")) {
-                category = "reload";
-            } else if (element.text().contains("Scopes")) {
-                category = "optic";
-            } else {
-                category = "misc";
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".view-content a");
+            for (Element element : elements) {
+                String category;
+                if (element.text().contains("AAA Super Specials")) {
+                    category = "firearm,ammo";
+                } else if (element.text().contains("Combination Guns")) {
+                    category = "firearm";
+                } else if (element.text().contains("Double Rifles")) {
+                    category = "firearm";
+                } else if (element.text().contains("Handguns")) {
+                    category = "firearm";
+                } else if (element.text().contains("Hunting and Sporting Arms")) {
+                    category = "firearm";
+                } else if (element.text().contains("Rifle")) {
+                    category = "firearm";
+                } else if (element.text().contains("Shotguns")) {
+                    category = "firearm";
+                } else if (element.text().contains("Ammunition")) {
+                    category = "ammo";
+                } else if (element.text().contains("Reloading Components")) {
+                    category = "reload";
+                } else if (element.text().contains("Scopes")) {
+                    category = "optic";
+                } else {
+                    category = "misc";
+                }
+
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), category);
+
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
             }
-
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), category);
-
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
         }
         return result;
     }

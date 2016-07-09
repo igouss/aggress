@@ -35,11 +35,14 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
 
     private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
+
         Document document = downloadResult.getDocument();
-        Elements elements = document.select("table > tbody > tr > th > a");
-        for (Element e : elements) {
-            String url = e.attr("abs:href");
-            result.add(create(url, e.text()));
+        if (document != null) {
+            Elements elements = document.select("table > tbody > tr > th > a");
+            for (Element e : elements) {
+                String url = e.attr("abs:href");
+                result.add(create(url, e.text()));
+            }
         }
         return result;
     }

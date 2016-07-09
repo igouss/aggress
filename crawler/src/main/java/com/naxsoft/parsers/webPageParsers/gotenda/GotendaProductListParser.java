@@ -30,21 +30,22 @@ class GotendaProductListParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".InfoArea a[title]");
-        if (!elements.isEmpty()) {
-            for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".InfoArea a[title]");
+            if (!elements.isEmpty()) {
+                for (Element element : elements) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                }
+            } else {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
-        } else {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
         }
         return result;
     }

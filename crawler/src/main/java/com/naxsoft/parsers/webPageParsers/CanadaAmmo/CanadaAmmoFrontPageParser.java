@@ -29,36 +29,41 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseCategories(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         HashSet<WebPageEntity> result = new HashSet<>();
-        Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
-        LOGGER.info("Parsing for sub-pages + {}", document.location());
 
-        for (Element el : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, el.attr("abs:href") + "?count=72", el.text());
-            result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
+            LOGGER.info("Parsing for sub-pages + {}", document.location());
+
+            for (Element el : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, el.attr("abs:href") + "?count=72", el.text());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }
 
 
     private Collection<WebPageEntity> parseCategoryPages(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         HashSet<WebPageEntity> subResult = new HashSet<>();
-        Elements elements = document.select("div.clearfix span.pagination a.nav-page");
-        if (elements.isEmpty()) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
-            subResult.add(webPageEntity);
-        } else {
-            int i = Integer.parseInt(elements.first().text()) - 1;
-            int end = Integer.parseInt(elements.last().text());
-            for (; i <= end; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
+
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+
+            Elements elements = document.select("div.clearfix span.pagination a.nav-page");
+            if (elements.isEmpty()) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
                 subResult.add(webPageEntity);
+            } else {
+                int i = Integer.parseInt(elements.first().text()) - 1;
+                int end = Integer.parseInt(elements.last().text());
+                for (; i <= end; i++) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
+                    subResult.add(webPageEntity);
+                }
             }
         }
         return subResult;

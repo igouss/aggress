@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -67,18 +68,23 @@ public class ProductParserFacade {
      * @return Parser capable of parsing the page
      */
     public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
-        ProductParser parserToUse = null;
-        for (ProductParser parser : parsers) {
-            if (parser.canParse(webPageEntity)) {
-                LOGGER.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
-                parserToUse = parser;
-                break;
+        try {
+            ProductParser parserToUse = null;
+            for (ProductParser parser : parsers) {
+                if (parser.canParse(webPageEntity)) {
+                    LOGGER.debug("Found a parser {} for action = {} url = {}", parser.getClass(), webPageEntity.getType(), webPageEntity.getUrl());
+                    parserToUse = parser;
+                    break;
+                }
             }
+            if (parserToUse == null) {
+                LOGGER.warn("Failed to find a document parser for action = {} url = {}", webPageEntity.getType(), webPageEntity.getUrl());
+                parserToUse = new NoopParser();
+            }
+            return parserToUse.parse(webPageEntity);
+        } catch (Exception e) {
+            LOGGER.error("Failed tp parse", e);
+            return Collections.emptySet();
         }
-        if (parserToUse == null) {
-            LOGGER.warn("Failed to find a document parser for action = {} url = {}", webPageEntity.getType(), webPageEntity.getUrl());
-            parserToUse = new NoopParser();
-        }
-        return parserToUse.parse(webPageEntity);
     }
 }

@@ -30,31 +30,33 @@ class LeverarmsFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select("#nav-sidebox li:not(.parent) a");
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("#nav-sidebox li:not(.parent) a");
 
-        for (Element e : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, e.attr("abs:href") + "?limit=all", e.text());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+            for (Element e : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, e.attr("abs:href") + "?limit=all", e.text());
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }
 
     private Collection<WebPageEntity> parseSubPages(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>();
 
-        Elements elements = document.select(".item h4 a");
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".item h4 a");
 
-        for (Element e : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, e.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
+            for (Element e : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, e.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

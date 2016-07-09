@@ -30,15 +30,17 @@ class CabelasFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
-        Elements elements = document.select("a[data-heading=Shooting]");
 
-        for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), "");
-            LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
-            result.add(webPageEntity);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select("a[data-heading=Shooting]");
+
+            for (Element element : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), "");
+                LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
+                result.add(webPageEntity);
+            }
         }
         return result;
     }

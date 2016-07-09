@@ -32,44 +32,46 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> categoriesDocument(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".menu-item > a");
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".menu-item > a");
 
-        for (Element element : elements) {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, element.attr("abs:href"), element.text());
-            if (!webPageEntity.getUrl().contains("product-category")) {
-                continue;
+            for (Element element : elements) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, element.attr("abs:href"), element.text());
+                if (!webPageEntity.getUrl().contains("product-category")) {
+                    continue;
+                }
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
             }
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
         }
         return result;
     }
 
     private Collection<WebPageEntity> parseSubpages(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-
         Set<WebPageEntity> result = new HashSet<>(1);
 
-        Elements elements = document.select(".woocommerce-result-count");
-        Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
-        if (matcher.find()) {
-            int max = Integer.parseInt(matcher.group(2));
-            int postsPerPage = Integer.parseInt(matcher.group(1));
-            int pages = (int) Math.ceil((double) max / postsPerPage);
+        Document document = downloadResult.getDocument();
+        if (document != null) {
+            Elements elements = document.select(".woocommerce-result-count");
+            Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
+            if (matcher.find()) {
+                int max = Integer.parseInt(matcher.group(2));
+                int postsPerPage = Integer.parseInt(matcher.group(1));
+                int pages = (int) Math.ceil((double) max / postsPerPage);
 
-            for (int i = 1; i <= pages; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
+                for (int i = 1; i <= pages; i++) {
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                }
+            } else {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
-        } else {
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
-            LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-            result.add(webPageEntity);
         }
         return result;
     }
