@@ -87,6 +87,6 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.canadiangunnutz.com/") && webPage.getType().equals("productList");
+        return webPage.getUrl().contains("canadiangunnutz.com") && webPage.getType().equals("productList");
     }
 }

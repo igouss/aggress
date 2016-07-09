@@ -28,6 +28,6 @@ class LeverarmsProductParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.leverarms.com/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("leverarms.com") && webPage.getType().equals("productPage");
     }
 }

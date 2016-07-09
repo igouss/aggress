@@ -82,7 +82,7 @@ class QuestarFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://shopquestar.com/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("shopquestar.com") && webPage.getType().equals("frontPage");
     }
 }
 

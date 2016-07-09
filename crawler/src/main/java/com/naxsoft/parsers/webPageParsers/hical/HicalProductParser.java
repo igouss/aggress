@@ -28,6 +28,6 @@ class HicalProductParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.hical.ca/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("hical.ca") && webPage.getType().equals("productPage");
     }
 }

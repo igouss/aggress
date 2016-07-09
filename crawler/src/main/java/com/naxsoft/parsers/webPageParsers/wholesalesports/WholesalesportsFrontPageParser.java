@@ -84,7 +84,7 @@ class WholesalesportsFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.wholesalesports.com/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("wholesalesports.com") && webPage.getType().equals("frontPage");
     }
 }
 

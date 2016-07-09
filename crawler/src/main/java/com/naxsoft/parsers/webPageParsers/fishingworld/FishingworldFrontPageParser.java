@@ -82,6 +82,6 @@ class FishingworldFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://fishingworld.ca/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("fishingworld.ca") && webPage.getType().equals("frontPage");
     }
 }

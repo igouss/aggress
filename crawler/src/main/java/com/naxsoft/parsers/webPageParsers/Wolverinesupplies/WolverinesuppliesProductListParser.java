@@ -28,7 +28,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    public Set<WebPageEntity> onCompleted(WebPageEntity webPageEntity) {
+    private Set<WebPageEntity> onCompleted(WebPageEntity webPageEntity) {
         Set<WebPageEntity> result = new HashSet<>();
         try {
             String productDetailsJson = webPageEntity.getContent();
@@ -88,6 +88,6 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.wolverinesupplies.com/") && webPage.getType().equals("productList");
+        return webPage.getUrl().contains("wolverinesupplies.com") && webPage.getType().equals("productList");
     }
 }

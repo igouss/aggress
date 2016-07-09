@@ -144,6 +144,6 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://shop.dantesports.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("dantesports.com") && webPage.getType().equals("productPageRaw");
     }
 }

@@ -28,6 +28,6 @@ class FishingworldProductParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://fishingworld.ca") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("fishingworld.ca") && webPage.getType().equals("productPage");
     }
 }

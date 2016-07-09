@@ -160,6 +160,6 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("alflahertys.com") && webPage.getType().equals("frontPage");
     }
 }

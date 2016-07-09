@@ -52,6 +52,6 @@ class ProphetriverProductListParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://store.prophetriver.com/") && webPage.getType().equals("productList");
+        return webPage.getUrl().contains("prophetriver.com") && webPage.getType().equals("productList");
     }
 }

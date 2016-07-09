@@ -27,6 +27,6 @@ class WanstallsonlineProductPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.wanstallsonline.com/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("wanstallsonline.com") && webPage.getType().equals("productPage");
     }
 }

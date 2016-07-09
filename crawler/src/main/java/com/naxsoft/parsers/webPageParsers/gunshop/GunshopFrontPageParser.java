@@ -89,6 +89,6 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://gun-shop.ca/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("gun-shop.ca") && webPage.getType().equals("frontPage");
     }
 }

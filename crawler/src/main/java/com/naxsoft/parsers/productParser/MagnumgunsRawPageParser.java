@@ -101,6 +101,6 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.magnumguns.ca/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("magnumguns.ca") && webPage.getType().equals("productPageRaw");
     }
 }

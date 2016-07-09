@@ -90,6 +90,6 @@ class QuestarRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://shopquestar.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("shopquestar.com") && webPage.getType().equals("productPageRaw");
     }
 }

@@ -54,6 +54,6 @@ class IrungunsFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().equals("https://www.irunguns.us/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("irunguns.us") && webPage.getType().equals("frontPage");
     }
 }

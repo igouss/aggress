@@ -28,6 +28,6 @@ class IrungunsProductPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.irunguns.us/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("irunguns.us") && webPage.getType().equals("productPage");
     }
 }

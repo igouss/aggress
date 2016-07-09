@@ -79,6 +79,6 @@ class TheammosourceFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.theammosource.com/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("theammosource.com") && webPage.getType().equals("frontPage");
     }
 }

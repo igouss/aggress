@@ -99,6 +99,6 @@ class SailsRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.sail.ca/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("sail.ca") && webPage.getType().equals("productPageRaw");
     }
 }

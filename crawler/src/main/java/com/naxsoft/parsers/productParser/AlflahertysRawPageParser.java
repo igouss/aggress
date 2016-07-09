@@ -169,6 +169,6 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.alflahertys.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("alflahertys.com") && webPage.getType().equals("productPageRaw");
     }
 }

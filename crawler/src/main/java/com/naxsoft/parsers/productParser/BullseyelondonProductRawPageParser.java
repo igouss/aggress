@@ -167,6 +167,6 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.bullseyelondon.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("bullseyelondon.com") && webPage.getType().equals("productPageRaw");
     }
 }

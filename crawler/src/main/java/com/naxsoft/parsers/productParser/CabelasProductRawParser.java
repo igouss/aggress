@@ -110,6 +110,6 @@ class CabelasProductRawParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.cabelas.ca/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("cabelas.ca") && webPage.getType().equals("productPageRaw");
     }
 }

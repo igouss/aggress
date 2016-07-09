@@ -28,6 +28,6 @@ class FrontierfirearmsProductParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://frontierfirearms.ca/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("frontierfirearms.ca") && webPage.getType().equals("productPage");
     }
 }

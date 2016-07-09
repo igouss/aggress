@@ -72,6 +72,6 @@ class GotendaFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://gotenda.com/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("gotenda.com") && webPage.getType().equals("frontPage");
     }
 }

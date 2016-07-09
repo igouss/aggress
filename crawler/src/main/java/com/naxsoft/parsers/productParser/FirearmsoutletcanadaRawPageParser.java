@@ -85,6 +85,6 @@ class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.firearmsoutletcanada.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("firearmsoutletcanada.com") && webPage.getType().equals("productPageRaw");
     }
 }

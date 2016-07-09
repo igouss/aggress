@@ -83,6 +83,6 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.canadaammo.com/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("canadaammo.com") && webPage.getType().equals("frontPage");
     }
 }

@@ -95,6 +95,6 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.tradeexcanada.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("tradeexcanada.com") && webPage.getType().equals("productPageRaw");
     }
 }

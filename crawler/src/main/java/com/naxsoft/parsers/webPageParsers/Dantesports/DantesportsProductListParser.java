@@ -61,6 +61,6 @@ class DantesportsProductListParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://shop.dantesports.com/") && webPage.getType().equals("productList");
+        return webPage.getUrl().contains("dantesports.com") && webPage.getType().equals("productList");
     }
 }

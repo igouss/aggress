@@ -56,6 +56,6 @@ class CtcsuppliesProductListParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://ctcsupplies.ca/") && webPage.getType().equals("productList");
+        return webPage.getUrl().contains("ctcsupplies.ca") && webPage.getType().equals("productList");
     }
 }

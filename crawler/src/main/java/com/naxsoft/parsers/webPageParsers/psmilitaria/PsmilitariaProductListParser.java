@@ -26,6 +26,6 @@ class PsmilitariaProductListParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://psmilitaria.50megs.com/") && webPage.getType().equals("productList");
+        return webPage.getUrl().contains("psmilitaria.50megs.com") && webPage.getType().equals("productList");
     }
 }

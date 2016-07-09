@@ -28,6 +28,6 @@ class InternationalshootingsuppliesProductPageParser extends AbstractWebPagePars
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://internationalshootingsupplies.com/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("internationalshootingsupplies.com") && webPage.getType().equals("productPage");
     }
 }

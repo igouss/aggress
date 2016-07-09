@@ -75,6 +75,6 @@ class SailsFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.sail.ca/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("sail.ca") && webPage.getType().equals("frontPage");
     }
 }

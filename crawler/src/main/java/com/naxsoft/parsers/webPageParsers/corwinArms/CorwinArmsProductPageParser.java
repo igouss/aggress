@@ -28,7 +28,7 @@ class CorwinArmsProductPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.corwin-arms.com/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("corwin-arms.com") && webPage.getType().equals("productPage");
     }
 }
 

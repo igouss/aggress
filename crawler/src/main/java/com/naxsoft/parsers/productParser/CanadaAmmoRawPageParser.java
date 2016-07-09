@@ -126,6 +126,6 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.canadaammo.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("canadaammo.com") && webPage.getType().equals("productPageRaw");
     }
 }

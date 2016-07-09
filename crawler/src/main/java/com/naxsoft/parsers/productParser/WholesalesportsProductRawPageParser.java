@@ -98,6 +98,6 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://www.wholesalesports.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("wholesalesports.com") && webPage.getType().equals("productPageRaw");
     }
 }

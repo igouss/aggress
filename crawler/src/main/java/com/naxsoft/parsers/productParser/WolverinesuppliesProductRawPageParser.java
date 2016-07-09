@@ -136,7 +136,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.wolverinesupplies.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("wolverinesupplies.com") && webPage.getType().equals("productPageRaw");
     }
 }
 

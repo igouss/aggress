@@ -28,6 +28,6 @@ class EllwoodeppsProductParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://ellwoodepps.com/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("ellwoodepps.com") && webPage.getType().equals("productPage");
     }
 }

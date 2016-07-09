@@ -105,6 +105,6 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("http://westrifle.com/") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("westrifle.com") && webPage.getType().equals("productPageRaw");
     }
 }

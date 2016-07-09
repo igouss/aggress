@@ -39,6 +39,6 @@ class TradeexCanadaProductPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://www.tradeexcanada.com/") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("tradeexcanada.com") && webPage.getType().equals("productPage");
     }
 }

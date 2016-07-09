@@ -102,6 +102,6 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().startsWith("https://fishingworld.ca") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("fishingworld.ca") && webPage.getType().equals("productPageRaw");
     }
 }

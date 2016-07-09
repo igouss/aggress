@@ -52,6 +52,6 @@ public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().equals("https://www.wolverinesupplies.com/") && webPage.getType().equals("frontPage");
+        return webPage.getUrl().contains("wolverinesupplies.com") && webPage.getType().equals("frontPage");
     }
 }
