@@ -10,14 +10,15 @@ ENV PROJECT_ROOT .
 ENV APP_DIR /opt/crawler
 ENV LOG_DIR ${APP_DIR}/logs
 
-RUN mkdir -p ${APP_DIR} ${LOG_DIR} && addgroup aggress && adduser -D -G aggress crawler
-VOLUME ["${LOG_DIR}"]
+USER root
+RUN mkdir -p ${APP_DIR} && mkdir ${LOG_DIR} && addgroup aggress && adduser -D -G aggress crawler
+
 WORKDIR ${APP_DIR}
+
 COPY ["*.jar", "run.sh", "${APP_DIR}/"]
-
-RUN chown -R crawler:aggress .
-
+RUN chown -R crawler:aggress ${APP_DIR}
 USER crawler
+
 CMD ${APP_DIR}/run.sh
 
 
