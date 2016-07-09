@@ -14,9 +14,6 @@ services:
       - "8080:8080"
     links:
       - elasticsearch
-    volumes:
-      - logs_vol:/opt/frontend/logs
-      - ../frontend/basedir:/opt/frontend/basedir
     depends_on:
       - elasticsearch
     env_file:
@@ -30,8 +27,6 @@ services:
     links:
       - elasticsearch
       - redis:database
-    volumes:
-      - logs_vol:/opt/crawler/logs
     depends_on:
       - elasticsearch
       - redis
@@ -43,9 +38,6 @@ services:
         com.naxsoft.elasticsearch.description: "Search engine"
     container_name: elasticsearch
     build: elasticsearch
-    volumes:
-      - elasticsearch_vol:/usr/share/elasticsearch/data
-      - logs_vol:/usr/share/elasticsearch/data/logs
     env_file:
       - common.env
     expose:
@@ -58,8 +50,6 @@ services:
     container_name: redis
     command: redis-server --appendonly yes
     build: redis
-    volumes:
-      - redis_vol:/data
     expose:
       - "6379"
     env_file:
