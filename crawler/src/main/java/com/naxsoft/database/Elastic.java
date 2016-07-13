@@ -39,14 +39,19 @@ public class Elastic implements AutoCloseable, Cloneable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Elastic.class);
     private TransportClient client = null;
 
+    private String hostname;
+
     /**
      * Connect to ElasticSearch server
+     *
      * @param hostname ElasticSearch server hostname
-     * @param port ElasticSearch server port
+     * @param port     ElasticSearch server port
      * @throws UnknownHostException
      */
     public void connect(String hostname, int port) throws UnknownHostException {
         if (null == client) {
+            this.hostname = hostname;
+
             Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
             this.client = new TransportClient.Builder().settings(settings).build();
             this.client.addTransportAddress(new InetSocketTransportAddress(java.net.InetAddress.getByName(hostname), port));
@@ -74,6 +79,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         if (null != client) {
             client.close();
             client = null;
+            hostname = null;
         }
     }
 
@@ -111,12 +117,13 @@ public class Elastic implements AutoCloseable, Cloneable {
         }).flatMap(Observable::from)
                 .retry(3)
                 .subscribe(bulkResponse -> {
-                    if (bulkResponse.hasFailures()) {
-                        LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
-                    } else {
-                        LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
-                    }
-                }, ex -> LOGGER.error("Index Exception", ex), semaphore::release);
+                            if (bulkResponse.hasFailures()) {
+                                LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
+                            } else {
+                                LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
+                            }
+                        }, ex -> LOGGER.error("Index Exception", ex),
+                        semaphore::release);
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
@@ -126,13 +133,13 @@ public class Elastic implements AutoCloseable, Cloneable {
     }
 
     /**
-     * @param client
+     * @param httpClient
      * @param index
      * @param type
      * @param indexSuffix
      * @return
      */
-    public Observable<Integer> createIndex(HttpClient client, String index, String type, String indexSuffix) {
+    public Observable<Integer> createIndex(HttpClient httpClient, String index, String type, String indexSuffix) {
         String resourceName = "/elastic." + index + "." + type + ".index.json";
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         try {
@@ -141,8 +148,8 @@ public class Elastic implements AutoCloseable, Cloneable {
 
             String indexContent = null;
             indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
-            String url = "http://127.0.0.1:9200/" + newIndexName;
-            return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
+            String url = "http://" + hostname + ":9200/" + newIndexName;
+            return Observable.from(httpClient.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
         } catch (Exception e) {
             LOGGER.error("Failed to create index", e);
         } finally {
@@ -167,7 +174,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             LOGGER.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
 
             String indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
-            String url = "http://localhost:9200/" + newIndexName + "/" + type + "/_mapping";
+            String url = "http://" + hostname + ":9200/" + newIndexName + "/" + type + "/_mapping";
 
             return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
         } catch (IOException e) {
