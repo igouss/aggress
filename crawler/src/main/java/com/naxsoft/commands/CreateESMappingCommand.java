@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.concurrent.Semaphore;
 
 /**
  * Copyright NAXSoft 2015
@@ -32,12 +33,19 @@ public class CreateESMappingCommand implements Command {
 
     @Override
     public void start() throws CLIException {
+        Semaphore processCompleteSemaphore = new Semaphore(0);
         elastic.createMapping(httpClient, "product", "guns", indexSuffix)
                 .subscribe(rc -> {
-                    LOGGER.info("Elastic create mapping rc = {}", rc);
-                }, ex -> {
-                    LOGGER.error("CreateMapping Exception", ex);
-                });
+                            LOGGER.info("Elastic create mapping rc = {}", rc);
+                        }, ex -> {
+                            LOGGER.error("CreateMapping Exception", ex);
+                        },
+                        processCompleteSemaphore::release);
+        try {
+            processCompleteSemaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
