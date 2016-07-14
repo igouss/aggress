@@ -12,6 +12,7 @@ services:
     build: frontend
     ports:
       - "8080:8080"
+      - "8000:8000"
     links:
       - elasticsearch
     depends_on:
@@ -24,6 +25,8 @@ services:
         com.naxsoft.crawler.description: "Web crawler and indexer"
     container_name: crawler
     build: crawler
+    ports:
+      - "8001:8000"
     links:
       - elasticsearch
       - redis:database

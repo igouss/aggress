@@ -27,7 +27,7 @@ class ProxyManager {
     synchronized ProxyServer getProxyServer() {
         ProxyServer result = null;
         if (proxyServers.isEmpty()) {
-            LOGGER.info("no proxy");
+            LOGGER.debug("no proxy");
         } else {
             result = proxyServers.get(current++);
             if (current >= proxyServers.size()) {

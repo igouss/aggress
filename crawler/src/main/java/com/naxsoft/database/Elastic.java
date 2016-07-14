@@ -92,19 +92,23 @@ public class Elastic implements AutoCloseable, Cloneable {
 
     /**
      * @param products
-     * @param index
+     * @param indexName
      * @param type
      * @return
      */
-    public Subscription index(Observable<ProductEntity> products, String index, String type) {
+    public Subscription index(Observable<ProductEntity> products, String indexName, String indexSuffix, String type) {
         Semaphore semaphore = new Semaphore(0);
         Subscription subscribe = products.buffer(BATCH_SIZE).map(list -> {
             BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
             for (ProductEntity p : list) {
                 try {
+                    String fullIndexName = indexName;
+                    if (indexSuffix != null) {
+                        fullIndexName += indexSuffix;
+                    }
                     XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
                     jsonBuilder.startObject();
-                    IndexRequestBuilder request = client.prepareIndex(index, type, "" + p.getUrl());
+                    IndexRequestBuilder request = client.prepareIndex(fullIndexName, type, "" + p.getUrl());
                     String payload = p.getJson();
                     request.setSource(payload);
                     request.setOpType(IndexRequest.OpType.INDEX);
@@ -134,21 +138,23 @@ public class Elastic implements AutoCloseable, Cloneable {
 
     /**
      * @param httpClient
-     * @param index
+     * @param indexName
      * @param type
      * @param indexSuffix
      * @return
      */
-    public Observable<Integer> createIndex(HttpClient httpClient, String index, String type, String indexSuffix) {
-        String resourceName = "/elastic." + index + "." + type + ".index.json";
+    public Observable<Integer> createIndex(HttpClient httpClient, String indexName, String type, String indexSuffix) {
+        String resourceName = "/elastic." + indexName + "." + type + ".index.json";
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         try {
-            String newIndexName = index + indexSuffix;
-            LOGGER.info("Creating index {} type {} from {}", newIndexName, type, resourceName);
+            if (indexSuffix != null) {
+                indexName = indexName + indexSuffix;
+            }
+            LOGGER.info("Creating index {} type {} from {}", indexName, type, resourceName);
 
             String indexContent = null;
             indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
-            String url = "http://" + hostname + ":9200/" + newIndexName;
+            String url = "http://" + hostname + ":9200/" + indexName;
             return Observable.from(httpClient.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
         } catch (Exception e) {
             LOGGER.error("Failed to create index", e);
@@ -160,21 +166,22 @@ public class Elastic implements AutoCloseable, Cloneable {
 
     /**
      * @param client
-     * @param index
+     * @param indexName
      * @param type
      * @param indexSuffix
      * @return
      */
-    public Observable<Integer> createMapping(HttpClient client, String index, String type, String indexSuffix) {
-        String resourceName = "/elastic." + index + "." + type + ".mapping.json";
+    public Observable<Integer> createMapping(HttpClient client, String indexName, String type, String indexSuffix) {
+        String resourceName = "/elastic." + indexName + "." + type + ".mapping.json";
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         try {
-
-            String newIndexName = index + indexSuffix;
-            LOGGER.info("Creating mapping for index {} type {} from {}", newIndexName, type, resourceName);
+            if (indexSuffix != null) {
+                indexName = indexName + indexSuffix;
+            }
+            LOGGER.info("Creating mapping for index {} type {} from {}", indexName, type, resourceName);
 
             String indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
-            String url = "http://" + hostname + ":9200/" + newIndexName + "/" + type + "/_mapping";
+            String url = "http://" + hostname + ":9200/" + indexName + "/" + type + "/_mapping";
 
             return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
         } catch (IOException e) {

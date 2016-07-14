@@ -86,7 +86,7 @@ classes
 
 # Ignore Gradle GUI config
 gradle-app.setting
-gradle-wrapper.properties
+**/gradle-wrapper.properties
 
 ### Vagrant template
 .vagrant/

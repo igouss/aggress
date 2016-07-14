@@ -20,5 +20,3 @@ RUN chown -R crawler:aggress ${APP_DIR}
 USER crawler
 
 CMD ${APP_DIR}/run.sh
-
-
