@@ -33,19 +33,20 @@ public class CreateESIndexCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Semaphore processCompleteSemaphore = new Semaphore(0);
+        Semaphore semaphore = new Semaphore(0);
         elastic.createIndex(httpClient, "product", "guns", indexSuffix)
                 .subscribe(rc -> {
                             LOGGER.info("Elastic create index rc = {}", rc);
                         }, ex -> {
                             LOGGER.error("CreateIndex Exception", ex);
+                            semaphore.release();
                         },
                         () -> {
                             LOGGER.info("CreateIndex complete");
-                            processCompleteSemaphore.release();
+                            semaphore.release();
                         });
         try {
-            processCompleteSemaphore.acquire();
+            semaphore.acquire();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

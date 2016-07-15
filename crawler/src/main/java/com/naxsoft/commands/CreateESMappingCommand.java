@@ -33,19 +33,20 @@ public class CreateESMappingCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Semaphore processCompleteSemaphore = new Semaphore(0);
+        Semaphore semaphore = new Semaphore(0);
         elastic.createMapping(httpClient, "product", "guns", indexSuffix)
                 .subscribe(rc -> {
                             LOGGER.info("Elastic create mapping rc = {}", rc);
                         }, ex -> {
                             LOGGER.error("CreateMapping Exception", ex);
+                            semaphore.release();
                         },
                         () -> {
                             LOGGER.info("Create mapping complete");
-                            processCompleteSemaphore.release();
+                            semaphore.release();
                         });
         try {
-            processCompleteSemaphore.acquire();
+            semaphore.acquire();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

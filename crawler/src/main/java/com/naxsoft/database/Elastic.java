@@ -130,7 +130,10 @@ public class Elastic implements AutoCloseable, Cloneable {
                                 LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
                             }
                         },
-                        ex -> LOGGER.error("Index Exception", ex),
+                        ex -> {
+                            LOGGER.error("Index Exception", ex);
+                            semaphore.release();
+                        },
                         () -> {
                             LOGGER.info("Indexing complete");
                             semaphore.release();

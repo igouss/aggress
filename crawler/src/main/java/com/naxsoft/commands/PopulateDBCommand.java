@@ -105,6 +105,7 @@ public class PopulateDBCommand implements Command {
                             LOGGER.info("Roots populated: {}", result);
                         }, err -> {
                             LOGGER.error("Failed to populate roots", err);
+                            semaphore.release();
                         },
                         () -> {
                             LOGGER.info("Root population complete");

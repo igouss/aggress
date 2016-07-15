@@ -41,6 +41,7 @@ public class CleanDBCommand implements Command {
                 },
                 ex -> {
                     LOGGER.error("Crawler Process Exception", ex);
+                    semaphore.release();
                 },
                 () -> {
                     LOGGER.info("Delete complete");
