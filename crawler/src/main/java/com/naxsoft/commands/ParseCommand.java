@@ -85,9 +85,12 @@ public class ParseCommand implements Command {
         }).observeOn(Schedulers.computation())
                 .filter(pageToParse -> pageToParse != null)
                 .doOnNext(pageToParse -> {
-                    for (String category : pageToParse.getCategory().split(",")) {
-                        if (category == null || !VALID_CATEGORIES.contains(category.toLowerCase())) {
-                            LOGGER.warn("Invalid category: {}", pageToParse);
+                    String allCategories = pageToParse.getCategory();
+                    if (allCategories != null) {
+                        for (String category : allCategories.split(",")) {
+                            if (category == null || !VALID_CATEGORIES.contains(category.toLowerCase())) {
+                                LOGGER.warn("Invalid category: {}", pageToParse);
+                            }
                         }
                     }
                 }).map(pageToParse -> {
