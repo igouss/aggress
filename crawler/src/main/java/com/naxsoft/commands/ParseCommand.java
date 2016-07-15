@@ -97,6 +97,9 @@ public class ParseCommand implements Command {
                     } catch (Exception e) {
                         LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
                     }
+                    if (result.isEmpty()) {
+                        LOGGER.warn("No result on page {}", pageToParse);
+                    }
                     return result;
                 }).filter(webPageEntities -> null != webPageEntities)
                 .flatMap(Observable::from);
