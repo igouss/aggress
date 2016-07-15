@@ -44,7 +44,7 @@ public class Crawler {
     }
 
     private static void showHelp() {
-        out.println("com.naxsoft.Crawler [-populate] [-clean] [-crawl] [-parse] [-createESIndex] [-createESMappings]");
+        out.println("com.naxsoft.Crawler [-createESIndex] [-createESMappings] [-clean] [-populate] [-crawl] [-parse]");
     }
 
     public void start(String[] args) {
