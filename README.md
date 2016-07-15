@@ -9,9 +9,9 @@ redisPort=6379
 ```
 
 2) Import startssl certificates
-crawler\src\main\resources\startssl-java-master\run.bat
+crawler\src\main\resources\startssl-java-master\import-certs.bat
 or
-crawler/src/main/resources/startssl-java-master/run.sh
+crawler/src/main/resources/startssl-java-master/import-certs.sh
 
 
 
