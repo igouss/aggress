@@ -40,7 +40,10 @@ public class CreateESMappingCommand implements Command {
                         }, ex -> {
                             LOGGER.error("CreateMapping Exception", ex);
                         },
-                        processCompleteSemaphore::release);
+                        () -> {
+                            LOGGER.info("Create mapping complete");
+                            processCompleteSemaphore.release();
+                        });
         try {
             processCompleteSemaphore.acquire();
         } catch (InterruptedException e) {

@@ -54,7 +54,13 @@ public class RedisDatabase implements Persistent {
                 .filter(redisEvent -> redisEvent instanceof CommandLatencyEvent)
                 .cast(CommandLatencyEvent.class)
                 .subscribeOn(Schedulers.trampoline())
-                .subscribe(e -> LOGGER.info(e.getLatencies().toString()));
+                .subscribe(
+                        e -> LOGGER.info(e.getLatencies().toString()),
+                        err -> LOGGER.error("Failed to get command latency", err),
+                        () -> {
+                            LOGGER.info("Command latency complete");
+                        }
+                );
         pubSub = redisClient.connectPubSub();
         pool = redisClient.asyncPool();
         connection = redisClient.connect();

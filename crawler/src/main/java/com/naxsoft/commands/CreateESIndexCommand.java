@@ -40,7 +40,10 @@ public class CreateESIndexCommand implements Command {
                         }, ex -> {
                             LOGGER.error("CreateIndex Exception", ex);
                         },
-                        processCompleteSemaphore::release);
+                        () -> {
+                            LOGGER.info("CreateIndex complete");
+                            processCompleteSemaphore.release();
+                        });
         try {
             processCompleteSemaphore.acquire();
         } catch (InterruptedException e) {

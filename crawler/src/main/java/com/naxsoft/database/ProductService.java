@@ -44,7 +44,11 @@ public class ProductService {
      */
     public void markAllAsIndexed() {
         database.markAllProductPagesAsIndexed().subscribe(value -> {
-            LOGGER.info("The number of entities affected: {}", value);
-        });
+                    LOGGER.info("The number of entities affected: {}", value);
+                },
+                err -> LOGGER.error("Failed to mark as indexed", err),
+                () -> {
+                    LOGGER.info("markAllProductPagesAsIndexed complete");
+                });
     }
 }
