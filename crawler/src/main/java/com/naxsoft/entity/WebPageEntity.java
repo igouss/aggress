@@ -35,11 +35,10 @@ public class WebPageEntity {
      *
      */
     private Long id;
-
     /**
      *
      */
-    private String content;
+    private String url;
 
     /**
      *
@@ -49,12 +48,13 @@ public class WebPageEntity {
     /**
      *
      */
-    private boolean parsed;
+    private String content;
+
 
     /**
      *
      */
-    private String url;
+    private boolean parsed;
 
     /**
      *
