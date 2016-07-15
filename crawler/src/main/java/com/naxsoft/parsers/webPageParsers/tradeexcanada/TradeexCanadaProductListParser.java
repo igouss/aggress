@@ -29,8 +29,8 @@ class TradeexCanadaProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url) {
-        return new WebPageEntity(0L, "", "productList", false, url, "");
+    private static WebPageEntity create(String url, String category) {
+        return new WebPageEntity(0L, "", "productList", false, url, category);
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -41,16 +41,16 @@ class TradeexCanadaProductListParser extends AbstractWebPageParser {
             if (document.location().contains("page=")) {
                 Elements elements = document.select(".view-content a");
                 for (Element element : elements) {
-                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), "");
+                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             } else {
                 Elements subPages = document.select(".pager a");
                 for (Element subPage : subPages) {
-                    result.add(create(subPage.attr("abs:href")));
+                    result.add(create(subPage.attr("abs:href"), downloadResult.getSourcePage().getCategory()));
                 }
-                result.add(create(document.location() + "?page=0"));
+                result.add(create(document.location() + "?page=0", downloadResult.getSourcePage().getCategory()));
             }
         }
         return result;
