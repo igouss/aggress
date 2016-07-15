@@ -99,9 +99,11 @@ public class Elastic implements AutoCloseable, Cloneable {
     public Subscription index(Observable<ProductEntity> products, String indexName, String indexSuffix, String type) {
         Semaphore semaphore = new Semaphore(0);
         Subscription subscribe = products.buffer(BATCH_SIZE).map(list -> {
+            LOGGER.info("Preparing for indexing {} products", list.size());
             BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
             for (ProductEntity p : list) {
                 try {
+                    LOGGER.info("Preparing for indexing {}", p);
                     String fullIndexName = indexName;
                     if (indexSuffix != null) {
                         fullIndexName += indexSuffix;
@@ -120,14 +122,19 @@ public class Elastic implements AutoCloseable, Cloneable {
             return bulkRequestBuilder.execute();
         }).flatMap(Observable::from)
                 .retry(3)
-                .subscribe(bulkResponse -> {
+                .subscribe(
+                        bulkResponse -> {
                             if (bulkResponse.hasFailures()) {
                                 LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
                             } else {
                                 LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
                             }
-                        }, ex -> LOGGER.error("Index Exception", ex),
-                        semaphore::release);
+                        },
+                        ex -> LOGGER.error("Index Exception", ex),
+                        () -> {
+                            LOGGER.info("Indexing complete");
+                            semaphore.release();
+                        });
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
