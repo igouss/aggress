@@ -19,13 +19,12 @@ public abstract class AbstractCompletionHandler<R> extends AsyncCompletionHandle
 
     @Override
     public void onThrowable(Throwable t) {
-        if (t instanceof java.util.concurrent.CancellationException) {
-            // ignore
-            LOGGER.debug("HTTP Request canceled");
-        } else if (t instanceof java.net.ConnectException) {
-            handleProxyFailure(t);
-        } else {
-            LOGGER.error("HTTP Error", t);
+        if (!(t instanceof java.util.concurrent.CancellationException)) {
+            if (t instanceof java.net.ConnectException) {
+                handleProxyFailure(t);
+            } else {
+                LOGGER.error("HTTP Error", t);
+            }
         }
     }
 
