@@ -137,6 +137,6 @@ public class TestSearch {
     }
 
     private Subscription indexProducts(Observable<ProductEntity> products, String index, String type) {
-        return elastic.index(products, index, type);
+        return elastic.index(products, index, "", type);
     }
 }
