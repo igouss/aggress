@@ -53,7 +53,9 @@ public class ProductParserFacade {
                     constructor.setAccessible(true);
 
                     ProductParser e = constructor.newInstance();
-                    parsers.add(e);
+                    if (!(e instanceof NoopParser)) {
+                        parsers.add(e);
+                    }
                 } catch (Exception e) {
                     LOGGER.error("Failed to create a new product parser", e);
                 }
