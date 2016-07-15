@@ -30,9 +30,9 @@ public class ParseCommand implements Command {
     private final static Set<String> VALID_CATEGORIES = new HashSet<>();
 
     static {
-        VALID_CATEGORIES.add("n/a");
-        VALID_CATEGORIES.add("firearms");
-        VALID_CATEGORIES.add("reloading");
+        VALID_CATEGORIES.add("firearm");
+        VALID_CATEGORIES.add("reload");
+        VALID_CATEGORIES.add("optic");
         VALID_CATEGORIES.add("ammo");
         VALID_CATEGORIES.add("misc");
     }
@@ -65,8 +65,7 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<ProductEntity> products = getProductEntityObservable().onErrorResumeNext(getProductEntityObservable());
-        indexProducts(products, "product" + indexSuffix, "guns");
+        indexProducts(getProductEntityObservable(), "product" , indexSuffix, "guns");
         LOGGER.info("Parsing complete");
     }
 
@@ -76,19 +75,25 @@ public class ParseCommand implements Command {
     private Observable<ProductEntity> getProductEntityObservable() {
         return webPageService.getUnparsedByType("productPage").flatMap(webPageEntity -> {
             Observable<WebPageEntity> result = webPageParserFactory.parse(webPageEntity);
-            webPageService.markParsed(webPageEntity).subscribe();
+            webPageService.markParsed(webPageEntity).subscribe(
+                    res -> LOGGER.info("Marked as parsed {}", res),
+                    err -> LOGGER.error("Failed to mark as parsed"),
+                    () -> LOGGER.debug("Mark as parse complete")
+            );
+            LOGGER.info("returning parsed productPages");
             return result;
         }).observeOn(Schedulers.computation())
                 .filter(pageToParse -> pageToParse != null)
                 .doOnNext(pageToParse -> {
-                    String category = pageToParse.getCategory();
-                    if (category == null || !VALID_CATEGORIES.contains(category.toLowerCase())) {
-                        LOGGER.warn("Invalid category: {}", pageToParse);
+                    for (String category : pageToParse.getCategory().split(",")) {
+                        if (category == null || !VALID_CATEGORIES.contains(category.toLowerCase())) {
+                            LOGGER.warn("Invalid category: {}", pageToParse);
+                        }
                     }
                 }).map(pageToParse -> {
-                    Set<ProductEntity> result = null;
+                    Set<ProductEntity> result = new HashSet<>();
                     try {
-                        result = productParserFactory.parse(pageToParse);
+                        result.addAll(productParserFactory.parse(pageToParse));
                     } catch (Exception e) {
                         LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
                     }
@@ -116,8 +121,11 @@ public class ParseCommand implements Command {
      * @param type     Elasticsearch type
      * @return
      */
-    private Subscription indexProducts(Observable<ProductEntity> products, String index, String type) {
+    private Subscription indexProducts(Observable<ProductEntity> products, String index, String indexSuffix, String type) {
         LOGGER.info("Indexing products");
-        return elastic.index(products, index, type);
+        Subscription subscription = elastic.index(products, index, indexSuffix, type);
+        LOGGER.info("Indexing products compete");
+        return subscription;
+
     }
 }
