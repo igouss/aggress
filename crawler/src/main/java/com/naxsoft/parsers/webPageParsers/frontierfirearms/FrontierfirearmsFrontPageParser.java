@@ -6,6 +6,7 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -38,20 +39,22 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
 
         Document document = downloadResult.getDocument();
         if (document != null) {
-            String elements = document.select("div.toolbar > div.pager > p").first().text();
-            Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
-            if (!matcher.find()) {
-                LOGGER.error("Unable to parse total pages");
-                return result;
-            }
-
-            int productTotal = Integer.parseInt(matcher.group(1));
-            int pageTotal = (int) Math.ceil(productTotal / 30.0);
-
-            for (int i = 1; i <= pageTotal; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "?p=" + i, downloadResult.getSourcePage().getCategory());
+            if (document.select("#CategoryPagingBottom > div > a").isEmpty()) {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
+            } else {
+                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
+                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                result.add(webPageEntity);
+
+                // select next active
+                Elements select = document.select(".PagingList .ActivePage + li a");
+                if (!select.isEmpty()) {
+                    webPageEntity = new WebPageEntity(0L, "", "productList", false, select.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    result.add(webPageEntity);
+                }
             }
         }
         return result;
