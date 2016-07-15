@@ -77,11 +77,19 @@ public class CrawlCommand implements Command {
                     webPageParserFactory.parse(pageToParse)
                             .filter(parseResult -> null != parseResult)
                             .flatMap(webPageService::save)
-                            .subscribe(res -> LOGGER.trace("Save {}", res), ex -> LOGGER.error("Crawler Process Exception", ex));
+                            .subscribe(
+                                    res -> LOGGER.trace("Save {}", res),
+                                    ex -> LOGGER.error("Crawler Process Exception", ex),
+                                    () -> LOGGER.info("Save completed")
+                            );
                     return pageToParse;
                 }).subscribe(
                 val -> {
-                    webPageService.markParsed(val).subscribe(saveResult -> LOGGER.info("Parsed {}", val));
+                    webPageService.markParsed(val).subscribe(
+                            saveResult -> LOGGER.info("Marking as parsed {} {}", val, saveResult),
+                            err -> LOGGER.error("Failed to mark as parsed", err),
+                            () -> LOGGER.info("Mark as parsed completed")
+                    );
                 },
                 err -> LOGGER.error("Failed to crawl", err),
                 processCompleteSemaphore::release);
