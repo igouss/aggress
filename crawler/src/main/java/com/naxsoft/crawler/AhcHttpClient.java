@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright NAXSoft 2015
@@ -23,7 +24,7 @@ public class AhcHttpClient implements HttpClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AhcHttpClient.class);
 
-    private final static int MAX_CONNECTIONS = 1;
+    private final static int MAX_CONNECTIONS = 5;
 
     private final AsyncHttpClient asyncHttpClient;
 
@@ -127,7 +128,9 @@ public class AhcHttpClient implements HttpClient {
         requestBuilder.setCookies(cookies);
         requestBuilder.setBody(content);
         requestBuilder.setFollowRedirect(true);
+        requestBuilder.setRequestTimeout((int) TimeUnit.MINUTES.toMillis(2L));
         requestBuilder.setProxyServer(proxyManager.getProxyServer());
+
         Request request = requestBuilder.build();
 
         handler.setProxyManager(proxyManager);
