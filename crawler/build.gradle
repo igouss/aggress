@@ -47,6 +47,7 @@ dependencies {
     compile "com.github.davidmoten:rxjava-extras:0.7.9.10" // https://github.com/davidmoten/rxjava-extras
     compile project(':common')
     apt "com.google.dagger:dagger-compiler:2.5"
+    compile fileTree(dir: "libs", include: "*.jar")
 }
 
 javadoc {
@@ -66,7 +67,8 @@ test {
 //    useTestNG()
 }
 
-task integrationTest(type: Test, dependsOn: "test") << {
+task integrationTest(type: Test) << {
+    dependsOn test
     include "**/IntegrationTest*.*"
 }
 
@@ -77,9 +79,17 @@ test.onlyIf {
 }
 
 task copyLibs(type: Copy) {
-    group = "Publishing"
     description = "Copy app and all dependencies to build/libs"
     from configurations.compile
     into "$buildDir/libs"
     dependsOn jar
+}
+
+task docker(type: Copy) {
+    description = "Copy app and all dependencies to docker/crawler"
+    dependsOn copyLibs
+
+    from "$buildDir/libs"
+    from "src/main/resources/startssl-java-master"
+    into "../docker/crawler"
 }

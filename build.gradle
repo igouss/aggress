@@ -32,4 +32,13 @@ allprojects {
     }
 }
 
+evaluationDependsOnChildren()
+
+task docker() {
+    group = "Publishing"
+    description = "Copy app and all dependencies to docker"
+}
+docker.dependsOn(":crawler:docker")
+docker.dependsOn(":frontend:docker")
+
 defaultTasks = ["clean", "build"]

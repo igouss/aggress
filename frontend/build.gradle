@@ -30,9 +30,23 @@ task frontend(type:JavaExec) {
 }
 
 task copyLibs(type: Copy) {
-    group = "Publishing"
     description = "Copy app and all dependencies to build/libs"
     from configurations.compile
     into "$buildDir/libs"
     dependsOn jar
+}
+
+task copyBaseDir(type: Copy) {
+    description = "Copy basedir to docker"
+    from "basedir"
+    into "../docker/frontend/basedir"
+
+}
+
+task docker(type: Copy) {
+    description = "Copy app and all dependencies to docker/frontend"
+    dependsOn copyLibs, copyBaseDir
+
+    from "$buildDir/libs"
+    into "../docker/frontend"
 }
