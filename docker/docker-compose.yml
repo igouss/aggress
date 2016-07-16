@@ -33,6 +33,7 @@ services:
     depends_on:
       - elasticsearch
       - redis
+      - tor-proxy
     env_file:
       - common.env
 
@@ -63,3 +64,11 @@ services:
     links:
       - redis
     command: redis-cli -h redis
+
+  tor-proxy:
+    image: arulrajnet/torprivoxy
+    restart: always
+    ports:
+      - 8118:8118
+      - 9050:9050
+      - 9051:9051
