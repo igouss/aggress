@@ -15,7 +15,7 @@ RUN mkdir -p ${APP_DIR} && mkdir ${LOG_DIR} && addgroup aggress && adduser -D -G
 
 WORKDIR ${APP_DIR}
 
-COPY ["*.jar", "run.sh", "${APP_DIR}/"]
+COPY ["*.jar", "*.sh", "*.crt", "${APP_DIR}/"]
 RUN chown -R crawler:aggress ${APP_DIR} && ./import-certs.sh
 USER crawler
 
