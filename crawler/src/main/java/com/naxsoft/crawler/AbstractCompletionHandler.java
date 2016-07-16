@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
  * <p>
  * Base class to handle completed page download.
  * Logs on errors.
+ * TODO: implement AsyncHandlerExtensions
  */
 public abstract class AbstractCompletionHandler<R> extends AsyncCompletionHandler<R> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCompletionHandler.class);
@@ -28,6 +29,10 @@ public abstract class AbstractCompletionHandler<R> extends AsyncCompletionHandle
         }
     }
 
+    /**
+     * Manage proxy failures
+     * @param t Failure
+     */
     private void handleProxyFailure(Throwable t) {
         String message = t.getMessage(); // Connection refused: no further information: /127.0.0.1:8080
         if (!message.equals("HTTP Request canceled")) {
