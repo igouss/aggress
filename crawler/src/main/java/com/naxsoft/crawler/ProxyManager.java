@@ -26,7 +26,7 @@ class ProxyManager {
                 .build();
 
         proxyServers = new ArrayList<>();
-        proxyServers.add(torProxy);
+//        proxyServers.add(torProxy);
 
 //        try {
 //            String proxyHost = AppProperties.getProperty("proxy.host").getValue();
