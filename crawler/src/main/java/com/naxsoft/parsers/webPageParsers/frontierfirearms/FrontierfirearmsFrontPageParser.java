@@ -35,7 +35,7 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     }
 
     private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+        Set<WebPageEntity> result = new HashSet<>(2);
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -71,6 +71,13 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
                 .observeOn(Schedulers.io())
                 .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(Observable::from)
+                .filter(downloadResult -> {
+                    if (downloadResult == null) {
+                        LOGGER.error("Failed to get download results");
+                        return false;
+                    }
+                    return true;
+                })
                 .map(this::parseDocument)
                 .flatMap(Observable::from);
     }
