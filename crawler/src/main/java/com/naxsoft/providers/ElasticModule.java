@@ -22,14 +22,17 @@ public class ElasticModule {
     @Provides
     @Singleton
     @NotNull
-    public static Elastic getElastic() {
-
+    static Elastic getElastic() {
         Elastic elastic = new Elastic();
         try {
-            elastic.connect(AppProperties.getProperty("elasticHost").getValue(), Integer.parseInt(AppProperties.getProperty("elasticPort").getValue()));
-            return elastic;
-        } catch (UnknownHostException e) {
-            LOGGER.error("Failed to connect to elastic search", e);
+            String elasticHost = AppProperties.getProperty("elasticHost").getValue();
+            int elasticPort = Integer.parseInt(AppProperties.getProperty("elasticPort").getValue());
+            try {
+                elastic.connect(elasticHost, elasticPort);
+                return elastic;
+            } catch (UnknownHostException e) {
+                LOGGER.error("Failed to connect to elastic search " + elasticHost + ":" + elasticPort , e);
+            }
         } catch (PropertyNotFoundException e) {
             LOGGER.error("Failed to load elasticProperty: " + e.getMessage(), e);
         }
