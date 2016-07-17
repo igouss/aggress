@@ -2,6 +2,7 @@ package com.naxsoft;
 
 import com.codahale.metrics.MetricRegistry;
 import com.lambdaworks.redis.event.EventBus;
+import com.naxsoft.commands.*;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.database.Elastic;
 import com.naxsoft.database.Persistent;
@@ -30,6 +31,7 @@ import javax.inject.Singleton;
         , ProductParserFactoryModule.class
         , EncoderModule.class
         , EventBusModule.class
+        , CommandModule.class
         , SchedulerModule.class
 }, dependencies = {})
 public interface ApplicationComponent {
@@ -52,4 +54,16 @@ public interface ApplicationComponent {
     EventBus getEventBus();
 
     Scheduler getScheduler();
+
+    CleanDBCommand getCleanDbCommand();
+
+    CrawlCommand getCrawlCommand();
+
+    CreateESIndexCommand getCreateESIndexCommand();
+
+    CreateESMappingCommand getCreateESMappingCommand();
+
+    ParseCommand getParseCommand();
+
+    PopulateDBCommand getPopulateDBCommand();
 }

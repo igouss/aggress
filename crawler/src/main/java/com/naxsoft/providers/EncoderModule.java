@@ -16,14 +16,14 @@ public class EncoderModule {
     @Provides
     @Singleton
     @NotNull
-    public static WebPageEntityEncoder getWebPageEntityEncoder() {
+    static WebPageEntityEncoder getWebPageEntityEncoder() {
         return new WebPageEntityEncoder();
     }
 
     @Provides
     @Singleton
     @NotNull
-    public static ProductEntityEncoder getProductEntityEncoder() {
+    static ProductEntityEncoder getProductEntityEncoder() {
         return new ProductEntityEncoder();
     }
 }

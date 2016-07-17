@@ -16,7 +16,7 @@ public class WebPageParserFactoryModule {
     @Provides
     @Singleton
     @NotNull
-    public static WebPageParserFactory get(HttpClient client) {
+    static WebPageParserFactory get(HttpClient client) {
         return new WebPageParserFactory(client);
     }
 }

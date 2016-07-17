@@ -16,7 +16,7 @@ public class ProductServiceModule {
     @Provides
     @Singleton
     @NotNull
-    public static ProductService getElastic(Persistent db) {
+    static ProductService getElastic(Persistent db) {
         return new ProductService(db);
     }
 }

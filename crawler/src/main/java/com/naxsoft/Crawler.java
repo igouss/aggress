@@ -10,6 +10,8 @@ import joptsimple.OptionSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
@@ -64,29 +66,29 @@ public class Crawler {
             }
 
             if (options.has("createESIndex")) {
-                createESIndex(applicationComponent);
+                applicationComponent.getCreateESIndexCommand().start();
             }
 
             if (options.has("createESMappings")) {
-                createESMappings(applicationComponent);
+                applicationComponent.getCreateESMappingCommand().start();
             }
-
             scheduler = applicationComponent.getScheduler();
             scheduler.add(() -> {
                 if (options.has("clean")) {
-                    cleanDb(applicationComponent);
+                    applicationComponent.getCleanDbCommand().start();
+
                 }
 
                 if (options.has("populate")) {
-                    populateDb(applicationComponent);
+                    applicationComponent.getPopulateDBCommand().start();
                 }
 
                 if (options.has("crawl")) {
-                    crawl(applicationComponent);
+                    applicationComponent.getCrawlCommand().start();
                 }
 
                 if (options.has("parse")) {
-                    parse(applicationComponent);
+                    applicationComponent.getParseCommand().start();
                 }
             }, 0, 1, TimeUnit.DAYS);
         } catch (Exception e) {
@@ -107,77 +109,5 @@ public class Crawler {
                 e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * Parse HTML pages stored in database in send them to elasticsearch for indexing
-     *
-     * @param applicationComponent
-     */
-    private void parse(ApplicationComponent applicationComponent) {
-        Command parseCommand = new ParseCommand();
-        parseCommand.setUp(applicationComponent);
-        parseCommand.start();
-        parseCommand.tearDown();
-    }
-
-    /**
-     * Crawl websites for products and store product pages in database
-     *
-     * @param applicationComponent
-     */
-    private void crawl(ApplicationComponent applicationComponent) {
-        Command crawlCommand = new CrawlCommand();
-        crawlCommand.setUp(applicationComponent);
-        crawlCommand.start();
-        crawlCommand.tearDown();
-    }
-
-    /**
-     * Populate database with initial dataset
-     *
-     * @param applicationComponent
-     */
-    private void populateDb(ApplicationComponent applicationComponent) {
-        Command populateDBCommand = new PopulateDBCommand();
-        populateDBCommand.setUp(applicationComponent);
-        populateDBCommand.start();
-        populateDBCommand.tearDown();
-    }
-
-    /**
-     * Clean-up database from stale data
-     *
-     * @param applicationComponent
-     */
-    private void cleanDb(ApplicationComponent applicationComponent) {
-        Command cleanDBCommand = new CleanDBCommand();
-        cleanDBCommand.setUp(applicationComponent);
-        cleanDBCommand.start();
-        cleanDBCommand.tearDown();
-    }
-
-    /**
-     * Prepare Elasticsearch mapping
-     *
-     * @param applicationComponent
-     */
-    private void createESMappings(ApplicationComponent applicationComponent) {
-        Command command = new CreateESMappingCommand();
-        command.setUp(applicationComponent);
-        command.start();
-        command.tearDown();
-    }
-
-    /**
-     * Create elasticsearch index
-     *
-     * @param applicationComponent
-     */
-    private void createESIndex(ApplicationComponent applicationComponent) {
-        Command command = new CreateESIndexCommand();
-        command.setUp(applicationComponent);
-        command.start();
-        command.tearDown();
     }
 }

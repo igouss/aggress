@@ -10,7 +10,7 @@ public interface Command {
     /**
      * Set up the command execution environment.
      */
-    void setUp(ApplicationComponent applicationComponent) throws CLIException;
+    void setUp() throws CLIException;
 
     /**
      * Executes the command.

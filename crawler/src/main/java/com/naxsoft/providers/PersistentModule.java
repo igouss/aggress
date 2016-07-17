@@ -19,7 +19,7 @@ public class PersistentModule {
     @Provides
     @Singleton
     @NotNull
-    public static Persistent providePersistent(WebPageEntityEncoder webPageEntityEncoder, ProductEntityEncoder productEntityEncoder) {
+    static Persistent providePersistent(WebPageEntityEncoder webPageEntityEncoder, ProductEntityEncoder productEntityEncoder) {
         RedisDatabase redisDatabase = null;
         try {
             redisDatabase = new RedisDatabase();

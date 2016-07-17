@@ -37,29 +37,22 @@ public class ParseCommand implements Command {
         VALID_CATEGORIES.add("misc");
     }
 
-    @Inject
-    protected WebPageService webPageService = null;
-    @Inject
-    protected ProductService productService = null;
-    @Inject
-    protected Elastic elastic = null;
-    @Inject
-    protected ProductParserFacade productParserFactory = null;
-    @Inject
-    protected MetricRegistry metrics = null;
-    @Inject
-    protected String indexSuffix = null;
-    @Inject
-    protected WebPageParserFactory webPageParserFactory;
+    private WebPageService webPageService = null;
+    private Elastic elastic = null;
+    private ProductParserFacade productParserFactory = null;
+    private String indexSuffix = null;
+    private WebPageParserFactory webPageParserFactory;
 
+    @Inject
+    public ParseCommand(WebPageService webPageService, ProductParserFacade productParserFactory, WebPageParserFactory webPageParserFactory,Elastic elastic) {
+        this.webPageService = webPageService;
+        this.productParserFactory = productParserFactory;
+        this.webPageParserFactory = webPageParserFactory;
+        this.elastic = elastic;
+    }
 
     @Override
-    public void setUp(ApplicationComponent applicationComponent) throws CLIException {
-        webPageService = applicationComponent.getWebPageService();
-        productService = applicationComponent.getProductService();
-        webPageParserFactory = applicationComponent.getWebPageParserFactory();
-        productParserFactory = applicationComponent.getProductParserFactory();
-        elastic = applicationComponent.getElastic();
+    public void setUp() throws CLIException {
 
     }
 
@@ -110,13 +103,6 @@ public class ParseCommand implements Command {
 
     @Override
     public void tearDown() throws CLIException {
-        webPageService = null;
-        productService = null;
-        elastic = null;
-        productParserFactory = null;
-        webPageParserFactory = null;
-        metrics = null;
-        indexSuffix = null;
     }
 
     /**

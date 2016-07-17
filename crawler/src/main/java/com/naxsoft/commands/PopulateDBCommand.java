@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
+import javax.inject.Inject;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -55,9 +56,15 @@ public class PopulateDBCommand implements Command {
             "http://www.wholesalesports.com/",
             "https://www.wolverinesupplies.com/",
     };
-    private static WebPageService webPageService = null;
 
-//    private static void populateSources() {
+    private WebPageService webPageService;
+
+    @Inject
+    public PopulateDBCommand(WebPageService webPageService) {
+        this.webPageService = webPageService;
+    }
+
+    //    private static void populateSources() {
 //        Observable.from(SOURCES).map(PopulateDBCommand::from)
 //                .retry(3)
 //                .doOnError(ex -> logger.error("Exception", ex))
@@ -88,8 +95,7 @@ public class PopulateDBCommand implements Command {
     }
 
     @Override
-    public void setUp(ApplicationComponent applicationComponent) throws io.vertx.core.cli.CLIException {
-        webPageService = applicationComponent.getWebPageService();
+    public void setUp() throws io.vertx.core.cli.CLIException {
     }
 
     @Override
@@ -120,6 +126,5 @@ public class PopulateDBCommand implements Command {
 
     @Override
     public void tearDown() throws CLIException {
-        webPageService = null;
     }
 }

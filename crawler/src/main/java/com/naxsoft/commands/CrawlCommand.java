@@ -22,20 +22,17 @@ import java.util.concurrent.Semaphore;
 public class CrawlCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(CrawlCommand.class);
 
-    @Inject
-    WebPageService webPageService = null;
+    private WebPageService webPageService;
+    private WebPageParserFactory webPageParserFactory;
 
     @Inject
-    WebPageParserFactory webPageParserFactory = null;
-
-    @Inject
-    MetricRegistry metrics = null;
+    public CrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
+        this.webPageService = webPageService;
+        this.webPageParserFactory = webPageParserFactory;
+    }
 
     @Override
-    public void setUp(ApplicationComponent applicationComponent) throws CLIException {
-        webPageService = applicationComponent.getWebPageService();
-        webPageParserFactory = applicationComponent.getWebPageParserFactory();
-        metrics = applicationComponent.getMetricRegistry();
+    public void setUp() throws CLIException {
     }
 
     @Override
@@ -57,9 +54,6 @@ public class CrawlCommand implements Command {
 
     @Override
     public void tearDown() throws CLIException {
-        webPageService = null;
-        webPageParserFactory = null;
-        metrics = null;
     }
 
     /**

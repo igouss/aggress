@@ -15,7 +15,7 @@ public class ProductParserFactoryModule {
     @Provides
     @Singleton
     @NotNull
-    public static ProductParserFacade get() {
+    static ProductParserFacade get() {
         return new ProductParserFacade();
     }
 }

@@ -25,12 +25,14 @@ public class CleanDBCommand implements Command {
             "ProductEntity"
     };
 
-    @Inject
-    protected Persistent db = null;
+    private Persistent db;
+
+    public CleanDBCommand(Persistent db) {
+        this.db = db;
+    }
 
     @Override
-    public void setUp(ApplicationComponent applicationComponent) throws CLIException {
-        db = applicationComponent.getDatabase();
+    public void setUp() throws CLIException {
     }
 
     @Override
@@ -56,6 +58,5 @@ public class CleanDBCommand implements Command {
 
     @Override
     public void tearDown() throws CLIException {
-        db = null;
     }
 }

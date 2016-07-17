@@ -17,18 +17,18 @@ import java.util.concurrent.Semaphore;
 public class CreateESMappingCommand implements Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateESMappingCommand.class);
 
+    private Elastic elastic = null;
+    private HttpClient httpClient = null;
+    private String indexSuffix = "";
+
     @Inject
-    protected Elastic elastic = null;
-    @Inject
-    protected HttpClient httpClient = null;
-    @Inject
-    protected String indexSuffix = null;
+    public CreateESMappingCommand(Elastic elastic, HttpClient httpClient) {
+        this.elastic = elastic;
+        this.httpClient = httpClient;
+    }
 
     @Override
-    public void setUp(ApplicationComponent applicationComponent) throws CLIException {
-        elastic = applicationComponent.getElastic();
-        httpClient = applicationComponent.getHttpClient();
-        indexSuffix = "";
+    public void setUp() throws CLIException {
     }
 
     @Override
@@ -54,8 +54,5 @@ public class CreateESMappingCommand implements Command {
 
     @Override
     public void tearDown() throws CLIException {
-        elastic = null;
-        httpClient = null;
-        indexSuffix = null;
     }
 }

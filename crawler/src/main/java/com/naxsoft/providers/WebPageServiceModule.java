@@ -16,7 +16,7 @@ public class WebPageServiceModule {
     @Provides
     @Singleton
     @NotNull
-    public static WebPageService get(Persistent db) {
+    static WebPageService get(Persistent db) {
         return new WebPageService(db);
     }
 }
