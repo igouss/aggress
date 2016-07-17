@@ -3,6 +3,7 @@ package com.naxsoft.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -32,14 +33,18 @@ public class AppProperties {
          */
         String deployment_env = System.getenv("DEPLOYMENT_ENV");
         if (deployment_env != null && !deployment_env.isEmpty()) {
+            String deploymentConfigFile = "config-" + deployment_env + ".properties";
             try {
-                String deploymentConfigFile = "config-" + deployment_env + ".properties";
-                LOGGER.debug("Loading " + deployment_env);
-                InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream(deploymentConfigFile);
-                PROPERTIES.load(resourceAsStream);
-                LOGGER.debug("App properties {}", PROPERTIES);
+                if (new File(deploymentConfigFile).exists()) {
+                    LOGGER.debug("Loading " + deploymentConfigFile);
+                    InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream(deploymentConfigFile);
+                    PROPERTIES.load(resourceAsStream);
+                    LOGGER.debug("App properties {}", PROPERTIES);
+                } else {
+                    LOGGER.debug("config " + deploymentConfigFile + " does not exist");
+                }
             } catch (Exception e) {
-                LOGGER.error("Failed to load properties", e);
+                LOGGER.error("Failed to load properties: " + deploymentConfigFile, e);
             }
         }
     }
