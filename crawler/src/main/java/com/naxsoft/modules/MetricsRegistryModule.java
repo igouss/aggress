@@ -1,4 +1,4 @@
-package com.naxsoft.providers;
+package com.naxsoft.modules;
 
 import com.codahale.metrics.MetricRegistry;
 import dagger.Module;

@@ -1,4 +1,4 @@
-package com.naxsoft.providers;
+package com.naxsoft.modules;
 
 import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;

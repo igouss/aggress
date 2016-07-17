@@ -1,4 +1,4 @@
-package com.naxsoft.providers;
+package com.naxsoft.modules;
 
 import com.lambdaworks.redis.event.DefaultEventBus;
 import com.lambdaworks.redis.event.EventBus;

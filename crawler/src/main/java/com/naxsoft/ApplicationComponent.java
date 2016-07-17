@@ -10,6 +10,7 @@ import com.naxsoft.database.ProductService;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.parsers.productParser.ProductParserFacade;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
+import com.naxsoft.modules.*;
 import com.naxsoft.providers.*;
 import com.naxsoft.scheduler.Scheduler;
 import dagger.Component;
