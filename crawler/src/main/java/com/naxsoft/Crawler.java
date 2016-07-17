@@ -4,6 +4,7 @@ import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
 import com.naxsoft.commands.*;
+import com.naxsoft.utils.HealthCheck;
 import com.naxsoft.scheduler.Scheduler;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -53,6 +54,7 @@ public class Crawler {
     }
 
     public void start(String[] args) {
+        HealthCheck.start();
         DaggerApplicationComponent.Builder applicationBuilder = DaggerApplicationComponent.builder();
         ApplicationComponent applicationComponent = applicationBuilder.build();
 
@@ -75,6 +77,7 @@ public class Crawler {
             }
             scheduler = applicationComponent.getScheduler();
             scheduler.add(() -> {
+
                 if (options.has("clean")) {
                     applicationComponent.getCleanDbCommand().start();
 
@@ -111,4 +114,5 @@ public class Crawler {
             }
         }
     }
+
 }

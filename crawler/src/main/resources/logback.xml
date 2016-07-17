@@ -33,6 +33,14 @@
         <appender-ref ref="ERROR-LOG"/>
     </appender>
 
+    <appender name="HEALTHCHECK-LOG" class="ch.qos.logback.core.FileAppender">
+        <file>HealthCheck.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
 
     <logger name="org.hibernate" level="INFO"/>
     <logger name="org.elasticsearch" level="INFO"/>
@@ -42,6 +50,12 @@
     <logger name="com.ning.http.client" level="INFO"/>
     <logger name="com.lambdaworks.redis" level="INFO"/>
     <logger name="org.asynchttpclient" level="INFO"/>
+
+    <!-- Set additivity="false" to avoid polluting root appender -->
+    <logger name="HealthCheck" level="ALL" additivity="false">
+        <appender-ref ref="HEALTHCHECK-LOG"/>
+    </logger>
+
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="APP-LOG-ASYNC"/>
