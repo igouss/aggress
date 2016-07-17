@@ -53,7 +53,8 @@ public class Crawler {
     }
 
     public void start(String[] args) {
-        ApplicationComponent applicationComponent = DaggerApplicationComponent.create();
+        DaggerApplicationComponent.Builder applicationBuilder = DaggerApplicationComponent.builder();
+        ApplicationComponent applicationComponent = applicationBuilder.build();
 
         final ScheduledReporter elasticReporter = Slf4jReporter.forRegistry(applicationComponent.getMetricRegistry()).outputTo(LOGGER).build();
         Scheduler scheduler = null;

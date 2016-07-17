@@ -15,11 +15,11 @@ import javax.validation.constraints.NotNull;
  * Copyright NAXSoft 2015
  */
 @Module(includes = {EncoderModule.class})
-public class PersistentModule {
+public class RedisModule {
     @Provides
     @Singleton
     @NotNull
-    static Persistent providePersistent(WebPageEntityEncoder webPageEntityEncoder, ProductEntityEncoder productEntityEncoder) {
+    static Persistent provideRedisDatabase(WebPageEntityEncoder webPageEntityEncoder, ProductEntityEncoder productEntityEncoder) {
         RedisDatabase redisDatabase = null;
         try {
             redisDatabase = new RedisDatabase();

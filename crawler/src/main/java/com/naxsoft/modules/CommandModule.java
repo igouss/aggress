@@ -22,14 +22,14 @@ public class CommandModule {
     @Provides
     @Singleton
     @NotNull
-    static CleanDBCommand getCleanDbCommand(Persistent db) {
+    static CleanDBCommand provideCleanDbCommand(Persistent db) {
         return new CleanDBCommand(db);
     }
 
     @Provides
     @Singleton
     @NotNull
-    static CrawlCommand getCrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
+    static CrawlCommand provideCrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
         return new CrawlCommand(webPageService, webPageParserFactory);
     }
 
@@ -37,28 +37,28 @@ public class CommandModule {
     @Provides
     @Singleton
     @NotNull
-    static CreateESIndexCommand getCreateESIndexCommand(Elastic elastic, HttpClient httpClient) {
+    static CreateESIndexCommand provideCreateESIndexCommand(Elastic elastic, HttpClient httpClient) {
         return new CreateESIndexCommand(elastic, httpClient);
     }
 
     @Provides
     @Singleton
     @NotNull
-    static CreateESMappingCommand getCreateESMappingCommand(Elastic elastic, HttpClient httpClient) {
+    static CreateESMappingCommand provideCreateESMappingCommand(Elastic elastic, HttpClient httpClient) {
         return new CreateESMappingCommand(elastic, httpClient);
     }
 
     @Provides
     @Singleton
     @NotNull
-    static ParseCommand getParseCommand(WebPageService webPageService, ProductParserFacade productParserFactory, WebPageParserFactory webPageParserFactory, Elastic elastic) {
+    static ParseCommand provideParseCommand(WebPageService webPageService, ProductParserFacade productParserFactory, WebPageParserFactory webPageParserFactory, Elastic elastic) {
         return new ParseCommand(webPageService, productParserFactory, webPageParserFactory, elastic);
     }
 
     @Provides
     @Singleton
     @NotNull
-    static PopulateDBCommand getPopulateDBCommand(WebPageService webPageService) {
+    static PopulateDBCommand providePopulateDBCommand(WebPageService webPageService) {
         return new PopulateDBCommand(webPageService);
     }
 }

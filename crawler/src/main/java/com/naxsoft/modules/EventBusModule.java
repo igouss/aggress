@@ -17,7 +17,7 @@ public class EventBusModule {
     @Provides
     @Singleton
     @NotNull
-    static EventBus getWebPageEntityEncoder() {
+    static EventBus provideWebPageEntityEncoder() {
         return new DefaultEventBus(Schedulers.computation());
     }
 }

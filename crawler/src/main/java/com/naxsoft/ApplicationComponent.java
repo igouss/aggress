@@ -22,7 +22,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 @Component(modules = {
-        PersistentModule.class
+        RedisModule.class
         , HttpClientModule.class
         , ElasticModule.class
         , MetricsRegistryModule.class

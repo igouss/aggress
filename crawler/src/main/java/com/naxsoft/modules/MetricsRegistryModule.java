@@ -15,7 +15,7 @@ public class MetricsRegistryModule {
     @Provides
     @Singleton
     @NotNull
-    static MetricRegistry get() {
+    static MetricRegistry provideMetricRegistry() {
         return new MetricRegistry();
     }
 }

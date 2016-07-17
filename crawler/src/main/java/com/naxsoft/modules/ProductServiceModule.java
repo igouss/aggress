@@ -11,12 +11,12 @@ import javax.validation.constraints.NotNull;
 /**
  * Copyright NAXSoft 2015
  */
-@Module(includes = {PersistentModule.class})
+@Module(includes = {RedisModule.class})
 public class ProductServiceModule {
     @Provides
     @Singleton
     @NotNull
-    static ProductService getElastic(Persistent db) {
+    static ProductService provideProductService(Persistent db) {
         return new ProductService(db);
     }
 }

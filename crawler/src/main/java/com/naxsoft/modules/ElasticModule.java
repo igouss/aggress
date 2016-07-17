@@ -22,7 +22,7 @@ public class ElasticModule {
     @Provides
     @Singleton
     @NotNull
-    static Elastic getElastic() {
+    static Elastic provideElastic() {
         Elastic elastic = new Elastic();
         try {
             String elasticHost = AppProperties.getProperty("elasticHost").getValue();

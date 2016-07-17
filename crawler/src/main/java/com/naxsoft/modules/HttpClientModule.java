@@ -23,7 +23,7 @@ public class HttpClientModule {
     @Provides
     @Singleton
     @NotNull
-    static HttpClient get() {
+    static HttpClient provideHttpClient() {
         HttpClient httpClient;
 
         try {
