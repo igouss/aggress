@@ -14,16 +14,33 @@ public class AppProperties {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppProperties.class);
     private static final Properties PROPERTIES = new Properties();
 
-    /**
-     * Read properties file on start-up
+    /*
+     * Read common properties file on start-up
      */
     static {
         try {
+            LOGGER.debug("Loading config.properties");
             InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream("config.properties");
             PROPERTIES.load(resourceAsStream);
             LOGGER.debug("App properties {}", PROPERTIES);
         } catch (Exception e) {
             LOGGER.error("Failed to load properties", e);
+        }
+
+        /*
+         * Load config-{DEPLOYMENT_ENV}.properties it might over-write common properties
+         */
+        String deployment_env = System.getenv("DEPLOYMENT_ENV");
+        if (deployment_env != null && !deployment_env.isEmpty()) {
+            try {
+                String deploymentConfigFile = "config-" + deployment_env + ".properties";
+                LOGGER.debug("Loading " + deployment_env);
+                InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream(deploymentConfigFile);
+                PROPERTIES.load(resourceAsStream);
+                LOGGER.debug("App properties {}", PROPERTIES);
+            } catch (Exception e) {
+                LOGGER.error("Failed to load properties", e);
+            }
         }
     }
 
