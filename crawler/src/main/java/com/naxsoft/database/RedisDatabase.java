@@ -2,13 +2,10 @@ package com.naxsoft.database;
 
 
 import com.lambdaworks.redis.RedisClient;
-import com.lambdaworks.redis.RedisConnectionPool;
 import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
-import com.lambdaworks.redis.api.async.RedisAsyncCommands;
 import com.lambdaworks.redis.event.metrics.CommandLatencyEvent;
 import com.lambdaworks.redis.metrics.DefaultCommandLatencyCollectorOptions;
-import com.lambdaworks.redis.pubsub.StatefulRedisPubSubConnection;
 import com.lambdaworks.redis.resource.ClientResources;
 import com.lambdaworks.redis.resource.DefaultClientResources;
 import com.naxsoft.encoders.ProductEntityEncoder;
@@ -29,15 +26,15 @@ import javax.inject.Singleton;
 public class RedisDatabase implements Persistent {
     private final static Logger LOGGER = LoggerFactory.getLogger(RedisDatabase.class);
     private static final Long BATCH_SIZE = 20L;
-    ClientResources res;
+    private ClientResources res;
 
     @Inject
     ProductEntityEncoder productEntityEncoder;
     @Inject
     WebPageEntityEncoder webPageEntityEncoder;
     private RedisClient redisClient;
-    private StatefulRedisPubSubConnection<String, String> pubSub;
-    private RedisConnectionPool<RedisAsyncCommands<String, String>> pool;
+    //    private StatefulRedisPubSubConnection<String, String> pubSub;
+//    private RedisConnectionPool<RedisAsyncCommands<String, String>> pool;
     private StatefulRedisConnection<String, String> connection;
 
     public RedisDatabase() throws PropertyNotFoundException {
@@ -57,12 +54,10 @@ public class RedisDatabase implements Persistent {
                 .subscribe(
                         e -> LOGGER.info(e.getLatencies().toString()),
                         err -> LOGGER.error("Failed to get command latency", err),
-                        () -> {
-                            LOGGER.info("Command latency complete");
-                        }
+                        () -> LOGGER.info("Command latency complete")
                 );
-        pubSub = redisClient.connectPubSub();
-        pool = redisClient.asyncPool();
+//        pubSub = redisClient.connectPubSub();
+//        pool = redisClient.asyncPool();
         connection = redisClient.connect();
     }
 
