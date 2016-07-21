@@ -29,24 +29,28 @@ task frontend(type:JavaExec) {
    classpath = sourceSets.main.runtimeClasspath
 }
 
-task copyLibs(type: Copy) {
-    description = "Copy app and all dependencies to build/libs"
+task copyDepsToDocker(type: Copy) {
+    description = "Copy all dependencies to docker/frontend"
     from configurations.compile
-    into "$buildDir/libs"
+    into "../docker/frontend/deps"
+}
+
+task copyAppToDocker(type: Copy) {
+    description = "Copy app to docker/frontend"
     dependsOn jar
+    from("$buildDir/libs") {
+        include "frontend*.jar"
+    }
+    into("../docker/frontend/app")
 }
 
 task copyBaseDir(type: Copy) {
-    description = "Copy basedir to docker"
+    description = "Copy basedir to docker/frontend/basedir"
     from "basedir"
     into "../docker/frontend/basedir"
-
 }
 
-task docker(type: Copy) {
+task docker() {
     description = "Copy app and all dependencies to docker/frontend"
-    dependsOn copyLibs, copyBaseDir
-
-    from "$buildDir/libs"
-    into "../docker/frontend"
+    dependsOn copyDepsToDocker, copyAppToDocker, copyBaseDir
 }

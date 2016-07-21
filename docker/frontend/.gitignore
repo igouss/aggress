@@ -1,2 +1,4 @@
 *.jar
 basedir
+app
+deps

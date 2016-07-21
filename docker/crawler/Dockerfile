@@ -19,6 +19,6 @@ COPY ["deps/*.jar", "cert/*.sh", "cert/*.crt", "*.sh", "${APP_DIR}/"]
 COPY ["app/*.jar", "${APP_DIR}/"]
 
 RUN chown -R crawler:aggress ${APP_DIR} && ./import-certs.sh
-USER crawler
 
+USER crawler
 CMD ${APP_DIR}/run.sh

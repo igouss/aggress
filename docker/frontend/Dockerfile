@@ -12,10 +12,12 @@ ENV LOG_DIR ${APP_DIR}/logs
 
 RUN mkdir -p ${APP_DIR} ${LOG_DIR} ${APP_DIR}/basedir && addgroup aggress && adduser -D -G aggress frontend
 WORKDIR ${APP_DIR}
-COPY ["*.jar", "run.sh", "${APP_DIR}/"]
-COPY ["basedir", "${APP_DIR}/basedir"]
 
-RUN chown -R frontend:aggress .
+COPY ["deps/*.jar", "run.sh", "${APP_DIR}/"]
+COPY ["basedir", "${APP_DIR}/basedir"]
+COPY ["app/*.jar", "${APP_DIR}/"]
+
+RUN chown -R frontend:aggress ${APP_DIR}
 
 USER frontend
 CMD ${APP_DIR}/run.sh
