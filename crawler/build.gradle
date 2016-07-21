@@ -78,26 +78,16 @@ test.onlyIf {
     System.properties["crawler.test"] == "true"
 }
 
-task copyLibs(type: Copy) {
-    description = "Copy app and all dependencies to build/libs"
-    from configurations.compile
-    into "$buildDir/libs"
-    dependsOn jar
-}
-
 task copyDepsToDocker(type: Copy) {
     description = "Copy all dependencies to docker/crawler"
-    dependsOn copyLibs
-    from("$buildDir/libs") {
-        exclude "crawler*.jar"
-    }
+    from configurations.compile
     into "../docker/crawler/deps"
 }
 
 
 task copyAppToDocker(type: Copy) {
     description = "Copy app to docker/crawler"
-    dependsOn copyLibs
+    dependsOn jar
     from("$buildDir/libs") {
         include "crawler*.jar"
     }
@@ -106,7 +96,6 @@ task copyAppToDocker(type: Copy) {
 
 task copyCetrificatesToDocker(type: Copy) {
     description = "Copy app to docker/crawler"
-    dependsOn copyLibs
     from("src/main/resources/startssl-java-master")
     into("../docker/crawler/cert")
 }
