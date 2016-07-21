@@ -100,7 +100,7 @@ public class PopulateDBCommand implements Command {
                 .map(PopulateDBCommand::from)
                 .map(PopulateDBCommand::from)
                 .flatMap(webPageService::save)
-                .all(result -> result != 0)
+                .all(result -> result != 0L)
                 .subscribe(result -> {
                             LOGGER.info("Roots populated: {}", result);
                         }, err -> {

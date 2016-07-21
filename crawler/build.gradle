@@ -85,11 +85,33 @@ task copyLibs(type: Copy) {
     dependsOn jar
 }
 
-task docker(type: Copy) {
-    description = "Copy app and all dependencies to docker/crawler"
+task copyDepsToDocker(type: Copy) {
+    description = "Copy all dependencies to docker/crawler"
     dependsOn copyLibs
+    from("$buildDir/libs") {
+        exclude "crawler*.jar"
+    }
+    into "../docker/crawler/deps"
+}
 
-    from "$buildDir/libs"
-    from "src/main/resources/startssl-java-master"
-    into "../docker/crawler"
+
+task copyAppToDocker(type: Copy) {
+    description = "Copy app to docker/crawler"
+    dependsOn copyLibs
+    from("$buildDir/libs") {
+        include "crawler*.jar"
+    }
+    into("../docker/crawler/app")
+}
+
+task copyCetrificatesToDocker(type: Copy) {
+    description = "Copy app to docker/crawler"
+    dependsOn copyLibs
+    from("src/main/resources/startssl-java-master")
+    into("../docker/crawler/cert")
+}
+
+task docker() {
+    description = "Copy app and all dependencies to docker/crawler"
+    dependsOn copyDepsToDocker, copyAppToDocker, copyCetrificatesToDocker
 }
