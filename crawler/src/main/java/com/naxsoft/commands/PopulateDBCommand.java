@@ -70,7 +70,7 @@ public class PopulateDBCommand implements Command {
      * @param sourceUrl address of source page
      * @return
      */
-    private static SourceEntity from(String sourceUrl) {
+    private static SourceEntity sourceEntityFromString(String sourceUrl) {
         SourceEntity sourceEntity = new SourceEntity();
         sourceEntity.setEnabled(true);
         sourceEntity.setUrl(sourceUrl);
@@ -81,7 +81,7 @@ public class PopulateDBCommand implements Command {
      * @param sourceEntity
      * @return
      */
-    private static WebPageEntity from(SourceEntity sourceEntity) {
+    private static WebPageEntity webPageEntityFromSourceEntity(SourceEntity sourceEntity) {
         WebPageEntity webPageEntity = new WebPageEntity(0L, "", "frontPage", false, sourceEntity.getUrl(), "");
         LOGGER.info("Adding new root {}", webPageEntity.getUrl());
         return webPageEntity;
@@ -97,8 +97,8 @@ public class PopulateDBCommand implements Command {
         Semaphore semaphore = new Semaphore(0);
         Observable.from(SOURCES)
                 .observeOn(Schedulers.io())
-                .map(PopulateDBCommand::from)
-                .map(PopulateDBCommand::from)
+                .map(PopulateDBCommand::sourceEntityFromString)
+                .map(PopulateDBCommand::webPageEntityFromSourceEntity)
                 .flatMap(webPageService::save)
                 .all(result -> result != 0L)
                 .subscribe(result -> {
