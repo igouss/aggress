@@ -22,7 +22,7 @@ public class Scheduler {
     private Set<ScheduledFuture<?>> tasks;
 
     public Scheduler() {
-        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler = Executors.newSingleThreadScheduledExecutor();
         tasks = new HashSet<>();
     }
 

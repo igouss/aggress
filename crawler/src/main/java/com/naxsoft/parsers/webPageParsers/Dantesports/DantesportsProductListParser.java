@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
  */
 class DantesportsProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsProductListParser.class);
+    private static final Pattern producePagePattern = Pattern.compile("\\d+");
     private final HttpClient client;
 
     public DantesportsProductListParser(HttpClient client) {
@@ -40,7 +41,7 @@ class DantesportsProductListParser extends AbstractWebPageParser {
 
             for (Element element : elements) {
                 String onclick = element.attr("onclick");
-                Matcher matcher = Pattern.compile("\\d+").matcher(onclick);
+                Matcher matcher = producePagePattern.matcher(onclick);
                 if (matcher.find()) {
                     WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, "https://shop.dantesports.com/items_detail.php?iid=" + matcher.group(), downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
