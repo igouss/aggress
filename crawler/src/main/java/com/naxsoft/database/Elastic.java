@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.asynchttpclient.Response;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesResponse;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -157,15 +158,15 @@ public class Elastic implements AutoCloseable, Cloneable {
         String resourceName = "/elastic." + indexName + "." + type + ".index.json";
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         try {
-            if (indexSuffix != null) {
-                indexName = indexName + indexSuffix;
+            if (!client.admin().indices().exists(new IndicesExistsRequest(indexName)).get().isExists()) {
+                if (indexSuffix != null) {
+                    indexName = indexName + indexSuffix;
+                }
+                LOGGER.info("Creating index {} type {} from {}", indexName, type, resourceName);
+                String indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
+                String url = "http://" + hostname + ":9200/" + indexName;
+                return Observable.from(httpClient.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
             }
-            LOGGER.info("Creating index {} type {} from {}", indexName, type, resourceName);
-
-            String indexContent = null;
-            indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
-            String url = "http://" + hostname + ":9200/" + indexName;
-            return Observable.from(httpClient.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
         } catch (Exception e) {
             LOGGER.error("Failed to create index", e);
         } finally {
