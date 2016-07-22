@@ -4,10 +4,13 @@ import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
 import com.naxsoft.commands.*;
+import com.naxsoft.scheduler.Scheduler;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
 import static java.lang.System.setProperty;
@@ -51,6 +54,7 @@ public class Crawler {
         ApplicationComponent applicationComponent = DaggerApplicationComponent.create();
 
         final ScheduledReporter elasticReporter = Slf4jReporter.forRegistry(applicationComponent.getMetricRegistry()).outputTo(LOGGER).build();
+        Scheduler scheduler = null;
 
         try {
             final OptionSet options = parseCommandLineArguments(args);
@@ -67,27 +71,33 @@ public class Crawler {
                 createESMappings(applicationComponent);
             }
 
-            if (options.has("clean")) {
-                cleanDb(applicationComponent);
-            }
+            scheduler = applicationComponent.getScheduler();
+            scheduler.add(() -> {
+                if (options.has("clean")) {
+                    cleanDb(applicationComponent);
+                }
 
-            if (options.has("populate")) {
-                populateDb(applicationComponent);
-            }
+                if (options.has("populate")) {
+                    populateDb(applicationComponent);
+                }
 
-            if (options.has("crawl")) {
-                crawl(applicationComponent);
-            }
+                if (options.has("crawl")) {
+                    crawl(applicationComponent);
+                }
 
-            if (options.has("parse")) {
-                parse(applicationComponent);
-            }
+                if (options.has("parse")) {
+                    parse(applicationComponent);
+                }
+            }, 0, 1, TimeUnit.DAYS);
         } catch (Exception e) {
             LOGGER.error("Application failure", e);
         } finally {
             try {
                 if (null != elasticReporter) {
                     elasticReporter.stop();
+                }
+                if (scheduler != null) {
+                    scheduler.stop();
                 }
                 applicationComponent.getDatabase().close();
                 applicationComponent.getElastic().close();

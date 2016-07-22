@@ -10,6 +10,7 @@ import com.naxsoft.database.WebPageService;
 import com.naxsoft.parsers.productParser.ProductParserFacade;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.providers.*;
+import com.naxsoft.scheduler.Scheduler;
 import dagger.Component;
 
 import javax.inject.Singleton;
@@ -29,6 +30,7 @@ import javax.inject.Singleton;
         , ProductParserFactoryModule.class
         , EncoderModule.class
         , EventBusModule.class
+        , SchedulerModule.class
 }, dependencies = {})
 public interface ApplicationComponent {
     Persistent getDatabase();
@@ -48,4 +50,6 @@ public interface ApplicationComponent {
     MetricRegistry getMetricRegistry();
 
     EventBus getEventBus();
+
+    Scheduler getScheduler();
 }
