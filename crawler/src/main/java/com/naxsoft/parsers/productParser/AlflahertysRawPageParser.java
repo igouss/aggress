@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
  */
 class AlflahertysRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
+    private static final Pattern priceParser = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
     private static Map<String, String> mapping = new HashMap<>();
 
     static {
@@ -93,7 +94,7 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
      * @return
      */
     private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        Matcher matcher = priceParser.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {

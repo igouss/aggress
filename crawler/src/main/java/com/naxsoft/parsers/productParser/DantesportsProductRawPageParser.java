@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 class DantesportsProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsProductRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
+    private static final Pattern pricePattern = Pattern.compile("(\\d+|,+)+\\.\\d\\d");
 
     static {
         mapping.put("Shotguns", "firearm");
@@ -109,7 +110,7 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
                 jsonBuilder.field("productImage", document.select(".itemImgDiv img.itemDetailImg").attr("abs:src"));
 
                 String priceText = document.select(".itemDetailPrice").text().replace("\\xEF\\xBF\\xBD", " ");
-                Matcher matcher = Pattern.compile("(\\d+|,+)+\\.\\d\\d").matcher(priceText);
+                Matcher matcher = pricePattern.matcher(priceText);
                 if (matcher.find()) {
                     jsonBuilder.field("regularPrice", matcher.group().replace(",", ""));
                 }

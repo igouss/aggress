@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 
 public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
+    private static final Pattern itemNumberPattern = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"");
+    private static final Pattern categoyPattern = Pattern.compile("\'\\d+\'");
     private final HttpClient client;
 
     public WolverinesuppliesProductListParser(HttpClient client) {
@@ -32,7 +34,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         Set<WebPageEntity> result = new HashSet<>();
         try {
             String productDetailsJson = webPageEntity.getContent();
-            Matcher itemNumberMatcher = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"").matcher(productDetailsJson);
+            Matcher itemNumberMatcher = itemNumberPattern.matcher(productDetailsJson);
             StringBuilder sb = new StringBuilder();
 
             while (itemNumberMatcher.find()) {
@@ -60,7 +62,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
 
             for (Element e : elements) {
                 String linkUrl = e.attr("ng-init");
-                Matcher categoryMatcher = Pattern.compile("\'\\d+\'").matcher(linkUrl);
+                Matcher categoryMatcher = categoyPattern.matcher(linkUrl);
 
                 if (categoryMatcher.find()) {
                     String productCategory = categoryMatcher.group();

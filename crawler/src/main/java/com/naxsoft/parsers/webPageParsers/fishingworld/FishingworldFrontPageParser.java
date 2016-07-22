@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
  */
 class FishingworldFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingworldFrontPageParser.class);
+    private static final Pattern maxPagesPattern = Pattern.compile("(\\d+) of (\\d+)");
     private final HttpClient client;
 
     public FishingworldFrontPageParser(HttpClient client) {
@@ -40,7 +41,7 @@ class FishingworldFrontPageParser extends AbstractWebPageParser {
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select("#list > div.bar.blue");
-            Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
+            Matcher matcher = maxPagesPattern.matcher(elements.text());
             if (matcher.find()) {
                 int max = Integer.parseInt(matcher.group(2));
                 int postsPerPage = 10;

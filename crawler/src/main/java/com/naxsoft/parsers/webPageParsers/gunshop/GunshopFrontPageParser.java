@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
  */
 class GunshopFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopFrontPageParser.class);
+    private static final Pattern maxPagesPattern = Pattern.compile("(\\d+) of (\\d+)");
     private final HttpClient client;
 
     public GunshopFrontPageParser(HttpClient client) {
@@ -56,7 +57,7 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".woocommerce-result-count");
-            Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
+            Matcher matcher = maxPagesPattern.matcher(elements.text());
             if (matcher.find()) {
                 int max = Integer.parseInt(matcher.group(2));
                 int postsPerPage = Integer.parseInt(matcher.group(1));

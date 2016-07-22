@@ -29,6 +29,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzFrontPageParser.class);
 
     private static final Map<String, String> categories = new HashMap<>();
+    private static final Pattern threadsPattern = Pattern.compile("Threads (\\d+) to (\\d+) of (\\d+)");
 
     static {
         categories.put("Precision and Target Rifles", "firearm");
@@ -100,7 +101,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         if (document != null) {
             Element element = document.select("#threadpagestats").first();
             String text = element.text();
-            Matcher matcher = Pattern.compile("Threads (\\d+) to (\\d+) of (\\d+)").matcher(text);
+            Matcher matcher = threadsPattern.matcher(text);
             if (matcher.find()) {
                 int postsPerPage = Integer.parseInt(matcher.group(2));
                 int total = Integer.parseInt(matcher.group(3));

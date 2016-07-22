@@ -22,13 +22,13 @@ import java.util.regex.Pattern;
  */
 class FishingWorldRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingWorldRawPageParser.class);
-
+    private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
     /**
      * @param price
      * @return
      */
     private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             try {
                 return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();

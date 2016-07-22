@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
  */
 class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsProductRawPageParser.class);
-
     private static final Map<String, String> mapping = new HashMap<>();
+    private static final Pattern pricePattern = Pattern.compile("((\\d+|,)+\\.\\d+)");
 
     static {
         mapping.put("New Arrivals", "misc");
@@ -36,7 +36,6 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
         mapping.put("Bayonets", "misc");
         mapping.put("Swords", "misc");
         mapping.put("Optics", "optic");
-
     }
 
     /**
@@ -44,7 +43,8 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
      * @return
      */
     private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("((\\d+|,)+\\.\\d+)").matcher(price);
+
+        Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {

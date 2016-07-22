@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
  */
 class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsFrontPageParser.class);
+    private static final Pattern pagerPattern = Pattern.compile("(\\d+) of (\\d+)");
     private final HttpClient client;
 
     public CorwinArmsFrontPageParser(HttpClient client) {
@@ -54,7 +55,7 @@ class CorwinArmsFrontPageParser extends AbstractWebPageParser {
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".pager li.pager-current");
-            Matcher matcher = Pattern.compile("(\\d+) of (\\d+)").matcher(elements.text());
+            Matcher matcher = pagerPattern.matcher(elements.text());
             if (matcher.find()) {
                 int max = Integer.parseInt(matcher.group(2));
                 for (int i = 1; i <= max; i++) {

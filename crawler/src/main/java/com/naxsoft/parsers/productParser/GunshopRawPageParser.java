@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 class GunshopRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
+    private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
 
     static {
         mapping.put("/product-category/firearms/", "firearm");
@@ -35,7 +36,7 @@ class GunshopRawPageParser extends AbstractRawPageParser {
      * @return
      */
     private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {

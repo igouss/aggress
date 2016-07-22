@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
  */
 class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsFrontPageParser.class);
+    private static final Pattern productTotalPattern = Pattern.compile("of\\s(\\d+)");
     private final HttpClient client;
 
     public EllwoodeppsFrontPageParser(HttpClient client) {
@@ -39,7 +40,7 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
         Document document = downloadResult.getDocument();
         if (document != null) {
             String elements = document.select("#adj-nav-container > div.category-products > div.toolbar  div.amount-container > p").text();
-            Matcher matcher = Pattern.compile("of\\s(\\d+)").matcher(elements);
+            Matcher matcher = productTotalPattern.matcher(elements);
             if (!matcher.find()) {
                 LOGGER.error("Unable to parse total pages");
                 return result;

@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
+    private static final Pattern priceMatcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
 
     static {
         mapping.put("Ammunition", "ammo");
@@ -39,7 +40,7 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
      * @return
      */
     private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        Matcher matcher = priceMatcher.matcher(price);
         if (matcher.find()) {
             try {
                 return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();

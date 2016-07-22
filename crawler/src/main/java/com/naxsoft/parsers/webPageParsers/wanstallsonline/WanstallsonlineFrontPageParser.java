@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
  */
 class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WanstallsonlineFrontPageParser.class);
+    private static final Pattern pageNumPattern = Pattern.compile("\\d+");
     private final HttpClient client;
 
     public WanstallsonlineFrontPageParser(HttpClient client) {
@@ -44,7 +45,7 @@ class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".navigationtable td[valign=middle] > a");
             for (Element el : elements) {
                 try {
-                    Matcher matcher = Pattern.compile("\\d+").matcher(el.text());
+                    Matcher matcher = pageNumPattern.matcher(el.text());
                     if (matcher.find()) {
                         int num = Integer.parseInt(matcher.group());
                         if (num > max) {

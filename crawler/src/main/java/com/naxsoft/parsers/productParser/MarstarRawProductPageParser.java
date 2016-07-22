@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
  */
 class MarstarRawProductPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarRawProductPageParser.class);
+    private static final Pattern pricePattern = Pattern.compile("((\\d+(\\.|,))+\\d\\d)+");
 
     /**
      * @param webPageEntity
@@ -44,7 +45,7 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
      */
     private static ArrayList<String> parsePrice(String price) {
         ArrayList<String> result = new ArrayList<>();
-        Matcher matcher = Pattern.compile("((\\d+(\\.|,))+\\d\\d)+").matcher(price);
+        Matcher matcher = pricePattern.matcher(price);
 
 
         while (matcher.find()) {

@@ -22,6 +22,9 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
     private static final Logger LOGGER = LoggerFactory.getLogger(BullseyelondonProductRawPageParser.class);
 
     private static final Map<String, String> mapping = new HashMap<>();
+    private static final Pattern freeShippingPattern = Pattern.compile("\\w+|\\s+");
+    private static final Pattern unitsAvailablePattern = Pattern.compile("\\d+");
+    private static final Pattern priceMatcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
 
     static {
         mapping.put("Pistols", "firearm");
@@ -41,7 +44,8 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
      */
     private static String getFreeShipping(Document document) {
         String raw = document.select(".freeShip").first().text();
-        Matcher matcher = Pattern.compile("\\w+|\\s+").matcher(raw);
+
+        Matcher matcher = freeShippingPattern.matcher(raw);
         return matcher.find() ? "true" : "false";
     }
 
@@ -50,7 +54,8 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
      * @return
      */
     private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+
+        Matcher matcher = priceMatcher.matcher(price);
         String result;
         if (matcher.find()) {
             try {
@@ -93,7 +98,8 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
     private static String getUnitsAvailable(Document document) {
         String raw = document.select(".price-box").first().nextElementSibling().text().trim();
         String result;
-        Matcher matcher = Pattern.compile("\\d+").matcher(raw);
+
+        Matcher matcher = unitsAvailablePattern.matcher(raw);
         if (matcher.find()) {
             result = matcher.group(0);
         } else {

@@ -22,13 +22,14 @@ import java.util.regex.Pattern;
  */
 class PsmilitariaRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaRawPageParser.class);
+    private static final Pattern pricePattern = Pattern.compile("\\$\\s?((\\d+|,)+\\s?\\.\\d+)");
 
     /**
      * @param price
      * @return
      */
     private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$\\s?((\\d+|,)+\\s?\\.\\d+)").matcher(price);
+        Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {

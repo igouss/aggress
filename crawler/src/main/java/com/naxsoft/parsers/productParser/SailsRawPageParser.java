@@ -23,13 +23,14 @@ import java.util.regex.Pattern;
  */
 class SailsRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SailsRawPageParser.class);
+    private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
 
     /**
      * @param price
      * @return
      */
     private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {

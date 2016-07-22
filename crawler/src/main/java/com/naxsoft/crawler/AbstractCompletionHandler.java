@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
  */
 public abstract class AbstractCompletionHandler<R> extends AsyncCompletionHandler<R> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCompletionHandler.class);
+    private final static Pattern proxyFailurePattern = Pattern.compile("/(.+):");
+
     private ProxyManager proxyManager;
 
     @Override
@@ -31,6 +33,7 @@ public abstract class AbstractCompletionHandler<R> extends AsyncCompletionHandle
 
     /**
      * Manage proxy failures
+     *
      * @param t Failure
      */
     private void handleProxyFailure(Throwable t) {
@@ -38,8 +41,7 @@ public abstract class AbstractCompletionHandler<R> extends AsyncCompletionHandle
         if (!message.equals("HTTP Request canceled")) {
             LOGGER.error(message);
         }
-        Pattern p = Pattern.compile("/(.+):");
-        Matcher m = p.matcher(message);
+        Matcher m = proxyFailurePattern.matcher(message);
         if (m.find()) {
             String address = m.group(1);
             LOGGER.error("Proxy {} failed", address);

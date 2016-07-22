@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
  */
 class ProphetriverPawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductRawParser.class);
+    private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
     private static Map<String, String> mapping = new HashMap<>();
 
     static {
@@ -41,7 +42,7 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
      * @return
      */
     private static String parsePrice(String price) {
-        Matcher matcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)").matcher(price);
+        Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
