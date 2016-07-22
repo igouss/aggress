@@ -23,6 +23,7 @@ public class AppProperties {
             LOGGER.debug("Loading config.properties");
             InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream("config.properties");
             PROPERTIES.load(resourceAsStream);
+            /* TODO: mask password */
             LOGGER.debug("App properties {}", PROPERTIES);
         } catch (Exception e) {
             LOGGER.error("Failed to load properties", e);
