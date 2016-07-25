@@ -9,23 +9,25 @@ import java.io.Writer;
 public class ElasticEscape {
     public static void escape(String value, Writer writer) throws Exception {
         try {
-            int e = 0;
-            int length = value.length();
+            if (value != null && !value.isEmpty()) {
+                int e = 0;
+                int length = value.length();
 
-            for (int i = 0; i < length; ++i) {
-                char c = value.charAt(i);
+                for (int i = 0; i < length; ++i) {
+                    char c = value.charAt(i);
 
-                switch (c) {
-                    case '\\':
-                        e = append(value, writer, e, i, "\\\\");
-                        break;
-                    case '/':
-                        e = append(value, writer, e, i, "//");
-                        break;
+                    switch (c) {
+                        case '\\':
+                            e = append(value, writer, e, i, "\\\\");
+                            break;
+                        case '/':
+                            e = append(value, writer, e, i, "//");
+                            break;
+                    }
                 }
-            }
 
-            writer.append(value, e, length);
+                writer.append(value, e, length);
+            }
         } catch (IOException ignore) {
             throw new Exception("Failed to encode value: " + value);
         }
