@@ -4,19 +4,10 @@ import com.naxsoft.handlers.IndexHandler;
 import com.naxsoft.handlers.SearchHandler;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import io.undertow.Handlers;
-import io.undertow.Undertow;
-import io.undertow.predicate.Predicates;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.PathHandler;
-import io.undertow.server.handlers.encoding.ContentEncodingRepository;
-import io.undertow.server.handlers.encoding.EncodingHandler;
-import io.undertow.server.handlers.encoding.GzipEncodingProvider;
-import io.undertow.server.handlers.resource.FileResourceManager;
-import io.undertow.server.session.InMemorySessionManager;
-import io.undertow.server.session.SessionAttachmentHandler;
-import io.undertow.server.session.SessionCookieConfig;
-import io.undertow.server.session.SessionManager;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServer;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.StaticHandler;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -48,60 +39,33 @@ public class Server {
         TemplateEngine templateEngine = getTemplateEngine();
         TransportClient esClient = getTransportClient();
 
+
         ApplicationContext context = new ApplicationContext();
         context.setInvalidateTemplateCache(true);
 
-        HttpHandler pathHandler = getPathHandler(templateEngine, esClient, context);
+        IndexHandler indexHandler = new IndexHandler(context, templateEngine);
+        SearchHandler searchHandler = new SearchHandler(esClient);
 
-        SessionManager sessionManager = new InMemorySessionManager("SESSION_MANAGER");
-        SessionCookieConfig sessionConfig = new SessionCookieConfig();
-        SessionAttachmentHandler sessionAttachmentHandler = new SessionAttachmentHandler(sessionManager, sessionConfig);
-        sessionAttachmentHandler.setNext(pathHandler);
+        Vertx vertx = Vertx.vertx();
+//        SessionStore store = ClusteredSessionStore.create(vertx, "frontend.sessionMap");
+//        SessionHandler sessionHandler = SessionHandler.create(store);
 
-        Undertow server = Undertow.builder()
-                .addHttpListener(8080, "0.0.0.0")
-                .addHttpListener(8090, "0.0.0.0")
-                .setHandler(pathHandler) // new SimpleErrorPageHandler().setNext
-                .build();
-        try {
-            server.start();
-        } catch (RuntimeException e) {
-            LOGGER.error("Server error", e);
-        }
+        HttpServer server = vertx.createHttpServer();
+        Router router = Router.router(vertx);
+
+        router.route("/css/*").handler(StaticHandler.create("basedir/thymeleaf/css"));
+        router.route("/fonts/*").handler(StaticHandler.create("basedir/thymeleaf/fonts"));
+        router.route("/img/*").handler(StaticHandler.create("basedir/thymeleaf/img"));
+        router.route("/js/*").handler(StaticHandler.create("basedir/thymeleaf/js"));
+
+        // Make sure all requests are routed through the session handler too
+//        router.route().handler(sessionHandler);
+        router.route("/").handler(indexHandler::handleRequestVertX);
+        router.route("/search").handler(searchHandler::handleRequestVertX);
+
+        server.requestHandler(router::accept).listen(8080);
     }
 
-    /**
-     * Configure web app path routing
-     *
-     * @param templateEngine HTML template engine
-     * @param client         Elasticsearch client
-     * @param context        Application context
-     * @return HTTP routing handler
-     */
-    private static HttpHandler getPathHandler(TemplateEngine templateEngine, TransportClient client, ApplicationContext context) {
-        PathHandler pathHandler = Handlers.path();
-        ContentEncodingRepository contentEncodingRepository = new ContentEncodingRepository();
-        contentEncodingRepository.addEncodingHandler("gzip", new GzipEncodingProvider(), 50, Predicates.truePredicate());
-        final EncodingHandler handler = new EncodingHandler(contentEncodingRepository);
-        handler.setNext(pathHandler);
-
-        pathHandler.addExactPath("/", new IndexHandler(context, templateEngine));
-        pathHandler.addExactPath("/verbose", Handlers.disableCache(new IndexHandler(context, templateEngine)));
-        pathHandler.addExactPath("/search", Handlers.disableCache(new SearchHandler(client)));
-
-        String baseDir = Paths.get("").toAbsolutePath().toString();
-        String relPath = baseDir + "/basedir/thymeleaf";
-        pathHandler.addPrefixPath("/css", Handlers.resource(new FileResourceManager(new File(relPath + "/css/"), 100)));
-        pathHandler.addPrefixPath("/fonts", Handlers.resource(new FileResourceManager(new File(relPath + "/fonts/"), 100)));
-        pathHandler.addPrefixPath("/js", Handlers.disableCache(Handlers.resource(new FileResourceManager(new File(relPath + "/js/"), 100))));
-        pathHandler.addPrefixPath("/img", Handlers.resource(new FileResourceManager(new File(relPath + "/img/"), 100)));
-
-//                .setHandler(sessionAttachmentHandler)
-//                .setHandler(Handlers.path()
-//                        .addPrefixPath("/api/ws", websocket(new WebSocketHandler()))
-//                        .addPrefixPath("/api/rest", new RestHandler()))
-        return handler;
-    }
 
     /**
      * Get Elasticsearch client

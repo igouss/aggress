@@ -1,9 +1,8 @@
 package com.naxsoft.handlers;
 
 import com.naxsoft.utils.ElasticEscape;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.util.Headers;
-import io.undertow.util.HttpString;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.RoutingContext;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -17,13 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
-import java.util.Deque;
-import java.util.Map;
 
 /**
  * Copyright NAXSoft 2015
  */
-public class SearchHandler extends AbstractHTTPRequestHandler {
+public class SearchHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchHandler.class);
     private static final String[] includeFields = new String[]{
             "url",
@@ -67,57 +64,24 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
         return builder.toString();
     }
 
-    /**
-     * @param exchange
-     * @return
-     */
-    private static int getStartFrom(HttpServerExchange exchange) {
-        int startFrom = 0;
-        if (exchange.getQueryParameters().containsKey("startFrom")) {
-            startFrom = Integer.parseInt(exchange.getQueryParameters().get("startFrom").getFirst());
+    private static int getStartFrom(RoutingContext routingContext) {
+        String startFrom = routingContext.request().getParam("startFrom");
+        if (startFrom != null && !startFrom.isEmpty()) {
+            return Integer.parseInt(startFrom);
         }
-        return startFrom;
+        return 0;
     }
 
 
-    /**
-     * @param exchange
-     * @param paremeter
-     * @return
-     * @throws Exception
-     */
-    private static String getSearchKey(HttpServerExchange exchange, String paremeter) throws Exception {
+    private static String getSearchKey(RoutingContext routingContext, String parameter) {
         StringWriter sw = new StringWriter();
-        Map<String, Deque<String>> queryParameters = exchange.getQueryParameters();
-        Deque<String> strings = queryParameters.get(paremeter);
-        if (strings != null) {
-            String val = strings.getFirst();
-            ElasticEscape.escape(val, sw);
-            return sw.toString();
-        } else {
-            return null;
+        String param = routingContext.request().getParam(parameter);
+        try {
+            ElasticEscape.escape(param, sw);
+        } catch (Exception e) {
+            LOGGER.error("Failed to escape param {}", param);
         }
-    }
-
-    /**
-     * @param exchange
-     * @throws Exception
-     */
-    @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
-        String searchKey = getSearchKey(exchange, "searchKey");
-        String categoryKey = getSearchKey(exchange, "categoryKey");
-        int startFrom = getStartFrom(exchange);
-        LOGGER.info("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
-
-        ListenableActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
-        SearchResponse searchResponse = future.actionGet();
-        String result = searchResultToJson(searchResponse);
-
-        exchange.getResponseHeaders().add(HttpString.tryFromString("Access-Control-Allow-Origin"), "*");
-        exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "application/json;");
-        disableCache(exchange);
-        exchange.getResponseSender().send(result);
+        return sw.toString();
     }
 
     /**
@@ -148,5 +112,25 @@ public class SearchHandler extends AbstractHTTPRequestHandler {
         searchRequestBuilder.setFrom(startFrom).setSize(30).setExplain(true);
 
         return searchRequestBuilder.execute();
+    }
+
+    public void handleRequestVertX(RoutingContext routingContext) {
+        String searchKey = getSearchKey(routingContext, "searchKey");
+        String categoryKey = getSearchKey(routingContext, "categoryKey");
+        int startFrom = getStartFrom(routingContext);
+        LOGGER.info("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
+
+        ListenableActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
+        SearchResponse searchResponse = future.actionGet();
+        String result = searchResultToJson(searchResponse);
+
+        HttpServerResponse response = routingContext.response();
+        response.setChunked(true);
+        response.putHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.putHeader("Pragma", "no-cache");
+        response.putHeader("Expires", "0");
+        response.putHeader("content-type", "application/json;charset=UTF-8");
+        response.putHeader("Access-Control-Allow-Origin", "*");
+        response.end(result);
     }
 }

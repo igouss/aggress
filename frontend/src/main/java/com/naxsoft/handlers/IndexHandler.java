@@ -1,8 +1,8 @@
 package com.naxsoft.handlers;
 
 import com.naxsoft.ApplicationContext;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.util.Headers;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.RoutingContext;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -12,10 +12,10 @@ import java.util.Locale;
 /**
  * Copyright NAXSoft 2015
  */
-public class IndexHandler extends AbstractHTTPRequestHandler {
-    private static final String REGULAR_NAME =  "layout";
+public class IndexHandler {
+    private static final String REGULAR_NAME = "layout";
 
-    private final ApplicationContext context;
+    private final ApplicationContext appContext;
     private final TemplateEngine templateEngine;
 
     /**
@@ -23,26 +23,26 @@ public class IndexHandler extends AbstractHTTPRequestHandler {
      * @param templateEngine
      */
     public IndexHandler(ApplicationContext context, TemplateEngine templateEngine) {
-        this.context = context;
+        this.appContext = context;
         this.templateEngine = templateEngine;
     }
 
-    /**
-     * @param exchange
-     * @throws Exception
-     */
-    @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
-        if (context.isInvalidateTemplateCache()) {
+    public void handleRequestVertX(RoutingContext context) {
+        if (appContext.isInvalidateTemplateCache()) {
             templateEngine.clearTemplateCacheFor(REGULAR_NAME);
         }
-        HashMap<String, Object> variables = new HashMap<>();
-        Context context = new Context(Locale.getDefault(), variables);
-        String result = templateEngine.process(REGULAR_NAME, context);
 
-        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html;charset=UTF-8");
-        disableCache(exchange);
-        exchange.getResponseSender().send(result);
+        HttpServerResponse response = context.response();
+        response.setChunked(true);
+        response.putHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.putHeader("Pragma", "no-cache");
+        response.putHeader("Expires", "0");
+        response.putHeader("content-type", "text/html;charset=UTF-8");
+
+        HashMap<String, Object> variables = new HashMap<>();
+        Context htmlContext = new Context(Locale.getDefault(), variables);
+        String result = templateEngine.process(REGULAR_NAME, htmlContext);
+        response.end(result);
     }
 }
 
