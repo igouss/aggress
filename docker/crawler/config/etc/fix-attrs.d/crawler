@@ -1,0 +1,2 @@
+#path recurse account fmode dmode
+/opt/crawler true crawler:aggress 0600 0700
