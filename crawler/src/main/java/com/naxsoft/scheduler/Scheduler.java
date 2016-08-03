@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
- * Copyright Ciena 22-07-16.
+ * Copyright NAXSoft 2015
  */
 public class Scheduler {
     private final static Logger LOGGER = LoggerFactory.getLogger(Scheduler.class);
