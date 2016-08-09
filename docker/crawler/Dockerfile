@@ -23,7 +23,7 @@ USER root
 
 RUN mkdir -p ${APP_DIR} ${LOG_DIR} \
  && addgroup aggress \
- && adduser -D -G aggress crawler \
+ && adduser -D -G aggress -s /bin/sh crawler \
  && apk add --no-cache bind-tools \
  && apk add --no-cache curl \
  && curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-amd64.tar.gz | tar xfz - -C / \
@@ -36,7 +36,7 @@ RUN mkdir -p ${APP_DIR} ${LOG_DIR} \
  && addgroup consul \
  && adduser -D -g "" -s /bin/sh -G consul consul \
  && mkdir -p /data/consul \
- && chown -R consul:consul /data/consul \
+ && chown -R consul:consul /data/consul
 
 WORKDIR ${APP_DIR}
 
@@ -50,8 +50,6 @@ VOLUME ["/data/consul"]
 EXPOSE 8300 8301 8301/udp 8302 8302/udp 8400 8500 53 53/udp
 
 RUN chown -R crawler:aggress ${APP_DIR} && ./import-certs.sh
-
-USER crawler
 
 ENTRYPOINT ["/init"]
 CMD []
