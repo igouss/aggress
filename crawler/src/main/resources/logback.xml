@@ -9,14 +9,14 @@
     </appender>
 
     <appender name="APP-LOG" class="ch.qos.logback.core.FileAppender">
-        <file>app.log</file>
+        <file>${LOG_DIR}/app.log</file>
         <append>false</append>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
     <appender name="ERROR-LOG" class="ch.qos.logback.core.FileAppender">
-        <file>error.log</file>
+        <file>${LOG_DIR}/error.log</file>
         <append>false</append>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -34,7 +34,7 @@
     </appender>
 
     <appender name="HEALTHCHECK-LOG" class="ch.qos.logback.core.FileAppender">
-        <file>HealthCheck.log</file>
+        <file>${LOG_DIR}/HealthCheck.log</file>
         <append>false</append>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
