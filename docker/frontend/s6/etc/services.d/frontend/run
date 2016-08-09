@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv sh
+set -e
+
+CLASSPATH=$(find "/opt/frontend" -name '*.jar' | xargs echo | tr ' ' ':')
+exec s6-setuidgid frontend java -Djdk.tls.allowUnsafeServerCertChange=true -Dsun.security.ssl.allowUnsafeRenegotiation=true -cp ${CLASSPATH} com.naxsoft.Server

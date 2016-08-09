@@ -1,2 +1,0 @@
-/usr/bin/host-ip false root:root 0755 0755
-/usr/bin/set-contenv false root:root 0755 0755

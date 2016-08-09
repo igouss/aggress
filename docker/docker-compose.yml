@@ -30,12 +30,10 @@ services:
     links:
       - elasticsearch
       - redis:database
-      - consul
     depends_on:
       - elasticsearch
       - redis
       - tor-proxy
-      - consul
     env_file:
       - common.env
 
@@ -56,23 +54,10 @@ services:
     container_name: redis
     command: redis-server --appendonly yes
     build: redis
-    depends_on:
-      - consul
-    links:
-      - consul
     expose:
       - "6379"
     env_file:
       - common.env
-
-  redis-cli:
-    image: redis:latest
-    links:
-      - redis
-    command: redis-cli -h redis
-
-  consul:
-    image: consul
 
   tor-proxy:
     image: arulrajnet/torprivoxy
