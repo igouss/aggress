@@ -1,3 +1,0 @@
-/usr/bin/consul-available false root:root 0755 0755
-/usr/bin/consul-join false root:root 0755 0755
-/usr/bin/container-find false root:root 0755 0755
