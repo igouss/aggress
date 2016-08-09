@@ -29,7 +29,6 @@ public class HealthCheck implements Runnable {
         healthCheck.setUncaughtExceptionHandler((t, e) -> {
             LOGGER.error("DEAD");
         });
-        healthCheck.run(); // force log
         healthCheck.start();
     }
 
