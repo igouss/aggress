@@ -105,7 +105,7 @@ task copyCetrificatesToDocker(type: Copy) {
     into("../docker/crawler/cert")
 }
 
-task docker() {
+task dockerPublish() {
     description = "Copy app and all dependencies to docker/crawler"
     dependsOn copyDepsToDocker, copyAppToDocker, copyCetrificatesToDocker
 }

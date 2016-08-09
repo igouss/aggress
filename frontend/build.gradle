@@ -48,7 +48,7 @@ task copyBaseDir(type: Copy) {
     into "../docker/frontend/basedir"
 }
 
-task docker() {
+task dockerPublish() {
     description = "Copy app and all dependencies to docker/frontend"
     dependsOn copyDepsToDocker, copyAppToDocker, copyBaseDir
 }

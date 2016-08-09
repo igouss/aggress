@@ -16,10 +16,6 @@ RUN mkdir -p ${APP_DIR} ${LOG_DIR} ${APP_DIR}/basedir \
 
 WORKDIR ${APP_DIR}
 
-COPY ["deps/*.jar", "run.sh", "app/*.jar", "${APP_DIR}/"]
+COPY ["s6", "/"]
+COPY ["deps/*.jar", "app/*.jar", "${APP_DIR}/"]
 COPY ["basedir", "${APP_DIR}/basedir"]
-
-RUN chown -R frontend:aggress ${APP_DIR}
-
-USER frontend
-CMD ${APP_DIR}/run.sh

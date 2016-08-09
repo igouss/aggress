@@ -1,7 +1,20 @@
-description "Agress web crawler project"
+buildscript {
+    repositories {
+        jcenter()
+    }
 
-apply plugin: "idea"
-apply plugin: "java"
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.1'
+    }
+}
+
+plugins {
+    id "java"
+    id "idea"
+}
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
 dependencies {
     compile project(":common")
@@ -33,12 +46,48 @@ allprojects {
 }
 
 evaluationDependsOnChildren()
-
-task docker() {
-    group = "Publishing"
-    description = "Copy app and all dependencies to docker"
+docker {
+    url = "unix:///var/run/docker.sock"
 }
-docker.dependsOn(":crawler:docker")
-docker.dependsOn(":frontend:docker")
+
+task buildDockerS6Overlay(type: DockerBuildImage) {
+    group = "Publishing"
+    inputDir = file("docker/s6-overlay/")
+}
+
+task buildDockerJava(type: DockerBuildImage) {
+    group = "Publishing"
+    inputDir = file("docker/java-8/")
+}
+buildDockerJava.dependsOn tasks.buildDockerS6Overlay
+
+task buildDockerRedis(type: DockerBuildImage) {
+    group = "Publishing"
+    inputDir = file("docker/redis/")
+}
+
+task buildDockerElasticsearch(type: DockerBuildImage) {
+    group = "Publishing"
+    inputDir = file("docker/elasticsearch/")
+}
+
+task buildDockerCrawler(type: DockerBuildImage) {
+    group = "Publishing"
+    inputDir = file("docker/crawler/")
+    dependsOn(":crawler:dockerPublish")
+}
+buildDockerCrawler.dependsOn tasks.buildDockerJava
+
+task buildDockerFrontend(type: DockerBuildImage) {
+    group = "Publishing"
+    inputDir = file("docker/frontend/")
+    dependsOn(":frontend:dockerPublish")
+}
+buildDockerFrontend.dependsOn tasks.buildDockerJava
+
+task buildDockerImages() {
+    group = "Publishing"
+}
+buildDockerImages.dependsOn tasks.buildDockerS6Overlay, tasks.buildDockerJava, tasks.buildDockerRedis, tasks.buildDockerElasticsearch, tasks.buildDockerCrawler, tasks.buildDockerFrontend
 
 defaultTasks = ["clean", "build"]

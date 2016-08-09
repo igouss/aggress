@@ -3,7 +3,7 @@ set -e
 set -o verbose
 
 KEYTOOL=$JAVA_HOME/bin/keytool
-KEYSTORE=$JAVA_HOME/lib/security/cacerts
+KEYSTORE=$JAVA_HOME/jre/lib/security/cacerts
 PASSWORD=changeit
 echo "Importing StartSSL certificates into $KEYSTORE"
 $KEYTOOL -import -trustcacerts -keystore $KEYSTORE -storepass $PASSWORD -noprompt -alias startcom.ca -file ca.crt
