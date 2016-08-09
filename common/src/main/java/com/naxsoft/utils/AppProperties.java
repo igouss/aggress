@@ -46,13 +46,13 @@ public class AppProperties {
                 LOGGER.debug("Loading " + deploymentConfigFile);
                 InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream(deploymentConfigFile);
                 if (resourceAsStream.available() <= 0) {
+                    LOGGER.debug("config is missing or empty does not exist {}", deploymentConfigFileLocation);
+                } else {
                     PROPERTIES.load(resourceAsStream);
                     LOGGER.debug("App properties {}", PROPERTIES);
-                } else {
-                    LOGGER.debug("config is missing or empty does not exist {}", deploymentConfigFileLocation);
                 }
             } catch (Exception e) {
-                LOGGER.error("Failed to load properties: " + deploymentConfigFile, e);
+                LOGGER.error("Failed to load properties: " + deploymentConfigFileLocation, e);
             }
         }
     }
