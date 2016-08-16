@@ -20,6 +20,7 @@ dependencies {
     compile project(":common")
     compile project(":crawler")
     compile project(":frontend")
+    compile project(":webadmin")
 }
 
 task wrapper(type: Wrapper) {
