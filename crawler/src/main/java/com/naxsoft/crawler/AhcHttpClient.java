@@ -36,6 +36,7 @@ public class AhcHttpClient implements HttpClient {
         AsyncHttpClientConfig asyncHttpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setAcceptAnyCertificate(true)
                 .setSslContext(sslContext)
+                .setHandshakeTimeout((int) TimeUnit.SECONDS.toMillis(5))
                 .setMaxRequestRetry(10)
                 .setAcceptAnyCertificate(true)
                 .addIOExceptionFilter(new ResumableIOExceptionFilter())
