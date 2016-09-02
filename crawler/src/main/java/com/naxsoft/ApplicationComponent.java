@@ -8,12 +8,12 @@ import com.naxsoft.database.Elastic;
 import com.naxsoft.database.Persistent;
 import com.naxsoft.database.ProductService;
 import com.naxsoft.database.WebPageService;
-import com.naxsoft.parsers.productParser.ProductParserFacade;
-import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.modules.*;
-import com.naxsoft.providers.*;
+import com.naxsoft.parsers.productParser.ProductParserFactory;
+import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.scheduler.Scheduler;
 import dagger.Component;
+import io.vertx.core.Vertx;
 
 import javax.inject.Singleton;
 
@@ -34,6 +34,7 @@ import javax.inject.Singleton;
         , EventBusModule.class
         , CommandModule.class
         , SchedulerModule.class
+        , VertxModule.class
 }, dependencies = {})
 public interface ApplicationComponent {
     Persistent getDatabase();
@@ -46,7 +47,7 @@ public interface ApplicationComponent {
 
     WebPageParserFactory getWebPageParserFactory();
 
-    ProductParserFacade getProductParserFactory();
+    ProductParserFactory getProductParserFactory();
 
     ProductService getProductService();
 
@@ -67,4 +68,6 @@ public interface ApplicationComponent {
     ParseCommand getParseCommand();
 
     PopulateDBCommand getPopulateDBCommand();
+
+    Vertx getVertx();
 }
