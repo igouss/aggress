@@ -103,10 +103,10 @@ public class Crawler {
                     scheduler.stop();
                 }
                 applicationComponent.getDatabase().close();
-                applicationComponent.getElastic().close();
                 applicationComponent.getHttpClient().close();
                 applicationComponent.getWebPageParserFactory().close();
                 applicationComponent.getProductParserFactory().close();
+                applicationComponent.getElastic().close();
                 ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
             } catch (Exception e) {
                 e.printStackTrace();
