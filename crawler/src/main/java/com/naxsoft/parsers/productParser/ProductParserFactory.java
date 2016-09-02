@@ -1,5 +1,9 @@
 package com.naxsoft.parsers.productParser;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.FileAppender;
 import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
@@ -88,7 +92,7 @@ public class ProductParserFactory {
         for (Class<? extends AbstractRawPageParser> clazz : classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
-                    LOGGER.info("Instantiating {}", clazz.getName());
+                    createLogger(clazz);
 
                     Constructor<? extends AbstractRawPageParser> constructor = clazz.getDeclaredConstructor();
                     constructor.setAccessible(true);
@@ -96,10 +100,10 @@ public class ProductParserFactory {
                     AbstractRawPageParser productParser = constructor.newInstance();
                     vertx.deployVerticle(productParser, options, res -> {
                         if (res.succeeded()) {
-                            System.out.println("Deployment id is: " + res.result());
+                            LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
                             parserVertex.add(res.result());
                         } else {
-                            System.out.println("Deployment failed!");
+                            LOGGER.error("Deployment failed!", res.cause());
                         }
                     });
                 } catch (Exception e) {
@@ -108,6 +112,26 @@ public class ProductParserFactory {
             }
         }
         parseResult = Observable.fromAsync(asyncEmitter -> vertx.eventBus().consumer("productParseResult", (Handler<Message<ProductEntity>>) event -> asyncEmitter.onNext(event.body())), AsyncEmitter.BackpressureMode.BUFFER);
+    }
+
+    private void createLogger(Class<? extends AbstractRawPageParser> clazz) {
+        String clazzName = clazz.getName();
+
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz);
+        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
+        fileAppender.setAppend(true);
+        fileAppender.setFile("logs/" + clazzName + ".log");
+        fileAppender.setName(clazzName);
+        fileAppender.setContext(logger.getLoggerContext());
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
+        encoder.setContext(logger.getLoggerContext());
+        encoder.setImmediateFlush(false);
+        encoder.start();
+        fileAppender.setEncoder(encoder);
+        fileAppender.start();
+        logger.setLevel(Level.ALL);
+        logger.addAppender(fileAppender);
     }
 
     /**

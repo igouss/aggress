@@ -1,5 +1,9 @@
 package com.naxsoft.parsers.webPageParsers;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.FileAppender;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.WebPageEntity;
@@ -18,8 +22,8 @@ import rx.Observable;
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Copyright NAXSoft 2015
@@ -28,7 +32,7 @@ public class WebPageParserFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageParserFactory.class);
 
     private final Vertx vertx;
-    private final ArrayList<String> parserVertex;
+    private final LinkedBlockingDeque<String> parserVertex;
     private Observable<WebPageEntity> parseResult;
 
     /**
@@ -39,7 +43,7 @@ public class WebPageParserFactory {
     @Inject
     public WebPageParserFactory(Vertx vertx, HttpClient client) {
         this.vertx = vertx;
-        parserVertex = new ArrayList<>();
+        parserVertex = new LinkedBlockingDeque<>();
         vertx.eventBus().registerDefaultCodec(WebPageEntity.class, new MessageCodec<WebPageEntity, Object>() {
             WebPageEntityEncoder webPageEntityEncoder = new WebPageEntityEncoder();
 
@@ -100,15 +104,17 @@ public class WebPageParserFactory {
         for (Class<? extends AbstractWebPageParser> clazz : classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
+                    createLogger(clazz);
+
                     Constructor<? extends AbstractWebPageParser> constructor = clazz.getDeclaredConstructor(asyncFetchClient);
                     constructor.setAccessible(true);
                     AbstractWebPageParser webPageParser = constructor.newInstance(client);
                     vertx.deployVerticle(webPageParser, options, res -> {
                         if (res.succeeded()) {
-                            System.out.println("Deployment id is: " + res.result());
+                            LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
                             parserVertex.add(res.result());
                         } else {
-                            System.out.println("Deployment failed!");
+                            LOGGER.error("Deployment failed!", res.cause());
                         }
                     });
                 } catch (Exception e) {
@@ -117,6 +123,26 @@ public class WebPageParserFactory {
             }
         }
         parseResult = Observable.fromAsync(asyncEmitter -> vertx.eventBus().consumer("webPageParseResult", (Handler<Message<WebPageEntity>>) event -> asyncEmitter.onNext(event.body())), AsyncEmitter.BackpressureMode.BUFFER);
+    }
+
+    private void createLogger(Class<? extends AbstractWebPageParser> clazz) {
+        String clazzName = clazz.getName();
+
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz);
+        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
+        fileAppender.setAppend(true);
+        fileAppender.setFile("logs/" + clazzName + ".log");
+        fileAppender.setName(clazzName);
+        fileAppender.setContext(logger.getLoggerContext());
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
+        encoder.setContext(logger.getLoggerContext());
+        encoder.setImmediateFlush(false);
+        encoder.start();
+        fileAppender.setEncoder(encoder);
+        fileAppender.start();
+        logger.setLevel(Level.ALL);
+        logger.addAppender(fileAppender);
     }
 
     public void close() {
