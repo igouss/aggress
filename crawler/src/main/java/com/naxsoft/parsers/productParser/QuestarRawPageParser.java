@@ -2,18 +2,19 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import io.vertx.core.eventbus.Message;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,9 +47,10 @@ class QuestarRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+        HashSet<ProductEntity> result = new HashSet<>();
+
         try {
-            HashSet<ProductEntity> result = new HashSet<>();
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             String productName = document.select("#main > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td:nth-child(3) > table > tbody > tr:nth-child(1)").text();
@@ -70,10 +72,10 @@ class QuestarRawPageParser extends AbstractRawPageParser {
             }
             product.setWebpageId(webPageEntity.getId());
             result.add(product);
-            return result;
         } catch (Exception e) {
-            throw new ProductParseException(e);
+            LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
+        return Observable.from(result);
     }
 
     /**
@@ -92,5 +94,12 @@ class QuestarRawPageParser extends AbstractRawPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().contains("shopquestar.com") && webPage.getType().equals("productPageRaw");
+    }
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+        vertx.eventBus().consumer("shopquestar.com/productPageRaw", (Message<WebPageEntity> event) ->
+                parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err)));
     }
 }

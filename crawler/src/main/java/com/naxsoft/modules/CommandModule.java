@@ -5,7 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.database.Elastic;
 import com.naxsoft.database.Persistent;
 import com.naxsoft.database.WebPageService;
-import com.naxsoft.parsers.productParser.ProductParserFacade;
+import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import dagger.Module;
 import dagger.Provides;
@@ -51,7 +51,7 @@ public class CommandModule {
     @Provides
     @Singleton
     @NotNull
-    static ParseCommand provideParseCommand(WebPageService webPageService, ProductParserFacade productParserFactory, WebPageParserFactory webPageParserFactory, Elastic elastic) {
+    static ParseCommand provideParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, WebPageParserFactory webPageParserFactory, Elastic elastic) {
         return new ParseCommand(webPageService, productParserFactory, webPageParserFactory, elastic);
     }
 

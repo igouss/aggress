@@ -7,7 +7,7 @@ import org.junit.Test;
  *
  */
 public class ProductParserFactoryTest extends AbstractTest {
-    private ProductParserFacade parser = null;
+    private ProductParserFactory parser = null;
 
     @Test
     public void parse() {

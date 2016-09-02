@@ -5,6 +5,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import io.vertx.core.eventbus.Message;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
@@ -15,8 +16,6 @@ import rx.schedulers.Schedulers;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
@@ -85,5 +84,12 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().contains("frontierfirearms.ca") && webPage.getType().equals("frontPage");
+    }
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+        vertx.eventBus().consumer("frontierfirearms.ca/frontPage", (Message<WebPageEntity> event) ->
+                parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
     }
 }

@@ -5,6 +5,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import io.vertx.core.eventbus.Message;
 import org.asynchttpclient.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -76,5 +77,12 @@ class SailsFrontPageParser extends AbstractWebPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().contains("sail.ca") && webPage.getType().equals("frontPage");
+    }
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+        vertx.eventBus().consumer("sail.ca/frontPage", (Message<WebPageEntity> event) ->
+                parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
     }
 }

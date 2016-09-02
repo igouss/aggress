@@ -5,6 +5,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import io.vertx.core.eventbus.Message;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,4 +78,10 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
         return webPage.getUrl().contains("ellwoodepps.com") && webPage.getType().equals("frontPage");
     }
 
+    @Override
+    public void start() throws Exception {
+        super.start();
+        vertx.eventBus().consumer("ellwoodepps.com/frontPage", (Message<WebPageEntity> event) ->
+                parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+    }
 }

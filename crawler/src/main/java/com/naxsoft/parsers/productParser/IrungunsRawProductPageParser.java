@@ -3,6 +3,7 @@ package com.naxsoft.parsers.productParser;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import io.vertx.core.eventbus.Message;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
@@ -10,9 +11,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,9 +61,10 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+        HashSet<ProductEntity> result = new HashSet<>();
+
         try {
-            HashSet<ProductEntity> products = new HashSet<>();
             ProductEntity product = new ProductEntity();
             try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                 jsonBuilder.startObject();
@@ -68,13 +74,13 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
                 Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
                 if (!document.select(".saleImage").isEmpty()) {
-                    return products;
+                    return Observable.empty();
                 }
 
                 String productName = document.select("div.innercontentDiv > div > div > h2").text();
 
                 if (productName.isEmpty()) {
-                    return products;
+                    return Observable.empty();
                 }
 
                 LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
@@ -115,11 +121,11 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
                 product.setWebpageId(webPageEntity.getId());
                 product.setJson(jsonBuilder.string());
             }
-            products.add(product);
-            return products;
+            result.add(product);
         } catch (Exception e) {
-            throw new ProductParseException(e);
+            LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
+        return Observable.from(result);
     }
 
     /**
@@ -138,5 +144,12 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().contains("irunguns.us") && webPage.getType().equals("productPageRaw");
+    }
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+        vertx.eventBus().consumer("irunguns.us/productPageRaw", (Message<WebPageEntity> event) ->
+                parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err)));
     }
 }

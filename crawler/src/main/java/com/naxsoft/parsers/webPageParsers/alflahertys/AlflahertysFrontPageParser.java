@@ -5,6 +5,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import io.vertx.core.eventbus.Message;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -36,12 +37,12 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select("ul.main.menu a");
 
             Set<String> validCategories = new HashSet<>();
-            validCategories.add("FIREARMS");
             validCategories.add("HANDGUNS");
             validCategories.add("RESTRICTED RIFLES");
             validCategories.add("RIFLES");
             validCategories.add("SHOTGUNS");
             validCategories.add("BLACK POWDER");
+            validCategories.add("AIRGUNS");
 
 
             validCategories.add("HANDGUN AMMUNITION");
@@ -161,5 +162,12 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().contains("alflahertys.com") && webPage.getType().equals("frontPage");
+    }
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+        vertx.eventBus().consumer("alflahertys.com/frontPage", (Message<WebPageEntity> event) ->
+                parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
     }
 }

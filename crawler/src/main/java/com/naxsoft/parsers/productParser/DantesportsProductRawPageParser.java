@@ -2,19 +2,19 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import io.vertx.core.eventbus.Message;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,10 +89,10 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
      * @throws Exception
      */
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
-        HashSet<ProductEntity> products = new HashSet<>();
-        ProductEntity product = new ProductEntity();
+    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+        HashSet<ProductEntity> result = new HashSet<>();
         try {
+            ProductEntity product = new ProductEntity();
             try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                 jsonBuilder.startObject();
                 jsonBuilder.field("url", webPageEntity.getUrl());
@@ -103,7 +103,7 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
                 LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
                 if (!document.select(".outofstock").isEmpty()) {
-                    return products;
+                    return Observable.empty();
                 }
 
                 jsonBuilder.field("productName", productName);
@@ -121,12 +121,11 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
                 product.setWebpageId(webPageEntity.getId());
                 product.setJson(jsonBuilder.string());
             }
-        } catch (IOException e) {
-            throw new ProductParseException(e);
+            result.add(product);
+        } catch (Exception e) {
+            LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        products.add(product);
-        return products;
-
+        return Observable.from(result);
     }
 
     /**
@@ -146,5 +145,12 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().contains("dantesports.com") && webPage.getType().equals("productPageRaw");
+    }
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+        vertx.eventBus().consumer("dantesports.com/productPageRaw", (Message<WebPageEntity> event) ->
+                parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err)));
     }
 }

@@ -1,13 +1,10 @@
 package com.naxsoft.commands;
 
-import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.Elastic;
-import com.naxsoft.database.ProductService;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.parsers.productParser.ProductParserFacade;
+import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +36,12 @@ public class ParseCommand implements Command {
 
     private WebPageService webPageService = null;
     private Elastic elastic = null;
-    private ProductParserFacade productParserFactory = null;
+    private ProductParserFactory productParserFactory = null;
     private String indexSuffix = null;
     private WebPageParserFactory webPageParserFactory;
 
     @Inject
-    public ParseCommand(WebPageService webPageService, ProductParserFacade productParserFactory, WebPageParserFactory webPageParserFactory,Elastic elastic) {
+    public ParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, WebPageParserFactory webPageParserFactory, Elastic elastic) {
         this.webPageService = webPageService;
         this.productParserFactory = productParserFactory;
         this.webPageParserFactory = webPageParserFactory;
@@ -75,7 +72,7 @@ public class ParseCommand implements Command {
             );
             LOGGER.info("returning parsed productPages");
             return result;
-        }).observeOn(Schedulers.computation())
+        }).observeOn(Schedulers.io())
                 .filter(pageToParse -> pageToParse != null)
                 .doOnNext(pageToParse -> {
                     String allCategories = pageToParse.getCategory();
@@ -86,19 +83,7 @@ public class ParseCommand implements Command {
                             }
                         }
                     }
-                }).map(pageToParse -> {
-                    Set<ProductEntity> result = new HashSet<>();
-                    try {
-                        result.addAll(productParserFactory.parse(pageToParse));
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to parse product page {}", pageToParse.getUrl(), e);
-                    }
-                    if (result.isEmpty()) {
-                        LOGGER.warn("No result on page {}", pageToParse);
-                    }
-                    return result;
-                }).filter(webPageEntities -> null != webPageEntities)
-                .flatMap(Observable::from);
+                }).flatMap(pageToParse -> productParserFactory.parse(pageToParse));
     }
 
     @Override

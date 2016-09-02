@@ -2,6 +2,7 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import io.vertx.core.eventbus.Message;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
@@ -9,9 +10,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,13 +68,13 @@ class EllwoodeppsRawProductParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+        HashSet<ProductEntity> result = new HashSet<>();
         try {
-            HashSet<ProductEntity> result = new HashSet<>();
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             if (!document.select(".firearm-links-sold").isEmpty()) {
-                return result;
+                return Observable.empty();
             }
 
             String productName = document.select(".product-name span").text();
@@ -102,10 +107,10 @@ class EllwoodeppsRawProductParser extends AbstractRawPageParser {
             }
             product.setWebpageId(webPageEntity.getId());
             result.add(product);
-            return result;
         } catch (Exception e) {
-            throw new ProductParseException(e);
+            LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
+        return Observable.from(result);
     }
 
     /**
@@ -124,5 +129,12 @@ class EllwoodeppsRawProductParser extends AbstractRawPageParser {
     @Override
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().contains("ellwoodepps.com") && webPage.getType().equals("productPageRaw");
+    }
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+        vertx.eventBus().consumer("ellwoodepps.com/productPageRaw", (Message<WebPageEntity> event) ->
+                parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err)));
     }
 }

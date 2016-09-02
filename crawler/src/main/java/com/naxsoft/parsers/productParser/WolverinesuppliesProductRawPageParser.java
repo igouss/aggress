@@ -3,16 +3,17 @@ package com.naxsoft.parsers.productParser;
 import com.google.gson.Gson;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import io.vertx.core.eventbus.Message;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
@@ -81,9 +82,10 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Set<ProductEntity> parse(WebPageEntity webPageEntity) throws ProductParseException {
+    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+        HashSet<ProductEntity> result = new HashSet<>();
+
         try {
-            HashSet<ProductEntity> result = new HashSet<>();
             Gson gson = new Gson();
             RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
 
@@ -115,11 +117,10 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
                 product.setWebpageId(webPageEntity.getId());
                 result.add(product);
             }
-
-            return result;
         } catch (Exception e) {
-            throw new ProductParseException(e);
+            LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
+        return Observable.from(result);
     }
 
     /**
@@ -138,37 +139,45 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     public boolean canParse(WebPageEntity webPage) {
         return webPage.getUrl().contains("wolverinesupplies.com") && webPage.getType().equals("productPageRaw");
     }
-}
 
-/**
- *
- */
-class RawProduct {
-    Attributes[] Attributes;
-    String ItemNumber;
-    int StockAmount;
-    double ListPrice;
-    String RenderedListPrice;
-    double Price;
-    String RenderedPrice;
-    String ImageFile;
-    String ImageExtension;
-    String ImageSize;
-    String ExtendedDescription;
-    String Title;
+    @Override
+    public void start() throws Exception {
+        super.start();
+        vertx.eventBus().consumer("wolverinesupplies.com/productPageRaw", (Message<WebPageEntity> event) ->
+                parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+    }
 
-    RawProduct() {
+    /**
+     *
+     */
+    class RawProduct {
+        Attributes[] Attributes;
+        String ItemNumber;
+        int StockAmount;
+        double ListPrice;
+        String RenderedListPrice;
+        double Price;
+        String RenderedPrice;
+        String ImageFile;
+        String ImageExtension;
+        String ImageSize;
+        String ExtendedDescription;
+        String Title;
+
+        RawProduct() {
+        }
+    }
+
+    /**
+     *
+     */
+    class Attributes {
+        String SearchType;
+        String AttributeName;
+        String AttributeValue;
+
+        Attributes() {
+        }
     }
 }
 
-/**
- *
- */
-class Attributes {
-    String SearchType;
-    String AttributeName;
-    String AttributeValue;
-
-    Attributes() {
-    }
-}

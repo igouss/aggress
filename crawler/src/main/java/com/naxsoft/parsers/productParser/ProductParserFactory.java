@@ -1,7 +1,7 @@
-package com.naxsoft.parsers.webPageParsers;
+package com.naxsoft.parsers.productParser;
 
-import com.naxsoft.crawler.HttpClient;
-import com.naxsoft.encoders.WebPageEntityEncoder;
+import com.naxsoft.encoders.ProductEntityEncoder;
+import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Handler;
@@ -24,28 +24,23 @@ import java.util.Set;
 /**
  * Copyright NAXSoft 2015
  */
-public class WebPageParserFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebPageParserFactory.class);
+public class ProductParserFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductParserFactory.class);
 
     private final Vertx vertx;
     private final ArrayList<String> parserVertex;
-    private Observable<WebPageEntity> parseResult;
+    private Observable<ProductEntity> parseResult;
 
-    /**
-     * Create new WebPageParserFactory that using reflection to locate all WebPageParsers in the classpath
-     *
-     * @param client HTTP client for WebPageParsers to use
-     */
     @Inject
-    public WebPageParserFactory(Vertx vertx, HttpClient client) {
+    public ProductParserFactory(Vertx vertx) {
         this.vertx = vertx;
         parserVertex = new ArrayList<>();
         vertx.eventBus().registerDefaultCodec(WebPageEntity.class, new MessageCodec<WebPageEntity, Object>() {
-            WebPageEntityEncoder webPageEntityEncoder = new WebPageEntityEncoder();
+            ProductEntityEncoder entityEncoder = new ProductEntityEncoder();
 
             @Override
             public void encodeToWire(Buffer buffer, WebPageEntity webPageEntity) {
-                String jsonToStr = webPageEntityEncoder.encode(webPageEntity);
+                String jsonToStr = entityEncoder.encode(webPageEntity);
 
                 // Length of JSON: is NOT characters count
                 int length = jsonToStr.getBytes().length;
@@ -66,7 +61,7 @@ public class WebPageParserFactory {
                 // Jump 4 because getInt() == 4 bytes
                 String jsonStr = buffer.getString(_pos += 4, _pos += length);
 
-                return webPageEntityEncoder.decode(jsonStr);
+                return entityEncoder.decode(jsonStr);
             }
 
             @Override
@@ -76,7 +71,7 @@ public class WebPageParserFactory {
 
             @Override
             public String name() {
-                return "WebPageEntityCodec";
+                return "ProductEntityCodec";
             }
 
             @Override
@@ -87,23 +82,19 @@ public class WebPageParserFactory {
 
         DeploymentOptions options = new DeploymentOptions().setWorker(true);
 
-        Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
-        Set<Class<? extends AbstractWebPageParser>> classes = reflections.getSubTypesOf(AbstractWebPageParser.class);
+        Reflections reflections = new Reflections("com.naxsoft.parsers.productParser");
+        Set<Class<? extends AbstractRawPageParser>> classes = reflections.getSubTypesOf(AbstractRawPageParser.class);
 
-        Class<?> asyncFetchClient = null;
-        for (Class iface : client.getClass().getInterfaces()) {
-            if (iface.getCanonicalName().equals("com.naxsoft.crawler.HttpClient")) {
-                asyncFetchClient = iface;
-            }
-        }
-
-        for (Class<? extends AbstractWebPageParser> clazz : classes) {
+        for (Class<? extends AbstractRawPageParser> clazz : classes) {
             if (!Modifier.isAbstract(clazz.getModifiers())) {
                 try {
-                    Constructor<? extends AbstractWebPageParser> constructor = clazz.getDeclaredConstructor(asyncFetchClient);
+                    LOGGER.info("Instantiating {}", clazz.getName());
+
+                    Constructor<? extends AbstractRawPageParser> constructor = clazz.getDeclaredConstructor();
                     constructor.setAccessible(true);
-                    AbstractWebPageParser webPageParser = constructor.newInstance(client);
-                    vertx.deployVerticle(webPageParser, options, res -> {
+
+                    AbstractRawPageParser productParser = constructor.newInstance();
+                    vertx.deployVerticle(productParser, options, res -> {
                         if (res.succeeded()) {
                             System.out.println("Deployment id is: " + res.result());
                             parserVertex.add(res.result());
@@ -112,26 +103,27 @@ public class WebPageParserFactory {
                         }
                     });
                 } catch (Exception e) {
-                    LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
+                    LOGGER.error("Failed to create a new product parser", e);
                 }
             }
         }
-        parseResult = Observable.fromAsync(asyncEmitter -> vertx.eventBus().consumer("webPageParseResult", (Handler<Message<WebPageEntity>>) event -> asyncEmitter.onNext(event.body())), AsyncEmitter.BackpressureMode.BUFFER);
+        parseResult = Observable.fromAsync(asyncEmitter -> vertx.eventBus().consumer("productParseResult", (Handler<Message<ProductEntity>>) event -> asyncEmitter.onNext(event.body())), AsyncEmitter.BackpressureMode.BUFFER);
+    }
+
+    /**
+     * Get ProductParser capable of parsing webPageEntity
+     *
+     * @param webPageEntity page to parse
+     * @return Parser capable of parsing the page
+     */
+    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+        String host = getHost(webPageEntity);
+        vertx.eventBus().publish(host + "/" + webPageEntity.getType(), webPageEntity);
+        return parseResult;
     }
 
     public void close() {
         parserVertex.forEach(vertx::undeploy);
-    }
-
-    /**
-     * Get a WebPageParser that is capable of parsing webPageEntity
-     *
-     * @param webPageEntity Page to parse
-     */
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        String host = getHost(webPageEntity);
-        vertx.eventBus().publish(host + "/" + webPageEntity.getType(), webPageEntity);
-        return parseResult;
     }
 
     private String getHost(WebPageEntity webPageEntity) {
