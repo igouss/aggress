@@ -3,15 +3,12 @@ package com.naxsoft;
 import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
-import com.naxsoft.commands.*;
-import com.naxsoft.utils.HealthCheck;
 import com.naxsoft.scheduler.Scheduler;
+import com.naxsoft.utils.HealthCheck;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 import java.util.concurrent.TimeUnit;
 
@@ -108,11 +105,12 @@ public class Crawler {
                 applicationComponent.getDatabase().close();
                 applicationComponent.getElastic().close();
                 applicationComponent.getHttpClient().close();
+                applicationComponent.getWebPageParserFactory().close();
+                applicationComponent.getProductParserFactory().close();
                 ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-
 }
