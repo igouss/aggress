@@ -35,12 +35,12 @@ public class ProductParserFactory {
     public ProductParserFactory(Vertx vertx) {
         this.vertx = vertx;
         parserVertex = new ArrayList<>();
-        vertx.eventBus().registerDefaultCodec(WebPageEntity.class, new MessageCodec<WebPageEntity, Object>() {
+        vertx.eventBus().registerDefaultCodec(ProductEntity.class, new MessageCodec<ProductEntity, Object>() {
             ProductEntityEncoder entityEncoder = new ProductEntityEncoder();
 
             @Override
-            public void encodeToWire(Buffer buffer, WebPageEntity webPageEntity) {
-                String jsonToStr = entityEncoder.encode(webPageEntity);
+            public void encodeToWire(Buffer buffer, ProductEntity productEntity) {
+                String jsonToStr = entityEncoder.encode(productEntity);
 
                 // Length of JSON: is NOT characters count
                 int length = jsonToStr.getBytes().length;
@@ -65,7 +65,7 @@ public class ProductParserFactory {
             }
 
             @Override
-            public Object transform(WebPageEntity webPageEntity) {
+            public Object transform(ProductEntity webPageEntity) {
                 return webPageEntity;
             }
 

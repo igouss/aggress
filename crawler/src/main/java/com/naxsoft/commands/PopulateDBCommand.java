@@ -1,7 +1,6 @@
 package com.naxsoft.commands;
 
 
-import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.SourceEntity;
 import com.naxsoft.entity.WebPageEntity;
