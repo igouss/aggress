@@ -108,6 +108,8 @@ public class Crawler {
                 applicationComponent.getProductParserFactory().close();
                 applicationComponent.getElastic().close();
                 ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
+                applicationComponent.getElastic().close();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
