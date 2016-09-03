@@ -19,8 +19,6 @@ class ProxyManager {
         nonProxyHosts.add("elasticsearch");
         nonProxyHosts.add("redis");
 
-
-
         ProxyServer torProxy = new ProxyServer.Builder("tor-proxy", 8118)
                 .setNonProxyHosts(nonProxyHosts)
                 .build();
@@ -34,15 +32,17 @@ class ProxyManager {
 //            proxyServers.add(new ProxyServer.Builder(proxyHost, proxyPort).build());
 //        } catch (PropertyNotFoundException e) {
 //            LOGGER.warn("unable to find proxy");
+
+        if (proxyServers.isEmpty()) {
+            LOGGER.warn("no proxy");
+        }
     }
 
     synchronized ProxyServer getProxyServer() {
         ProxyServer result = null;
         //
 
-        if (proxyServers.isEmpty()) {
-            LOGGER.debug("no proxy");
-        } else {
+        if (!proxyServers.isEmpty()) {
             result = proxyServers.get(current++);
             if (current >= proxyServers.size()) {
                 current = 0;
