@@ -32,7 +32,7 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
     private static String parsePrice(String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
-            return matcher.group(1).replace(",", "");
+            return matcher.group(1).replace(",", "").replace(" ", "");
         } else {
             LOGGER.error("failed to parse price {}", price);
             return "";
