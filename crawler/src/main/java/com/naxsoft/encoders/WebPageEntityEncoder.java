@@ -12,7 +12,7 @@ public class WebPageEntityEncoder extends Encoder {
      * @param value Serialized value
      * @return Java object
      */
-    public WebPageEntity decode(String value) {
+    public static WebPageEntity decode(String value) {
         return fromJson(value, WebPageEntity.class);
     }
 }

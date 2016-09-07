@@ -10,7 +10,7 @@ public class ProductEntityEncoder extends Encoder {
      * @param value Serialized value
      * @return Java object
      */
-    public ProductEntity decode(String value) {
+    public static ProductEntity decode(String value) {
         return fromJson(value, ProductEntity.class);
     }
 }

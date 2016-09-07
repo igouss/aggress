@@ -20,7 +20,7 @@ public class Encoder {
      *
      * @return JSON representation
      */
-    public <T> String encode(T entity) {
+    public static <T> String encode(T entity) {
         Gson gson = new Gson();
         return gson.toJson(entity);
     }
