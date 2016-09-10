@@ -6,17 +6,16 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import io.vertx.core.eventbus.Message;
-import org.asynchttpclient.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -29,7 +28,7 @@ class DantesportsFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -37,25 +36,20 @@ class DantesportsFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select("#scol1 > div.scell_menu > li > a");
 
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href") + "&paging=0", element.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, element.attr("abs:href") + "&paging=0", element.text());
                 LOGGER.info("productList={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        List<Cookie> cookies = null;
-        try {
-            cookies = client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        return Observable.from(client.get(webPage.getUrl(), cookies, new DocumentCompletionHandler(webPage)), Schedulers.io())
-                .map(this::parseDocument)
-                .flatMap(Observable::from);
+        return client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false)
+                .first()
+                .flatMap(cookies1 -> client.get(webPage.getUrl(), cookies1, new DocumentCompletionHandler(webPage)))
+                .flatMap(this::parseDocument);
     }
 
     @Override

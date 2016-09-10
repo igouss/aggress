@@ -13,13 +13,11 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
@@ -40,7 +38,7 @@ class InternationalshootingsuppliesProductListParser extends AbstractWebPagePars
         this.client = client;
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
         Document document = downloadResult.getDocument();
 
@@ -52,18 +50,18 @@ class InternationalshootingsuppliesProductListParser extends AbstractWebPagePars
                 }
 
                 String url = element.select("> a").attr("abs:href");
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, url, downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, url, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        Future<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
-        return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
+        return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
+                .flatMap(this::parseDocument);
     }
 
     @Override

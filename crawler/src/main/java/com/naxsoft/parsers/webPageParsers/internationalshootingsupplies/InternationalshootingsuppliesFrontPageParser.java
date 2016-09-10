@@ -13,7 +13,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,12 +37,12 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
         this.client = client;
     }
 
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
         return webPageEntity;
     }
 
-    private Collection<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -61,36 +60,33 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
                 }
             }
             if (max == 0) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             } else {
                 for (int i = 1; i <= max; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl() + "page/" + i + "/", downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, downloadResult.getSourcePage().getUrl() + "page/" + i + "/", downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                     result.add(webPageEntity);
                 }
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://internationalshootingsupplies.com/product-category/ammunition/", "ammo"));
-        webPageEntities.add(create("http://internationalshootingsupplies.com/product-category/firearms/", "firearm"));
-        webPageEntities.add(create("http://internationalshootingsupplies.com/product-category/hunting-accessories/", "misc"));
-        webPageEntities.add(create("http://internationalshootingsupplies.com/product-category/optics/", "optic"));
-        webPageEntities.add(create("http://internationalshootingsupplies.com/product-category/reloading-components/", "reload"));
-        webPageEntities.add(create("http://internationalshootingsupplies.com/product-category/reloading-equipment/", "reload"));
-        webPageEntities.add(create("http://internationalshootingsupplies.com/product-category/shooting-accessories/", "misc"));
+        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/ammunition/", "ammo"));
+        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/firearms/", "firearm"));
+        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/hunting-accessories/", "misc"));
+        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/optics/", "optic"));
+        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/reloading-components/", "reload"));
+        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/reloading-equipment/", "reload"));
+        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/shooting-accessories/", "misc"));
         return Observable.from(webPageEntities)
-                .observeOn(Schedulers.io())
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseProductPage)
-                .flatMap(Observable::from);
+                .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(this::parseProductPage);
     }
 
     @Override

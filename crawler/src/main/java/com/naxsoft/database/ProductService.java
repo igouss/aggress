@@ -5,8 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.util.Collection;
-
 /**
  *
  */
@@ -24,10 +22,8 @@ public class ProductService {
     /**
      * @param products Save
      */
-    public void save(Collection<ProductEntity> products) {
-        for (ProductEntity productEntity : products) {
-            database.save(productEntity);
-        }
+    public Observable<Long> save(Observable<ProductEntity> products) {
+        return database.addProductPageEntry(products);
     }
 
     /**

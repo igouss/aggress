@@ -13,10 +13,11 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.*;
-import java.util.concurrent.Future;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -29,7 +30,7 @@ class CrafmProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -37,22 +38,21 @@ class CrafmProductListParser extends AbstractWebPageParser {
             Elements elements = document.select(".products-grid .item > a");
             for (Element e : elements) {
                 String linkUrl = e.attr("abs:href");
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, linkUrl, downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, linkUrl, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("ProductPageUrl={}", linkUrl);
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Observable<WebPageEntity> parse(WebPageEntity parent) {
         List<Cookie> cookies = new ArrayList<>(1);
         cookies.add(Cookie.newValidCookie("store", "english", false, null, null, Long.MAX_VALUE, false, false));
 
-        Future<DownloadResult> future = client.get(webPage.getUrl(), cookies, new DocumentCompletionHandler(webPage));
-
-        return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
+        return client.get(parent.getUrl(), cookies, new DocumentCompletionHandler(parent))
+                .flatMap(this::parseDocument);
     }
 
     @Override

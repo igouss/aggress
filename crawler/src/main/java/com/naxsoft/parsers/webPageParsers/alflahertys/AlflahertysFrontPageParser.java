@@ -12,9 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,7 +28,7 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -109,15 +107,15 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
                     LOGGER.info("Ignoring category: " + e.text() + " " + e.attr("abs:href"));
                     continue;
                 }
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, e.attr("abs:href"), e.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, e.attr("abs:href"), e.text());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
-    private Collection<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -134,29 +132,26 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
                 }
             }
             if (max == 0) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             } else {
                 for (int i = 1; i <= max; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, downloadResult.getSourcePage().getUrl() + "?page=" + i, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, downloadResult.getSourcePage().getUrl() + "?page=" + i, downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                     result.add(webPageEntity);
                 }
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.from(client.get(parent.getUrl(), new DocumentCompletionHandler(parent)), Schedulers.io())
-                .map(this::parseFrontPage)
-                .flatMap(Observable::from)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseProductPage)
-                .flatMap(Observable::from);
+        return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
+                .flatMap(this::parseFrontPage)
+                .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(this::parseProductPage);
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
+import com.naxsoft.utils.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -26,12 +27,11 @@ import javax.inject.Singleton;
 public class RedisDatabase implements Persistent {
     private final static Logger LOGGER = LoggerFactory.getLogger(RedisDatabase.class);
     private static final Long BATCH_SIZE = 20L;
-    private ClientResources res;
-
     @Inject
     ProductEntityEncoder productEntityEncoder;
     @Inject
     WebPageEntityEncoder webPageEntityEncoder;
+    private ClientResources res;
     private RedisClient redisClient;
     //    private StatefulRedisPubSubConnection<String, String> pubSub;
 //    private RedisConnectionPool<RedisAsyncCommands<String, String>> pool;
@@ -81,19 +81,27 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Observable<? extends Number> markWebPageAsParsed(WebPageEntity webPageEntity) {
+    public Observable<Long> markWebPageAsParsed(WebPageEntity webPageEntity) {
         if (webPageEntity == null) {
             return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
         }
 
-//        String source = "WebPageEntity." + webPageEntity.getType();
+        String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
         String member = webPageEntityEncoder.encode(webPageEntity);
-        return connection.reactive()
-                .sadd(destination, member);
 //        return connection.reactive()
-//                .smove(source, destination, member)
-//                .map(value -> value ? 1 : 0);
+//                .sadd(destination, member);
+        return connection.reactive()
+                .sadd(destination, member)
+                .map(res -> {
+                    if (res != 0L) {
+                        LOGGER.trace("Moved element {} from {} to {}", member, source, destination);
+                        return 1L;
+                    } else {
+                        LOGGER.info("Failed to move element {} from {} to {}", member, source, destination);
+                        return 0L;
+                    }
+                });
     }
 
     @Override
@@ -102,56 +110,71 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Observable<Long> save(ProductEntity productEntity) {
-        String key = "ProductEntity";
-        String value = productEntityEncoder.encode(productEntity);
-
-        return connection.reactive()
-                .sadd(key, value);
+    public Observable<Long> addProductPageEntry(Observable<ProductEntity> productEntity) {
+        return productEntity
+                .flatMap(entity -> {
+                    String key = "ProductEntity";
+                    String member = productEntityEncoder.encode(entity);
+                    return Observable.zip(connection.reactive().sadd(key, member), Observable.just(entity), Tuple::new);
+                })
+                .map(res -> {
+                    if (res.getV1() == 0L) {
+                        LOGGER.error("Failed to save {}", res.getV2());
+                    } else {
+                        LOGGER.trace("Saved {}", res.getV2());
+                    }
+                    return res.getV1();
+                });
     }
 
     @Override
-    public Observable<Long> save(WebPageEntity webPageEntity) {
-        String key = getKey(webPageEntity);
-        String member = webPageEntityEncoder.encode(webPageEntity);
-        return connection.reactive()
-                .sadd(key, member);
-    }
-
-    private String getKey(WebPageEntity webPageEntity) {
-        return "WebPageEntity." + webPageEntity.getType();
+    public Observable<Long> addWebPageEntry(Observable<WebPageEntity> webPageEntity) {
+        return webPageEntity
+                .flatMap(entity -> {
+                    String key = "WebPageEntity" + "." + entity.getType();
+                    String member = webPageEntityEncoder.encode(entity);
+                    return Observable.zip(connection.reactive().sadd(key, member), Observable.just(entity), Tuple::new);
+                })
+                .map(res -> {
+                    if (res.getV1() == 0L) {
+                        LOGGER.error("Failed to save {}", res.getV2());
+                    } else {
+                        LOGGER.trace("Saved {}", res.getV2());
+                    }
+                    return res.getV1();
+                });
     }
 
     @Override
     public Observable<ProductEntity> getProducts() {
-        return connection.reactive().smembers("ProductEntity").map(productEntityEncoder::decode);
+        return connection.reactive()
+                .smembers("ProductEntity")
+                .map(productEntityEncoder::decode)
+                .filter(productEntity -> productEntity != null);
     }
 
     @Override
     public Observable<WebPageEntity> getUnparsedByType(String type, Long count) {
+        LOGGER.info("getUnparsedByType {} {}", type, count);
         String key = "WebPageEntity." + type;
         long popCount = Math.min(BATCH_SIZE, count);
-        return connection.reactive().spop(key, popCount).map(webPageEntityEncoder::decode);
-//        return connection.reactive().srandmember(key, popCount).map(webPageEntityEncoder::decode);
+//        return connection.reactive().spop(key, popCount).map(webPageEntityEncoder::decode);
+        return connection.reactive()
+                .spop(key, popCount)
+                .map(webPageEntityEncoder::decode)
+                .filter(entry -> entry != null);
     }
 
     @Override
     public Observable<Long> cleanUp(String[] tables) {
-        Observable<Long> result = Observable.empty();
-        for (String table : tables) {
-            if (table.equalsIgnoreCase("WebPageEntity")) {
-                result = Observable.concat(result, connection.reactive().del(
-                        "WebPageEntity.frontPage",
-                        "WebPageEntity.productList",
-                        "WebPageEntity.productPage.parsed",
-                        "WebPageEntity.frontPage.parsed",
-                        "WebPageEntity.productList.parsed",
-                        "WebPageEntity.productPage.parsed"
-                ));
-            } else if (table.equalsIgnoreCase("ProductEntity")) {
-                result = Observable.concat(result, connection.reactive().del("ProductEntity"));
-            }
-        }
-        return result;
+        return connection.reactive().del(
+                "WebPageEntity.frontPage",
+                "WebPageEntity.frontPage.parsed",
+                "WebPageEntity.productList",
+                "WebPageEntity.productList.parsed",
+                "WebPageEntity.productPage",
+                "WebPageEntity.productPage.parsed",
+                "ProductEntity"
+        );
     }
 }

@@ -1,13 +1,10 @@
 package com.naxsoft.commands;
 
 
-import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.Persistent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import java.util.concurrent.Semaphore;
+import rx.schedulers.Schedulers;
 
 /**
  * Copyright NAXSoft 2015
@@ -37,23 +34,15 @@ public class CleanDBCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Semaphore semaphore = new Semaphore(0);
-        db.cleanUp(TABLES).subscribe(result -> {
+        db.cleanUp(TABLES).observeOn(Schedulers.immediate()).subscribeOn(Schedulers.immediate()).subscribe(result -> {
                     LOGGER.info("Rows deleted: {}", result);
                 },
                 ex -> {
                     LOGGER.error("Crawler Process Exception", ex);
-                    semaphore.release();
                 },
                 () -> {
                     LOGGER.info("Delete complete");
-                    semaphore.release();
                 });
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

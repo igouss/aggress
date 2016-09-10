@@ -12,9 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -32,11 +30,11 @@ class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url, String category) {
-        return new WebPageEntity(0L, "", "productList", false, url, category);
+    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
+        return new WebPageEntity(parent, "", "productList", false, url, category);
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -65,30 +63,27 @@ class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
                 } else {
                     url = document.location() + "index " + i + ".html";
                 }
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, url, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.wanstallsonline.com/firearms/", "firearm"));
-        webPageEntities.add(create("http://www.wanstallsonline.com/optics/", "optic"));
-        webPageEntities.add(create("http://www.wanstallsonline.com/tactical-accessories/", "misc"));
-        webPageEntities.add(create("http://www.wanstallsonline.com/gun-cleaning/", "misc"));
-        webPageEntities.add(create("http://www.wanstallsonline.com/storage-transport/", "misc"));
-        webPageEntities.add(create("http://www.wanstallsonline.com/hunting-shooting-supplies/", "misc"));
-        webPageEntities.add(create("http://www.wanstallsonline.com/firearms-ammunition", "ammo"));
+        webPageEntities.add(create(parent, "http://www.wanstallsonline.com/firearms/", "firearm"));
+        webPageEntities.add(create(parent, "http://www.wanstallsonline.com/optics/", "optic"));
+        webPageEntities.add(create(parent, "http://www.wanstallsonline.com/tactical-accessories/", "misc"));
+        webPageEntities.add(create(parent, "http://www.wanstallsonline.com/gun-cleaning/", "misc"));
+        webPageEntities.add(create(parent, "http://www.wanstallsonline.com/storage-transport/", "misc"));
+        webPageEntities.add(create(parent, "http://www.wanstallsonline.com/hunting-shooting-supplies/", "misc"));
+        webPageEntities.add(create(parent, "http://www.wanstallsonline.com/firearms-ammunition", "ammo"));
         return Observable.from(webPageEntities)
-                .observeOn(Schedulers.io())
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from);
+                .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(this::parseDocument);
     }
 
     @Override

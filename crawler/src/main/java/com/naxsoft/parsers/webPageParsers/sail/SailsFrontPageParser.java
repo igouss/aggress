@@ -13,7 +13,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,12 +37,11 @@ class SailsFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
-        return webPageEntity;
+    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
+        return new WebPageEntity(parent, "", "productList", false, url, category);
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -51,27 +49,24 @@ class SailsFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select("ol.nav-2 a");
 
             for (Element el : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, el.attr("abs:href") + "?limit=36", downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, el.attr("abs:href") + "?limit=36", downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearms", "firearm"));
-        webPageEntities.add(create("http://www.sail.ca/en/hunting/firearm-accessories", "firearm"));
-        webPageEntities.add(create("http://www.sail.ca/en/hunting/optics-and-shooting-accessories", "optic"));
-        webPageEntities.add(create("http://www.sail.ca/en/hunting/ammunition", "ammo"));
+        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/firearms", "firearm"));
+        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/firearm-accessories", "firearm"));
+        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/optics-and-shooting-accessories", "optic"));
+        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/ammunition", "ammo"));
         return Observable.from(webPageEntities)
-                .observeOn(Schedulers.io())
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from);
+                .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(this::parseDocument);
     }
 
     @Override

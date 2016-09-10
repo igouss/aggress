@@ -11,9 +11,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,48 +26,46 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
         return webPageEntity;
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(2);
 
         Document document = downloadResult.getDocument();
         if (document != null) {
             if (document.select("#CategoryPagingBottom > div > a").isEmpty()) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             } else {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
 
                 // select next active
                 Elements select = document.select(".PagingList .ActivePage + li a");
                 if (!select.isEmpty()) {
-                    webPageEntity = new WebPageEntity(0L, "", "productList", false, select.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                    webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, select.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                     LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("http://frontierfirearms.ca/firearms.html", "firearm"));
-        webPageEntities.add(create("http://frontierfirearms.ca/ammunition-reloading.html", "ammo"));
-        webPageEntities.add(create("http://frontierfirearms.ca/shooting-accessories.html", "misc"));
-        webPageEntities.add(create("http://frontierfirearms.ca/optics.html", "optic"));
+        webPageEntities.add(create(parent, "http://frontierfirearms.ca/firearms.html", "firearm"));
+        webPageEntities.add(create(parent, "http://frontierfirearms.ca/ammunition-reloading.html", "ammo"));
+        webPageEntities.add(create(parent, "http://frontierfirearms.ca/shooting-accessories.html", "misc"));
+        webPageEntities.add(create(parent, "http://frontierfirearms.ca/optics.html", "optic"));
         return Observable.from(webPageEntities)
-                .observeOn(Schedulers.io())
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
+                .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .filter(downloadResult -> {
                     if (downloadResult == null) {
                         LOGGER.error("Failed to get download results");
@@ -77,8 +73,7 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
                     }
                     return true;
                 })
-                .map(this::parseDocument)
-                .flatMap(Observable::from);
+                .flatMap(this::parseDocument);
     }
 
     @Override

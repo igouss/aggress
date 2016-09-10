@@ -12,12 +12,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesFrontPageParser.class);
@@ -27,28 +24,31 @@ public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".mainnav a");
             for (Element e : elements) {
+                if (e.hasClass("sfSel") || e.text().equals("Range Events")) {
+                    continue;
+                }
                 String linkUrl = e.attr("abs:href");
                 if (null != linkUrl && !linkUrl.isEmpty() && linkUrl.contains("Products") && e.siblingElements().isEmpty()) {
-                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, linkUrl, e.text());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, linkUrl, e.text());
                     LOGGER.info("ProductPageUrl={}", linkUrl);
                     result.add(webPageEntity);
                 }
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        Future<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
-        return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
+        return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
+                .flatMap(this::parseDocument);
     }
 
     @Override
@@ -59,7 +59,15 @@ public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer("wolverinesupplies.com/frontPage", (Message<WebPageEntity> event) ->
-                parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+        vertx.eventBus()
+                .consumer("wolverinesupplies.com/frontPage",
+                        (Message<WebPageEntity> event) -> parse(event.body())
+                                .subscribe(
+                                        message -> vertx.eventBus().publish("webPageParseResult", message),
+                                        err -> LOGGER.error("Failed to parse", err),
+                                        () -> {
+                                            LOGGER.info("completed");
+                                        }
+                                ));
     }
 }

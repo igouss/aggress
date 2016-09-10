@@ -1,13 +1,14 @@
 package com.naxsoft.database;
 
-import com.github.davidmoten.rx.slf4j.Logging;
 import com.naxsoft.entity.WebPageEntity;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.builder.DirectedGraphBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.concurrent.TimeUnit;
-
 
 /**
  *
@@ -17,21 +18,25 @@ public class WebPageService {
 
     protected Persistent database;
 
+    private DirectedGraphBuilder<WebPageEntity, DefaultEdge, DefaultDirectedGraph<WebPageEntity, DefaultEdge>> graphBuilder;
+
     /**
      * @param database Database driver
      */
     public WebPageService(Persistent database) {
         this.database = database;
+        DefaultDirectedGraph<WebPageEntity, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        graphBuilder = new DirectedGraphBuilder<>(graph);
     }
 
     /**
      * Persist webPage
      *
-     * @param webPageEntity Webpage to persist
-     * @return true if sucesfully persisted, false otherwise
+     * @param webPageEntity WebPage to persist
+     * @return true if successfully persisted, false otherwise
      */
-    public Observable<Long> save(WebPageEntity webPageEntity) {
-        return database.save(webPageEntity);
+    public Observable<Long> addWebPageEntry(Observable<WebPageEntity> webPageEntity) {
+        return database.addWebPageEntry(webPageEntity);
     }
 
 
@@ -41,28 +46,29 @@ public class WebPageService {
      * @param webPageEntity Page to update
      * @return The number of entities updated.
      */
-    public Observable<? extends Number> markParsed(WebPageEntity webPageEntity) {
-        LOGGER.debug("Marking {} {} as parsed", webPageEntity.getType(), webPageEntity.getUrl());
+    public Observable<Long> markParsed(WebPageEntity webPageEntity) {
+        LOGGER.info("Marking {} {} as parsed", webPageEntity.getType(), webPageEntity.getUrl());
         return database.markWebPageAsParsed(webPageEntity);
     }
 
 
     /**
-     * Get stream of unparsed pages.
+     * Get stream of un-parsed pages.
      * Use scrolling
      *
-     * @param type Webpage type
+     * @param type WebPage type
      * @return Stream of unparsed pages of specefied type
      * @see <a href="http://blog.danlew.net/2016/01/25/rxjavas-repeatwhen-and-retrywhen-explained/">RxJava's repeatWhen and retryWhen, explained</a>
      */
-    public Observable<WebPageEntity> getUnparsedByType(String type) {
+    public Observable<WebPageEntity> getUnparsedByType(String type, long delay, TimeUnit timeUnit) {
         return database.getUnparsedCount(type)
-                .lift(Logging.<Long>logger("WebPageService::getUnparsedByType").onNextFormat(type + "=%s").log())
                 .repeatWhen(observable -> {
-                    LOGGER.info("Retrying getUnparsedByType {}", type);
-                    return observable.delay(10, TimeUnit.SECONDS);
+                    LOGGER.info("Retrying getUnparsedByType {} {} {}", type, delay, timeUnit);
+                    return observable.delay(delay, timeUnit);
                 }) // Poll for data periodically using repeatWhen + delay
-                .takeWhile(val -> val != 0)
+//                .takeWhile(val -> val != 0)
+                .doOnNext(val -> LOGGER.info("Found {} of type {}", val, type))
+                .filter(count -> count != 0)
                 .flatMap(count -> database.getUnparsedByType(type, count));
     }
 }

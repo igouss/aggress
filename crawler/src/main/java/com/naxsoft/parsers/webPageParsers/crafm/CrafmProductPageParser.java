@@ -9,7 +9,6 @@ import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ class CrafmProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, cookies, webPage), Schedulers.io())
+        return PageDownloader.download(client, cookies, webPage, "productPageRaw")
                 .filter(data -> null != data);
     }
 

@@ -2,19 +2,17 @@ package com.naxsoft.commands;
 
 import com.naxsoft.database.Elastic;
 import com.naxsoft.database.WebPageService;
-import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
-import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
+import com.naxsoft.utils.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright NAXSoft 2015
@@ -38,13 +36,11 @@ public class ParseCommand implements Command {
     private Elastic elastic = null;
     private ProductParserFactory productParserFactory = null;
     private String indexSuffix = null;
-    private WebPageParserFactory webPageParserFactory;
 
     @Inject
-    public ParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, WebPageParserFactory webPageParserFactory, Elastic elastic) {
+    public ParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
         this.webPageService = webPageService;
         this.productParserFactory = productParserFactory;
-        this.webPageParserFactory = webPageParserFactory;
         this.elastic = elastic;
     }
 
@@ -55,36 +51,10 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        indexProducts(getProductEntityObservable(), "product" , indexSuffix, "guns");
+        process(webPageService.getUnparsedByType("productPageRaw", 5, TimeUnit.SECONDS), "product", indexSuffix, "guns");
         LOGGER.info("Parsing complete");
     }
 
-    /**
-     * @return
-     */
-    private Observable<ProductEntity> getProductEntityObservable() {
-        return webPageService.getUnparsedByType("productPage").flatMap(webPageEntity -> {
-            Observable<WebPageEntity> result = webPageParserFactory.parse(webPageEntity);
-            webPageService.markParsed(webPageEntity).subscribe(
-                    res -> LOGGER.info("Marked as parsed {}", res),
-                    err -> LOGGER.error("Failed to mark as parsed"),
-                    () -> LOGGER.debug("Mark as parse complete")
-            );
-            LOGGER.info("returning parsed productPages");
-            return result;
-        }).observeOn(Schedulers.io())
-                .filter(pageToParse -> pageToParse != null)
-                .doOnNext(pageToParse -> {
-                    String allCategories = pageToParse.getCategory();
-                    if (allCategories != null) {
-                        for (String category : allCategories.split(",")) {
-                            if (category == null || !VALID_CATEGORIES.contains(category.toLowerCase())) {
-                                LOGGER.warn("Invalid category: {}", pageToParse);
-                            }
-                        }
-                    }
-                }).flatMap(pageToParse -> productParserFactory.parse(pageToParse));
-    }
 
     @Override
     public void tearDown() throws CLIException {
@@ -92,17 +62,16 @@ public class ParseCommand implements Command {
 
     /**
      * Adds stream of products to Elasticsearch
-     *
-     * @param products Stream of products to save
-     * @param index    Elasticsearch index
-     * @param type     Elasticsearch type
-     * @return
      */
-    private Subscription indexProducts(Observable<ProductEntity> products, String index, String indexSuffix, String type) {
-        LOGGER.info("Indexing products");
-        Subscription subscription = elastic.index(products, index, indexSuffix, type);
-        LOGGER.info("Indexing products compete");
-        return subscription;
-
+    private void process(Observable<WebPageEntity> productPagesRaw, String index, String indexSuffix, String type) {
+        productPagesRaw
+                .flatMap(productPageRaw -> Observable.zip(Observable.just(productParserFactory.parse(productPageRaw)), webPageService.markParsed(productPageRaw), Tuple::new))
+                .flatMap(tuple2 -> elastic.index(tuple2.getV1(), index, indexSuffix, type))
+                .subscribe(
+                        val -> {
+                        },
+                        err -> LOGGER.error("Failed", err),
+                        () -> LOGGER.info("Completed")
+                );
     }
 }

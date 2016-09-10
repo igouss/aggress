@@ -8,11 +8,10 @@ import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageCodec;
+import io.vertx.core.eventbus.MessageConsumer;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ public class ProductParserFactory {
 
                 // Get JSON string by it`s length
                 // Jump 4 because getInt() == 4 bytes
-                String jsonStr = buffer.getString(_pos += 4, _pos += length);
+                String jsonStr = buffer.getString(_pos += 4, _pos + length);
 
                 return entityEncoder.decode(jsonStr);
             }
@@ -111,7 +110,12 @@ public class ProductParserFactory {
                 }
             }
         }
-        parseResult = Observable.fromAsync(asyncEmitter -> vertx.eventBus().consumer("productParseResult", (Handler<Message<ProductEntity>>) event -> asyncEmitter.onNext(event.body())), AsyncEmitter.BackpressureMode.BUFFER);
+
+        MessageConsumer<ProductEntity> consumer = vertx.eventBus().consumer("productParseResult");
+        parseResult = Observable.fromAsync(asyncEmitter -> {
+            consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
+            consumer.endHandler(v -> asyncEmitter.onCompleted());
+        }, AsyncEmitter.BackpressureMode.BUFFER);
     }
 
     private void createLogger(Class<? extends AbstractRawPageParser> clazz) {
@@ -142,7 +146,10 @@ public class ProductParserFactory {
      */
     public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
         String host = getHost(webPageEntity);
-        vertx.eventBus().publish(host + "/" + webPageEntity.getType(), webPageEntity);
+        String type = webPageEntity.getType();
+        String mailbox = host + "/" + type;
+        assert type.equals("productPageRaw");
+        vertx.eventBus().publish(mailbox, webPageEntity);
         return parseResult;
     }
 
@@ -183,9 +190,7 @@ public class ProductParserFactory {
             host = "frontierfirearms.ca";
         } else if (url.contains("gotenda.com")) {
             host = "gotenda.com";
-        } else if (url.contains("")) {
-            host = "gun-shop.ca";
-        } else if (url.contains("")) {
+        } else if (url.contains("gun-shop.ca")) {
             host = "gun-shop.ca";
         } else if (url.contains("hical.ca")) {
             host = "hical.ca";
@@ -193,12 +198,10 @@ public class ProductParserFactory {
             host = "internationalshootingsupplies.com";
         } else if (url.contains("irunguns.us")) {
             host = "irunguns.us";
-        } else if (url.contains("")) {
-            host = "leverarms.com";
         } else if (url.contains("leverarms.com")) {
-            host = "magnumguns.ca";
+            host = "leverarms.com";
         } else if (url.contains("magnumguns.ca")) {
-            host = "marstar.ca";
+            host = "magnumguns.ca";
         } else if (url.contains("marstar.ca")) {
             host = "marstar.ca";
         } else if (url.contains("prophetriver.com")) {

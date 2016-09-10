@@ -10,8 +10,6 @@ import joptsimple.OptionSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
-
 import static java.lang.System.out;
 import static java.lang.System.setProperty;
 
@@ -72,8 +70,8 @@ public class Crawler {
             if (options.has("createESMappings")) {
                 applicationComponent.getCreateESMappingCommand().start();
             }
-            scheduler = applicationComponent.getScheduler();
-            scheduler.add(() -> {
+//            scheduler = applicationComponent.getScheduler();
+//            scheduler.add(() -> {
 
                 if (options.has("clean")) {
                     applicationComponent.getCleanDbCommand().start();
@@ -91,7 +89,8 @@ public class Crawler {
                 if (options.has("parse")) {
                     applicationComponent.getParseCommand().start();
                 }
-            }, 0, 1, TimeUnit.DAYS);
+//            }, 0, 1, TimeUnit.MINUTES);
+            System.in.read();
         } catch (Exception e) {
             LOGGER.error("Application failure", e);
         } finally {
@@ -109,6 +108,7 @@ public class Crawler {
                 applicationComponent.getElastic().close();
                 ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
                 applicationComponent.getElastic().close();
+                applicationComponent.getVertx().close();
 
             } catch (Exception e) {
                 e.printStackTrace();

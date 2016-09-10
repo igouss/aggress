@@ -12,12 +12,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
@@ -30,25 +27,25 @@ class HicalFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".SideCategoryListFlyout a");
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), element.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, element.attr("abs:href"), element.text());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        Future<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
-        return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
+        return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
+                .flatMap(this::parseDocument);
     }
 
     @Override

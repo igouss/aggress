@@ -8,7 +8,6 @@ import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 /**
  * Copyright NAXSoft 2015
@@ -26,7 +25,7 @@ class TradeexCanadaProductPageParser extends AbstractWebPageParser {
         if (parent.getUrl().contains("out-stock") || parent.getUrl().contains("-sold")) {
             return Observable.empty();
         } else {
-            return Observable.from(PageDownloader.download(client, parent), Schedulers.io())
+            return PageDownloader.download(client, parent, "productPageRaw")
                     .filter(data -> {
                         if (null != data) {
                             return true;

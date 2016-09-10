@@ -21,7 +21,7 @@ class PsmilitariaProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, parent.getContent(), "productPage", false, parent.getUrl(), parent.getCategory());
+        WebPageEntity webPageEntity = new WebPageEntity(parent, parent.getContent(), "productPage", false, parent.getUrl(), parent.getCategory());
         return Observable.just(webPageEntity);
     }
 
@@ -33,7 +33,13 @@ class PsmilitariaProductListParser extends AbstractWebPageParser {
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer("psmilitaria.50megs.com/productList", (Message<WebPageEntity> event) ->
-                parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+        vertx.eventBus()
+                .consumer("psmilitaria.50megs.com/productList", (Message<WebPageEntity> event) ->
+                        parse(event.body()).subscribe(
+                                webPageEntity -> {
+                                    LOGGER.info(webPageEntity.toString());
+                                    vertx.eventBus().publish("webPageParseResult", webPageEntity);
+                                },
+                                err -> LOGGER.error("Failed to parse", err)));
     }
 }

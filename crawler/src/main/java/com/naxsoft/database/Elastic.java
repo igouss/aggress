@@ -20,15 +20,12 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
 
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Singleton
 public class Elastic implements AutoCloseable, Cloneable {
-    public static final int BATCH_SIZE = 1;
+    private static final int BATCH_SIZE = 32;
     private static final Logger LOGGER = LoggerFactory.getLogger(Elastic.class);
     private TransportClient client = null;
 
@@ -97,14 +94,12 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @param type
      * @return
      */
-    public Subscription index(Observable<ProductEntity> products, String indexName, String indexSuffix, String type) {
-        Semaphore semaphore = new Semaphore(0);
-        Subscription subscribe = products.buffer(BATCH_SIZE).map(list -> {
-            LOGGER.info("Preparing for indexing {} products", list.size());
+    public Observable<Boolean> index(Observable<ProductEntity> products, String indexName, String indexSuffix, String type) {
+        return products.buffer(BATCH_SIZE).flatMap(list -> {
             BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
             for (ProductEntity p : list) {
                 try {
-                    LOGGER.info("Preparing for indexing {}", p);
+                    LOGGER.trace("Preparing for indexing {}", p);
                     String fullIndexName = indexName;
                     if (indexSuffix != null) {
                         fullIndexName += indexSuffix;
@@ -112,39 +107,22 @@ public class Elastic implements AutoCloseable, Cloneable {
                     XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
                     jsonBuilder.startObject();
                     IndexRequestBuilder request = client.prepareIndex(fullIndexName, type, "" + p.getUrl());
-                    String payload = p.getJson();
-                    request.setSource(payload);
+                    request.setSource(p.getJson());
                     request.setOpType(IndexRequest.OpType.INDEX);
                     bulkRequestBuilder.add(request);
                 } catch (IOException e) {
                     LOGGER.error("Failed to create JSON generator", e);
                 }
             }
-            return bulkRequestBuilder.execute();
-        }).flatMap(Observable::from)
-                .retry(3)
-                .subscribe(
-                        bulkResponse -> {
-                            if (bulkResponse.hasFailures()) {
-                                LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
-                            } else {
-                                LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
-                            }
-                        },
-                        ex -> {
-                            LOGGER.error("Index Exception", ex);
-                            semaphore.release();
-                        },
-                        () -> {
-                            LOGGER.info("Indexing complete");
-                            semaphore.release();
-                        });
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return subscribe;
+            return Observable.from(bulkRequestBuilder.execute());
+        }).map(bulkResponse -> {
+            if (bulkResponse.hasFailures()) {
+                LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
+            } else {
+                LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
+            }
+            return !bulkResponse.hasFailures();
+        });
     }
 
     /**
@@ -165,7 +143,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                 LOGGER.info("Creating index {} type {} from {}", indexName, type, resourceName);
                 String indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
                 String url = "http://" + hostname + ":9200/" + indexName;
-                return Observable.from(httpClient.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
+                return httpClient.post(url, indexContent, new VoidAbstractCompletionHandler());
             }
         } catch (Exception e) {
             LOGGER.error("Failed to create index", e);
@@ -194,7 +172,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             String indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
             String url = "http://" + hostname + ":9200/" + indexName + "/" + type + "/_mapping";
 
-            return Observable.from(client.post(url, indexContent, new VoidAbstractCompletionHandler()), Schedulers.io());
+            return client.post(url, indexContent, new VoidAbstractCompletionHandler());
         } catch (IOException e) {
             LOGGER.error("Failed to create mapping", e);
         } finally {
@@ -214,10 +192,6 @@ public class Elastic implements AutoCloseable, Cloneable {
     }
 
     private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Integer> {
-
-        public VoidAbstractCompletionHandler() {
-        }
-
         @Override
         public Integer onCompleted(Response response) throws Exception {
             int statusCode = response.getStatusCode();
@@ -229,26 +203,6 @@ public class Elastic implements AutoCloseable, Cloneable {
             return statusCode;
         }
     }
-//
-//    private static class IntegerAbstractCompletionHandler extends AbstractCompletionHandler<Integer> {
-//        private final Subscriber<? super Integer> subscriber;
-//
-//        public IntegerAbstractCompletionHandler(Subscriber<? super Integer> subscriber) {
-//            this.subscriber = subscriber;
-//        }
-//
-//        @Override
-//        public Integer onCompleted(Response response) throws Exception {
-//            int statusCode = response.getStatusCode();
-//            if (200 != statusCode) {
-//                LOGGER.error("Error creating mapping: {}", response.getResponseBody());
-//            } else {
-//                LOGGER.info("Created mapping: {}", response.getResponseBody());
-//            }
-//            subscriber.onNext(statusCode);
-//            subscriber.onCompleted();
-//            return null;
-//        }
-//    }
+
 }
 

@@ -8,16 +8,17 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageCodec;
+import io.vertx.core.eventbus.MessageConsumer;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.AsyncEmitter;
 import rx.Observable;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
@@ -44,6 +45,18 @@ public class WebPageParserFactory {
     public WebPageParserFactory(Vertx vertx, HttpClient client) {
         this.vertx = vertx;
         parserVertex = new LinkedBlockingDeque<>();
+
+        MessageConsumer<WebPageEntity> consumer = vertx.eventBus().consumer("webPageParseResult");
+
+        parseResult = Observable.fromAsync(asyncEmitter -> {
+            consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
+            consumer.endHandler(v -> asyncEmitter.onCompleted());
+        }, AsyncEmitter.BackpressureMode.BUFFER);
+
+//        parseResult = Observable.fromAsync(asyncEmitter -> {
+//            vertx.eventBus().consumer("webPageParseResult", event -> asyncEmitter.onNext((WebPageEntity) event.body()));
+//        }, AsyncEmitter.BackpressureMode.ERROR);
+
         vertx.eventBus().registerDefaultCodec(WebPageEntity.class, new MessageCodec<WebPageEntity, Object>() {
             WebPageEntityEncoder webPageEntityEncoder = new WebPageEntityEncoder();
 
@@ -94,35 +107,40 @@ public class WebPageParserFactory {
         Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
         Set<Class<? extends AbstractWebPageParser>> classes = reflections.getSubTypesOf(AbstractWebPageParser.class);
 
-        Class<?> asyncFetchClient = null;
-        for (Class iface : client.getClass().getInterfaces()) {
-            if (iface.getCanonicalName().equals("com.naxsoft.crawler.HttpClient")) {
-                asyncFetchClient = iface;
-            }
-        }
+        final Class<?> asyncFetchClient = HttpClient.class;
+//        for (Class iface : client.getClass().getInterfaces()) {
+//            if (iface.getCanonicalName().equals("com.naxsoft.crawler.HttpClient")) {
+//                asyncFetchClient = iface;
+//            }
+//        }
 
-        for (Class<? extends AbstractWebPageParser> clazz : classes) {
-            if (!Modifier.isAbstract(clazz.getModifiers())) {
-                try {
-                    createLogger(clazz);
+        Observable.fromAsync((Action1<AsyncEmitter<Class>>) asyncEmitter -> {
+            for (Class<? extends AbstractWebPageParser> clazz : classes) {
+                if (!Modifier.isAbstract(clazz.getModifiers())) {
+                    try {
+                        createLogger(clazz);
 
-                    Constructor<? extends AbstractWebPageParser> constructor = clazz.getDeclaredConstructor(asyncFetchClient);
-                    constructor.setAccessible(true);
-                    AbstractWebPageParser webPageParser = constructor.newInstance(client);
-                    vertx.deployVerticle(webPageParser, options, res -> {
-                        if (res.succeeded()) {
-                            LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
-                            parserVertex.add(res.result());
-                        } else {
-                            LOGGER.error("Deployment failed!", res.cause());
-                        }
-                    });
-                } catch (Exception e) {
-                    LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
+                        Constructor<? extends AbstractWebPageParser> constructor = clazz.getDeclaredConstructor(asyncFetchClient);
+                        constructor.setAccessible(true);
+                        AbstractWebPageParser webPageParser = constructor.newInstance(client);
+                        vertx.deployVerticle(webPageParser, options, res -> {
+                            if (res.succeeded()) {
+                                LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
+                                parserVertex.add(res.result());
+                                asyncEmitter.onNext(clazz);
+                            } else {
+                                LOGGER.error("Deployment failed!", res.cause());
+                            }
+                        });
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
+                    }
                 }
             }
-        }
-        parseResult = Observable.fromAsync(asyncEmitter -> vertx.eventBus().consumer("webPageParseResult", (Handler<Message<WebPageEntity>>) event -> asyncEmitter.onNext(event.body())), AsyncEmitter.BackpressureMode.BUFFER);
+            asyncEmitter.onCompleted();
+        }, AsyncEmitter.BackpressureMode.BUFFER).subscribeOn(Schedulers.immediate()).subscribe();
+
+
     }
 
     private void createLogger(Class<? extends AbstractWebPageParser> clazz) {
@@ -156,7 +174,8 @@ public class WebPageParserFactory {
      */
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         String host = getHost(webPageEntity);
-        vertx.eventBus().publish(host + "/" + webPageEntity.getType(), webPageEntity);
+        String mailBox = host + "/" + webPageEntity.getType();
+        vertx.eventBus().publish(mailBox, webPageEntity);
         return parseResult;
     }
 
@@ -193,9 +212,7 @@ public class WebPageParserFactory {
             host = "frontierfirearms.ca";
         } else if (url.contains("gotenda.com")) {
             host = "gotenda.com";
-        } else if (url.contains("")) {
-            host = "gun-shop.ca";
-        } else if (url.contains("")) {
+        } else if (url.contains("gun-shop.ca")) {
             host = "gun-shop.ca";
         } else if (url.contains("hical.ca")) {
             host = "hical.ca";
@@ -203,12 +220,10 @@ public class WebPageParserFactory {
             host = "internationalshootingsupplies.com";
         } else if (url.contains("irunguns.us")) {
             host = "irunguns.us";
-        } else if (url.contains("")) {
-            host = "leverarms.com";
         } else if (url.contains("leverarms.com")) {
-            host = "magnumguns.ca";
+            host = "leverarms.com";
         } else if (url.contains("magnumguns.ca")) {
-            host = "marstar.ca";
+            host = "magnumguns.ca";
         } else if (url.contains("marstar.ca")) {
             host = "marstar.ca";
         } else if (url.contains("prophetriver.com")) {

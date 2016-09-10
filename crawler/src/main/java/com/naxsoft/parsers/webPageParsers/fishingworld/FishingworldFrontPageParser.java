@@ -11,9 +11,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -31,12 +29,12 @@ class FishingworldFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
         return webPageEntity;
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -49,37 +47,34 @@ class FishingworldFrontPageParser extends AbstractWebPageParser {
                 int pages = (int) Math.ceil((double) max / postsPerPage);
 
                 for (int i = 1; i <= pages; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "?page=" + i, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location() + "?page=" + i, downloadResult.getSourcePage().getCategory());
                     LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             } else {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("https://fishingworld.ca/hunting/66-guns", "firearm"));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/67-ammunition", "ammo"));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/66-guns", "firearm"));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/146-optics", "optic"));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/144-shooting-accesories", "misc"));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/185-tree-stands", "misc"));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/65-accessories", "misc"));
-        webPageEntities.add(create("https://fishingworld.ca/hunting/205-pellet-gun", "firearm"));
+        webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/66-guns", "firearm"));
+        webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/67-ammunition", "ammo"));
+        webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/66-guns", "firearm"));
+        webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/146-optics", "optic"));
+        webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/144-shooting-accesories", "misc"));
+        webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/185-tree-stands", "misc"));
+        webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/65-accessories", "misc"));
+        webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/205-pellet-gun", "firearm"));
 
         return Observable.from(webPageEntities)
-                .observeOn(Schedulers.io())
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from);
+                .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(this::parseDocument);
     }
 
     @Override

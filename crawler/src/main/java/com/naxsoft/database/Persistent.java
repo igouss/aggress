@@ -24,7 +24,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param webPageEntity page to make as parsed
      * @return Number of entries affected. Should be 1 on success.
      */
-    Observable<? extends Number> markWebPageAsParsed(WebPageEntity webPageEntity);
+    Observable<Long> markWebPageAsParsed(WebPageEntity webPageEntity);
 
     /**
      * Mark all ProductEntity as parsed
@@ -39,7 +39,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param productEntity entity to persist
      * @return True of success, false otherwise
      */
-    Observable<Long> save(ProductEntity productEntity);
+    Observable<Long> addProductPageEntry(Observable<ProductEntity> productEntity);
 
     /**
      * Persist WebPageEntity
@@ -47,7 +47,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param webPageEntity entity to persist
      * @return True of success, false otherwise
      */
-    Observable<Long> save(WebPageEntity webPageEntity);
+    Observable<Long> addWebPageEntry(Observable<WebPageEntity> webPageEntity);
 
     /**
      * Get all ProductEntity from the storage

@@ -11,14 +11,11 @@ import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
@@ -26,7 +23,7 @@ import java.util.concurrent.Future;
 class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
     private final HttpClient client;
-    private final Future<List<Cookie>> futureCookies;
+    private final Observable<List<Cookie>> futureCookies;
 
     public CanadiangunnutzProductPageParser(HttpClient client) {
         this.client = client;
@@ -48,16 +45,7 @@ class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        List<Cookie> cookies = null;
-        try {
-            cookies = futureCookies.get();
-            return Observable.from(PageDownloader.download(client, cookies, webPage), Schedulers.io())
-                    .filter(data -> null != data);
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Failed to download page", e);
-            e.printStackTrace();
-        }
-        return Observable.empty();
+        return futureCookies.flatMap(cookies -> PageDownloader.download(client, cookies, webPage, "productPageRaw"));
     }
 
     @Override

@@ -12,12 +12,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
@@ -30,22 +27,22 @@ class WestrifleFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".leftBoxContainer .category-top");
             for (Element e : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, e.attr("abs:href"), e.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", false, e.attr("abs:href"), e.text());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
-    private Collection<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>();
 
         Document document = downloadResult.getDocument();
@@ -57,23 +54,21 @@ class WestrifleFrontPageParser extends AbstractWebPageParser {
             int pageTotal = (int) Math.ceil(productTotal / 10.0);
 
             for (int i = 1; i <= pageTotal; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        Future<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
-        return Observable.from(future, Schedulers.io())
-                .map(this::parseDocument)
-                .flatMap(Observable::from)
-                .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
-                .flatMap(Observable::from)
-                .flatMap(document -> Observable.from(parseDocument2(document)));
+
+        return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
+                .flatMap(this::parseDocument)
+                .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
+                .flatMap(this::parseDocument2);
     }
 
 

@@ -10,8 +10,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import rx.Observable;
 
-import javax.net.ssl.SSLContext;
-
 /**
  * Copyright NAXSoft 2015
  */
@@ -23,7 +21,7 @@ public class HicalFrontPageParserTest extends AbstractTest {
         try (HttpClient httpClient = new AhcHttpClient(sslContext)) {
             HicalFrontPageParser parser = new HicalFrontPageParser(httpClient);
 
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "", false, "http://www.hical.ca/", "");
+            WebPageEntity webPageEntity = new WebPageEntity(null, "", "", false, "http://www.hical.ca/", "");
 
             Observable<WebPageEntity> observable = parser.parse(webPageEntity);
             Iterable<WebPageEntity> webPageEntities = observable.toBlocking().toIterable();

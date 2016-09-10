@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.hical;
+package com.naxsoft.parsers.webPageParsers.prophetriver;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -8,34 +8,32 @@ import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 /**
  * Copyright NAXSoft 2015
  */
-class HicalProductParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HicalProductParser.class);
+class ProphetriverProductPageParser extends AbstractWebPageParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProphetriverProductPageParser.class);
     private final HttpClient client;
 
-    public HicalProductParser(HttpClient client) {
+    public ProphetriverProductPageParser(HttpClient client) {
         this.client = client;
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, webPage), Schedulers.io())
-                .filter(data -> null != data);
+        return PageDownloader.download(client, webPage, "productPageRaw").filter(data -> null != data);
     }
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("hical.ca") && webPage.getType().equals("productPage");
+        return webPage.getUrl().contains("prophetriver.com") && webPage.getType().equals("productPage");
     }
 
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer("hical.ca/productPage", (Message<WebPageEntity> event) ->
+        vertx.eventBus().consumer("prophetriver.com/productPage", (Message<WebPageEntity> event) ->
                 parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
     }
 }

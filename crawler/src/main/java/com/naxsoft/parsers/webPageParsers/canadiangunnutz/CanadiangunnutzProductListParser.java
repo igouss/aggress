@@ -15,11 +15,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
@@ -27,7 +24,7 @@ import java.util.concurrent.Future;
 class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductListParser.class);
     private final HttpClient client;
-    private final Future<List<Cookie>> futureCookies;
+    private final Observable<List<Cookie>> futureCookies;
 
     public CanadiangunnutzProductListParser(HttpClient client) {
         this.client = client;
@@ -47,7 +44,7 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
         }
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -62,7 +59,7 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                     if (select.first().text().contains("WTS")) {
                         element = element.select("a.title").first();
                         if (!element.text().toLowerCase().contains("remove")) {
-                            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                            WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                             LOGGER.info("productPage={}", webPageEntity.getUrl());
                             result.add(webPageEntity);
                         }
@@ -70,20 +67,14 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                 }
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        try {
-            List<Cookie> cookies = futureCookies.get();
-            return Observable.from(client.get(parent.getUrl(), cookies, new DocumentCompletionHandler(parent)), Schedulers.io())
-                    .map(this::parseDocument)
-                    .flatMap(Observable::from);
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        return Observable.empty();
+        return futureCookies.first()
+                .flatMap(cookies -> client.get(parent.getUrl(), cookies, new DocumentCompletionHandler(parent)))
+                .flatMap(this::parseDocument);
     }
 
     @Override

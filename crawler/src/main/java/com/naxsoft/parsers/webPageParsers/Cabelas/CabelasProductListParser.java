@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.cabelas;
+package com.naxsoft.parsers.webPageParsers.Cabelas;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -12,12 +12,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
@@ -30,8 +27,8 @@ class CabelasProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity getProductList(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+    private static WebPageEntity getProductList(WebPageEntity parent, String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
         LOGGER.info("productList={}", webPageEntity.getUrl());
         return webPageEntity;
     }
@@ -41,13 +38,13 @@ class CabelasProductListParser extends AbstractWebPageParser {
         return (1 == document.select(".categories .active").size()) || document.select("h1").text().equals("Thanks for visiting Cabelas.ca!");
     }
 
-    private static WebPageEntity productPage(String url, String category) {
-        WebPageEntity productPage = new WebPageEntity(0L, "", "productPage", false, url, category);
+    private static WebPageEntity productPage(WebPageEntity parent, String url, String category) {
+        WebPageEntity productPage = new WebPageEntity(parent, "", "productPage", false, url, category);
         LOGGER.info("productPage={}", url);
         return productPage;
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -56,7 +53,7 @@ class CabelasProductListParser extends AbstractWebPageParser {
                 if (document.baseUri().contains("pagenumber")) {
                     Elements elements = document.select(".productCard-heading a");
                     for (Element element : elements) {
-                        WebPageEntity webPageEntity = productPage(element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                        WebPageEntity webPageEntity = productPage(downloadResult.getSourcePage(), element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                         result.add(webPageEntity);
                     }
                 } else {
@@ -74,11 +71,11 @@ class CabelasProductListParser extends AbstractWebPageParser {
                             }
                         }
                         for (int i = 1; i <= max; i++) {
-                            WebPageEntity webPageEntity = getProductList(document.location() + "?pagenumber=" + i, downloadResult.getSourcePage().getCategory());
+                            WebPageEntity webPageEntity = getProductList(downloadResult.getSourcePage(), document.location() + "?pagenumber=" + i, downloadResult.getSourcePage().getCategory());
                             result.add(webPageEntity);
                         }
                     } else {
-                        WebPageEntity webPageEntity = getProductList(document.location() + "?pagenumber=" + 1, downloadResult.getSourcePage().getCategory());
+                        WebPageEntity webPageEntity = getProductList(downloadResult.getSourcePage(), document.location() + "?pagenumber=" + 1, downloadResult.getSourcePage().getCategory());
                         result.add(webPageEntity);
                     }
                 }
@@ -91,18 +88,18 @@ class CabelasProductListParser extends AbstractWebPageParser {
                     } else {
                         category = downloadResult.getSourcePage().getCategory();
                     }
-                    WebPageEntity subCategoryPage = getProductList(element.attr("abs:href"), category);
+                    WebPageEntity subCategoryPage = getProductList(downloadResult.getSourcePage(), element.attr("abs:href"), category);
                     result.add(subCategoryPage);
                 }
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        Future<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
-        return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
+        return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
+                .flatMap(this::parseDocument);
     }
 
     @Override

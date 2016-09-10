@@ -103,14 +103,14 @@ public class Database implements Persistent {
     }
 
     @Override
-    public Observable<Integer> markWebPageAsParsed(WebPageEntity webPageEntity) {
+    public Observable<Long> markWebPageAsParsed(WebPageEntity webPageEntity) {
         if (webPageEntity == null) {
             return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
         }
         return executeTransaction(session -> {
             Query query = session.createQuery("update WebPageEntity set parsed = true where id = :id");
             query.setParameter("id", webPageEntity.getId());
-            return query.executeUpdate();
+            return (long) query.executeUpdate();
         });
     }
 
@@ -123,35 +123,39 @@ public class Database implements Persistent {
     }
 
     @Override
-    public Observable<Long> save(ProductEntity productEntity) {
-        Observable<Long> rc;
-        try {
-            rc = executeTransaction(session -> {
-                LOGGER.debug("Saving {}", productEntity);
-                session.insert(productEntity);
-                return 1L;
-            });
-        } catch (ConstraintViolationException ex) {
-            LOGGER.info("A duplicate URL found, ignore", ex);
-            rc = Observable.just(0L);
-        }
-        return rc;
+    public Observable<Long> addProductPageEntry(Observable<ProductEntity> productEntity) {
+        return productEntity.flatMap(entry -> {
+            Observable<Long> rc;
+            try {
+                rc = executeTransaction(session -> {
+                    LOGGER.debug("Saving {}", productEntity);
+                    session.insert(productEntity);
+                    return 1L;
+                });
+            } catch (ConstraintViolationException ex) {
+                LOGGER.info("A duplicate URL found, ignore", ex);
+                rc = Observable.just(0L);
+            }
+            return rc;
+        });
     }
 
     @Override
-    public Observable<Long> save(WebPageEntity webPageEntity) {
-        Observable<Long> rc;
-        try {
-            rc = executeTransaction(session -> {
-                LOGGER.debug("Saving {}", webPageEntity);
-                session.insert(webPageEntity);
-                return 1L;
-            });
-        } catch (ConstraintViolationException ex) {
-            LOGGER.info("A duplicate URL found, ignore", ex);
-            rc = Observable.just(0L);
-        }
-        return rc;
+    public Observable<Long> addWebPageEntry(Observable<WebPageEntity> webPageEntity) {
+        return webPageEntity.flatMap(entry -> {
+            Observable<Long> rc;
+            try {
+                rc = executeTransaction(session -> {
+                    LOGGER.debug("Saving {}", webPageEntity);
+                    session.insert(webPageEntity);
+                    return 1L;
+                });
+            } catch (ConstraintViolationException ex) {
+                LOGGER.info("A duplicate URL found, ignore", ex);
+                rc = Observable.just(0L);
+            }
+            return rc;
+        });
     }
 
     @Override

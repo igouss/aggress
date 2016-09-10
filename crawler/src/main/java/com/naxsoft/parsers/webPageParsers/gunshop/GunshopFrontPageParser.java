@@ -12,12 +12,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +30,7 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private Collection<WebPageEntity> categoriesDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> categoriesDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -41,7 +38,7 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".menu-item > a");
 
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, element.attr("abs:href"), element.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", false, element.attr("abs:href"), element.text());
                 if (!webPageEntity.getUrl().contains("product-category")) {
                     continue;
                 }
@@ -49,10 +46,10 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
-    private Collection<WebPageEntity> parseSubpages(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseSubpages(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -65,28 +62,26 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
                 int pages = (int) Math.ceil((double) max / postsPerPage);
 
                 for (int i = 1; i <= pages; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
                     LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             } else {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        Future<DownloadResult> future = client.get(parent.getUrl(), new DocumentCompletionHandler(parent));
-        return Observable.from(future, Schedulers.io())
-                .map(this::categoriesDocument)
-                .flatMap(Observable::from)
-                .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
-                .flatMap(Observable::from)
-                .flatMap(document -> Observable.from(parseSubpages(document)));
+
+        return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
+                .flatMap(this::categoriesDocument)
+                .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
+                .flatMap(this::parseSubpages);
     }
 
     @Override

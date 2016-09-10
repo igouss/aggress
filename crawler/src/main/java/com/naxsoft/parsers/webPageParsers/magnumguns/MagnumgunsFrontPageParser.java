@@ -12,9 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,12 +27,11 @@ class MagnumgunsFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
-        return webPageEntity;
+    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
+        return new WebPageEntity(parent, "", "productList", false, url, category);
     }
 
-    private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -42,13 +39,13 @@ class MagnumgunsFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".product-category > a");
             for (Element e : elements) {
                 String url = e.attr("abs:href");
-                result.add(create(url, e.text()));
+                result.add(create(downloadResult.getSourcePage(), url, e.text()));
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
-    private Collection<WebPageEntity> parseSubPages(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseSubPages(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -67,23 +64,20 @@ class MagnumgunsFrontPageParser extends AbstractWebPageParser {
             }
 
             for (int i = 1; i <= max; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(0l, "", "productList", false, downloadResult.getSourcePage().getUrl() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, downloadResult.getSourcePage().getUrl() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.from(client.get("http://www.magnumguns.ca/shop/", new DocumentCompletionHandler(parent)), Schedulers.io())
-                .map(this::parseFrontPage)
-                .flatMap(Observable::from)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseSubPages)
-                .flatMap(Observable::from);
+        return client.get("http://www.magnumguns.ca/shop/", new DocumentCompletionHandler(parent))
+                .flatMap(this::parseFrontPage)
+                .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(this::parseSubPages);
     }
 
     @Override

@@ -10,21 +10,19 @@ import org.junit.Assert;
 import org.junit.Test;
 import rx.Observable;
 
-import javax.net.ssl.SSLContext;
-
 /**
  * Copyright NAXSoft 2015
  */
-public class HicalProductParserTest extends AbstractTest {
+public class HicalProductPageParserTest extends AbstractTest {
     @Test
     public void parse() throws Exception {
         SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
         SslContext sslContext = sslContextBuilder.build();
 
         try (HttpClient httpClient = new AhcHttpClient(sslContext)) {
-            HicalProductParser parser = new HicalProductParser(httpClient);
+            HicalProductPageParser parser = new HicalProductPageParser(httpClient);
 
-            WebPageEntity webPageEntity = new WebPageEntity(0L, "", "", false, "http://www.hical.ca/matador-sks-full-length-optic-rail-mount/", "");
+            WebPageEntity webPageEntity = new WebPageEntity(null, "", "", false, "http://www.hical.ca/matador-sks-full-length-optic-rail-mount/", "");
             Observable<WebPageEntity> observable = parser.parse(webPageEntity);
             Iterable<WebPageEntity> webPageEntities = observable.toBlocking().toIterable();
 

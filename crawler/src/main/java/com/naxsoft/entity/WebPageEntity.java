@@ -60,12 +60,13 @@ public class WebPageEntity {
      *
      */
     private String category;
+    private transient WebPageEntity parent;
 
     public WebPageEntity() {
     }
 
-    public WebPageEntity(Long id, String content, String type, boolean parsed, String url, String category) {
-        this.id = id;
+    public WebPageEntity(WebPageEntity parent, String content, String type, boolean parsed, String url, String category) {
+        this.parent = parent;
         this.content = compress(content);
         this.type = type;
         this.parsed = parsed;
@@ -247,5 +248,9 @@ public class WebPageEntity {
     public String toJson() {
         Gson gson = new Gson();
         return gson.toJson(this);
+    }
+
+    public WebPageEntity getParent() {
+        return parent;
     }
 }

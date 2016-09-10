@@ -12,12 +12,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Copyright NAXSoft 2015
@@ -30,11 +27,11 @@ class TradeexCanadaProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url, String category) {
-        return new WebPageEntity(0L, "", "productList", false, url, category);
+    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
+        return new WebPageEntity(parent, "", "productList", false, url, category);
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -42,25 +39,25 @@ class TradeexCanadaProductListParser extends AbstractWebPageParser {
             if (document.location().contains("page=")) {
                 Elements elements = document.select(".view-content a");
                 for (Element element : elements) {
-                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             } else {
                 Elements subPages = document.select(".pager a");
                 for (Element subPage : subPages) {
-                    result.add(create(subPage.attr("abs:href"), downloadResult.getSourcePage().getCategory()));
+                    result.add(create(downloadResult.getSourcePage(), subPage.attr("abs:href"), downloadResult.getSourcePage().getCategory()));
                 }
-                result.add(create(document.location() + "?page=0", downloadResult.getSourcePage().getCategory()));
+                result.add(create(downloadResult.getSourcePage(), document.location() + "?page=0", downloadResult.getSourcePage().getCategory()));
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        Future<DownloadResult> future = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
-        return Observable.from(future, Schedulers.io()).map(this::parseDocument).flatMap(Observable::from);
+        return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
+                .flatMap(this::parseDocument);
     }
 
     @Override

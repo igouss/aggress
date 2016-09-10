@@ -51,8 +51,8 @@ public class CommandModule {
     @Provides
     @Singleton
     @NotNull
-    static ParseCommand provideParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, WebPageParserFactory webPageParserFactory, Elastic elastic) {
-        return new ParseCommand(webPageService, productParserFactory, webPageParserFactory, elastic);
+    static ParseCommand provideParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
+        return new ParseCommand(webPageService, productParserFactory, elastic);
     }
 
     @Provides

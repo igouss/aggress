@@ -12,9 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,46 +27,43 @@ class GotendaFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
         return webPageEntity;
     }
 
-    private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".HorizontalDisplay> li.NavigationElement > a");
             for (Element e : elements) {
                 String url = e.attr("abs:href") + "&PageSize=60&Page=1";
-                result.add(create(url, e.text()));
+                result.add(create(downloadResult.getSourcePage(), url, e.text()));
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
-    private Collection<WebPageEntity> parseSubPages(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseSubPages(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".InfoArea h3 a");
             for (Element e : elements) {
-                result.add(create(e.attr("abs:href") + "&PageSize=60&Page=1", downloadResult.getSourcePage().getCategory()));
+                result.add(create(downloadResult.getSourcePage(), e.attr("abs:href") + "&PageSize=60&Page=1", downloadResult.getSourcePage().getCategory()));
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.from(client.get(parent.getUrl(), new DocumentCompletionHandler(parent)), Schedulers.io())
-                .map(this::parseFrontPage)
-                .flatMap(Observable::from)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseSubPages)
-                .flatMap(Observable::from);
+        return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
+                .flatMap(this::parseFrontPage)
+                .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(this::parseSubPages);
     }
 
     @Override

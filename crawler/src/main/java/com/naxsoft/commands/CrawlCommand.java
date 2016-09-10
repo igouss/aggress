@@ -1,17 +1,15 @@
 package com.naxsoft.commands;
 
-import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.ApplicationComponent;
 import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
+import com.naxsoft.utils.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright NAXSoft 2015
@@ -37,19 +35,9 @@ public class CrawlCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        process(webPageService.getUnparsedByType("frontPage"));
-        process(webPageService.getUnparsedByType("productList"));
-
-//        webPageService.getUnparsedCount("frontPage").take(1).subscribe(value -> {
-//            LOGGER.info("Unparsed frontPage = {}", value);
-//        });
-//        webPageService.getUnparsedCount("productList").take(1).subscribe(value -> {
-//            LOGGER.info("Unparsed productList = {}", value);
-//        });
-//        webPageService.getUnparsedCount("productPage").take(1).subscribe(value -> {
-//            LOGGER.info("Unparsed productPage = {}", value);
-//        });
-        LOGGER.info("Fetch & parse complete");
+        process(webPageService.getUnparsedByType("frontPage", 5, TimeUnit.SECONDS), "frontPage");
+        process(webPageService.getUnparsedByType("productList", 5, TimeUnit.SECONDS), "productList");
+        process(webPageService.getUnparsedByType("productPage", 5, TimeUnit.SECONDS), "productPage");
     }
 
     @Override
@@ -62,35 +50,15 @@ public class CrawlCommand implements Command {
      *
      * @param pagesToParse Stream of webpages to process
      */
-    private void process(Observable<WebPageEntity> pagesToParse) {
-        Semaphore processCompleteSemaphore = new Semaphore(0);
-
+    private void process(Observable<WebPageEntity> pagesToParse, final String type) {
         pagesToParse
-                .observeOn(Schedulers.computation())
-                .map(pageToParse -> {
-                    webPageParserFactory.parse(pageToParse)
-                            .filter(parseResult -> null != parseResult)
-                            .flatMap(webPageService::save)
-                            .subscribe(
-                                    res -> LOGGER.trace("Save {}", res),
-                                    ex -> LOGGER.error("Crawler Process Exception", ex),
-                                    () -> LOGGER.info("Save completed")
-                            );
-                    return pageToParse;
-                }).subscribe(
-                val -> {
-                    webPageService.markParsed(val).subscribe(
-                            saveResult -> LOGGER.info("Marking as parsed {} {}", val, saveResult),
-                            err -> LOGGER.error("Failed to mark as parsed", err),
-                            () -> LOGGER.info("Mark as parsed completed")
-                    );
-                },
-                err -> LOGGER.error("Failed to crawl", err),
-                processCompleteSemaphore::release);
-        try {
-            processCompleteSemaphore.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+                .flatMap(pageToParse -> Observable.zip(Observable.just(webPageParserFactory.parse(pageToParse)), webPageService.markParsed(pageToParse), Tuple::new))
+                .flatMap(tuple -> webPageService.addWebPageEntry(tuple.getV1()))
+                .subscribe(
+                        rc -> {
+                        },
+                        err -> LOGGER.error("Failed", err),
+                        () -> LOGGER.info("Completed {}", type)
+                );
     }
 }

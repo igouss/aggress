@@ -13,9 +13,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -24,37 +22,38 @@ import java.util.regex.Pattern;
 public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
     private static final Pattern itemNumberPattern = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"");
-    private static final Pattern categoyPattern = Pattern.compile("\'\\d+\'");
+    private static final Pattern categoryPattern = Pattern.compile("\'\\d+\'");
     private final HttpClient client;
 
     public WolverinesuppliesProductListParser(HttpClient client) {
         this.client = client;
     }
 
-    private Set<WebPageEntity> onCompleted(WebPageEntity webPageEntity) {
+    private Observable<WebPageEntity> onCompleted(WebPageEntity parent) {
         Set<WebPageEntity> result = new HashSet<>();
         try {
-            String productDetailsJson = webPageEntity.getContent();
+            String productDetailsJson = parent.getContent();
             Matcher itemNumberMatcher = itemNumberPattern.matcher(productDetailsJson);
             StringBuilder sb = new StringBuilder();
 
             while (itemNumberMatcher.find()) {
-                sb.append(itemNumberMatcher.group(1));
+                String item = itemNumberMatcher.group(1);
+                sb.append(item);
                 sb.append(',');
             }
 
             if (0 != sb.length()) {
-                WebPageEntity e = new WebPageEntity(0L, "", "productPage", false, "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb, webPageEntity.getCategory());
+                WebPageEntity e = new WebPageEntity(parent, "", "productPage", false, "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb, parent.getCategory());
                 LOGGER.info("productPage={}", e.getUrl());
                 result.add(e);
             }
         } catch (NullPointerException npe) {
-            LOGGER.error("NPE = {}", webPageEntity, npe);
+            LOGGER.error("NPE = {}", parent, npe);
         }
-        return result;
+        return Observable.from(result);
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -63,29 +62,25 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
 
             for (Element e : elements) {
                 String linkUrl = e.attr("ng-init");
-                Matcher categoryMatcher = categoyPattern.matcher(linkUrl);
+                Matcher categoryMatcher = categoryPattern.matcher(linkUrl);
 
                 if (categoryMatcher.find()) {
                     String productCategory = categoryMatcher.group();
                     String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
-                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "tmp", false, productDetailsUrl, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", false, productDetailsUrl, downloadResult.getSourcePage().getCategory());
                     result.add(webPageEntity);
                 }
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        return Observable.from(client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)), Schedulers.io())
-                .map(this::parseDocument)
-                .flatMap(Observable::from)
-                .map(webPageEntity1 -> PageDownloader.download(client, webPageEntity1))
-                .flatMap(Observable::from)
-                .filter(data -> null != data)
-                .map(this::onCompleted)
-                .flatMap(Observable::from);
+        return client.get(webPageEntity.getUrl() + "?sortValue=0&Stock=In%20Stock", new DocumentCompletionHandler(webPageEntity))
+                .flatMap(this::parseDocument)
+                .flatMap(webPageEntity1 -> PageDownloader.download(client, webPageEntity1, "tmp"))
+                .flatMap(this::onCompleted);
     }
 
 

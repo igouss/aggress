@@ -79,6 +79,10 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         mapping.put("shotgun ammo", "ammo");
         mapping.put("shotgun ammo -steel", "ammo");
         mapping.put("shotgun ammo -lead", "ammo");
+
+        mapping.put("rings and mounts", "misc");
+        mapping.put("entry eools", "misc");
+        mapping.put("rifle accessories", "misc");
     }
 
     @Override
@@ -90,7 +94,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
             RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
 
             for (RawProduct rp : rawProducts) {
-                LOGGER.info("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
+                LOGGER.trace("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
                 ProductEntity product = new ProductEntity();
                 try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                     jsonBuilder.startObject();
@@ -131,7 +135,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         if (mapping.containsKey(webPageEntity.getCategory().toLowerCase())) {
             return mapping.get(webPageEntity.getCategory().toLowerCase()).split(",");
         }
-        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        LOGGER.warn("Unknown category: {}", webPageEntity.getCategory());
         return new String[]{"misc"};
     }
 

@@ -8,7 +8,6 @@ import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 /**
  * Copyright NAXSoft 2015
@@ -23,7 +22,8 @@ class WanstallsonlineProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, webPage), Schedulers.io()).filter(data -> null != data);
+        return PageDownloader.download(client, webPage, "productPageRaw")
+                .filter(data -> null != data);
     }
 
     @Override

@@ -15,11 +15,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,7 +42,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     }
 
     private final HttpClient client;
-    private final Future<List<Cookie>> futureCookies;
+    private final Observable<List<Cookie>> futureCookies;
     private List<Cookie> cookies = null;
 
     public CanadiangunnutzFrontPageParser(HttpClient client) {
@@ -67,7 +64,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         }
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -84,7 +81,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
                 for (String category : categories.keySet()) {
                     if (text.endsWith(category)) {
-                        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, element.attr("abs:href"), categories.get(category));
+                        WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, element.attr("abs:href"), categories.get(category));
                         LOGGER.info("productList={}", webPageEntity.getUrl());
                         result.add(webPageEntity);
                         break;
@@ -92,10 +89,10 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
-    private Collection<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -108,32 +105,23 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 int total = Integer.parseInt(matcher.group(3));
                 int pages = (int) Math.ceil((double) total / postsPerPage);
                 for (int i = 1; i <= pages; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        try {
-            cookies = futureCookies.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "", false, "http://www.canadiangunnutz.com/forum/forum.php", "");
-        return Observable.from(futureCookies, Schedulers.io())
-                .map(cookies1 -> client.get(webPageEntity.getUrl(), cookies1, new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from)
-                .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument2)
-                .flatMap(Observable::from);
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "", false, "http://www.canadiangunnutz.com/forum/forum.php", "");
+        return futureCookies
+                .flatMap(cookies1 -> client.get(webPageEntity.getUrl(), cookies1, new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(this::parseDocument)
+                .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))
+                .flatMap(this::parseDocument2);
     }
 
     @Override

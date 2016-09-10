@@ -8,7 +8,6 @@ import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 class BullseyelondonProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(BullseyelondonProductPageParser.class);
@@ -20,7 +19,7 @@ class BullseyelondonProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return Observable.from(PageDownloader.download(client, webPage), Schedulers.io())
+        return PageDownloader.download(client, webPage, "productPageRaw")
                 .filter(data -> null != data);
     }
 

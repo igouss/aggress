@@ -15,7 +15,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import rx.Observable;
-import rx.Subscription;
 
 import java.util.ArrayList;
 
@@ -99,7 +98,7 @@ public class TestSearch {
         data.add(Generator.generate("product 22 hello", "description 22 foo", "category 22", "http://site/product22foo"));
         data.add(Generator.generate("product 22 world", "description 22 bar", "category 22", "http://site/product22bar"));
         data.add(Generator.generate("product 33", "description 33", "category 33", "http://site/product33"));
-        indexProducts(Observable.from(data), "product" + indexSuffix, "guns");
+        indexProducts(Observable.from(data), "product" + indexSuffix, "guns").toBlocking().subscribe();
 
         ListenableActionFuture<SearchResponse> query2 = runSearch("product 22", "category 22", 0);
         SearchResponse searchResponse2 = query2.get();
@@ -136,7 +135,7 @@ public class TestSearch {
 
     }
 
-    private Subscription indexProducts(Observable<ProductEntity> products, String index, String type) {
+    private Observable<Boolean> indexProducts(Observable<ProductEntity> products, String index, String type) {
         return elastic.index(products, index, "", type);
     }
 }

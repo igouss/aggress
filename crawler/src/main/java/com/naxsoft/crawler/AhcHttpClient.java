@@ -7,12 +7,12 @@ import org.asynchttpclient.filter.ThrottleRequestFilter;
 import org.asynchttpclient.handler.resumable.ResumableIOExceptionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -55,7 +55,7 @@ public class AhcHttpClient implements HttpClient {
      */
 
     @Override
-    public <R> Future<R> get(String url, AbstractCompletionHandler<R> handler) {
+    public <R> Observable<R> get(String url, AbstractCompletionHandler<R> handler) {
         return get(url, Collections.emptyList(), handler);
     }
 
@@ -69,23 +69,23 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Future<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
+    public <R> Observable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         return get(url, cookies, handler, true);
     }
 
     /**
      * Execute HTTP GET operation
      *
+     * @param <R>            Type of the value that will be returned by the associated Future
      * @param url            Page address
      * @param cookies        Request cookies
      * @param handler        Completion handler
      * @param followRedirect Follow HTTP redirects
-     * @param <R>            Type of the value that will be returned by the associated Future
      * @return a Future of type T
      */
     @Override
-    public <R> Future<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
-        LOGGER.debug("Starting async http GET request url = {}", url);
+    public <R> Observable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
+        LOGGER.trace("Starting async http GET request url = {}", url);
         BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirect(followRedirect);
@@ -94,7 +94,7 @@ public class AhcHttpClient implements HttpClient {
 
         handler.setProxyManager(proxyManager);
 
-        return asyncHttpClient.executeRequest(request, handler);
+        return Observable.from(asyncHttpClient.executeRequest(request, handler));
     }
 
 
@@ -108,22 +108,22 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Future<R> post(String url, String content, AbstractCompletionHandler<R> handler) {
+    public <R> Observable<R> post(String url, String content, AbstractCompletionHandler<R> handler) {
         return post(url, content, Collections.emptyList(), handler);
     }
 
     /**
      * Execute HTTP POST operation
      *
+     * @param <R>     Type of the value that will be returned by the associated Future
      * @param url     Page address
      * @param content Content to send in a POST request
      * @param cookies Request cookies
      * @param handler Completion handler
-     * @param <R>     Type of the value that will be returned by the associated Future
      * @return a Future of type T
      */
     @Override
-    public <R> Future<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
+    public <R> Observable<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setCookies(cookies);
@@ -136,21 +136,21 @@ public class AhcHttpClient implements HttpClient {
 
         handler.setProxyManager(proxyManager);
 
-        return asyncHttpClient.executeRequest(request, handler);
+        return Observable.from(asyncHttpClient.executeRequest(request, handler));
     }
 
     /**
      * Execute HTTP POST operation
      *
+     * @param <R>            Type of the value that will be returned by the associated Future
      * @param url            Page address
      * @param formParameters HTTP Form parameters
      * @param cookies        Request cookies
      * @param handler        Completion handler
-     * @param <R>            Type of the value that will be returned by the associated Future
      * @return a Future of type T
      */
     @Override
-    public <R> Future<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
+    public <R> Observable<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setCookies(cookies);
@@ -165,7 +165,7 @@ public class AhcHttpClient implements HttpClient {
         for (Map.Entry<String, String> e : entries) {
             requestBuilder.addFormParam(e.getKey(), e.getValue());
         }
-        return asyncHttpClient.executeRequest(request, handler);
+        return Observable.from(asyncHttpClient.executeRequest(request, handler));
     }
 
     /**

@@ -10,9 +10,7 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -30,12 +28,12 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
         this.client = client;
     }
 
-    private static WebPageEntity create(String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, url, category);
+    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
         return webPageEntity;
     }
 
-    private Collection<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -44,33 +42,30 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
             Matcher matcher = productTotalPattern.matcher(elements);
             if (!matcher.find()) {
                 LOGGER.error("Unable to parse total pages");
-                return result;
+                return Observable.empty();
             }
 
             int productTotal = Integer.parseInt(matcher.group(1));
             int pageTotal = (int) Math.ceil(productTotal / 100.0);
 
             for (int i = 1; i <= pageTotal; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(0L, "", "productList", false, document.location() + "&p=" + i, downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location() + "&p=" + i, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return Observable.from(result);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create("https://ellwoodepps.com/hunting/accessories.html?product_sold=3175", "accessories"));
-        webPageEntities.add(create("https://ellwoodepps.com/hunting/firearms.html?product_sold=3175", "firearm"));
+        webPageEntities.add(create(parent, "https://ellwoodepps.com/hunting/accessories.html?product_sold=3175", "accessories"));
+        webPageEntities.add(create(parent, "https://ellwoodepps.com/hunting/firearms.html?product_sold=3175", "firearm"));
 
         return Observable.from(webPageEntities)
-                .observeOn(Schedulers.io())
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from);
+                .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+                .flatMap(this::parseDocument);
     }
 
     @Override
