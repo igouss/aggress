@@ -8,6 +8,7 @@ import com.lambdaworks.redis.event.metrics.CommandLatencyEvent;
 import com.lambdaworks.redis.metrics.DefaultCommandLatencyCollectorOptions;
 import com.lambdaworks.redis.resource.ClientResources;
 import com.lambdaworks.redis.resource.DefaultClientResources;
+import com.naxsoft.encoders.Encoder;
 import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
@@ -20,17 +21,13 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public class RedisDatabase implements Persistent {
     private final static Logger LOGGER = LoggerFactory.getLogger(RedisDatabase.class);
     private static final Long BATCH_SIZE = 20L;
-    @Inject
-    ProductEntityEncoder productEntityEncoder;
-    @Inject
-    WebPageEntityEncoder webPageEntityEncoder;
+
     private ClientResources res;
     private RedisClient redisClient;
     //    private StatefulRedisPubSubConnection<String, String> pubSub;
@@ -61,14 +58,6 @@ public class RedisDatabase implements Persistent {
         connection = redisClient.connect();
     }
 
-    public void setProductEntityEncoder(ProductEntityEncoder productEntityEncoder) {
-        this.productEntityEncoder = productEntityEncoder;
-    }
-
-    public void setWebPageEntityEncoder(WebPageEntityEncoder webPageEntityEncoder) {
-        this.webPageEntityEncoder = webPageEntityEncoder;
-    }
-
     @Override
     public void close() {
         redisClient.shutdown();
@@ -88,7 +77,7 @@ public class RedisDatabase implements Persistent {
 
         String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
-        String member = webPageEntityEncoder.encode(webPageEntity);
+        String member = Encoder.encode(webPageEntity);
 //        return connection.reactive()
 //                .sadd(destination, member);
         return connection.reactive()
@@ -114,7 +103,7 @@ public class RedisDatabase implements Persistent {
         return productEntity
                 .flatMap(entity -> {
                     String key = "ProductEntity";
-                    String member = productEntityEncoder.encode(entity);
+                    String member = Encoder.encode(entity);
                     return Observable.zip(connection.reactive().sadd(key, member), Observable.just(entity), Tuple::new);
                 })
                 .map(res -> {
@@ -132,7 +121,7 @@ public class RedisDatabase implements Persistent {
         return webPageEntity
                 .flatMap(entity -> {
                     String key = "WebPageEntity" + "." + entity.getType();
-                    String member = webPageEntityEncoder.encode(entity);
+                    String member = Encoder.encode(entity);
                     return Observable.zip(connection.reactive().sadd(key, member), Observable.just(entity), Tuple::new);
                 })
                 .map(res -> {
@@ -149,7 +138,7 @@ public class RedisDatabase implements Persistent {
     public Observable<ProductEntity> getProducts() {
         return connection.reactive()
                 .smembers("ProductEntity")
-                .map(productEntityEncoder::decode)
+                .map(ProductEntityEncoder::decode)
                 .filter(productEntity -> productEntity != null);
     }
 
@@ -161,7 +150,7 @@ public class RedisDatabase implements Persistent {
 //        return connection.reactive().spop(key, popCount).map(webPageEntityEncoder::decode);
         return connection.reactive()
                 .spop(key, popCount)
-                .map(webPageEntityEncoder::decode)
+                .map(WebPageEntityEncoder::decode)
                 .filter(entry -> entry != null);
     }
 

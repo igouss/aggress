@@ -14,7 +14,7 @@ public class ProductEntityEncoder extends Encoder {
      * @param value Serialized value
      * @return Java object
      */
-    public ProductEntity decode(String value) {
+    public static ProductEntity decode(String value) {
         try {
             return fromJson(value, ProductEntity.class);
         } catch (Exception e) {
