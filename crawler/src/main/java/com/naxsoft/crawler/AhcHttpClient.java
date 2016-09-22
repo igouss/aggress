@@ -87,6 +87,7 @@ public class AhcHttpClient implements HttpClient {
         // This transport has higher performance and produces less garbage
         boolean useNativeTransport = osName.contains("linux"); //
 
+
         AsyncHttpClientConfig asyncHttpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setAcceptAnyCertificate(true)
                 .setSslContext(sslContext)
@@ -96,6 +97,7 @@ public class AhcHttpClient implements HttpClient {
                 .addIOExceptionFilter(new ResumableIOExceptionFilter())
                 .addRequestFilter(new ThrottleRequestFilter(MAX_CONNECTIONS))
                 .setUseNativeTransport(useNativeTransport)
+                .setUsePooledMemory(true)
                 .build();
         asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig);
     }
