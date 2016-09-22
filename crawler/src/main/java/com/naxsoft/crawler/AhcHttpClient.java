@@ -33,6 +33,60 @@ public class AhcHttpClient implements HttpClient {
     public AhcHttpClient(SslContext sslContext) {
         proxyManager = new ProxyManager();
 
+        String osName = System.getProperty("os.name").toLowerCase();
+
+        /*
+        Overwrite defaults:
+            org.asynchttpclient.threadPoolName=AsyncHttpClient
+            org.asynchttpclient.maxConnections=-1
+            org.asynchttpclient.maxConnectionsPerHost=-1
+            org.asynchttpclient.connectTimeout=5000
+            org.asynchttpclient.pooledConnectionIdleTimeout=60000
+            org.asynchttpclient.connectionPoolCleanerPeriod=1000
+            org.asynchttpclient.readTimeout=60000
+            org.asynchttpclient.requestTimeout=60000
+            org.asynchttpclient.connectionTtl=-1
+            org.asynchttpclient.followRedirect=false
+            org.asynchttpclient.maxRedirects=5
+            org.asynchttpclient.compressionEnforced=false
+            org.asynchttpclient.userAgent=AHC/2.0
+            org.asynchttpclient.enabledProtocols=TLSv1.2, TLSv1.1, TLSv1
+            org.asynchttpclient.useProxySelector=false
+            org.asynchttpclient.useProxyProperties=false
+            org.asynchttpclient.validateResponseHeaders=true
+            org.asynchttpclient.strict302Handling=false
+            org.asynchttpclient.keepAlive=true
+            org.asynchttpclient.maxRequestRetry=5
+            org.asynchttpclient.disableUrlEncodingForBoundRequests=false
+            org.asynchttpclient.removeQueryParamOnRedirect=true
+            org.asynchttpclient.useOpenSsl=false
+            org.asynchttpclient.acceptAnyCertificate=false
+            org.asynchttpclient.sslSessionCacheSize=0
+            org.asynchttpclient.sslSessionTimeout=0
+            org.asynchttpclient.tcpNoDelay=true
+            org.asynchttpclient.soReuseAddress=false
+            org.asynchttpclient.soLinger=-1
+            org.asynchttpclient.soSndBuf=-1
+            org.asynchttpclient.soRcvBuf=-1
+            org.asynchttpclient.httpClientCodecMaxInitialLineLength=4096
+            org.asynchttpclient.httpClientCodecMaxHeaderSize=8192
+            org.asynchttpclient.httpClientCodecMaxChunkSize=8192
+            org.asynchttpclient.disableZeroCopy=false
+            org.asynchttpclient.handshakeTimeout=10000
+            org.asynchttpclient.chunkedFileChunkSize=8192
+            org.asynchttpclient.webSocketMaxBufferSize=128000000
+            org.asynchttpclient.webSocketMaxFrameSize=10240
+            org.asynchttpclient.keepEncodingHeader=false
+            org.asynchttpclient.shutdownQuietPeriod=2000
+            org.asynchttpclient.shutdownTimeout=15000
+            org.asynchttpclient.useNativeTransport=false
+            org.asynchttpclient.usePooledMemory=true
+        */
+
+        // Since 4.0.16, Netty provides the native socket transport for Linux using JNI.
+        // This transport has higher performance and produces less garbage
+        boolean useNativeTransport = osName.contains("linux"); //
+
         AsyncHttpClientConfig asyncHttpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setAcceptAnyCertificate(true)
                 .setSslContext(sslContext)
@@ -41,6 +95,7 @@ public class AhcHttpClient implements HttpClient {
                 .setAcceptAnyCertificate(true)
                 .addIOExceptionFilter(new ResumableIOExceptionFilter())
                 .addRequestFilter(new ThrottleRequestFilter(MAX_CONNECTIONS))
+                .setUseNativeTransport(useNativeTransport)
                 .build();
         asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig);
     }
