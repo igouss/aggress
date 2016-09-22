@@ -1,6 +1,5 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.ApplicationComponent;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.database.Elastic;
 import org.slf4j.Logger;

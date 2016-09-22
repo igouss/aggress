@@ -11,6 +11,15 @@ import java.util.concurrent.TimeUnit;
 public class HealthCheck implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger("HealthCheck");
 
+    public static void start() {
+        Thread healthCheck = new Thread(new HealthCheck(), "HealthCheck");
+        healthCheck.setDaemon(true);
+        healthCheck.setUncaughtExceptionHandler((t, e) -> {
+            LOGGER.error("DEAD");
+        });
+        healthCheck.start();
+    }
+
     @Override
     public void run() {
         while (true) {
@@ -21,15 +30,6 @@ public class HealthCheck implements Runnable {
             }
             LOGGER.info("ALIVE");
         }
-    }
-
-    public static void start() {
-        Thread healthCheck = new Thread(new HealthCheck(), "HealthCheck");
-        healthCheck.setDaemon(true);
-        healthCheck.setUncaughtExceptionHandler((t, e) -> {
-            LOGGER.error("DEAD");
-        });
-        healthCheck.start();
     }
 
     private class HealthCheckException extends RuntimeException {

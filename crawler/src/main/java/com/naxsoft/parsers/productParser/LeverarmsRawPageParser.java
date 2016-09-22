@@ -109,7 +109,6 @@ class LeverarmsRawPageParser extends AbstractRawPageParser {
     }
 
     /**
-     *
      * @param webPageEntity
      * @return
      */

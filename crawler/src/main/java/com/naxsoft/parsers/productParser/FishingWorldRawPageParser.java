@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 class FishingWorldRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingWorldRawPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
+
     /**
      * @param price
      * @return

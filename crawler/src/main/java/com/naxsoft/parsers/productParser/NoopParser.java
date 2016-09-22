@@ -12,6 +12,7 @@ import rx.Observable;
  */
 class NoopParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(NoopParser.class);
+
     @Override
     public Observable<ProductEntity> parse(WebPageEntity webPage) {
         return Observable.empty();

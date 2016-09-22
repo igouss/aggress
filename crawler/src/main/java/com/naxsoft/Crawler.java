@@ -73,22 +73,22 @@ public class Crawler {
 //            scheduler = applicationComponent.getScheduler();
 //            scheduler.add(() -> {
 
-                if (options.has("clean")) {
-                    applicationComponent.getCleanDbCommand().start();
+            if (options.has("clean")) {
+                applicationComponent.getCleanDbCommand().start();
 
-                }
+            }
 
-                if (options.has("populate")) {
-                    applicationComponent.getPopulateDBCommand().start();
-                }
+            if (options.has("populate")) {
+                applicationComponent.getPopulateDBCommand().start();
+            }
 
-                if (options.has("crawl")) {
-                    applicationComponent.getCrawlCommand().start();
-                }
+            if (options.has("crawl")) {
+                applicationComponent.getCrawlCommand().start();
+            }
 
-                if (options.has("parse")) {
-                    applicationComponent.getParseCommand().start();
-                }
+            if (options.has("parse")) {
+                applicationComponent.getParseCommand().start();
+            }
 //            }, 0, 1, TimeUnit.MINUTES);
             System.in.read();
         } catch (Exception e) {

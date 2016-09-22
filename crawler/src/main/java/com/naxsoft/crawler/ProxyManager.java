@@ -11,10 +11,10 @@ class ProxyManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyManager.class);
     private int current = 0;
     private ArrayList<ProxyServer> proxyServers = null;
-    private List<String> nonProxyHosts;
 
     ProxyManager() {
-        nonProxyHosts = new ArrayList<>();
+        List<String> nonProxyHosts = new ArrayList<>();
+
         nonProxyHosts.add("localhost");
         nonProxyHosts.add("elasticsearch");
         nonProxyHosts.add("redis");

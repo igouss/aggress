@@ -1,7 +1,5 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.ApplicationComponent;
-
 /**
  * Copyright NAXSoft 2015
  */

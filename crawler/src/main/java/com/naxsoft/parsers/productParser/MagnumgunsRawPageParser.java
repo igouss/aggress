@@ -88,7 +88,6 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
     }
 
     /**
-     *
      * @param webPageEntity
      * @return
      */

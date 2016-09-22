@@ -20,6 +20,7 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
      */
     private final static AbstractCompletionHandler<List<Cookie>> COOKIE_HANDLER = new AbstractCompletionHandler<List<Cookie>>() {
         private final Logger LOGGER = LoggerFactory.getLogger("com.naxsoft.parsers.webPageParsers.CookieCompletionHandler");
+
         @Override
         public List<Cookie> onCompleted(Response response) throws Exception {
             LOGGER.info("Completed request to {}", response.getUri().toString());

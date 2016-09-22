@@ -31,7 +31,7 @@ public class ElasticModule {
                 elastic.connect(elasticHost, elasticPort);
                 return elastic;
             } catch (UnknownHostException e) {
-                LOGGER.error("Failed to connect to elastic search " + elasticHost + ":" + elasticPort , e);
+                LOGGER.error("Failed to connect to elastic search " + elasticHost + ":" + elasticPort, e);
             }
         } catch (PropertyNotFoundException e) {
             LOGGER.error("Failed to load elasticProperty: " + e.getMessage(), e);

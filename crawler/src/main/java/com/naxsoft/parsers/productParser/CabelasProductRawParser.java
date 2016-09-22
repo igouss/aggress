@@ -101,7 +101,6 @@ class CabelasProductRawParser extends AbstractRawPageParser {
     }
 
     /**
-     *
      * @param webPageEntity
      * @return
      */

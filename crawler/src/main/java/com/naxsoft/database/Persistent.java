@@ -66,6 +66,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
 
     /**
      * Delete data from tables
+     *
      * @param tables WebPageEntity or ProductEntity
      */
     Observable<Long> cleanUp(String[] tables);

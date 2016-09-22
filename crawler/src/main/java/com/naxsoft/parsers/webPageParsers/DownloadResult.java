@@ -12,7 +12,7 @@ public class DownloadResult {
 
     /**
      * @param sourcePage Page that was requested
-     * @param document Parsed HTML Page
+     * @param document   Parsed HTML Page
      */
     public DownloadResult(WebPageEntity sourcePage, Document document) {
         this.sourcePage = sourcePage;
@@ -21,6 +21,7 @@ public class DownloadResult {
 
     /**
      * Requested page
+     *
      * @return Requested page
      */
     public WebPageEntity getSourcePage() {
@@ -29,6 +30,7 @@ public class DownloadResult {
 
     /**
      * Parsed result
+     *
      * @return Parsed result
      */
     public Document getDocument() {
