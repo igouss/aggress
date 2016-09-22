@@ -48,7 +48,7 @@ public class WebPageParserFactory {
 
         MessageConsumer<WebPageEntity> consumer = vertx.eventBus().consumer("webPageParseResult");
 
-        parseResult = Observable.fromAsync(asyncEmitter -> {
+        parseResult = Observable.fromEmitter(asyncEmitter -> {
             consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
             consumer.endHandler(v -> asyncEmitter.onCompleted());
         }, AsyncEmitter.BackpressureMode.BUFFER);
@@ -114,7 +114,7 @@ public class WebPageParserFactory {
 //            }
 //        }
 
-        Observable.fromAsync((Action1<AsyncEmitter<Class>>) asyncEmitter -> {
+        Observable.fromEmitter((Action1<AsyncEmitter<Class>>) asyncEmitter -> {
             for (Class<? extends AbstractWebPageParser> clazz : classes) {
                 if (!Modifier.isAbstract(clazz.getModifiers())) {
                     try {

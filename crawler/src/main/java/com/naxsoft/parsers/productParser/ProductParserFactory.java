@@ -112,7 +112,7 @@ public class ProductParserFactory {
         }
 
         MessageConsumer<ProductEntity> consumer = vertx.eventBus().consumer("productParseResult");
-        parseResult = Observable.fromAsync(asyncEmitter -> {
+        parseResult = Observable.fromEmitter(asyncEmitter -> {
             consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
             consumer.endHandler(v -> asyncEmitter.onCompleted());
         }, AsyncEmitter.BackpressureMode.BUFFER);
