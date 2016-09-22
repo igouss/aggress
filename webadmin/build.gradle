@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "io.vertx:vertx-core:3.3.2"
-    compile "io.vertx:vertx-web:3.3.2"
-    compile "io.vertx:vertx-web-templ-thymeleaf:3.3.2"
+    compile "io.vertx:vertx-core:3.3.3"
+    compile "io.vertx:vertx-web:3.3.3"
+    compile "io.vertx:vertx-web-templ-thymeleaf:3.3.3"
 }

@@ -21,8 +21,8 @@ dependencies {
 
     compile "org.thymeleaf:thymeleaf:3.0.1.RELEASE"
 
-    compile "io.vertx:vertx-core:3.3.2"
-    compile "io.vertx:vertx-web:3.3.2"
+    compile "io.vertx:vertx-core:3.3.3"
+    compile "io.vertx:vertx-web:3.3.3"
 
     compile project(':common')
 }
