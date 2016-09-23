@@ -17,7 +17,7 @@ dependencies {
     compile "org.hibernate:hibernate-core:5.2.2.Final"
     compile "org.hibernate:hibernate-hikaricp:5.2.2.Final"
     compile "org.hibernate:hibernate-ehcache:5.2.2.Final"
-    compile "org.hibernate:hibernate-validator:5.2.0.Final"
+    compile "org.hibernate:hibernate-validator:5.3.0.CR1"
 
     compile "ch.qos.logback:logback-core:1.1.7"
     compile "ch.qos.logback:logback-classic:1.1.7"
@@ -32,7 +32,7 @@ dependencies {
     compile "org.apache.commons:commons-collections4:4.1"
     compile "com.google.code.gson:gson:2.7"
     compile "commons-io:commons-io:2.5"
-    compile "org.asynchttpclient:async-http-client:2.0.11"
+    compile "org.asynchttpclient:async-http-client:2.1.0-alpha1"
     compile "org.glassfish.grizzly:grizzly-websockets:2.3.27"
     compile "junit:junit:4.12"
     compile "org.jooq:jooq:3.8.4"

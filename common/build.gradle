@@ -1,4 +1,9 @@
-apply plugin: "java"
+plugins {
+    id "java"
+    id "idea"
+    id "net.ltgt.apt" version "0.6"
+    id "com.github.ben-manes.versions" version "0.13.0"// gradle dependencyUpdates
+}
 
 dependencies {
     compile "ch.qos.logback:logback-core:1.1.7"
