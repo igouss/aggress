@@ -16,6 +16,8 @@ public class VertxModule {
     @Singleton
     @NotNull
     static Vertx provideProductService() {
+        // use the JVM built-in resolver
+        System.setProperty("vertx.disableDnsResolver", "true");
         return Vertx.vertx();
     }
 }
