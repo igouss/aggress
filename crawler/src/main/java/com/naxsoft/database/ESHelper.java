@@ -6,9 +6,9 @@ import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.logging.ESLogger;
-import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
  * Not used now. For later use.
  */
 public class ESHelper {
-    private static final ESLogger LOGGER = ESLoggerFactory.getLogger(ESHelper.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ESHelper.class);
 
     /**
      * Define a type for a given index and if exists with its mapping definition (loaded in classloader)
