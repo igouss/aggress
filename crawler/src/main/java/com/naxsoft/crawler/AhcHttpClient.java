@@ -150,8 +150,9 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
 
         handler.setProxyManager(proxyManager);
+        int requestSize = request.getByteData().length;
 
-        return Observable.from(asyncHttpClient.executeRequest(request, handler));
+        return Observable.from(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper(requestSize, handler)));
     }
 
 
@@ -215,7 +216,6 @@ public class AhcHttpClient implements HttpClient {
         requestBuilder.setProxyServer(proxyManager.getProxyServer());
 
         Request request = requestBuilder.build();
-
         handler.setProxyManager(proxyManager);
 
         Set<Map.Entry<String, String>> entries = formParameters.entrySet();
@@ -230,5 +230,48 @@ public class AhcHttpClient implements HttpClient {
      */
     public void close() throws java.io.IOException {
         asyncHttpClient.close();
+    }
+
+    private class StatsRecodringCompletionHandlerWrapper<R> extends AbstractCompletionHandler<R> {
+        private int requestSize;
+        private AbstractCompletionHandler<R> handler;
+//        private Sensor requestSizeSensor;
+//        private Sensor responseSizeSensor;
+//        private Sensor requestLatencySensor;
+        private long started;
+        private long responseSize;
+
+
+        StatsRecodringCompletionHandlerWrapper(int requestSize, AbstractCompletionHandler<R> handler) {
+            this.requestSize = requestSize;
+            this.handler = handler;
+        }
+
+        @Override
+        public State onHeadersReceived(HttpResponseHeaders headers) throws Exception {
+            started = System.nanoTime();
+            return super.onHeadersReceived(headers);
+        }
+
+        @Override
+        public State onBodyPartReceived(HttpResponseBodyPart content) throws Exception {
+            responseSize += content.length();
+            return super.onBodyPartReceived(content);
+        }
+
+        @Override
+        public R onCompleted(Response response) throws Exception {
+            finished(requestSize, responseSize, System.nanoTime() - started);
+            return handler.onCompleted(response);
+        }
+
+        /**
+         * Indicate that a request has finished successfully.
+         */
+        void finished(long requestSize, long responseSize, long latencyMs) {
+//            requestSizeSensor.record(requestSize);
+//            responseSizeSensor.record(responseSize);
+//            requestLatencySensor.record(latencyMs);
+        }
     }
 }
