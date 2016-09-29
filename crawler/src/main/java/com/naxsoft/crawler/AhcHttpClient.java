@@ -152,7 +152,7 @@ public class AhcHttpClient implements HttpClient {
         handler.setProxyManager(proxyManager);
         int requestSize = request.getByteData().length;
 
-        return Observable.from(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper(requestSize, handler)));
+        return Observable.from(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(requestSize, handler)));
     }
 
 
