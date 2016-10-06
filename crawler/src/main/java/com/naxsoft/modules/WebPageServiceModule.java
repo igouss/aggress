@@ -1,7 +1,7 @@
 package com.naxsoft.modules;
 
-import com.naxsoft.database.Persistent;
-import com.naxsoft.database.WebPageService;
+import com.naxsoft.parsingService.WebPageService;
+import com.naxsoft.storage.Persistent;
 import dagger.Module;
 import dagger.Provides;
 

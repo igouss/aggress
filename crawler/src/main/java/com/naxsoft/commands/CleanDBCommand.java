@@ -1,7 +1,7 @@
 package com.naxsoft.commands;
 
 
-import com.naxsoft.database.Persistent;
+import com.naxsoft.storage.Persistent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.schedulers.Schedulers;

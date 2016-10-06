@@ -1,17 +1,14 @@
-package com.naxsoft.database;
+package com.naxsoft.storage.elasticsearch;
 
-import com.naxsoft.crawler.AbstractCompletionHandler;
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.ProductEntity;
 import org.apache.commons.io.IOUtils;
-import org.asynchttpclient.Response;
-import org.elasticsearch.action.ListenableActionFuture;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesResponse;
+import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -25,7 +22,6 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,8 +33,6 @@ public class Elastic implements AutoCloseable, Cloneable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Elastic.class);
     private TransportClient client = null;
 
-    private String hostname;
-
     /**
      * Connect to ElasticSearch server
      *
@@ -48,7 +42,6 @@ public class Elastic implements AutoCloseable, Cloneable {
      */
     public void connect(String hostname, int port) throws UnknownHostException {
         if (null == client) {
-            this.hostname = hostname;
 
             Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
             this.client = new TransportClient.Builder().settings(settings).build();
@@ -77,15 +70,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         if (null != client) {
             client.close();
             client = null;
-            hostname = null;
         }
-    }
-
-    /**
-     * @return
-     */
-    public Client getClient() {
-        return this.client;
     }
 
     /**
@@ -126,24 +111,40 @@ public class Elastic implements AutoCloseable, Cloneable {
     }
 
     /**
-     * @param httpClient
      * @param indexName
      * @param type
      * @param indexSuffix
      * @return
      */
-    public Observable<Integer> createIndex(HttpClient httpClient, String indexName, String type, String indexSuffix) {
+    public Observable<Integer> createIndex(String indexName, String type, String indexSuffix) {
         String resourceName = "/elastic." + indexName + "." + type + ".index.json";
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         try {
-            if (!client.admin().indices().exists(new IndicesExistsRequest(indexName)).get().isExists()) {
+            LOGGER.info("Creating index {} type {} from {}", indexName, type, resourceName);
+            if (!indexExists(indexName)) {
                 if (indexSuffix != null) {
                     indexName = indexName + indexSuffix;
                 }
-                LOGGER.info("Creating index {} type {} from {}", indexName, type, resourceName);
-                String indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
-                String url = "http://" + hostname + ":9200/" + indexName;
-                return httpClient.post(url, indexContent, new VoidAbstractCompletionHandler());
+
+//                String indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
+//                String url = "http://" + hostname + ":9200/" + indexName;
+
+                Settings settings = Settings.builder().loadFromStream(resourceName, resourceAsStream).build();
+                CreateIndexRequest request = new CreateIndexRequest(indexName, settings);
+
+                client.admin().indices().create(request, new ActionListener<CreateIndexResponse>() {
+                    @Override
+                    public void onResponse(CreateIndexResponse createIndexResponse) {
+                        LOGGER.info("OK");
+                    }
+
+                    @Override
+                    public void onFailure(Throwable e) {
+                        LOGGER.error("Failed to create index", e);
+                    }
+                });
+            } else {
+                LOGGER.info("Index already exists");
             }
         } catch (Exception e) {
             LOGGER.error("Failed to create index", e);
@@ -153,56 +154,8 @@ public class Elastic implements AutoCloseable, Cloneable {
         return Observable.empty();
     }
 
-    /**
-     * @param client
-     * @param indexName
-     * @param type
-     * @param indexSuffix
-     * @return
-     */
-    public Observable<Integer> createMapping(HttpClient client, String indexName, String type, String indexSuffix) {
-        String resourceName = "/elastic." + indexName + "." + type + ".mapping.json";
-        InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
-        try {
-            if (indexSuffix != null) {
-                indexName = indexName + indexSuffix;
-            }
-            LOGGER.info("Creating mapping for index {} type {} from {}", indexName, type, resourceName);
-
-            String indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
-            String url = "http://" + hostname + ":9200/" + indexName + "/" + type + "/_mapping";
-
-            return client.post(url, indexContent, new VoidAbstractCompletionHandler());
-        } catch (IOException e) {
-            LOGGER.error("Failed to create mapping", e);
-        } finally {
-            IOUtils.closeQuietly(resourceAsStream);
-        }
-        return Observable.empty();
+    private boolean indexExists(String indexName) throws InterruptedException, java.util.concurrent.ExecutionException {
+        return client.admin().indices().exists(new IndicesExistsRequest(indexName)).get().isExists();
     }
-
-    /**
-     * @param index
-     * @param newAlias
-     * @param oldAlias
-     * @return
-     */
-    public ListenableActionFuture<IndicesAliasesResponse> updateAlias(String index, String newAlias, String oldAlias) {
-        return client.admin().indices().prepareAliases().addAlias(index, newAlias).removeAlias(index, oldAlias).execute();
-    }
-
-    private static class VoidAbstractCompletionHandler extends AbstractCompletionHandler<Integer> {
-        @Override
-        public Integer onCompleted(Response response) throws Exception {
-            int statusCode = response.getStatusCode();
-            if (200 != statusCode) {
-                LOGGER.error("Error creating index: {}", response.getResponseBody());
-            } else {
-                LOGGER.info("Created index: {}", response.getResponseBody());
-            }
-            return statusCode;
-        }
-    }
-
 }
 

@@ -1,7 +1,6 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.crawler.HttpClient;
-import com.naxsoft.database.Elastic;
+import com.naxsoft.storage.elasticsearch.Elastic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,13 +16,11 @@ public class CreateESIndexCommand implements Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateESIndexCommand.class);
 
     private Elastic elastic = null;
-    private HttpClient httpClient = null;
     private String indexSuffix = "";
 
     @Inject
-    public CreateESIndexCommand(Elastic elastic, HttpClient httpClient) {
+    public CreateESIndexCommand(Elastic elastic) {
         this.elastic = elastic;
-        this.httpClient = httpClient;
     }
 
     @Override
@@ -33,7 +30,7 @@ public class CreateESIndexCommand implements Command {
     @Override
     public void start() throws CLIException {
         Semaphore semaphore = new Semaphore(0);
-        elastic.createIndex(httpClient, "product", "guns", indexSuffix)
+        elastic.createIndex("product", "guns", indexSuffix)
                 .subscribe(rc -> {
                             LOGGER.info("Elastic create index rc = {}", rc);
                         }, ex -> {

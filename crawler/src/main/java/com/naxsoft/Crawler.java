@@ -67,9 +67,6 @@ public class Crawler {
                 applicationComponent.getCreateESIndexCommand().start();
             }
 
-            if (options.has("createESMappings")) {
-                applicationComponent.getCreateESMappingCommand().start();
-            }
 //            scheduler = applicationComponent.getScheduler();
 //            scheduler.add(() -> {
 

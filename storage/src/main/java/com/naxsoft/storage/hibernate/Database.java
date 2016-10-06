@@ -1,7 +1,8 @@
-package com.naxsoft.database;
+package com.naxsoft.storage.hibernate;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.storage.Persistent;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.SessionFactory;
@@ -65,6 +66,7 @@ public class Database implements Persistent {
      * @param result Record set over which to iterate
      * @return Observable result stream
      */
+    @SuppressWarnings({"unchecked"})
     private static <T> Observable<T> scrollResults(ScrollableResults result) {
         return Observable.create(subscriber -> {
             while (!subscriber.isUnsubscribed() && result.next()) {

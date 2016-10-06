@@ -1,6 +1,6 @@
 package com.naxsoft.modules;
 
-import com.naxsoft.database.Elastic;
+import com.naxsoft.storage.elasticsearch.Elastic;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
 import dagger.Module;

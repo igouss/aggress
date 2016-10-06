@@ -150,9 +150,7 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
 
         handler.setProxyManager(proxyManager);
-        int requestSize = request.getByteData().length;
-
-        return Observable.from(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(requestSize, handler)));
+        return Observable.from(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(handler)));
     }
 
 
@@ -233,7 +231,6 @@ public class AhcHttpClient implements HttpClient {
     }
 
     private class StatsRecodringCompletionHandlerWrapper<R> extends AbstractCompletionHandler<R> {
-        private int requestSize;
         private AbstractCompletionHandler<R> handler;
 //        private Sensor requestSizeSensor;
 //        private Sensor responseSizeSensor;
@@ -242,8 +239,7 @@ public class AhcHttpClient implements HttpClient {
         private long responseSize;
 
 
-        StatsRecodringCompletionHandlerWrapper(int requestSize, AbstractCompletionHandler<R> handler) {
-            this.requestSize = requestSize;
+        StatsRecodringCompletionHandlerWrapper(AbstractCompletionHandler<R> handler) {
             this.handler = handler;
         }
 
@@ -261,14 +257,14 @@ public class AhcHttpClient implements HttpClient {
 
         @Override
         public R onCompleted(Response response) throws Exception {
-            finished(requestSize, responseSize, System.nanoTime() - started);
+            finished(response, responseSize, System.nanoTime() - started);
             return handler.onCompleted(response);
         }
 
         /**
          * Indicate that a request has finished successfully.
          */
-        void finished(long requestSize, long responseSize, long latencyMs) {
+        void finished(Response response, long responseSize, long latencyMs) {
 //            requestSizeSensor.record(requestSize);
 //            responseSizeSensor.record(responseSize);
 //            requestLatencySensor.record(latencyMs);

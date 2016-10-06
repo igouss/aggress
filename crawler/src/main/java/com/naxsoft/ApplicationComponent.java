@@ -4,14 +4,14 @@ import com.codahale.metrics.MetricRegistry;
 import com.lambdaworks.redis.event.EventBus;
 import com.naxsoft.commands.*;
 import com.naxsoft.crawler.HttpClient;
-import com.naxsoft.database.Elastic;
-import com.naxsoft.database.Persistent;
-import com.naxsoft.database.ProductService;
-import com.naxsoft.database.WebPageService;
 import com.naxsoft.modules.*;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
+import com.naxsoft.parsingService.ProductService;
+import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.scheduler.Scheduler;
+import com.naxsoft.storage.Persistent;
+import com.naxsoft.storage.elasticsearch.Elastic;
 import dagger.Component;
 import io.vertx.core.Vertx;
 
@@ -62,8 +62,6 @@ public interface ApplicationComponent {
     CrawlCommand getCrawlCommand();
 
     CreateESIndexCommand getCreateESIndexCommand();
-
-    CreateESMappingCommand getCreateESMappingCommand();
 
     ParseCommand getParseCommand();
 

@@ -1,12 +1,11 @@
 package com.naxsoft.modules;
 
 import com.naxsoft.commands.*;
-import com.naxsoft.crawler.HttpClient;
-import com.naxsoft.database.Elastic;
-import com.naxsoft.database.Persistent;
-import com.naxsoft.database.WebPageService;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
+import com.naxsoft.parsingService.WebPageService;
+import com.naxsoft.storage.Persistent;
+import com.naxsoft.storage.elasticsearch.Elastic;
 import dagger.Module;
 import dagger.Provides;
 
@@ -37,15 +36,8 @@ public class CommandModule {
     @Provides
     @Singleton
     @NotNull
-    static CreateESIndexCommand provideCreateESIndexCommand(Elastic elastic, HttpClient httpClient) {
-        return new CreateESIndexCommand(elastic, httpClient);
-    }
-
-    @Provides
-    @Singleton
-    @NotNull
-    static CreateESMappingCommand provideCreateESMappingCommand(Elastic elastic, HttpClient httpClient) {
-        return new CreateESMappingCommand(elastic, httpClient);
+    static CreateESIndexCommand provideCreateESIndexCommand(Elastic elastic) {
+        return new CreateESIndexCommand(elastic);
     }
 
     @Provides

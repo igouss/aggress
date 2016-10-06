@@ -1,8 +1,8 @@
 package com.naxsoft.commands;
 
 
-import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.parsingService.WebPageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -24,7 +24,7 @@ public class PopulateDBCommand implements Command {
     private final static String[] SOURCES = {
 //            "http://www.alflahertys.com/",
 //            "http://www.bullseyelondon.com/",
-//            "http://www.cabelas.ca/",
+            "http://www.cabelas.ca/",
 //            "https://www.canadaammo.com/",
 //            "http://www.canadiangunnutz.com/",
 //            "https://www.corwin-arms.com/",
@@ -50,7 +50,7 @@ public class PopulateDBCommand implements Command {
 //            "http://www.theammosource.com/",
 //            "https://www.tradeexcanada.com/",
 //            "http://westrifle.com/",
-            "http://www.wholesalesports.com/",
+//            "http://www.wholesalesports.com/",
 //            "https://www.wolverinesupplies.com/",
     };
 

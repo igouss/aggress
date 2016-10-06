@@ -1,7 +1,7 @@
 package com.naxsoft.modules;
 
-import com.naxsoft.database.Persistent;
-import com.naxsoft.database.RedisDatabase;
+import com.naxsoft.storage.Persistent;
+import com.naxsoft.storage.redis.RedisDatabase;
 import com.naxsoft.utils.PropertyNotFoundException;
 import dagger.Module;
 import dagger.Provides;

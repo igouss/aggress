@@ -1,4 +1,4 @@
-package com.naxsoft.database;
+package com.naxsoft.storage;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;

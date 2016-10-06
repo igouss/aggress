@@ -1,9 +1,9 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.database.Elastic;
-import com.naxsoft.database.WebPageService;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
+import com.naxsoft.parsingService.WebPageService;
+import com.naxsoft.storage.elasticsearch.Elastic;
 import com.naxsoft.utils.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

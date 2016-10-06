@@ -1,4 +1,4 @@
-package com.naxsoft.database;
+package com.naxsoft.storage.elasticsearch;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;

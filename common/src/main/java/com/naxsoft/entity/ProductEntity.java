@@ -57,14 +57,14 @@ public class ProductEntity {
         this.id = id;
     }
 
-//    @Basic
+    //    @Basic
 //    @Column(
 //            name = "json",
 //            columnDefinition = "TEXT"
 //    )
-//    public String getJson() {
-//        return this.json;
-//    }
+    public String getJson() {
+        return this.json;
+    }
 
     public void setJson(String json) {
         this.json = json;

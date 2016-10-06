@@ -21,6 +21,7 @@ dependencies {
     compile project(":crawler")
     compile project(":frontend")
     compile project(":webadmin")
+    compile project(":storage")
 }
 
 task wrapper(type: Wrapper) {

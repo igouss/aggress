@@ -1,6 +1,7 @@
-package com.naxsoft.database;
+package com.naxsoft.parsingService;
 
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.storage.Persistent;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.builder.DirectedGraphBuilder;

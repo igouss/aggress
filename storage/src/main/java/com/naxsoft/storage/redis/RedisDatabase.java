@@ -1,4 +1,4 @@
-package com.naxsoft.database;
+package com.naxsoft.storage.redis;
 
 
 import com.lambdaworks.redis.RedisClient;
@@ -13,6 +13,7 @@ import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.storage.Persistent;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
 import com.naxsoft.utils.Tuple;

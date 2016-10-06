@@ -1,7 +1,8 @@
 rootProject.name = "aggress"
 
-include "common"
-include "crawler"
-include "frontend"
+include 'common'
+include 'crawler'
+include 'frontend'
 include 'webadmin'
+include 'storage'
 
