@@ -32,10 +32,10 @@ public class ParseCommand implements Command {
         VALID_CATEGORIES.add("misc");
     }
 
+    private final String indexSuffix = null;
     private WebPageService webPageService = null;
     private Elastic elastic = null;
     private ProductParserFactory productParserFactory = null;
-    private String indexSuffix = null;
 
     @Inject
     public ParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {

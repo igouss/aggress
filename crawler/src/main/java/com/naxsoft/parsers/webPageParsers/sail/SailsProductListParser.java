@@ -34,7 +34,7 @@ class SailsProductListParser extends AbstractWebPageParser {
     private final HttpClient client;
 
 
-    public SailsProductListParser(HttpClient client) {
+    private SailsProductListParser(HttpClient client) {
         this.client = client;
     }
 

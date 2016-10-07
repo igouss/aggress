@@ -19,7 +19,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class Scheduler {
     private final static Logger LOGGER = LoggerFactory.getLogger(Scheduler.class);
     private final ScheduledExecutorService scheduler;
-    private Set<ScheduledFuture<?>> tasks;
+    private final Set<ScheduledFuture<?>> tasks;
 
     public Scheduler() {
         scheduler = Executors.newSingleThreadScheduledExecutor();

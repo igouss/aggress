@@ -3,7 +3,7 @@ package com.naxsoft.commands;
 /**
  * Copyright NAXSoft 2015
  */
-public interface Command {
+interface Command {
 
     /**
      * Set up the command execution environment.

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DocumentCompletionHandler extends AbstractCompletionHandler<DownloadResult> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentCompletionHandler.class);
-    private WebPageEntity source;
+    private final WebPageEntity source;
 
     /**
      * @param source Requested page

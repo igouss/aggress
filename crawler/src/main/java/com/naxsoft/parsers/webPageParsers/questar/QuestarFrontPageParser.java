@@ -23,7 +23,7 @@ class QuestarFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuestarFrontPageParser.class);
     private final HttpClient client;
 
-    public QuestarFrontPageParser(HttpClient client) {
+    private QuestarFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

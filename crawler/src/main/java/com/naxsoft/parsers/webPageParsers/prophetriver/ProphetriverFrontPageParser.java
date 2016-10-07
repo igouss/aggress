@@ -7,7 +7,6 @@ import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import io.vertx.core.eventbus.Message;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import rx.Observable;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Copyright NAXSoft 2015
@@ -23,13 +23,12 @@ class ProphetriverFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProphetriverFrontPageParser.class);
     private final HttpClient client;
 
-    public ProphetriverFrontPageParser(HttpClient client) {
+    private ProphetriverFrontPageParser(HttpClient client) {
         this.client = client;
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
-        return webPageEntity;
+        return new WebPageEntity(parent, "", "productList", false, url, category);
     }
 
     private Observable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
@@ -38,9 +37,9 @@ class ProphetriverFrontPageParser extends AbstractWebPageParser {
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select("#AccordianWrapper a");
-            for (Element e : elements) {
-                result.add(create(downloadResult.getSourcePage(), e.attr("abs:href"), null));
-            }
+            result.addAll(elements.stream()
+                    .map(e -> create(downloadResult.getSourcePage(), e.attr("abs:href"), null))
+                    .collect(Collectors.toList()));
         }
         return Observable.from(result);
     }

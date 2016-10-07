@@ -23,7 +23,7 @@ class CtcsuppliesProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesProductListParser.class);
     private final HttpClient client;
 
-    public CtcsuppliesProductListParser(HttpClient client) {
+    private CtcsuppliesProductListParser(HttpClient client) {
         this.client = client;
     }
 

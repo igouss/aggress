@@ -29,11 +29,11 @@ public class RedisDatabase implements Persistent {
     private final static Logger LOGGER = LoggerFactory.getLogger(RedisDatabase.class);
     private static final Long BATCH_SIZE = 20L;
 
-    private ClientResources res;
-    private RedisClient redisClient;
+    private final ClientResources res;
+    private final RedisClient redisClient;
     //    private StatefulRedisPubSubConnection<String, String> pubSub;
 //    private RedisConnectionPool<RedisAsyncCommands<String, String>> pool;
-    private StatefulRedisConnection<String, String> connection;
+    private final StatefulRedisConnection<String, String> connection;
 
     public RedisDatabase() throws PropertyNotFoundException {
         this(AppProperties.getProperty("redisHost").getValue(), Integer.parseInt(AppProperties.getProperty("redisPort").getValue()));

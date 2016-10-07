@@ -23,7 +23,7 @@ class WanstallsonlineProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WanstallsonlineProductListParser.class);
     private final HttpClient client;
 
-    public WanstallsonlineProductListParser(HttpClient client) {
+    private WanstallsonlineProductListParser(HttpClient client) {
         this.client = client;
     }
 

@@ -2,9 +2,6 @@ package com.naxsoft.parsingService;
 
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.storage.Persistent;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.builder.DirectedGraphBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -17,17 +14,13 @@ import java.util.concurrent.TimeUnit;
 public class WebPageService {
     private final static Logger LOGGER = LoggerFactory.getLogger(WebPageService.class);
 
-    protected Persistent database;
-
-    private DirectedGraphBuilder<WebPageEntity, DefaultEdge, DefaultDirectedGraph<WebPageEntity, DefaultEdge>> graphBuilder;
+    private final Persistent database;
 
     /**
      * @param database Database driver
      */
     public WebPageService(Persistent database) {
         this.database = database;
-        DefaultDirectedGraph<WebPageEntity, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
-        graphBuilder = new DirectedGraphBuilder<>(graph);
     }
 
     /**
@@ -39,7 +32,6 @@ public class WebPageService {
     public Observable<Long> addWebPageEntry(Observable<WebPageEntity> webPageEntity) {
         return database.addWebPageEntry(webPageEntity);
     }
-
 
     /**
      * Update page parsed status in the database

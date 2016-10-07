@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.Cabelas;
+package com.naxsoft.parsers.webPageParsers.cabelas;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -23,7 +23,7 @@ class CabelasProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CabelasProductListParser.class);
     private final HttpClient client;
 
-    public CabelasProductListParser(HttpClient client) {
+    private CabelasProductListParser(HttpClient client) {
         this.client = client;
     }
 

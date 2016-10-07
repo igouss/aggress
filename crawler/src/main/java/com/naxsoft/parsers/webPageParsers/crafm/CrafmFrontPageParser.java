@@ -26,7 +26,7 @@ class CrafmFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmFrontPageParser.class);
     private final HttpClient client;
 
-    public CrafmFrontPageParser(HttpClient client) {
+    private CrafmFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

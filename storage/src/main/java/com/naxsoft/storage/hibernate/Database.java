@@ -32,7 +32,7 @@ public class Database implements Persistent {
     /**
      *
      */
-    public Database() {
+    private Database() {
         try {
             StandardServiceRegistry e = (new StandardServiceRegistryBuilder()).configure().build();
             Metadata metadata = (new MetadataSources(e)).getMetadataBuilder().build();
@@ -209,7 +209,7 @@ public class Database implements Persistent {
      * @param action
      * @return
      */
-    public <R> Observable<R> executeTransaction(Func1<StatelessSession, R> action) {
+    private <R> Observable<R> executeTransaction(Func1<StatelessSession, R> action) {
         StatelessSession session = null;
         org.hibernate.Transaction tx = null;
         R result = null;

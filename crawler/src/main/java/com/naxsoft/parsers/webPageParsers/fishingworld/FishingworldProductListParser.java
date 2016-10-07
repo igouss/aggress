@@ -23,7 +23,7 @@ class FishingworldProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingworldProductListParser.class);
     private final HttpClient client;
 
-    public FishingworldProductListParser(HttpClient client) {
+    private FishingworldProductListParser(HttpClient client) {
         this.client = client;
     }
 

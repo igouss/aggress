@@ -16,7 +16,7 @@ class WestrifleProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductPageParser.class);
     private final HttpClient client;
 
-    public WestrifleProductPageParser(HttpClient client) {
+    private WestrifleProductPageParser(HttpClient client) {
         this.client = client;
     }
 

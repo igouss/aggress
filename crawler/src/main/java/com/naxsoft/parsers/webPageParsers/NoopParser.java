@@ -13,7 +13,7 @@ import rx.Observable;
 class NoopParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(NoopParser.class);
 
-    NoopParser(HttpClient client) {
+    private NoopParser(HttpClient client) {
     }
 
     @Override

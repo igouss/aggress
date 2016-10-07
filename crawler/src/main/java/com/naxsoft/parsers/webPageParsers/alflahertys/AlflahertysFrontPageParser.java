@@ -24,7 +24,7 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
 
     private final HttpClient client;
 
-    public AlflahertysFrontPageParser(HttpClient client) {
+    private AlflahertysFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

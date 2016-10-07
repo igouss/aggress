@@ -16,7 +16,7 @@ class FrontierfirearmsProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsProductParser.class);
     private final HttpClient client;
 
-    public FrontierfirearmsProductParser(HttpClient client) {
+    private FrontierfirearmsProductParser(HttpClient client) {
         this.client = client;
     }
 

@@ -16,7 +16,7 @@ class IrungunsProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(IrungunsProductPageParser.class);
     private final HttpClient client;
 
-    public IrungunsProductPageParser(HttpClient client) {
+    private IrungunsProductPageParser(HttpClient client) {
         this.client = client;
     }
 

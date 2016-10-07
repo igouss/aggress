@@ -15,6 +15,7 @@ import rx.Observable;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Copyright NAXSoft 2015
@@ -23,7 +24,7 @@ class TradeexCanadaProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaProductListParser.class);
     private final HttpClient client;
 
-    public TradeexCanadaProductListParser(HttpClient client) {
+    private TradeexCanadaProductListParser(HttpClient client) {
         this.client = client;
     }
 
@@ -45,9 +46,9 @@ class TradeexCanadaProductListParser extends AbstractWebPageParser {
                 }
             } else {
                 Elements subPages = document.select(".pager a");
-                for (Element subPage : subPages) {
-                    result.add(create(downloadResult.getSourcePage(), subPage.attr("abs:href"), downloadResult.getSourcePage().getCategory()));
-                }
+                result.addAll(subPages.stream()
+                        .map(subPage -> create(downloadResult.getSourcePage(), subPage.attr("abs:href"), downloadResult.getSourcePage().getCategory()))
+                        .collect(Collectors.toList()));
                 result.add(create(downloadResult.getSourcePage(), document.location() + "?page=0", downloadResult.getSourcePage().getCategory()));
             }
         }

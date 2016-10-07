@@ -15,7 +15,7 @@ class PsmilitariaProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaProductListParser.class);
     private final HttpClient client;
 
-    public PsmilitariaProductListParser(HttpClient client) {
+    private PsmilitariaProductListParser(HttpClient client) {
         this.client = client;
     }
 

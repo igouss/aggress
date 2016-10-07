@@ -4,28 +4,21 @@ package com.naxsoft.utils;
  * @param <T>
  */
 public class Property<T> {
-    private T value;
+    private final T value;
 
     /**
-     * @param value
+     * Set property value
+     * @param value Property value
      */
-    public Property(T value) {
-        setValue(value);
+    Property(T value) {
+        this.value = value;
     }
 
     /**
-     *
-     * @return
+     * Retrieve property value
+     * @return property value
      */
     public T getValue() {
         return value;
-    }
-
-    /**
-     *
-     * @param value
-     */
-    public void setValue(T value) {
-        this.value = value;
     }
 }

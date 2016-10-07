@@ -20,7 +20,7 @@ public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesFrontPageParser.class);
     private final HttpClient client;
 
-    public WolverinesuppliesFrontPageParser(HttpClient client) {
+    private WolverinesuppliesFrontPageParser(HttpClient client) {
         this.client = client;
     }
 
@@ -65,9 +65,7 @@ public class WolverinesuppliesFrontPageParser extends AbstractWebPageParser {
                                 .subscribe(
                                         message -> vertx.eventBus().publish("webPageParseResult", message),
                                         err -> LOGGER.error("Failed to parse", err),
-                                        () -> {
-                                            LOGGER.info("completed");
-                                        }
+                                        () -> LOGGER.info("completed")
                                 ));
     }
 }

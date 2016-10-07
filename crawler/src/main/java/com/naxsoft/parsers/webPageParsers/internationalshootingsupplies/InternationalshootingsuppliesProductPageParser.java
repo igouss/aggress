@@ -17,7 +17,7 @@ class InternationalshootingsuppliesProductPageParser extends AbstractWebPagePars
 
     private final HttpClient client;
 
-    public InternationalshootingsuppliesProductPageParser(HttpClient client) {
+    private InternationalshootingsuppliesProductPageParser(HttpClient client) {
         this.client = client;
     }
 

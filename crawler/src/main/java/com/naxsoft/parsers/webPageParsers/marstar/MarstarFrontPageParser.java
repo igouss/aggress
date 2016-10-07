@@ -17,13 +17,12 @@ class MarstarFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarFrontPageParser.class);
     private final HttpClient client;
 
-    public MarstarFrontPageParser(HttpClient client) {
+    private MarstarFrontPageParser(HttpClient client) {
         this.client = client;
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
-        return webPageEntity;
+        return new WebPageEntity(parent, "", "productList", false, url, category);
     }
 
     @Override

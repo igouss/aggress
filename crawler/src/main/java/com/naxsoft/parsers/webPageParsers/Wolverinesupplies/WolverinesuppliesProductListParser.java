@@ -25,7 +25,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     private static final Pattern categoryPattern = Pattern.compile("\'\\d+\'");
     private final HttpClient client;
 
-    public WolverinesuppliesProductListParser(HttpClient client) {
+    private WolverinesuppliesProductListParser(HttpClient client) {
         this.client = client;
     }
 

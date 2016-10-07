@@ -33,7 +33,7 @@ class SailsFrontPageParser extends AbstractWebPageParser {
 
     private final HttpClient client;
 
-    public SailsFrontPageParser(HttpClient client) {
+    private SailsFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

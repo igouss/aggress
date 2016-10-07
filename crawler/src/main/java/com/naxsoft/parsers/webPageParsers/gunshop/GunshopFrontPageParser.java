@@ -26,7 +26,7 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
     private static final Pattern maxPagesPattern = Pattern.compile("(\\d+) of (\\d+)");
     private final HttpClient client;
 
-    public GunshopFrontPageParser(HttpClient client) {
+    private GunshopFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

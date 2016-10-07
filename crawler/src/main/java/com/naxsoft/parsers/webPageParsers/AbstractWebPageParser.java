@@ -13,8 +13,6 @@ import java.util.List;
  * Copyright NAXSoft 2015
  */
 public abstract class AbstractWebPageParser extends AbstractVerticle implements WebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWebPageParser.class);
-
     /**
      * Return all the cookies contained in HTTP server response
      */

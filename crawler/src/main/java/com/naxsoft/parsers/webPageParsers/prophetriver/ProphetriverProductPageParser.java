@@ -16,7 +16,7 @@ class ProphetriverProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProphetriverProductPageParser.class);
     private final HttpClient client;
 
-    public ProphetriverProductPageParser(HttpClient client) {
+    private ProphetriverProductPageParser(HttpClient client) {
         this.client = client;
     }
 

@@ -16,7 +16,7 @@ class TheammosourceProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceProductPageParser.class);
     private final HttpClient client;
 
-    public TheammosourceProductPageParser(HttpClient client) {
+    private TheammosourceProductPageParser(HttpClient client) {
         this.client = client;
     }
 

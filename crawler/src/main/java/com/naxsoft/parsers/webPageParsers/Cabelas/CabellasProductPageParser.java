@@ -16,7 +16,7 @@ class CabellasProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CabellasProductPageParser.class);
     private final HttpClient client;
 
-    public CabellasProductPageParser(HttpClient client) {
+    private CabellasProductPageParser(HttpClient client) {
         this.client = client;
     }
 

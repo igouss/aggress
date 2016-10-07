@@ -23,7 +23,7 @@ class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaFrontPageParser.class);
     private final HttpClient client;
 
-    public TradeexCanadaFrontPageParser(HttpClient client) {
+    private TradeexCanadaFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

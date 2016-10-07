@@ -23,7 +23,7 @@ class GotendaProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotendaProductListParser.class);
     private final HttpClient client;
 
-    public GotendaProductListParser(HttpClient client) {
+    private GotendaProductListParser(HttpClient client) {
         this.client = client;
     }
 

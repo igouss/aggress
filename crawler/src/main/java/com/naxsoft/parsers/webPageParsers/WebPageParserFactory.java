@@ -5,6 +5,7 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 import com.naxsoft.crawler.HttpClient;
+import com.naxsoft.encoders.Encoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.DeploymentOptions;
@@ -34,7 +35,7 @@ public class WebPageParserFactory {
 
     private final Vertx vertx;
     private final LinkedBlockingDeque<String> parserVertex;
-    private Observable<WebPageEntity> parseResult;
+    private final Observable<WebPageEntity> parseResult;
 
     /**
      * Create new WebPageParserFactory that using reflection to locate all WebPageParsers in the classpath
@@ -58,11 +59,9 @@ public class WebPageParserFactory {
 //        }, AsyncEmitter.BackpressureMode.ERROR);
 
         vertx.eventBus().registerDefaultCodec(WebPageEntity.class, new MessageCodec<WebPageEntity, Object>() {
-            WebPageEntityEncoder webPageEntityEncoder = new WebPageEntityEncoder();
-
             @Override
             public void encodeToWire(Buffer buffer, WebPageEntity webPageEntity) {
-                String jsonToStr = webPageEntityEncoder.encode(webPageEntity);
+                String jsonToStr = Encoder.encode(webPageEntity);
 
                 // Length of JSON: is NOT characters count
                 int length = jsonToStr.getBytes().length;
@@ -81,9 +80,9 @@ public class WebPageParserFactory {
 
                 // Get JSON string by it`s length
                 // Jump 4 because getInt() == 4 bytes
-                String jsonStr = buffer.getString(_pos += 4, _pos += length);
+                String jsonStr = buffer.getString(_pos += 4, _pos + length);
 
-                return webPageEntityEncoder.decode(jsonStr);
+                return WebPageEntityEncoder.decode(jsonStr);
             }
 
             @Override
@@ -115,28 +114,26 @@ public class WebPageParserFactory {
 //        }
 
         Observable.fromEmitter((Action1<AsyncEmitter<Class>>) asyncEmitter -> {
-            for (Class<? extends AbstractWebPageParser> clazz : classes) {
-                if (!Modifier.isAbstract(clazz.getModifiers())) {
-                    try {
-                        createLogger(clazz);
+            classes.stream().filter(clazz -> !Modifier.isAbstract(clazz.getModifiers())).forEach(clazz -> {
+                try {
+                    createLogger(clazz);
 
-                        Constructor<? extends AbstractWebPageParser> constructor = clazz.getDeclaredConstructor(asyncFetchClient);
-                        constructor.setAccessible(true);
-                        AbstractWebPageParser webPageParser = constructor.newInstance(client);
-                        vertx.deployVerticle(webPageParser, options, res -> {
-                            if (res.succeeded()) {
-                                LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
-                                parserVertex.add(res.result());
-                                asyncEmitter.onNext(clazz);
-                            } else {
-                                LOGGER.error("Deployment failed!", res.cause());
-                            }
-                        });
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
-                    }
+                    Constructor<? extends AbstractWebPageParser> constructor = clazz.getDeclaredConstructor(asyncFetchClient);
+                    constructor.setAccessible(true);
+                    AbstractWebPageParser webPageParser = constructor.newInstance(client);
+                    vertx.deployVerticle(webPageParser, options, res -> {
+                        if (res.succeeded()) {
+                            LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
+                            parserVertex.add(res.result());
+                            asyncEmitter.onNext(clazz);
+                        } else {
+                            LOGGER.error("Deployment failed!", res.cause());
+                        }
+                    });
+                } catch (Exception e) {
+                    LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
                 }
-            }
+            });
             asyncEmitter.onCompleted();
         }, AsyncEmitter.BackpressureMode.BUFFER).subscribeOn(Schedulers.immediate()).subscribe();
 

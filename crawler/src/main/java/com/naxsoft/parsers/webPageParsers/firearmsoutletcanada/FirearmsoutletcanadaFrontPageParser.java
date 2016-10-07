@@ -23,7 +23,7 @@ class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FirearmsoutletcanadaFrontPageParser.class);
     private final HttpClient client;
 
-    public FirearmsoutletcanadaFrontPageParser(HttpClient client) {
+    private FirearmsoutletcanadaFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

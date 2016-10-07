@@ -23,7 +23,7 @@ class AlflahertysProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysProductListParser.class);
     private final HttpClient client;
 
-    public AlflahertysProductListParser(HttpClient client) {
+    private AlflahertysProductListParser(HttpClient client) {
         this.client = client;
     }
 

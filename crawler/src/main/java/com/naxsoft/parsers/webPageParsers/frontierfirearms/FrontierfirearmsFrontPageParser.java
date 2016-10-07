@@ -22,13 +22,12 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsFrontPageParser.class);
     private final HttpClient client;
 
-    public FrontierfirearmsFrontPageParser(HttpClient client) {
+    private FrontierfirearmsFrontPageParser(HttpClient client) {
         this.client = client;
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
-        return webPageEntity;
+        return new WebPageEntity(parent, "", "productList", false, url, category);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {

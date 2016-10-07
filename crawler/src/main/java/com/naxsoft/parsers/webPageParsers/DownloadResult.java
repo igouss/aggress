@@ -7,8 +7,8 @@ import org.jsoup.nodes.Document;
  * Copyright NAXSoft 2015
  */
 public class DownloadResult {
-    private WebPageEntity sourcePage;
-    private Document document;
+    private final WebPageEntity sourcePage;
+    private final Document document;
 
     /**
      * @param sourcePage Page that was requested

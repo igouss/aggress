@@ -14,9 +14,13 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Copyright NAXSoft 2015
@@ -85,11 +89,8 @@ class GunshopRawPageParser extends AbstractRawPageParser {
                     String name = next.data();
                     if (!name.equalsIgnoreCase("categories")) {
                         Elements values = next.select("a");
-                        List<String> tmp = new ArrayList<>();
-                        for (Element e : values) {
-                            tmp.add(e.text());
-                        }
-                        jsonBuilder.field(name, values);
+                        List<String> tmp = values.stream().map(Element::text).collect(Collectors.toList());
+                        jsonBuilder.field(name, tmp);
                     }
                 }
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));

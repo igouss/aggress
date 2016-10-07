@@ -13,7 +13,7 @@ public class WolverinesuppliesProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductPageParser.class);
     private final HttpClient client;
 
-    public WolverinesuppliesProductPageParser(HttpClient client) {
+    private WolverinesuppliesProductPageParser(HttpClient client) {
         this.client = client;
     }
 
@@ -30,8 +30,6 @@ public class WolverinesuppliesProductPageParser extends AbstractWebPageParser {
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer("wolverinesupplies.com/productPage", (Message<WebPageEntity> event) -> {
-            parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err));
-        });
+        vertx.eventBus().consumer("wolverinesupplies.com/productPage", (Message<WebPageEntity> event) -> parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
     }
 }

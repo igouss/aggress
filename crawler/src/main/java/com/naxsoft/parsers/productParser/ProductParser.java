@@ -7,11 +7,10 @@ import rx.Observable;
 /**
  * Copyright NAXSoft 2015
  */
-public interface ProductParser {
+interface ProductParser {
     /**
      * @param webPage Page to parse
      * @return All products on the pahe
-     * @throws Exception Parsing exeption
      */
     Observable<ProductEntity> parse(WebPageEntity webPage);
 

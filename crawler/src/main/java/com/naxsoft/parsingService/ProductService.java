@@ -40,12 +40,9 @@ public class ProductService {
      * Mark all products as indexed
      */
     public void markAllAsIndexed() {
-        database.markAllProductPagesAsIndexed().subscribe(value -> {
-                    LOGGER.info("The number of entities affected: {}", value);
-                },
+        database.markAllProductPagesAsIndexed().subscribe(
+                value -> LOGGER.info("The number of entities affected: {}", value),
                 err -> LOGGER.error("Failed to mark as indexed", err),
-                () -> {
-                    LOGGER.info("markAllProductPagesAsIndexed complete");
-                });
+                () -> LOGGER.info("markAllProductPagesAsIndexed complete"));
     }
 }

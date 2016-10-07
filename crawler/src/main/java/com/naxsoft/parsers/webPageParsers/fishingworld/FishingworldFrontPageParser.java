@@ -25,13 +25,12 @@ class FishingworldFrontPageParser extends AbstractWebPageParser {
     private static final Pattern maxPagesPattern = Pattern.compile("(\\d+) of (\\d+)");
     private final HttpClient client;
 
-    public FishingworldFrontPageParser(HttpClient client) {
+    private FishingworldFrontPageParser(HttpClient client) {
         this.client = client;
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
-        return webPageEntity;
+        return new WebPageEntity(parent, "", "productList", false, url, category);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {

@@ -16,7 +16,7 @@ class CanadaAmmoProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoProductPageParser.class);
     private final HttpClient client;
 
-    public CanadaAmmoProductPageParser(HttpClient client) {
+    private CanadaAmmoProductPageParser(HttpClient client) {
         this.client = client;
     }
 

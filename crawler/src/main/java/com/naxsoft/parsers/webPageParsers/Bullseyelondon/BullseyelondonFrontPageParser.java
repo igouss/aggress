@@ -1,4 +1,4 @@
-package com.naxsoft.parsers.webPageParsers.Bullseyelondon;
+package com.naxsoft.parsers.webPageParsers.bullseyelondon;
 
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
@@ -20,7 +20,7 @@ class BullseyelondonFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(BullseyelondonFrontPageParser.class);
     private final HttpClient client;
 
-    public BullseyelondonFrontPageParser(HttpClient client) {
+    private BullseyelondonFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

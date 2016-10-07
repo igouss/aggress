@@ -26,7 +26,7 @@ class CrafmProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmProductListParser.class);
     private final HttpClient client;
 
-    public CrafmProductListParser(HttpClient client) {
+    private CrafmProductListParser(HttpClient client) {
         this.client = client;
     }
 

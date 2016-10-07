@@ -20,7 +20,7 @@ class BullseyelondonProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(BullseyelondonProductListParser.class);
     private final HttpClient client;
 
-    public BullseyelondonProductListParser(HttpClient client) {
+    private BullseyelondonProductListParser(HttpClient client) {
         this.client = client;
     }
 

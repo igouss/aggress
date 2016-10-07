@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.List;
 
 class ProxyManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyManager.class);
@@ -13,15 +12,14 @@ class ProxyManager {
     private ArrayList<ProxyServer> proxyServers = null;
 
     ProxyManager() {
-        List<String> nonProxyHosts = new ArrayList<>();
-
-        nonProxyHosts.add("localhost");
-        nonProxyHosts.add("elasticsearch");
-        nonProxyHosts.add("redis");
-
-        ProxyServer torProxy = new ProxyServer.Builder("tor-proxy", 8118)
-                .setNonProxyHosts(nonProxyHosts)
-                .build();
+//        List<String> nonProxyHosts = new ArrayList<>();
+//
+//        nonProxyHosts.add("localhost");
+//        nonProxyHosts.add("elasticsearch");
+//        nonProxyHosts.add("redis");
+//        ProxyServer torProxy = new ProxyServer.Builder("tor-proxy", 8118)
+//                .setNonProxyHosts(nonProxyHosts)
+//                .build();
 
         proxyServers = new ArrayList<>();
 //        proxyServers.add(torProxy);

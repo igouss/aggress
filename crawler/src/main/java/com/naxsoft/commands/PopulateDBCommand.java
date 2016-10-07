@@ -54,7 +54,7 @@ public class PopulateDBCommand implements Command {
 //            "https://www.wolverinesupplies.com/",
     };
 
-    private WebPageService webPageService;
+    private final WebPageService webPageService;
 
     @Inject
     public PopulateDBCommand(WebPageService webPageService) {
@@ -73,16 +73,12 @@ public class PopulateDBCommand implements Command {
         roots.observeOn(Schedulers.immediate())
                 .subscribeOn(Schedulers.immediate())
                 .map(entry -> Observable.just(new WebPageEntity(null, "", "frontPage", false, entry, "")))
-                .flatMap(entry -> webPageService.addWebPageEntry(entry))
+                .flatMap(webPageService::addWebPageEntry)
                 .all(result -> result != 0L)
-                .subscribe(result -> {
-                            LOGGER.info("Roots populated: {}", result);
-                        }, err -> {
-                            LOGGER.error("Failed to populate roots", err);
-                        },
-                        () -> {
-                            LOGGER.info("Root population complete");
-                        });
+                .subscribe(result ->
+                                LOGGER.info("Roots populated: {}", result),
+                        err -> LOGGER.error("Failed to populate roots", err),
+                        () -> LOGGER.info("Root population complete"));
     }
 
     @Override

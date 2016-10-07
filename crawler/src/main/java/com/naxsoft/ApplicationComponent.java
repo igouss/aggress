@@ -1,14 +1,11 @@
 package com.naxsoft;
 
 import com.codahale.metrics.MetricRegistry;
-import com.lambdaworks.redis.event.EventBus;
 import com.naxsoft.commands.*;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.modules.*;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
-import com.naxsoft.parsingService.ProductService;
-import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.scheduler.Scheduler;
 import com.naxsoft.storage.Persistent;
 import com.naxsoft.storage.elasticsearch.Elastic;
@@ -41,19 +38,13 @@ public interface ApplicationComponent {
 
     HttpClient getHttpClient();
 
-    WebPageService getWebPageService();
-
     Elastic getElastic();
 
     WebPageParserFactory getWebPageParserFactory();
 
     ProductParserFactory getProductParserFactory();
 
-    ProductService getProductService();
-
     MetricRegistry getMetricRegistry();
-
-    EventBus getEventBus();
 
     Scheduler getScheduler();
 

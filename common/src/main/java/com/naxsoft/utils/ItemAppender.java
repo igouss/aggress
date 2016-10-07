@@ -5,13 +5,13 @@ package com.naxsoft.utils;
  * From org.apache.maven.shared.dependency.graph.internal.ItemAppender
  */
 public class ItemAppender {
-    private StringBuffer buffer;
+    private final StringBuffer buffer;
 
-    private String startToken;
+    private final String startToken;
 
-    private String separatorToken;
+    private final String separatorToken;
 
-    private String endToken;
+    private final String endToken;
 
     private boolean appended;
 

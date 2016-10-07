@@ -231,7 +231,7 @@ public class AhcHttpClient implements HttpClient {
     }
 
     private class StatsRecodringCompletionHandlerWrapper<R> extends AbstractCompletionHandler<R> {
-        private AbstractCompletionHandler<R> handler;
+        private final AbstractCompletionHandler<R> handler;
 //        private Sensor requestSizeSensor;
 //        private Sensor responseSizeSensor;
 //        private Sensor requestLatencySensor;

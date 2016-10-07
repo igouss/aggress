@@ -23,7 +23,7 @@ class WholesalesportsProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WholesalesportsProductListParser.class);
     private final HttpClient client;
 
-    public WholesalesportsProductListParser(HttpClient client) {
+    private WholesalesportsProductListParser(HttpClient client) {
         this.client = client;
     }
 

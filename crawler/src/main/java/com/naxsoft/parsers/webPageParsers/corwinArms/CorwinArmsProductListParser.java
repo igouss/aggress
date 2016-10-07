@@ -23,7 +23,7 @@ class CorwinArmsProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsProductListParser.class);
     private final HttpClient client;
 
-    public CorwinArmsProductListParser(HttpClient client) {
+    private CorwinArmsProductListParser(HttpClient client) {
         this.client = client;
     }
 

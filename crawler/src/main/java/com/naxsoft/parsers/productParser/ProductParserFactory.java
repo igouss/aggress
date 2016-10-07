@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
+import com.naxsoft.encoders.Encoder;
 import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
@@ -32,18 +33,18 @@ public class ProductParserFactory {
 
     private final Vertx vertx;
     private final ArrayList<String> parserVertex;
-    private Observable<ProductEntity> parseResult;
+    private final Observable<ProductEntity> parseResult;
 
     @Inject
     public ProductParserFactory(Vertx vertx) {
         this.vertx = vertx;
         parserVertex = new ArrayList<>();
         vertx.eventBus().registerDefaultCodec(ProductEntity.class, new MessageCodec<ProductEntity, Object>() {
-            ProductEntityEncoder entityEncoder = new ProductEntityEncoder();
+            final ProductEntityEncoder entityEncoder = new ProductEntityEncoder();
 
             @Override
             public void encodeToWire(Buffer buffer, ProductEntity productEntity) {
-                String jsonToStr = entityEncoder.encode(productEntity);
+                String jsonToStr = Encoder.encode(productEntity);
 
                 // Length of JSON: is NOT characters count
                 int length = jsonToStr.getBytes().length;
@@ -64,7 +65,7 @@ public class ProductParserFactory {
                 // Jump 4 because getInt() == 4 bytes
                 String jsonStr = buffer.getString(_pos += 4, _pos + length);
 
-                return entityEncoder.decode(jsonStr);
+                return ProductEntityEncoder.decode(jsonStr);
             }
 
             @Override
@@ -88,28 +89,28 @@ public class ProductParserFactory {
         Reflections reflections = new Reflections("com.naxsoft.parsers.productParser");
         Set<Class<? extends AbstractRawPageParser>> classes = reflections.getSubTypesOf(AbstractRawPageParser.class);
 
-        for (Class<? extends AbstractRawPageParser> clazz : classes) {
-            if (!Modifier.isAbstract(clazz.getModifiers())) {
-                try {
-                    createLogger(clazz);
+        classes.stream()
+                .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
+                .forEach(clazz -> {
+                    try {
+                        createLogger(clazz);
 
-                    Constructor<? extends AbstractRawPageParser> constructor = clazz.getDeclaredConstructor();
-                    constructor.setAccessible(true);
+                        Constructor<? extends AbstractRawPageParser> constructor = clazz.getDeclaredConstructor();
+                        constructor.setAccessible(true);
 
-                    AbstractRawPageParser productParser = constructor.newInstance();
-                    vertx.deployVerticle(productParser, options, res -> {
-                        if (res.succeeded()) {
-                            LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
-                            parserVertex.add(res.result());
-                        } else {
-                            LOGGER.error("Deployment failed!", res.cause());
-                        }
-                    });
-                } catch (Exception e) {
-                    LOGGER.error("Failed to create a new product parser", e);
-                }
-            }
-        }
+                        AbstractRawPageParser productParser = constructor.newInstance();
+                        vertx.deployVerticle(productParser, options, res -> {
+                            if (res.succeeded()) {
+                                LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
+                                parserVertex.add(res.result());
+                            } else {
+                                LOGGER.error("Deployment failed!", res.cause());
+                            }
+                        });
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to create a new product parser", e);
+                    }
+                });
 
         MessageConsumer<ProductEntity> consumer = vertx.eventBus().consumer("productParseResult");
         parseResult = Observable.fromEmitter(asyncEmitter -> {

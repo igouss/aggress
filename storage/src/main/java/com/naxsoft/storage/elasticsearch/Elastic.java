@@ -16,6 +16,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.AsyncEmitter;
 import rx.Observable;
 
 import javax.inject.Singleton;
@@ -38,7 +39,7 @@ public class Elastic implements AutoCloseable, Cloneable {
      *
      * @param hostname ElasticSearch server hostname
      * @param port     ElasticSearch server port
-     * @throws UnknownHostException
+     * @throws UnknownHostException When unable to find ES host
      */
     public void connect(String hostname, int port) throws UnknownHostException {
         if (null == client) {
@@ -74,10 +75,12 @@ public class Elastic implements AutoCloseable, Cloneable {
     }
 
     /**
-     * @param products
-     * @param indexName
-     * @param type
-     * @return
+     * Bulk insert data to ES.
+     *
+     * @param products  Data to insert
+     * @param indexName Target ES index
+     * @param type      Target ES type
+     * @return Results of bulk insertion
      */
     public Observable<Boolean> index(Observable<ProductEntity> products, String indexName, String indexSuffix, String type) {
         return products.buffer(BATCH_SIZE).flatMap(list -> {
@@ -111,51 +114,51 @@ public class Elastic implements AutoCloseable, Cloneable {
     }
 
     /**
-     * @param indexName
-     * @param type
-     * @param indexSuffix
-     * @return
+     * Create a new ES index if it does not exist already.
+     * Index definition is loaded from resource file "/elastic." + indexName + "." + type + ".index.json"
+     *
+     * @param indexName Name of the ES index
+     * @param type      ES index type
+     * @return Observable that either completes or errors.
      */
-    public Observable<Integer> createIndex(String indexName, String type, String indexSuffix) {
-        String resourceName = "/elastic." + indexName + "." + type + ".index.json";
-        InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
-        try {
-            LOGGER.info("Creating index {} type {} from {}", indexName, type, resourceName);
-            if (!indexExists(indexName)) {
-                if (indexSuffix != null) {
-                    indexName = indexName + indexSuffix;
+    public Observable<Integer> createIndex(String indexName, String type) {
+        return Observable.fromEmitter(emitter -> {
+            String resourceName = "/elastic." + indexName + "." + type + ".index.json";
+            InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
+            try {
+                LOGGER.info("Creating index {} type {} from {}", indexName, type, resourceName);
+                if (!indexExists(indexName)) {
+                    Settings settings = Settings.builder().loadFromStream(resourceName, resourceAsStream).build();
+                    CreateIndexRequest request = new CreateIndexRequest(indexName, settings);
+
+                    client.admin().indices().create(request, new ActionListener<CreateIndexResponse>() {
+                        @Override
+                        public void onResponse(CreateIndexResponse createIndexResponse) {
+                            LOGGER.info("OK");
+                            emitter.onNext(1);
+                            emitter.onCompleted();
+                        }
+
+                        @Override
+                        public void onFailure(Throwable e) {
+                            LOGGER.error("Failed to create index", e);
+                            emitter.onError(e);
+                        }
+                    });
+                } else {
+                    LOGGER.info("Index already exists");
+                    emitter.onCompleted();
                 }
-
-//                String indexContent = IOUtils.toString(resourceAsStream, Charset.forName("UTF-8"));
-//                String url = "http://" + hostname + ":9200/" + indexName;
-
-                Settings settings = Settings.builder().loadFromStream(resourceName, resourceAsStream).build();
-                CreateIndexRequest request = new CreateIndexRequest(indexName, settings);
-
-                client.admin().indices().create(request, new ActionListener<CreateIndexResponse>() {
-                    @Override
-                    public void onResponse(CreateIndexResponse createIndexResponse) {
-                        LOGGER.info("OK");
-                    }
-
-                    @Override
-                    public void onFailure(Throwable e) {
-                        LOGGER.error("Failed to create index", e);
-                    }
-                });
-            } else {
-                LOGGER.info("Index already exists");
+            } catch (Exception e) {
+                LOGGER.error("Failed to create index", e);
+                emitter.onError(e);
+            } finally {
+                IOUtils.closeQuietly(resourceAsStream);
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to create index", e);
-        } finally {
-            IOUtils.closeQuietly(resourceAsStream);
-        }
-        return Observable.empty();
+        }, AsyncEmitter.BackpressureMode.LATEST);
     }
 
     private boolean indexExists(String indexName) throws InterruptedException, java.util.concurrent.ExecutionException {
         return client.admin().indices().exists(new IndicesExistsRequest(indexName)).get().isExists();
     }
 }
-

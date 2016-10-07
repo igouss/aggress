@@ -26,7 +26,7 @@ class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     private static final Pattern pageNumPattern = Pattern.compile("\\d+");
     private final HttpClient client;
 
-    public WanstallsonlineFrontPageParser(HttpClient client) {
+    private WanstallsonlineFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

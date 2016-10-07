@@ -8,7 +8,7 @@ import rx.functions.Action1;
  * <p>
  * Helper gunctions for RxJava
  */
-public class Rx {
+class Rx {
     public static Action1<Throwable> crashOnError() {
         final Throwable checkpoint = new Throwable();
         return throwable -> {

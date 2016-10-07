@@ -3,7 +3,7 @@ package com.naxsoft.events;
 import com.lambdaworks.redis.event.Event;
 import com.naxsoft.entity.WebPageEntity;
 
-public class WebPageEntityParseEvent implements Event {
+class WebPageEntityParseEvent implements Event {
     private final WebPageEntity entity;
 
     public WebPageEntityParseEvent(WebPageEntity entity) {

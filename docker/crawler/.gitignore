@@ -1,9 +1,5 @@
 *.jar
 *.sh
-*.bat
-*.crt
-README
-
 app
 cert
 deps

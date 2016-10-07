@@ -23,7 +23,7 @@ class MarstarProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarProductListParser.class);
     private final HttpClient client;
 
-    public MarstarProductListParser(HttpClient client) {
+    private MarstarProductListParser(HttpClient client) {
         this.client = client;
     }
 

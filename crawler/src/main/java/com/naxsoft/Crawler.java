@@ -48,7 +48,7 @@ public class Crawler {
         out.println("com.naxsoft.Crawler [-createESIndex] [-createESMappings] [-clean] [-populate] [-crawl] [-parse]");
     }
 
-    public void start(String[] args) {
+    private void start(String[] args) {
         HealthCheck.start();
         DaggerApplicationComponent.Builder applicationBuilder = DaggerApplicationComponent.builder();
         ApplicationComponent applicationComponent = applicationBuilder.build();

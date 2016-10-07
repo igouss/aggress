@@ -16,9 +16,6 @@ import java.util.List;
  * Copyright NAXSoft 2015
  */
 public class PageDownloader {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PageDownloader.class);
-
-
     /**
      * Download page from the url.
      *

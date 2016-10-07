@@ -16,7 +16,7 @@ class MagnumgunsProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MagnumgunsProductParser.class);
     private final HttpClient client;
 
-    public MagnumgunsProductParser(HttpClient client) {
+    private MagnumgunsProductParser(HttpClient client) {
         this.client = client;
     }
 

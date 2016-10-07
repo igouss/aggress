@@ -15,6 +15,7 @@ import rx.Observable;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Copyright NAXSoft 2015
@@ -23,13 +24,12 @@ class GotendaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotendaFrontPageParser.class);
     private final HttpClient client;
 
-    public GotendaFrontPageParser(HttpClient client) {
+    private GotendaFrontPageParser(HttpClient client) {
         this.client = client;
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
-        return webPageEntity;
+        return new WebPageEntity(parent, "", "productList", false, url, category);
     }
 
     private Observable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
@@ -51,9 +51,9 @@ class GotendaFrontPageParser extends AbstractWebPageParser {
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".InfoArea h3 a");
-            for (Element e : elements) {
-                result.add(create(downloadResult.getSourcePage(), e.attr("abs:href") + "&PageSize=60&Page=1", downloadResult.getSourcePage().getCategory()));
-            }
+            result.addAll(elements.stream()
+                    .map(e -> create(downloadResult.getSourcePage(), e.attr("abs:href") + "&PageSize=60&Page=1", downloadResult.getSourcePage().getCategory()))
+                    .collect(Collectors.toList()));
         }
         return Observable.from(result);
     }

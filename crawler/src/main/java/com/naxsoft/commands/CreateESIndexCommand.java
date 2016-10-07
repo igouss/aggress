@@ -16,7 +16,6 @@ public class CreateESIndexCommand implements Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateESIndexCommand.class);
 
     private Elastic elastic = null;
-    private String indexSuffix = "";
 
     @Inject
     public CreateESIndexCommand(Elastic elastic) {
@@ -30,10 +29,8 @@ public class CreateESIndexCommand implements Command {
     @Override
     public void start() throws CLIException {
         Semaphore semaphore = new Semaphore(0);
-        elastic.createIndex("product", "guns", indexSuffix)
-                .subscribe(rc -> {
-                            LOGGER.info("Elastic create index rc = {}", rc);
-                        }, ex -> {
+        elastic.createIndex("product", "guns")
+                .subscribe(rc -> LOGGER.info("Elastic create index rc = {}", rc), ex -> {
                             LOGGER.error("CreateIndex Exception", ex);
                             semaphore.release();
                         },

@@ -14,9 +14,7 @@ public class HealthCheck implements Runnable {
     public static void start() {
         Thread healthCheck = new Thread(new HealthCheck(), "HealthCheck");
         healthCheck.setDaemon(true);
-        healthCheck.setUncaughtExceptionHandler((t, e) -> {
-            LOGGER.error("DEAD");
-        });
+        healthCheck.setUncaughtExceptionHandler((t, e) -> LOGGER.error("DEAD"));
         healthCheck.start();
     }
 

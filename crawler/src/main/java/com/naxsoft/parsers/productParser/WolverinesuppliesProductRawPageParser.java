@@ -17,7 +17,7 @@ import java.util.Map;
 
 class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
-    private static Map<String, String> mapping = new ListOrderedMap<>();
+    private static final Map<String, String> mapping = new ListOrderedMap<>();
 
     static {
         mapping.put("rifles", "firearm");

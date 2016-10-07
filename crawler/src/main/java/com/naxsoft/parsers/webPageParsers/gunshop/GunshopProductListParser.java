@@ -23,7 +23,7 @@ class GunshopProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopProductListParser.class);
     private final HttpClient client;
 
-    public GunshopProductListParser(HttpClient client) {
+    private GunshopProductListParser(HttpClient client) {
         this.client = client;
     }
 

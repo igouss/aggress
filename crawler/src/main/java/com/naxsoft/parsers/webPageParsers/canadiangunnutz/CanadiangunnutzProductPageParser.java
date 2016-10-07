@@ -25,7 +25,7 @@ class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     private final HttpClient client;
     private final Observable<List<Cookie>> futureCookies;
 
-    public CanadiangunnutzProductPageParser(HttpClient client) {
+    private CanadiangunnutzProductPageParser(HttpClient client) {
         this.client = client;
         Map<String, String> formParameters = new HashMap<>();
         try {

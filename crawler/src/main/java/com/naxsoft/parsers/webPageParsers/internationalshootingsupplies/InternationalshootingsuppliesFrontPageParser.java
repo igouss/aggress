@@ -33,13 +33,12 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
 
     private final HttpClient client;
 
-    public InternationalshootingsuppliesFrontPageParser(HttpClient client) {
+    private InternationalshootingsuppliesFrontPageParser(HttpClient client) {
         this.client = client;
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
-        return webPageEntity;
+        return new WebPageEntity(parent, "", "productList", false, url, category);
     }
 
     private Observable<WebPageEntity> parseProductPage(DownloadResult downloadResult) {

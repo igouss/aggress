@@ -43,9 +43,9 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
 
     private final HttpClient client;
     private final Observable<List<Cookie>> futureCookies;
-    private List<Cookie> cookies = null;
+    private final List<Cookie> cookies = null;
 
-    public CanadiangunnutzFrontPageParser(HttpClient client) {
+    private CanadiangunnutzFrontPageParser(HttpClient client) {
         this.client = client;
 
         Map<String, String> formParameters = new HashMap<>();

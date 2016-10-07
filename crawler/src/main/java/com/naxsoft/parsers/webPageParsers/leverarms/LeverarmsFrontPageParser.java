@@ -23,7 +23,7 @@ class LeverarmsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsFrontPageParser.class);
     private final HttpClient client;
 
-    public LeverarmsFrontPageParser(HttpClient client) {
+    private LeverarmsFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

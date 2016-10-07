@@ -26,7 +26,7 @@ class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     private static final Pattern pagerPattern = Pattern.compile("(\\d+) of (\\d+)");
     private final HttpClient client;
 
-    public CorwinArmsFrontPageParser(HttpClient client) {
+    private CorwinArmsFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

@@ -30,7 +30,7 @@ public class SearchHandler {
             "productName",
             "category",
     };
-    protected TransportClient client;
+    private final TransportClient client;
 
     /**
      * @param client
@@ -90,7 +90,7 @@ public class SearchHandler {
      * @param startFrom
      * @return
      */
-    protected ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
+    private ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         MultiMatchQueryBuilder searchQuery = QueryBuilders.multiMatchQuery(searchKey, "productName^4", "description^2", "_all");

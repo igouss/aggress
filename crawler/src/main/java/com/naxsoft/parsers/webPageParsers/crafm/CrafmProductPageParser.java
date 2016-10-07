@@ -21,7 +21,7 @@ class CrafmProductPageParser extends AbstractWebPageParser {
     private final HttpClient client;
     private final List<Cookie> cookies;
 
-    public CrafmProductPageParser(HttpClient client) {
+    private CrafmProductPageParser(HttpClient client) {
         this.client = client;
         cookies = new ArrayList<>(1);
         cookies.add(Cookie.newValidCookie("store", "english", false, null, null, Long.MAX_VALUE, false, false));

@@ -16,7 +16,7 @@ class DantesportsProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsProductPageParser.class);
     private final HttpClient client;
 
-    public DantesportsProductPageParser(HttpClient client) {
+    private DantesportsProductPageParser(HttpClient client) {
         this.client = client;
     }
 

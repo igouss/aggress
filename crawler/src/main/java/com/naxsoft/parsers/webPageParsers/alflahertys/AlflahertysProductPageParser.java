@@ -19,7 +19,7 @@ class AlflahertysProductPageParser extends AbstractWebPageParser {
     /**
      * @param client
      */
-    public AlflahertysProductPageParser(HttpClient client) {
+    private AlflahertysProductPageParser(HttpClient client) {
         this.client = client;
     }
 

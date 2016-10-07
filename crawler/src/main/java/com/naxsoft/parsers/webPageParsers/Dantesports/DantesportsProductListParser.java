@@ -26,7 +26,7 @@ class DantesportsProductListParser extends AbstractWebPageParser {
     private static final Pattern producePagePattern = Pattern.compile("\\d+");
     private final HttpClient client;
 
-    public DantesportsProductListParser(HttpClient client) {
+    private DantesportsProductListParser(HttpClient client) {
         this.client = client;
     }
 

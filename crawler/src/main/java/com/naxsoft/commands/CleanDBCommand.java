@@ -22,7 +22,7 @@ public class CleanDBCommand implements Command {
             "ProductEntity"
     };
 
-    private Persistent db;
+    private final Persistent db;
 
     public CleanDBCommand(Persistent db) {
         this.db = db;
@@ -34,15 +34,10 @@ public class CleanDBCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        db.cleanUp(TABLES).observeOn(Schedulers.immediate()).subscribeOn(Schedulers.immediate()).subscribe(result -> {
-                    LOGGER.info("Rows deleted: {}", result);
-                },
-                ex -> {
-                    LOGGER.error("Crawler Process Exception", ex);
-                },
-                () -> {
-                    LOGGER.info("Delete complete");
-                });
+        db.cleanUp(TABLES).observeOn(Schedulers.immediate()).subscribeOn(Schedulers.immediate()).subscribe(
+                result -> LOGGER.info("Rows deleted: {}", result),
+                ex -> LOGGER.error("Crawler Process Exception", ex),
+                () -> LOGGER.info("Delete complete"));
     }
 
     @Override

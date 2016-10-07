@@ -23,7 +23,7 @@ class TheammosourceFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceFrontPageParser.class);
     private final HttpClient client;
 
-    public TheammosourceFrontPageParser(HttpClient client) {
+    private TheammosourceFrontPageParser(HttpClient client) {
         this.client = client;
     }
 

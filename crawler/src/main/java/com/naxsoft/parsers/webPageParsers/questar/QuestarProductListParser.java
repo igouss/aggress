@@ -23,7 +23,7 @@ class QuestarProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuestarProductListParser.class);
     private final HttpClient client;
 
-    public QuestarProductListParser(HttpClient client) {
+    private QuestarProductListParser(HttpClient client) {
         this.client = client;
     }
 

@@ -16,7 +16,7 @@ class EllwoodeppsProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsProductParser.class);
     private final HttpClient client;
 
-    public EllwoodeppsProductParser(HttpClient client) {
+    private EllwoodeppsProductParser(HttpClient client) {
         this.client = client;
     }
 
