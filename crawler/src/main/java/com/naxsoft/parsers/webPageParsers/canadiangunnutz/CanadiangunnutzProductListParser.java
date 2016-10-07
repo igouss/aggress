@@ -30,8 +30,8 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
         this.client = client;
         Map<String, String> formParameters = new HashMap<>();
         try {
-            formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin").getValue());
-            formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword").getValue());
+            formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
+            formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
             formParameters.put("vb_login_password_hint", "Password");
             formParameters.put("s", "");
             formParameters.put("securitytoken", "guest");

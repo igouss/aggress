@@ -76,7 +76,7 @@ public class Server {
     private static TransportClient getTransportClient() throws UnknownHostException, PropertyNotFoundException {
         Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         TransportClient client = new TransportClient.Builder().settings(settings).build();
-        client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(AppProperties.getProperty("elasticHost").getValue()), Integer.parseInt(AppProperties.getProperty("elasticPort").getValue())));
+        client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(AppProperties.getProperty("elasticHost")), Integer.parseInt(AppProperties.getProperty("elasticPort"))));
 
         while (true) {
             LOGGER.info("Waiting for elastic to connect to a node...");

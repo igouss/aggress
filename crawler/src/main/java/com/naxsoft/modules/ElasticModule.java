@@ -25,8 +25,8 @@ public class ElasticModule {
     static Elastic provideElastic() {
         Elastic elastic = new Elastic();
         try {
-            String elasticHost = AppProperties.getProperty("elasticHost").getValue();
-            int elasticPort = Integer.parseInt(AppProperties.getProperty("elasticPort").getValue());
+            String elasticHost = AppProperties.getProperty("elasticHost");
+            int elasticPort = Integer.parseInt(AppProperties.getProperty("elasticPort"));
             try {
                 elastic.connect(elasticHost, elasticPort);
                 return elastic;
