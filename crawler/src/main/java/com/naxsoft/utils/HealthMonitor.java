@@ -8,11 +8,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * Copyright NAXSoft 2015
  */
-public class HealthCheck implements Runnable {
-    private static final Logger LOGGER = LoggerFactory.getLogger("HealthCheck");
+public class HealthMonitor implements Runnable {
+    private static final Logger LOGGER = LoggerFactory.getLogger("HealthMonitor");
 
     public static void start() {
-        Thread healthCheck = new Thread(new HealthCheck(), "HealthCheck");
+        Thread healthCheck = new Thread(new HealthMonitor(), "HealthMonitor");
         healthCheck.setDaemon(true);
         healthCheck.setUncaughtExceptionHandler((t, e) -> LOGGER.error("DEAD"));
         healthCheck.start();
@@ -24,7 +24,7 @@ public class HealthCheck implements Runnable {
             try {
                 Thread.sleep(TimeUnit.MINUTES.toMillis(1));
             } catch (InterruptedException e) {
-                throw new HealthCheckException("HealthCheck Interrupted", e);
+                throw new HealthCheckException("HealthMonitor Interrupted", e);
             }
             LOGGER.info("ALIVE");
         }

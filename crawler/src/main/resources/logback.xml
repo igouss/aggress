@@ -30,12 +30,26 @@
             <level>ERROR</level>
         </filter>
     </appender>
+    <appender name="METRICS-LOG" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_DIR:-logs}/metrics.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
     <appender name="APP-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="APP-LOG"/>
     </appender>
 
     <appender name="ERROR-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="ERROR-LOG"/>
+    </appender>
+
+    <appender name="METRICS-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="METRICS-LOG"/>
     </appender>
 
     <appender name="HEALTHCHECK-LOG" class="ch.qos.logback.core.FileAppender">
@@ -59,6 +73,9 @@
     <!-- Set additivity="false" to avoid polluting root appender -->
     <logger name="HealthCheck" level="ALL" additivity="false">
         <appender-ref ref="HEALTHCHECK-LOG"/>
+    </logger>
+    <logger name="metrics" level="ALL" additivity="false">
+        <appender-ref ref="METRICS-LOG-ASYNC"/>
     </logger>
 
     <root level="DEBUG">

@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.hical;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.AbstractTest;
 import com.naxsoft.crawler.AhcHttpClient;
 import com.naxsoft.crawler.HttpClient;
@@ -18,7 +19,8 @@ public class HicalFrontPageParserTest extends AbstractTest {
     public void parse() throws Exception {
         SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
         SslContext sslContext = sslContextBuilder.build();
-        try (HttpClient httpClient = new AhcHttpClient(sslContext)) {
+        MetricRegistry metrics = new MetricRegistry();
+        try (HttpClient httpClient = new AhcHttpClient(metrics, sslContext)) {
             HicalFrontPageParser parser = new HicalFrontPageParser(httpClient);
 
             WebPageEntity webPageEntity = new WebPageEntity(null, "", "", false, "http://www.hical.ca/", "");

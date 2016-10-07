@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.hical;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.AbstractTest;
 import com.naxsoft.crawler.AhcHttpClient;
 import com.naxsoft.crawler.HttpClient;
@@ -19,7 +20,8 @@ public class HicalProductPageParserTest extends AbstractTest {
         SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
         SslContext sslContext = sslContextBuilder.build();
 
-        try (HttpClient httpClient = new AhcHttpClient(sslContext)) {
+        MetricRegistry metrics = new MetricRegistry();
+        try (HttpClient httpClient = new AhcHttpClient(metrics, sslContext)) {
             HicalProductPageParser parser = new HicalProductPageParser(httpClient);
 
             WebPageEntity webPageEntity = new WebPageEntity(null, "", "", false, "http://www.hical.ca/matador-sks-full-length-optic-rail-mount/", "");

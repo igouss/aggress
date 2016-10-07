@@ -1,5 +1,8 @@
 package com.naxsoft.crawler;
 
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import io.netty.handler.ssl.SslContext;
 import org.asynchttpclient.*;
 import org.asynchttpclient.cookie.Cookie;
@@ -29,8 +32,17 @@ public class AhcHttpClient implements HttpClient {
     private final AsyncHttpClient asyncHttpClient;
 
     private final ProxyManager proxyManager;
+    private final MetricRegistry metricRegistry;
+    private final Meter httpRequestsSensor;
+    private final Histogram httpResponseSizeSensor;
+    private final Histogram httpLatencySensor;
 
-    public AhcHttpClient(SslContext sslContext) {
+    public AhcHttpClient(MetricRegistry metricRegistry, SslContext sslContext) {
+        this.metricRegistry = metricRegistry;
+        httpRequestsSensor = metricRegistry.meter("http.requests");
+        httpResponseSizeSensor = metricRegistry.histogram("http.responseSize");
+        httpLatencySensor = metricRegistry.histogram("http.latency");
+
         proxyManager = new ProxyManager();
 
         String osName = System.getProperty("os.name").toLowerCase();
@@ -143,6 +155,8 @@ public class AhcHttpClient implements HttpClient {
     @Override
     public <R> Observable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
         LOGGER.trace("Starting async http GET request url = {}", url);
+        httpRequestsSensor.mark();
+
         BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirect(followRedirect);
@@ -181,6 +195,8 @@ public class AhcHttpClient implements HttpClient {
     @Override
     public <R> Observable<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
+        httpRequestsSensor.mark();
+
         BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setCookies(cookies);
         requestBuilder.setBody(content);
@@ -208,6 +224,8 @@ public class AhcHttpClient implements HttpClient {
     @Override
     public <R> Observable<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
+        httpRequestsSensor.mark();
+
         BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
         requestBuilder.setCookies(cookies);
         requestBuilder.setFollowRedirect(true);
@@ -265,9 +283,8 @@ public class AhcHttpClient implements HttpClient {
          * Indicate that a request has finished successfully.
          */
         void finished(Response response, long responseSize, long latencyMs) {
-//            requestSizeSensor.record(requestSize);
-//            responseSizeSensor.record(responseSize);
-//            requestLatencySensor.record(latencyMs);
+            httpResponseSizeSensor.update(responseSize);
+            httpLatencySensor.update(latencyMs);
         }
     }
 }

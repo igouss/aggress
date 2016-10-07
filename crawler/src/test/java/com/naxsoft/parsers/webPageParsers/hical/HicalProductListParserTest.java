@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.hical;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.AbstractTest;
 import com.naxsoft.crawler.AhcHttpClient;
 import com.naxsoft.crawler.HttpClient;
@@ -18,8 +19,9 @@ public class HicalProductListParserTest extends AbstractTest {
     public void parse() throws Exception {
         SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
         SslContext sslContext = sslContextBuilder.build();
+        MetricRegistry metrics = new MetricRegistry();
 
-        try (HttpClient httpClient = new AhcHttpClient(sslContext)) {
+        try (HttpClient httpClient = new AhcHttpClient(metrics, sslContext)) {
             HicalProductListParser parser = new HicalProductListParser(httpClient);
 
             WebPageEntity webPageEntity = new WebPageEntity(null, "", "", false, "http://www.hical.ca/sks-rifle/", "");

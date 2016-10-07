@@ -4,17 +4,20 @@ import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
 import com.naxsoft.scheduler.Scheduler;
-import com.naxsoft.utils.HealthCheck;
+import com.naxsoft.utils.HealthMonitor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
 import static java.lang.System.setProperty;
 
 public class Crawler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
+    private static final Logger METRIC_LOGGER = LoggerFactory.getLogger("metrics");
 
     /**
      * Crawler application.
@@ -49,11 +52,17 @@ public class Crawler {
     }
 
     private void start(String[] args) {
-        HealthCheck.start();
+        HealthMonitor.start();
         DaggerApplicationComponent.Builder applicationBuilder = DaggerApplicationComponent.builder();
         ApplicationComponent applicationComponent = applicationBuilder.build();
 
-        final ScheduledReporter elasticReporter = Slf4jReporter.forRegistry(applicationComponent.getMetricRegistry()).outputTo(LOGGER).build();
+        final ScheduledReporter metricReporter = Slf4jReporter.forRegistry(applicationComponent.getMetricRegistry())
+                .outputTo(METRIC_LOGGER)
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                .build();
+        metricReporter.start(1, TimeUnit.SECONDS);
+
         Scheduler scheduler = null;
 
         try {
@@ -92,8 +101,8 @@ public class Crawler {
             LOGGER.error("Application failure", e);
         } finally {
             try {
-                if (null != elasticReporter) {
-                    elasticReporter.stop();
+                if (null != metricReporter) {
+                    metricReporter.stop();
                 }
                 if (scheduler != null) {
                     scheduler.stop();
