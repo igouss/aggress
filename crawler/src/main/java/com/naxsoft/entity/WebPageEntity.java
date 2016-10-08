@@ -165,16 +165,18 @@ public class WebPageEntity {
 //            columnDefinition = "TEXT"
 //    )
     public String getContent() {
-        if (null != this.content) {
+        String result;
+        if (null == this.content) {
+            result = "";
+        } else {
             try {
-                return decompress(this.content);
+                result = decompress(this.content);
             } catch (IOException e) {
                 LOGGER.error("Failed to decompress", e);
+                result = "";
             }
-        } else {
-            return null;
         }
-        return "";
+        return result;
     }
 
     //    @Basic
