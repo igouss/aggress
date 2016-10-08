@@ -1,17 +1,23 @@
 package com.naxsoft.crawler;
 
+import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
+import io.netty.channel.Channel;
+import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.ssl.SslContext;
 import org.asynchttpclient.*;
 import org.asynchttpclient.cookie.Cookie;
 import org.asynchttpclient.filter.ThrottleRequestFilter;
 import org.asynchttpclient.handler.resumable.ResumableIOExceptionFilter;
+import org.asynchttpclient.netty.channel.ChannelManager;
+import org.asynchttpclient.netty.request.NettyRequestSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -112,6 +118,34 @@ public class AhcHttpClient implements HttpClient {
                 .setUsePooledMemory(true)
                 .build();
         asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig);
+
+        try {
+            Field requestSenderField = asyncHttpClient.getClass().getDeclaredField("requestSender"); //NoSuchFieldException
+            requestSenderField.setAccessible(true);
+            NettyRequestSender requestSender = (NettyRequestSender) requestSenderField.get(asyncHttpClient); //IllegalAccessException
+
+            Field channelManagerField = requestSender.getClass().getDeclaredField("channelManager"); //NoSuchFieldException
+            channelManagerField.setAccessible(true);
+            ChannelManager channelManager = (ChannelManager) channelManagerField.get(requestSender); //IllegalAccessException
+
+
+            Field openChannelsField = channelManager.getClass().getDeclaredField("openChannels"); //NoSuchFieldException
+            openChannelsField.setAccessible(true);
+            ChannelGroup openChannels = (ChannelGroup) openChannelsField.get(channelManager); //IllegalAccessException
+
+
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "openConnectionCount"),
+                    (Gauge<Long>) () -> openChannels.stream().filter(Channel::isOpen).count());
+
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "activeConnectionCount"),
+                    (Gauge<Long>) () -> openChannels.stream().filter(Channel::isActive).count());
+
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "chanelCount"),
+                    (Gauge<Long>) () -> openChannels.stream().count());
+
+        } catch (Exception e) {
+            LOGGER.error("Failed to get requestSender from HTTP client", e);
+        }
     }
 
     /**
@@ -250,7 +284,7 @@ public class AhcHttpClient implements HttpClient {
 
     private class StatsRecodringCompletionHandlerWrapper<R> extends AbstractCompletionHandler<R> {
         private final AbstractCompletionHandler<R> handler;
-//        private Sensor requestSizeSensor;
+        //        private Sensor requestSizeSensor;
 //        private Sensor responseSizeSensor;
 //        private Sensor requestLatencySensor;
         private long started;
@@ -285,6 +319,38 @@ public class AhcHttpClient implements HttpClient {
         void finished(Response response, long responseSize, long latencyMs) {
             httpResponseSizeSensor.update(responseSize);
             httpLatencySensor.update(latencyMs);
+        }
+    }
+
+    public class ClientStats {
+        private final long totalConnectionCount;
+        private final long activeConnectionCount;
+        private final long idleConnectionCount;
+
+        public ClientStats(final long activeConnectionCount,
+                           final long idleConnectionCount) {
+            this.totalConnectionCount = activeConnectionCount + idleConnectionCount;
+            this.activeConnectionCount = activeConnectionCount;
+            this.idleConnectionCount = idleConnectionCount;
+        }
+
+        public long getTotalConnectionCount() {
+            return totalConnectionCount;
+        }
+
+        public long getActiveConnectionCount() {
+            return activeConnectionCount;
+        }
+
+        public long getIdleConnectionCount() {
+            return idleConnectionCount;
+        }
+
+        @Override
+        public String toString() {
+            return "There are " + totalConnectionCount +
+                    " total connections, " + activeConnectionCount +
+                    " are active and " + idleConnectionCount + " are idle.";
         }
     }
 }
