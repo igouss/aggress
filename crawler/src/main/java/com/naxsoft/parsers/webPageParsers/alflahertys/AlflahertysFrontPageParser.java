@@ -162,7 +162,18 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer("alflahertys.com/frontPage", (Message<WebPageEntity> event) ->
-                parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+        vertx.eventBus()
+                .consumer("alflahertys.com/frontPage", (Message<WebPageEntity> event) -> parse(event.body())
+                        .subscribe(
+                                this::sendResultToEventBus,
+                                err -> LOGGER.error("Failed to parse", err),
+                                () -> {
+                                }
+                        )
+                );
+    }
+
+    private void sendResultToEventBus(WebPageEntity message) {
+        vertx.eventBus().publish("webPageParseResult", message);
     }
 }
