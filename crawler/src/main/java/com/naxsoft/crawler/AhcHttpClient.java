@@ -192,7 +192,9 @@ public class AhcHttpClient implements HttpClient {
         httpRequestsSensor.mark();
 
         BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
-        requestBuilder.setCookies(cookies);
+        if (cookies != null) {
+            requestBuilder.setCookies(cookies);
+        }
         requestBuilder.setFollowRedirect(followRedirect);
         requestBuilder.setProxyServer(proxyManager.getProxyServer());
         Request request = requestBuilder.build();
@@ -232,7 +234,9 @@ public class AhcHttpClient implements HttpClient {
         httpRequestsSensor.mark();
 
         BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
-        requestBuilder.setCookies(cookies);
+        if (cookies != null) {
+            requestBuilder.setCookies(cookies);
+        }
         requestBuilder.setBody(content);
         requestBuilder.setFollowRedirect(true);
         requestBuilder.setRequestTimeout((int) TimeUnit.MINUTES.toMillis(2L));
@@ -261,7 +265,9 @@ public class AhcHttpClient implements HttpClient {
         httpRequestsSensor.mark();
 
         BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
-        requestBuilder.setCookies(cookies);
+        if (cookies != null) {
+            requestBuilder.setCookies(cookies);
+        }
         requestBuilder.setFollowRedirect(true);
         requestBuilder.setProxyServer(proxyManager.getProxyServer());
 
