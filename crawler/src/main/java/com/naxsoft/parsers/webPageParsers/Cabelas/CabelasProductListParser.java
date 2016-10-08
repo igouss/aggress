@@ -51,7 +51,7 @@ class CabelasProductListParser extends AbstractWebPageParser {
         if (document != null) {
             if (isTerminalSubcategory(downloadResult)) {
                 if (document.baseUri().contains("pagenumber")) {
-                    Elements elements = document.select(".productCard-heading a");
+                    Elements elements = document.select("section > section .productCard-heading a");
                     for (Element element : elements) {
                         WebPageEntity webPageEntity = productPage(downloadResult.getSourcePage(), element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                         result.add(webPageEntity);
