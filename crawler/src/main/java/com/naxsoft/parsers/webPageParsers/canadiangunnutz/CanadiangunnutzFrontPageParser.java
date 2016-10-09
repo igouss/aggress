@@ -81,7 +81,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
                 for (String category : categories.keySet()) {
                     if (text.endsWith(category)) {
-                        WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, element.attr("abs:href"), categories.get(category));
+                        WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), categories.get(category));
                         LOGGER.info("productList={}", webPageEntity.getUrl());
                         result.add(webPageEntity);
                         break;
@@ -105,7 +105,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 int total = Integer.parseInt(matcher.group(3));
                 int pages = (int) Math.ceil((double) total / postsPerPage);
                 for (int i = 1; i <= pages; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
@@ -116,7 +116,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "", false, "http://www.canadiangunnutz.com/forum/forum.php", "");
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "", "http://www.canadiangunnutz.com/forum/forum.php", "");
         return futureCookies
                 .flatMap(cookies1 -> client.get(webPageEntity.getUrl(), cookies1, new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)

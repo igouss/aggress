@@ -28,7 +28,7 @@ class CabelasProductListParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity getProductList(WebPageEntity parent, String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, url, category);
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", url, category);
         LOGGER.info("productList={}", webPageEntity.getUrl());
         return webPageEntity;
     }
@@ -39,7 +39,7 @@ class CabelasProductListParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity productPage(WebPageEntity parent, String url, String category) {
-        WebPageEntity productPage = new WebPageEntity(parent, "", "productPage", false, url, category);
+        WebPageEntity productPage = new WebPageEntity(parent, "", "productPage", url, category);
         LOGGER.info("productPage={}", url);
         return productPage;
     }

@@ -24,12 +24,8 @@ public class Generator {
             jsonBuilder.field("category", category);
             jsonBuilder.endObject();
 
-            product = new ProductEntity();
-            product.setUrl(url);
-            product.setJson(jsonBuilder.string());
+            product = new ProductEntity(jsonBuilder.string(), url);
         }
-        product.setWebpageId(42L);
-
         return  product;
     }
 }

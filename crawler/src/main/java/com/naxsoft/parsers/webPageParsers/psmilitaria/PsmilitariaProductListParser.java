@@ -13,15 +13,14 @@ import rx.Observable;
  */
 class PsmilitariaProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaProductListParser.class);
-    private final HttpClient client;
 
     private PsmilitariaProductListParser(HttpClient client) {
-        this.client = client;
+
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, parent.getContent(), "productPage", false, parent.getUrl(), parent.getCategory());
+        WebPageEntity webPageEntity = new WebPageEntity(parent, parent.getContent(), "productPage", parent.getUrl(), parent.getCategory());
         return Observable.just(webPageEntity);
     }
 

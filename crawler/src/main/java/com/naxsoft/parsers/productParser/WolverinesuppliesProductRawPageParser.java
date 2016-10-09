@@ -95,7 +95,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
 
             for (RawProduct rp : rawProducts) {
                 LOGGER.trace("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
-                ProductEntity product = new ProductEntity();
+                ProductEntity product;
                 try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                     jsonBuilder.startObject();
                     jsonBuilder.field("url", "https://www.wolverinesupplies.com/ProductDetail/" + rp.ItemNumber);
@@ -115,10 +115,8 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
                     }
 
                     jsonBuilder.endObject();
-                    product.setUrl(webPageEntity.getUrl());
-                    product.setJson(jsonBuilder.string());
+                    product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
                 }
-                product.setWebpageId(webPageEntity.getId());
                 result.add(product);
             }
         } catch (Exception e) {

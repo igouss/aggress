@@ -35,7 +35,7 @@ class LeverarmsFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select("#nav-sidebox li:not(.parent) a");
 
             for (Element e : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, e.attr("abs:href") + "?limit=all", e.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", e.attr("abs:href") + "?limit=all", e.text());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -51,7 +51,7 @@ class LeverarmsFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".item h4 a");
 
             for (Element e : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, e.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", e.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }

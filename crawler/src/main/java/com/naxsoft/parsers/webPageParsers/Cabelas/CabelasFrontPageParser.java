@@ -35,7 +35,7 @@ class CabelasFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select("a[data-heading=Shooting]");
 
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, element.attr("abs:href"), "");
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), "");
                 LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }

@@ -21,14 +21,13 @@ import java.util.Set;
  */
 class PsmilitariaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaFrontPageParser.class);
-    private final HttpClient client;
 
     private PsmilitariaFrontPageParser(HttpClient client) {
-        this.client = client;
+
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", false, url, category);
+        return new WebPageEntity(parent, "", "productList", url, category);
     }
 
     private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {

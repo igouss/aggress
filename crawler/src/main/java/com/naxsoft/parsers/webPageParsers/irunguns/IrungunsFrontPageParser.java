@@ -36,7 +36,7 @@ class IrungunsFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select("#content .widthLimit a");
             for (Element e : elements) {
                 String linkUrl = e.attr("abs:href");
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, linkUrl, "");
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", linkUrl, "");
                 LOGGER.info("ProductPageUrl={}", linkUrl);
                 result.add(webPageEntity);
             }

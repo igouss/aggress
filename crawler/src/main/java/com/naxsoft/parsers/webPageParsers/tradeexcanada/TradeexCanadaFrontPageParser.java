@@ -28,7 +28,7 @@ class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url) {
-        return new WebPageEntity(parent, "", "productList", false, url, "N/A");
+        return new WebPageEntity(parent, "", "productList", url, "N/A");
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -63,7 +63,7 @@ class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
                     category = "misc";
                 }
 
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, element.attr("abs:href"), category);
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), category);
 
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);

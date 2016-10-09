@@ -46,7 +46,7 @@ public class PageDownloader {
                 LOGGER.trace("Completed request to {} {}", parentPage.getType(), response.getUri().toString());
                 WebPageEntity result = null;
                 if (200 == response.getStatusCode()) {
-                    result = new WebPageEntity(parentPage, response.getResponseBody(), pageType, false, response.getUri().toUrl(), parentPage.getCategory());
+                    result = new WebPageEntity(parentPage, response.getResponseBody(), pageType, response.getUri().toUrl(), parentPage.getCategory());
                 } else {
                     LOGGER.error("Bad HTTP code={} page={}", response.getStatusCode(), response.getUri());
                 }

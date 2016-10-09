@@ -3,71 +3,20 @@ package com.naxsoft.entity;
 /**
  *
  */
-//@Entity
-//@Table(
-//        name = "product",
-//        schema = "guns",
-//        catalog = "aggress",
-//        indexes = {
-//                @Index(name = "ProductEntity_indexed_idx", columnList = "indexed")
-//        }
-//)
 public class ProductEntity {
     /**
      *
      */
-    private Long id;
+    private final String json;
 
     /**
      *
      */
-    private String json;
+    private final String url;
 
-    /**
-     *
-     */
-    private Long webpageId;
-
-    /**
-     *
-     */
-    private boolean indexed;
-
-    /**
-     *
-     */
-    private String url;
-
-    public ProductEntity() {
-    }
-
-
-//    @Id
-//    @Column(
-//            name = "id"
-//    )
-//    @GeneratedValue(
-//            strategy = GenerationType.IDENTITY
-//    )
-//    public Long getId() {
-//        return this.id;
-//    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-//    @Basic
-//    @Column(
-//            name = "json",
-//            columnDefinition = "TEXT"
-//    )
-//    public String getJson() {
-//        return this.json;
-//    }
-
-    public void setJson(String json) {
+    public ProductEntity(String json, String url) {
         this.json = json;
+        this.url = url;
     }
 
     @Override
@@ -86,38 +35,6 @@ public class ProductEntity {
         int result = json.hashCode();
         result = 31 * result + url.hashCode();
         return result;
-    }
-
-    //    @Basic
-//    @Column(
-//            name = "webpage_id"
-//    )
-    public Long getWebpageId() {
-        return this.webpageId;
-    }
-
-    public void setWebpageId(Long webpageId) {
-        this.webpageId = webpageId;
-    }
-
-    //    @Basic
-//    @Column(name = "indexed")
-    public boolean isIndexed() {
-        return indexed;
-    }
-
-    public void setIndexed(boolean indexed) {
-        this.indexed = indexed;
-    }
-
-    //    @Basic
-//    @Column(name = "url", columnDefinition = "TEXT")
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     @Override

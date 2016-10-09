@@ -40,7 +40,7 @@ class EllwoodeppsProductListParser extends AbstractWebPageParser {
                 } else {
                     category = downloadResult.getSourcePage().getCategory();
                 }
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, element.select("td.firearm-name > a").attr("abs:href"), category);
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.select("td.firearm-name > a").attr("abs:href"), category);
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }

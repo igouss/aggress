@@ -62,7 +62,7 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
             String productName = document.select("#maincol h1").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-            ProductEntity product = new ProductEntity();
+            ProductEntity product;
             try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                 jsonBuilder.startObject();
                 jsonBuilder.field("url", webPageEntity.getUrl());
@@ -78,10 +78,8 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
 
                 jsonBuilder.endObject();
-                product.setUrl(webPageEntity.getUrl());
-                product.setJson(jsonBuilder.string());
+                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
             }
-            product.setWebpageId(webPageEntity.getId());
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

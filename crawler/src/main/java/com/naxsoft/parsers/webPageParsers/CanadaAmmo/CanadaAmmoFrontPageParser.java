@@ -35,7 +35,7 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
             LOGGER.info("Parsing for sub-pages + {}", document.location());
 
             for (Element el : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", false, el.attr("abs:href") + "?count=72", el.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", el.attr("abs:href") + "?count=72", el.text());
                 result.add(webPageEntity);
             }
         }
@@ -51,14 +51,14 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
 
             Elements elements = document.select("div.clearfix span.pagination a.nav-page");
             if (elements.isEmpty()) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location(), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
                 subResult.add(webPageEntity);
             } else {
                 int i = Integer.parseInt(elements.first().text()) - 1;
                 int end = Integer.parseInt(elements.last().text());
                 for (; i <= end; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
                     subResult.add(webPageEntity);
                 }

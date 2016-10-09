@@ -34,7 +34,7 @@ class QuestarProductListParser extends AbstractWebPageParser {
         if (document != null) {
             Elements elements = document.select("form > table > tbody > tr > td a");
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }

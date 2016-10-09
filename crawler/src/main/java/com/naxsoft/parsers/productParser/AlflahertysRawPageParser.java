@@ -117,7 +117,7 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (!document.select(".product_section .sold_out").text().equals("Sold Out")) {
-                ProductEntity product = new ProductEntity();
+                ProductEntity product;
                 try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                     jsonBuilder.startObject();
                     jsonBuilder.field("url", webPageEntity.getUrl());
@@ -144,10 +144,8 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
                         }
                     }
                     jsonBuilder.endObject();
-                    product.setUrl(document.location());
-                    product.setJson(jsonBuilder.string());
+                    product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
                 }
-                product.setWebpageId(webPageEntity.getId());
                 result.add(product);
             }
         } catch (Exception e) {

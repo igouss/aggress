@@ -43,7 +43,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
             }
 
             if (0 != sb.length()) {
-                WebPageEntity e = new WebPageEntity(parent, "", "productPage", false, "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb, parent.getCategory());
+                WebPageEntity e = new WebPageEntity(parent, "", "productPage", "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb, parent.getCategory());
                 LOGGER.info("productPage={}", e.getUrl());
                 result.add(e);
             }
@@ -67,7 +67,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                 if (categoryMatcher.find()) {
                     String productCategory = categoryMatcher.group();
                     String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", false, productDetailsUrl, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", productDetailsUrl, downloadResult.getSourcePage().getCategory());
                     result.add(webPageEntity);
                 }
             }

@@ -28,7 +28,7 @@ class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", false, url, category);
+        return new WebPageEntity(parent, "", "productList", url, category);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -39,7 +39,7 @@ class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".products-grid .product-name > a");
 
             for (Element el : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, el.attr("abs:href"), "n/a");
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", el.attr("abs:href"), "n/a");
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }

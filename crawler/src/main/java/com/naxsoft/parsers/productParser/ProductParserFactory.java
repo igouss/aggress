@@ -40,8 +40,6 @@ public class ProductParserFactory {
         this.vertx = vertx;
         parserVertex = new ArrayList<>();
         vertx.eventBus().registerDefaultCodec(ProductEntity.class, new MessageCodec<ProductEntity, Object>() {
-            final ProductEntityEncoder entityEncoder = new ProductEntityEncoder();
-
             @Override
             public void encodeToWire(Buffer buffer, ProductEntity productEntity) {
                 String jsonToStr = Encoder.encode(productEntity);

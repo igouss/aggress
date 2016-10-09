@@ -25,7 +25,7 @@ class InternationalshootingsuppliesRawPageParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
-            ProductEntity product = new ProductEntity();
+            ProductEntity product;
             try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                 jsonBuilder.startObject();
                 jsonBuilder.field("url", webPageEntity.getUrl());
@@ -44,9 +44,7 @@ class InternationalshootingsuppliesRawPageParser extends AbstractRawPageParser {
                 jsonBuilder.field("description", document.select("#tab-description").text().replace("Product Description", ""));
                 jsonBuilder.field("category", webPageEntity.getCategory().split(","));
                 jsonBuilder.endObject();
-                product.setUrl(webPageEntity.getUrl());
-                product.setWebpageId(webPageEntity.getId());
-                product.setJson(jsonBuilder.string());
+                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
             }
             result.add(product);
         } catch (Exception e) {

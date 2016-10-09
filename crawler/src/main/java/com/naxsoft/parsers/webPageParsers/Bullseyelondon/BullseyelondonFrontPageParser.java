@@ -31,7 +31,7 @@ class BullseyelondonFrontPageParser extends AbstractWebPageParser {
         if (document != null) {
             Elements elements = document.select(".vertnav-cat a");
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, element.attr("abs:href") + "?limit=all", element.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href") + "?limit=all", element.text());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }

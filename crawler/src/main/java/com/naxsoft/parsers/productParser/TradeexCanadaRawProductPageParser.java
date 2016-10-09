@@ -52,7 +52,7 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
             }
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-            ProductEntity product = new ProductEntity();
+            ProductEntity product;
             try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                 jsonBuilder.startObject();
                 jsonBuilder.field("url", webPageEntity.getUrl());
@@ -72,10 +72,8 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
                 }
 
                 jsonBuilder.endObject();
-                product.setUrl(webPageEntity.getUrl());
-                product.setJson(jsonBuilder.string());
+                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
             }
-            product.setWebpageId(webPageEntity.getId());
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

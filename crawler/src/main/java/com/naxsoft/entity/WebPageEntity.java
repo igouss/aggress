@@ -1,6 +1,5 @@
 package com.naxsoft.entity;
 
-import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,24 +15,9 @@ import java.util.zip.GZIPOutputStream;
 /**
  * Web page that can either be leaf (with produce data) or be used to find subpages
  */
-//@Entity
-//@Table(
-//        name = "web_page",
-//        schema = "guns",
-//        catalog = "aggress",
-//        indexes = {
-//                @Index(columnList = "type"),
-//                @Index(columnList = "parsed"),
-//                @Index(columnList = "url,type", unique = true)
-//        }
-//)
 public class WebPageEntity {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageEntity.class);
 
-    /**
-     *
-     */
-    private Long id;
     /**
      *
      */
@@ -53,22 +37,17 @@ public class WebPageEntity {
     /**
      *
      */
-    private boolean parsed;
+    private String category;
 
     /**
      *
      */
-    private String category;
     private transient WebPageEntity parent;
 
-    public WebPageEntity() {
-    }
-
-    public WebPageEntity(WebPageEntity parent, String content, String type, boolean parsed, String url, String category) {
+    public WebPageEntity(WebPageEntity parent, String content, String type, String url, String category) {
         this.parent = parent;
-        this.content = compress(content);
+        this.content = compress(removeNonASCII(content));
         this.type = type;
-        this.parsed = parsed;
         this.url = url;
         this.category = category;
     }
@@ -78,7 +57,6 @@ public class WebPageEntity {
      *
      * @param text Value to compress
      * @return Compressed Value
-     * @throws IOException in case of compression error
      */
     private static String compress(String text) {
         if (text.isEmpty()) {
@@ -135,35 +113,8 @@ public class WebPageEntity {
     }
 
     /**
-     * Convert from JSON representation
-     *
-     * @param json WebPageEntity in JSON format
-     * @return WebPageEntity object
-     */
-    public static WebPageEntity fromJson(String json) {
-        Gson gson = new Gson();
-        return gson.fromJson(json, WebPageEntity.class);
-    }
-
-    //    @Id
-//    @Column(
-//            name = "id"
-//    )
-//    @GeneratedValue(
-//            strategy = GenerationType.IDENTITY
-//    )
-    public Long getId() {
-        return this.id;
-    }
-
-    /**
      * Get pages's HTML
      */
-//    @Basic
-//    @Column(
-//            name = "content",
-//            columnDefinition = "TEXT"
-//    )
     public String getContent() {
         String result;
         if (null == this.content) {
@@ -179,36 +130,15 @@ public class WebPageEntity {
         return result;
     }
 
-    //    @Basic
-//    @Column(
-//            name = "type"
-//    )
     public String getType() {
         return this.type;
     }
 
-    //    @Basic
-//    @Column(
-//            name = "parsed"
-//    )
-    public boolean isParsed() {
-        return this.parsed;
-    }
 
-    //    @Basic
-//    @Column(
-//            name = "url"
-//            , columnDefinition = "TEXT"
-//    )
     public String getUrl() {
         return this.url;
     }
 
-    //    @Basic
-//    @Column(
-//            name = "category"
-//            , length = 128
-//    )
     public String getCategory() {
         return category;
     }
@@ -235,20 +165,9 @@ public class WebPageEntity {
     public String toString() {
         return "WebPageEntity{" +
                 "type='" + type + '\'' +
-                ", parsed=" + parsed +
                 ", url='" + url + '\'' +
                 ", category='" + category + '\'' +
                 '}';
-    }
-
-    /**
-     * Get JSON representation
-     *
-     * @return JSON representation
-     */
-    public String toJson() {
-        Gson gson = new Gson();
-        return gson.toJson(this);
     }
 
     public WebPageEntity getParent() {

@@ -36,7 +36,7 @@ class DantesportsFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select("#scol1 > div.scell_menu > li > a");
 
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, element.attr("abs:href") + "&paging=0", element.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href") + "&paging=0", element.text());
                 LOGGER.info("productList={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }

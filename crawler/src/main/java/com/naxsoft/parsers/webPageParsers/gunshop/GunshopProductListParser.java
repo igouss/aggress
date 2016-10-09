@@ -37,7 +37,7 @@ class GunshopProductListParser extends AbstractWebPageParser {
                 if (!element.select(".soldout").isEmpty()) {
                     continue;
                 }
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", false, element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }

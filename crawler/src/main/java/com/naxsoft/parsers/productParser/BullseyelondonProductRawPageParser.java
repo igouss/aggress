@@ -117,7 +117,7 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
     public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
-            ProductEntity product = new ProductEntity();
+            ProductEntity product;
             try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                 Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
                 String productName = document.select(".product-name h1").first().text().trim();
@@ -152,9 +152,7 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
                 }
 
                 jsonBuilder.endObject();
-                product.setUrl(webPageEntity.getUrl());
-                product.setWebpageId(webPageEntity.getId());
-                product.setJson(jsonBuilder.string());
+                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
             }
             result.add(product);
         } catch (Exception e) {

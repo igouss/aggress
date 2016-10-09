@@ -60,7 +60,7 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
-            ProductEntity product = new ProductEntity();
+            ProductEntity product;
             try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                 jsonBuilder.startObject();
                 String webPageEntityUrl = webPageEntity.getUrl();
@@ -104,9 +104,7 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
                     jsonBuilder.field(specName, specValue);
                 }
                 jsonBuilder.endObject();
-                product.setUrl(webPageEntityUrl);
-                product.setWebpageId(webPageEntity.getId());
-                product.setJson(jsonBuilder.string());
+                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
             }
             result.add(product);
         } catch (Exception e) {

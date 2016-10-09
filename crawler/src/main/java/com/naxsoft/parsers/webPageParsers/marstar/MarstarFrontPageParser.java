@@ -15,14 +15,13 @@ import java.util.HashSet;
  */
 class MarstarFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarFrontPageParser.class);
-    private final HttpClient client;
 
     private MarstarFrontPageParser(HttpClient client) {
-        this.client = client;
+
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", false, url, category);
+        return new WebPageEntity(parent, "", "productList", url, category);
     }
 
     @Override

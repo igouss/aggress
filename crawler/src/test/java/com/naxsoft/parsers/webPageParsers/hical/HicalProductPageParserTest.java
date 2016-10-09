@@ -24,7 +24,7 @@ public class HicalProductPageParserTest extends AbstractTest {
         try (HttpClient httpClient = new AhcHttpClient(metrics, sslContext)) {
             HicalProductPageParser parser = new HicalProductPageParser(httpClient);
 
-            WebPageEntity webPageEntity = new WebPageEntity(null, "", "", false, "http://www.hical.ca/matador-sks-full-length-optic-rail-mount/", "");
+            WebPageEntity webPageEntity = new WebPageEntity(null, "", "", "http://www.hical.ca/matador-sks-full-length-optic-rail-mount/", "");
             Observable<WebPageEntity> observable = parser.parse(webPageEntity);
             Iterable<WebPageEntity> webPageEntities = observable.toBlocking().toIterable();
 

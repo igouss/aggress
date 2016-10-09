@@ -29,14 +29,14 @@ class MarstarProductListParser extends AbstractWebPageParser {
 
     private static WebPageEntity getProductList(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href") + "&displayOutOfStock=no";
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", false, linkUrl, category);
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", linkUrl, category);
         LOGGER.info("Found product list page {} url={}", e.text(), linkUrl);
         return webPageEntity;
     }
 
     private static WebPageEntity getProductPage(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href");
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productPage", false, linkUrl, category);
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productPage", linkUrl, category);
         LOGGER.info("Found product {} url={}", e.text(), linkUrl);
         return webPageEntity;
     }

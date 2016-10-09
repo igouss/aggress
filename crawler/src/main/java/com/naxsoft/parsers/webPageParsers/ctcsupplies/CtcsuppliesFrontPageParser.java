@@ -35,7 +35,7 @@ class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
         if (document != null) {
             Elements elements = document.select("nav:nth-child(2) > ul a");
             for (Element e : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, e.attr("abs:href"), e.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", e.attr("abs:href"), e.text());
                 LOGGER.info("productList = {}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -61,7 +61,7 @@ class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
                 }
             }
             for (int i = 1; i <= max; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", false, downloadResult.getSourcePage().getUrl() + "?page=" + i, downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl() + "?page=" + i, downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }

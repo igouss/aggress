@@ -57,7 +57,7 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
-            ProductEntity product = new ProductEntity();
+            ProductEntity product;
             try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
                 jsonBuilder.startObject();
                 jsonBuilder.field("url", webPageEntity.getUrl());
@@ -76,9 +76,7 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
                 jsonBuilder.field("description", document.select("div[itemprop=description]").text());
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
                 jsonBuilder.endObject();
-                product.setUrl(webPageEntity.getUrl());
-                product.setWebpageId(webPageEntity.getId());
-                product.setJson(jsonBuilder.string());
+                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
             }
             result.add(product);
         } catch (Exception e) {
