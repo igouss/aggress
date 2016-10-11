@@ -3,12 +3,14 @@ package com.naxsoft.parsers.webPageParsers.marstar;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Copyright NAXSoft 2015
@@ -42,8 +44,21 @@ class MarstarFrontPageParser extends AbstractWebPageParser {
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer("marstar.ca/frontPage", (Message<WebPageEntity> event) ->
-                parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+        vertx.eventBus().consumer("marstar.ca/frontPage", (Message<WebPageEntity> event) -> {
+            vertx.executeBlocking(future -> {
+                Iterator<WebPageEntity> iterator = parse(event.body()).toBlocking().getIterator();
+                future.complete(iterator);
+            }, (AsyncResult<Iterator<WebPageEntity>> result) -> {
+                if (result.succeeded()) {
+                    Iterator<WebPageEntity> it = result.result();
+                    while (it.hasNext()) {
+                        vertx.eventBus().publish("webPageParseResult", it.next());
+                    }
+                } else {
+                    LOGGER.error("Failed to parse", result.cause());
+                }
+            });
+        });
     }
 }
 

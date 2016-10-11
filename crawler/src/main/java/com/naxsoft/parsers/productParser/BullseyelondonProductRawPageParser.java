@@ -93,7 +93,11 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
      */
     private static String getSpecialPrice(Document document) {
         String raw = document.select(".special-price .price").text().trim();
-        return parsePrice(raw);
+        String price = "";
+        if (!raw.isEmpty()) {
+            price = parsePrice(raw);
+        }
+        return price;
     }
 
     /**
