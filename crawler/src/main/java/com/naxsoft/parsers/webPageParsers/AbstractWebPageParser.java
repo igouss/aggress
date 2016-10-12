@@ -1,11 +1,16 @@
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.crawler.AbstractCompletionHandler;
+import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import org.asynchttpclient.Response;
 import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.List;
 
@@ -13,6 +18,7 @@ import java.util.List;
  * Copyright NAXSoft 2015
  */
 public abstract class AbstractWebPageParser extends AbstractVerticle implements WebPageParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger("WebPageParser");
     /**
      * @return HTTP cookie handler
      */
@@ -28,4 +34,16 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
             }
         };
     }
+
+    protected Handler<Message<WebPageEntity>> getParseRequestMessageHandler() {
+        return (Message<WebPageEntity> event) -> {
+            Observable<WebPageEntity> webPageEntityObservable = parse(event.body());
+            webPageEntityObservable.subscribeOn(Schedulers.io()).subscribe(value -> {
+                vertx.eventBus().publish("webPageParseResult", value);
+            }, error -> {
+                LOGGER.error("Failed to parse", error);
+            });
+        };
+    }
+
 }

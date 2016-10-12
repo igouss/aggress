@@ -58,12 +58,12 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
                 jsonBuilder.field("productName", productName);
                 jsonBuilder.field("productImage", document.select(".product-img-box img").attr("src"));
 
-                String specialPrice = document.select(".special-price .price").text();
+                String specialPrice = document.select(".ProductPrice.retail-product-price").text();
                 if ("".equals(specialPrice)) {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".regular-price .price").text()));
+                    jsonBuilder.field("regularPrice", parsePrice(document.select(".ProductPrice.VariationProductPrice").text()));
                 } else {
                     jsonBuilder.field("specialPrice", parsePrice(specialPrice));
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".old-price .price").text()));
+                    jsonBuilder.field("regularPrice", parsePrice(document.select(".ProductPrice.VariationProductPrice").text()));
                 }
 //        jsonBuilder.field("description", document.select(".short-description").text());
                 jsonBuilder.field("description", document.select("#product_tabs_description_tabbed_contents > div").text());

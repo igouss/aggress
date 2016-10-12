@@ -4,13 +4,9 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-
-import java.util.Iterator;
 
 /**
  * Copyright NAXSoft 2015
@@ -37,20 +33,6 @@ class FishingworldProductParser extends AbstractWebPageParser {
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer("fishingworld.ca/productPage", (Message<WebPageEntity> event) -> {
-            vertx.executeBlocking(future -> {
-                Iterator<WebPageEntity> iterator = parse(event.body()).toBlocking().getIterator();
-                future.complete(iterator);
-            }, (AsyncResult<Iterator<WebPageEntity>> result) -> {
-                if (result.succeeded()) {
-                    Iterator<WebPageEntity> it = result.result();
-                    while (it.hasNext()) {
-                        vertx.eventBus().publish("webPageParseResult", it.next());
-                    }
-                } else {
-                    LOGGER.error("Failed to parse", result.cause());
-                }
-            });
-        });
+        vertx.eventBus().consumer("fishingworld.ca/productPage", getParseRequestMessageHandler());
     }
 }

@@ -7,8 +7,6 @@ import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.eventbus.Message;
 import org.asynchttpclient.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -133,20 +131,6 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer("canadiangunnutz.com/frontPage", (Message<WebPageEntity> event) -> {
-            vertx.executeBlocking(future -> {
-                Iterator<WebPageEntity> iterator = parse(event.body()).toBlocking().getIterator();
-                future.complete(iterator);
-            }, (AsyncResult<Iterator<WebPageEntity>> result) -> {
-                if (result.succeeded()) {
-                    Iterator<WebPageEntity> it = result.result();
-                    while (it.hasNext()) {
-                        vertx.eventBus().publish("webPageParseResult", it.next());
-                    }
-                } else {
-                    LOGGER.error("Failed to parse", result.cause());
-                }
-            });
-        });
+        vertx.eventBus().consumer("canadiangunnutz.com/frontPage", getParseRequestMessageHandler());
     }
 }

@@ -84,12 +84,12 @@ public class RedisDatabase implements Persistent {
         return connection.reactive()
                 .sadd(destination, member)
                 .map(res -> {
-                    if (res != 0L) {
-                        LOGGER.trace("Moved element {} from {} to {}", member, source, destination);
-                        return 1L;
-                    } else {
+                    if (res == 0L) {
                         LOGGER.info("Failed to move element {} from {} to {}", member, source, destination);
                         return 0L;
+                    } else {
+                        LOGGER.trace("Moved element {} from {} to {}", member, source, destination);
+                        return 1L;
                     }
                 });
     }

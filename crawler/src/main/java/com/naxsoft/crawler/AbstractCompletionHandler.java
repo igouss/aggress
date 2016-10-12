@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 /**
  * Copyright NAXSoft 2015
  * <p>
- * Base class to handle completed page download.
+ * Base class to getParseRequestMessageHandler completed page download.
  * Logs on errors.
  * TODO: implement AsyncHandlerExtensions
  */

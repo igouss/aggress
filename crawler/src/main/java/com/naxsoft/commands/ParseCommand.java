@@ -32,7 +32,6 @@ public class ParseCommand implements Command {
         VALID_CATEGORIES.add("misc");
     }
 
-    private final String indexSuffix = null;
     private WebPageService webPageService = null;
     private Elastic elastic = null;
     private ProductParserFactory productParserFactory = null;
@@ -51,7 +50,7 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        process(webPageService.getUnparsedByType("productPageRaw", 5, TimeUnit.SECONDS), "product", indexSuffix, "guns");
+        process(webPageService.getUnparsedByType("productPageRaw", 5, TimeUnit.SECONDS), "product", "guns");
         LOGGER.info("Parsing complete");
     }
 
@@ -63,12 +62,13 @@ public class ParseCommand implements Command {
     /**
      * Adds stream of products to Elasticsearch
      */
-    private void process(Observable<WebPageEntity> productPagesRaw, String index, String indexSuffix, String type) {
+    private void process(Observable<WebPageEntity> productPagesRaw, String index, String type) {
         productPagesRaw
                 .flatMap(productPageRaw -> Observable.zip(Observable.just(productParserFactory.parse(productPageRaw)), webPageService.markParsed(productPageRaw), Tuple::new))
-                .flatMap(tuple2 -> elastic.index(tuple2.getV1(), index, indexSuffix, type))
+                .flatMap(tuple2 -> elastic.index(tuple2.getV1(), index, type))
                 .subscribe(
                         val -> {
+                            LOGGER.info("Indexted: {}", val);
                         },
                         err -> LOGGER.error("Failed", err),
                         () -> LOGGER.info("Completed")

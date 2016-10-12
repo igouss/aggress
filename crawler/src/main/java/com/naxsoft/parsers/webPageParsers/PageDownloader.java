@@ -8,6 +8,7 @@ import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.Collections;
 import java.util.List;
@@ -52,6 +53,6 @@ public class PageDownloader {
                 }
                 return result;
             }
-        });
+        }).observeOn(Schedulers.io());
     }
 }

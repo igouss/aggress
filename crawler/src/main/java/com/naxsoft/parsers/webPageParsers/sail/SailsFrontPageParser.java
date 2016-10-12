@@ -5,8 +5,6 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.eventbus.Message;
 import org.asynchttpclient.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,7 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -75,20 +76,6 @@ class SailsFrontPageParser extends AbstractWebPageParser {
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer("sail.ca/frontPage", (Message<WebPageEntity> event) -> {
-            vertx.executeBlocking(future -> {
-                Iterator<WebPageEntity> iterator = parse(event.body()).toBlocking().getIterator();
-                future.complete(iterator);
-            }, (AsyncResult<Iterator<WebPageEntity>> result) -> {
-                if (result.succeeded()) {
-                    Iterator<WebPageEntity> it = result.result();
-                    while (it.hasNext()) {
-                        vertx.eventBus().publish("webPageParseResult", it.next());
-                    }
-                } else {
-                    LOGGER.error("Failed to parse", result.cause());
-                }
-            });
-        });
+        vertx.eventBus().consumer("sail.ca/frontPage", getParseRequestMessageHandler());
     }
 }
