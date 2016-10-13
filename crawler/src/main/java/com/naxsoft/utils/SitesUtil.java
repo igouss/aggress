@@ -35,6 +35,7 @@ public class SitesUtil {
             "http://wolverinegt.ca/",
             "http://www.wholesalesports.com/",
             "https://www.wolverinesupplies.com/",
+            "http://www.nordicmarksman.com/"
     };
 
     public static String getHost(WebPageEntity webPageEntity) {
@@ -106,6 +107,8 @@ public class SitesUtil {
             host = "wholesalesports.com";
         } else if (url.contains("wolverinesupplies.com")) {
             host = "wolverinesupplies.com";
+        } else if (url.contains("nordicmarksman.com")) {
+            host = "nordicmarksman.com";
         }
         return host;
     }
