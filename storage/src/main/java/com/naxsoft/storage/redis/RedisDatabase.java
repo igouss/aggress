@@ -85,10 +85,10 @@ public class RedisDatabase implements Persistent {
                 .sadd(destination, member)
                 .map(res -> {
                     if (res == 0L) {
-                        LOGGER.info("Failed to move element {} from {} to {}", member, source, destination);
+                        LOGGER.info("Failed to move from {} to {} element {}...", source, destination, member.substring(0, 50));
                         return 0L;
                     } else {
-                        LOGGER.trace("Moved element {} from {} to {}", member, source, destination);
+                        LOGGER.trace("Moved from {} to {} element {}...", source, destination, member.substring(0, 50));
                         return 1L;
                     }
                 });

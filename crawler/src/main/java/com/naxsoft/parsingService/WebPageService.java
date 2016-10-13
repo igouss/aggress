@@ -40,7 +40,6 @@ public class WebPageService {
      * @return The number of entities updated.
      */
     public Observable<Long> markParsed(WebPageEntity webPageEntity) {
-        LOGGER.info("Marking {} {} as parsed", webPageEntity.getType(), webPageEntity.getUrl());
         return database.markWebPageAsParsed(webPageEntity);
     }
 

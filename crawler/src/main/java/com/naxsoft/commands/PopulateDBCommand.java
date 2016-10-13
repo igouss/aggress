@@ -3,6 +3,7 @@ package com.naxsoft.commands;
 
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsingService.WebPageService;
+import com.naxsoft.utils.SitesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -21,38 +22,6 @@ public class PopulateDBCommand implements Command {
     /**
      * Sites that crawler can walk and parse
      */
-    private final static String[] SOURCES = {
-            "http://www.alflahertys.com/",
-            "http://www.bullseyelondon.com/",
-            "http://www.cabelas.ca/",
-            "https://www.canadaammo.com/",
-            "http://www.canadiangunnutz.com/",
-            "https://www.corwin-arms.com/",
-            "http://www.crafm.com/",
-            "http://ctcsupplies.ca/",
-            "https://shop.dantesports.com/",
-            "https://ellwoodepps.com/",
-            "http://www.firearmsoutletcanada.com/",
-            "https://fishingworld.ca/",
-            "http://frontierfirearms.ca/",
-            "http://gotenda.com/",
-            "http://gun-shop.ca/",
-            "http://www.hical.ca/",
-            "http://internationalshootingsupplies.com/",
-            "https://www.irunguns.us/",
-            "http://www.leverarms.com/",
-            "http://www.magnumguns.ca/",
-            "http://www.marstar.ca/",
-            "http://store.prophetriver.com/",
-            "http://psmilitaria.50megs.com/",
-            "https://shopquestar.com/",
-            "http://www.sail.ca/",
-            "http://www.theammosource.com/",
-            "https://www.tradeexcanada.com/",
-            "http://westrifle.com/",
-            "http://www.wholesalesports.com/",
-            "https://www.wolverinesupplies.com/",
-    };
 
     private final WebPageService webPageService;
 
@@ -68,7 +37,7 @@ public class PopulateDBCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<String> roots = Observable.from(SOURCES);
+        Observable<String> roots = Observable.from(SitesUtil.SOURCES);
 
         roots.observeOn(Schedulers.immediate())
                 .subscribeOn(Schedulers.immediate())
