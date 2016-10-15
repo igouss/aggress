@@ -47,7 +47,7 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             String productName = document.select("h1.title").text();
-            if (productName.toUpperCase().contains("OUT OF STOCK") || productName.contains("Donation to the CSSA")) {
+            if (productName.toUpperCase().contains("OUT OF STOCK") || productName.contains("Donation to the CSSA") || productName.contains("SOLD")) {
                 return Observable.empty();
             }
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
