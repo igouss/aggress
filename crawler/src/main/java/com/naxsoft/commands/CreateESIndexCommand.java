@@ -30,7 +30,11 @@ public class CreateESIndexCommand implements Command {
     public void start() throws CLIException {
         Semaphore semaphore = new Semaphore(0);
         elastic.createIndex("product", "guns")
-                .subscribe(rc -> LOGGER.info("Elastic create index rc = {}", rc), ex -> {
+                .subscribe(
+                        rc -> {
+                            LOGGER.info("Elastic create index rc = {}", rc);
+                        },
+                        ex -> {
                             LOGGER.error("CreateIndex Exception", ex);
                             semaphore.release();
                         },
