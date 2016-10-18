@@ -1,8 +1,8 @@
 package com.naxsoft.commands;
 
+import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.parsingService.WebPageService;
-import com.naxsoft.utils.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -37,12 +37,17 @@ public class CrawlCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable.merge(
+        Observable<WebPageEntity> webPageEntriesStream = Observable.merge(
                 webPageService.getUnparsedByType("frontPage", 5, TimeUnit.SECONDS),
                 webPageService.getUnparsedByType("productList", 5, TimeUnit.SECONDS),
-                webPageService.getUnparsedByType("productPage", 5, TimeUnit.SECONDS))
-                .flatMap(webPage -> Observable.zip(webPageService.markParsed(webPage), Observable.just(webPageParserFactory.parse(webPage)), Tuple::new))
-                .flatMap(Tuple::getV2)
+                webPageService.getUnparsedByType("productPage", 5, TimeUnit.SECONDS));
+        webPageEntriesStream
+                .publish()
+                .autoConnect(2);
+
+        webPageEntriesStream
+                .doOnNext(webPageEntity -> LOGGER.info("Starting parse {}", webPageEntity))
+                .flatMap(webPageParserFactory::parse)
                 .flatMap(webPageService::addWebPageEntry)
                 .subscribe(
                         rc -> {
@@ -51,6 +56,20 @@ public class CrawlCommand implements Command {
                         err -> LOGGER.error("Failed", err),
                         () -> LOGGER.info("Crawl completed")
                 );
+
+        webPageEntriesStream
+                .doOnNext(webPageEntity -> LOGGER.info("Starting to mark as parsed {}", webPageEntity))
+                .flatMap(webPageService::markParsed)
+                .subscribe(
+                        rc -> {
+                            LOGGER.info("Maked as parsed {}", rc);
+                        },
+                        err -> {
+                            LOGGER.info("Maked as parsed failed", err);
+                        },
+                        () -> {
+                            LOGGER.info("Maked as parsed completed");
+                        });
     }
 
     @Override
