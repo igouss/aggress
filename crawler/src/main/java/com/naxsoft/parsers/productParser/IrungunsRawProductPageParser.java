@@ -45,7 +45,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             try {
@@ -55,7 +55,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -94,10 +94,10 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
                     productImage = document.select(".es-carousel img").attr("abs:src");
                 }
                 jsonBuilder.field("productImage", productImage);
-                jsonBuilder.field("regularPrice", parsePrice(document.select("#desPrice > li:nth-child(1) > span.pricetag.show").text()));
+                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select("#desPrice > li:nth-child(1) > span.pricetag.show").text()));
                 String specialPrice = document.select("#desPrice > li:nth-child(2) > span.pricetag.show").text();
                 if (!specialPrice.isEmpty()) {
-                    jsonBuilder.field("specialPrice", parsePrice(specialPrice));
+                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, specialPrice));
                 }
                 String description = document.select("#TabbedPanels1 > div > div:nth-child(1)").text();
                 if (!description.isEmpty()) {

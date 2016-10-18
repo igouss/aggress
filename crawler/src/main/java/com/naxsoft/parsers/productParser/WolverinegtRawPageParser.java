@@ -27,12 +27,12 @@ public class WolverinegtRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -62,10 +62,10 @@ public class WolverinegtRawPageParser extends AbstractRawPageParser {
 
                 String price = document.select(".entry-summary  .price > .amount").text();
                 if (price.isEmpty()) {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".entry-summary .price del .amount").text()));
-                    jsonBuilder.field("specialPrice", parsePrice(document.select(".entry-summary .price ins .amount").text()));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".entry-summary .price del .amount").text()));
+                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, document.select(".entry-summary .price ins .amount").text()));
                 } else {
-                    jsonBuilder.field("regularPrice", parsePrice(price));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, price));
                 }
 
                 jsonBuilder.field("description", document.select(".entry-summary  .description").text());

@@ -17,6 +17,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class WebPageEntity {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageEntity.class);
+
     /**
      *
      */
@@ -36,8 +37,11 @@ public class WebPageEntity {
      *
      */
     private String category;
-    private transient WebPageEntity parent;
 
+    /*
+
+     */
+    private transient WebPageEntity parent;
 
     public WebPageEntity(WebPageEntity parent, String content, String type, String url, String category) {
         this.parent = parent;
@@ -111,16 +115,16 @@ public class WebPageEntity {
      * Get pages's HTML
      */
     public String getContent() {
+        String result = "";
+
         if (null != this.content) {
             try {
-                return decompress(this.content);
+                result = decompress(this.content);
             } catch (IOException e) {
                 LOGGER.error("Failed to decompress", e);
             }
-        } else {
-            return null;
         }
-        return "";
+        return result;
     }
 
     public String getType() {

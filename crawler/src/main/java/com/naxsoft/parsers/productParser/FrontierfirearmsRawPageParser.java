@@ -27,12 +27,12 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -60,10 +60,10 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
 
                 String specialPrice = document.select(".ProductPrice.retail-product-price").text();
                 if ("".equals(specialPrice)) {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".ProductPrice.VariationProductPrice").text()));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".ProductPrice.VariationProductPrice").text()));
                 } else {
-                    jsonBuilder.field("specialPrice", parsePrice(specialPrice));
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".ProductPrice.VariationProductPrice").text()));
+                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, specialPrice));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".ProductPrice.VariationProductPrice").text()));
                 }
 //        jsonBuilder.field("description", document.select(".short-description").text());
                 jsonBuilder.field("description", document.select("#product_tabs_description_tabbed_contents > div").text());

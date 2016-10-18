@@ -29,12 +29,12 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "").replace(" ", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return "";
         }
     }
@@ -63,7 +63,7 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
                     jsonBuilder.field("url", webPageEntity.getUrl());
                     jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
                     jsonBuilder.field("productName", productName);
-                    String price = parsePrice(productName);
+                    String price = parsePrice(webPageEntity, productName);
                     if (!price.isEmpty()) {
                         jsonBuilder.field("regularPrice", price);
                     }

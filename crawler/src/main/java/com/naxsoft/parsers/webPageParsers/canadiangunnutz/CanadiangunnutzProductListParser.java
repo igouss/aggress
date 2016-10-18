@@ -23,7 +23,7 @@ import java.util.*;
 class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductListParser.class);
     private final HttpClient client;
-    private final Observable<List<Cookie>> futureCookies;
+    private final List<Cookie> cookies;
 
     private CanadiangunnutzProductListParser(HttpClient client) {
         this.client = client;
@@ -37,7 +37,7 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
             formParameters.put("do", "login");
             formParameters.put("vb_login_md5password", "");
             formParameters.put("vb_login_md5password_utf", "");
-            futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
+            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).toBlocking().first();
         } catch (PropertyNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -71,8 +71,7 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return futureCookies.first()
-                .flatMap(cookies -> client.get(parent.getUrl(), cookies, new DocumentCompletionHandler(parent)))
+        return client.get(parent.getUrl(), cookies, new DocumentCompletionHandler(parent))
                 .flatMap(this::parseDocument);
     }
 

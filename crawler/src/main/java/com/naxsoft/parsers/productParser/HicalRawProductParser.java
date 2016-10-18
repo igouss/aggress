@@ -50,12 +50,12 @@ class HicalRawProductParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -79,10 +79,10 @@ class HicalRawProductParser extends AbstractRawPageParser {
                 String regularPrice = document.select("#ProductDetails div.DetailRow.PriceRow > div.Value > em").text();
                 String specialPrice = document.select("#ProductDetails div.Value > strike").text();
                 if ("".equals(specialPrice)) {
-                    jsonBuilder.field("regularPrice", parsePrice(regularPrice));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, regularPrice));
                 } else {
-                    jsonBuilder.field("specialPrice", parsePrice(specialPrice));
-                    jsonBuilder.field("regularPrice", parsePrice(regularPrice));
+                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, specialPrice));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, regularPrice));
                 }
                 jsonBuilder.field("productImage", document.select("#ProductDetails .ProductThumbImage img").attr("src"));
                 jsonBuilder.field("description", document.select("#ProductDescription").text().trim());

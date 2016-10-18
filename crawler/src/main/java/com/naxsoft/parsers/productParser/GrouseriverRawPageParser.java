@@ -34,7 +34,7 @@ public class GrouseriverRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             try {
@@ -43,7 +43,7 @@ public class GrouseriverRawPageParser extends AbstractRawPageParser {
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -69,7 +69,7 @@ public class GrouseriverRawPageParser extends AbstractRawPageParser {
                 if (price.isEmpty()) {
                     price = document.select(".lead-price").text();
                 }
-                jsonBuilder.field("regularPrice", parsePrice(price));
+                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, price));
                 String desc1 = document.select("div[itemprop=description]").text();
                 String desc2 = document.select("#customInfo").text();
                 String desc3 = document.select("#customInfo2").text();

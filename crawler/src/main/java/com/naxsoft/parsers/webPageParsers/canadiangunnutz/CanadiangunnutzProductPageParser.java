@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +22,7 @@ import java.util.Map;
 class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
     private final HttpClient client;
-    private final Observable<List<Cookie>> futureCookies;
+    private final List<Cookie> cookies;
 
     private CanadiangunnutzProductPageParser(HttpClient client) {
         this.client = client;
@@ -36,7 +36,7 @@ class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
             formParameters.put("do", "login");
             formParameters.put("vb_login_md5password", "");
             formParameters.put("vb_login_md5password_utf", "");
-            futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedHashSet<>(), getCookiesHandler());
+            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).toBlocking().first();
         } catch (PropertyNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -44,7 +44,7 @@ class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return futureCookies.flatMap(cookies -> PageDownloader.download(client, cookies, webPage, "productPageRaw"));
+        return PageDownloader.download(client, cookies, webPage, "productPageRaw");
     }
 
     @Override

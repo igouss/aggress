@@ -41,7 +41,7 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = priceMatcher.matcher(price);
         if (matcher.find()) {
             try {
@@ -50,7 +50,7 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -86,10 +86,10 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
                 jsonBuilder.field("productImage", document.select("img[itemprop=image]").attr("srcset"));
                 String regularPriceStrike = document.select("div.product-details__main .product__price del").text();
                 if ("".equals(regularPriceStrike)) {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select("div.product-details__main .product__price").text()));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select("div.product-details__main .product__price").text()));
                 } else {
-                    jsonBuilder.field("regularPrice", parsePrice(regularPriceStrike));
-                    jsonBuilder.field("specialPrice", parsePrice(document.select("div.product-details__main .product__price").first().child(0).text()));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, regularPriceStrike));
+                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, document.select("div.product-details__main .product__price").first().child(0).text()));
                 }
 
                 jsonBuilder.field("description", document.select("div.product-details__meta-wrap > div > div > div:nth-child(1) > section span").text());

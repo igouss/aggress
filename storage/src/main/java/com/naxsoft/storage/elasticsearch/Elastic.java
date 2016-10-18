@@ -42,7 +42,6 @@ public class Elastic implements AutoCloseable, Cloneable {
      */
     public void connect(String hostname, int port) throws UnknownHostException {
         if (null == client) {
-
             Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
             this.client = new TransportClient.Builder().settings(settings).build();
             this.client.addTransportAddress(new InetSocketTransportAddress(java.net.InetAddress.getByName(hostname), port));
@@ -76,29 +75,27 @@ public class Elastic implements AutoCloseable, Cloneable {
     /**
      * Bulk insert data to ES.
      *
-     * @param products  Data to insert
+     * @param product  Data to insert
      * @param indexName Target ES index
      * @param type      Target ES type
      * @return Results of bulk insertion
      */
-    public Observable<Boolean> index(Observable<ProductEntity> products, String indexName, String type) {
-        return products.flatMap(p -> {
-            LOGGER.info("Preparing for indexing {} elements", p);
-            BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
+    public Observable<Boolean> index(ProductEntity product, String indexName, String type) {
+//        LOGGER.info("Preparing for indexing {} elements", product);
+        BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
 
-            try {
-                XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-                jsonBuilder.startObject();
-                IndexRequestBuilder request = client.prepareIndex(indexName, type, "" + p.getUrl());
-                request.setSource(p.getJson());
-                request.setOpType(IndexRequest.OpType.INDEX);
-                bulkRequestBuilder.add(request);
-            } catch (Exception e) {
-                LOGGER.error("Failed to generate bulk add operation", e);
-            }
+        try {
+            XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
+            jsonBuilder.startObject();
+            IndexRequestBuilder request = client.prepareIndex(indexName, type, "" + product.getUrl());
+            request.setSource(product.getJson());
+            request.setOpType(IndexRequest.OpType.INDEX);
+            bulkRequestBuilder.add(request);
+        } catch (Exception e) {
+            LOGGER.error("Failed to generate bulk add operation", e);
+        }
 
-            return Observable.from(bulkRequestBuilder.execute());
-        }).map(bulkResponse -> {
+        return Observable.from(bulkRequestBuilder.execute()).map(bulkResponse -> {
             if (bulkResponse.hasFailures()) {
                 LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
             } else {

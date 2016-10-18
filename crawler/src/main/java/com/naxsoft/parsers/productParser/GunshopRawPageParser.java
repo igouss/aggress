@@ -41,12 +41,12 @@ class GunshopRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -77,10 +77,10 @@ class GunshopRawPageParser extends AbstractRawPageParser {
 
                 String specialPrice = document.select(".entry-summary .price ins span").text();
                 if ("".equals(specialPrice)) {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".entry-summary .amount").text()));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".entry-summary .amount").text()));
                 } else {
-                    jsonBuilder.field("specialPrice", parsePrice(specialPrice));
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".entry-summary del .amount").text()));
+                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, specialPrice));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".entry-summary del .amount").text()));
                 }
 
 

@@ -43,12 +43,12 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -79,12 +79,12 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
                 String originalPrice = document.select(".productpage .productmsrp strike").text();
                 if (originalPrice.isEmpty()) {
                     originalPrice = document.select(".productpage .productunitprice").text();
-                    jsonBuilder.field("regularPrice", parsePrice(originalPrice));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, originalPrice));
                 } else {
                     String specialPrice = document.select(".productpage .productunitprice").text();
                     originalPrice = document.select(".productpage .productmsrp strike").text();
-                    jsonBuilder.field("regularPrice", parsePrice(originalPrice));
-                    jsonBuilder.field("specialPrice", parsePrice(specialPrice));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, originalPrice));
+                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, specialPrice));
                 }
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity.getCategory()));
                 jsonBuilder.endObject();

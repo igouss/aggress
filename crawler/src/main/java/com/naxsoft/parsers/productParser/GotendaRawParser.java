@@ -41,7 +41,7 @@ class GotendaRawParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             try {
@@ -50,7 +50,7 @@ class GotendaRawParser extends AbstractRawPageParser {
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -76,7 +76,7 @@ class GotendaRawParser extends AbstractRawPageParser {
 
                 jsonBuilder.field("productName", productName);
                 jsonBuilder.field("productImage", document.select("#ProductImages img").attr("abs:src"));
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".price-value").text()));
+                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".price-value").text()));
                 jsonBuilder.field("description", document.select(".description").text());
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
 

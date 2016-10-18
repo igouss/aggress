@@ -55,12 +55,12 @@ class CrafmProductRawParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -82,7 +82,7 @@ class CrafmProductRawParser extends AbstractRawPageParser {
                 jsonBuilder.field("productName", productName);
                 String img = document.select(".product-image img").attr("src");
                 jsonBuilder.field("productImage", img);
-                jsonBuilder.field("regularPrice", parsePrice(document.select("#product_addtocart_form > div.product-shop > div:nth-child(4) > h2 > span").text()));
+                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select("#product_addtocart_form > div.product-shop > div:nth-child(4) > h2 > span").text()));
                 jsonBuilder.field("description", document.select("div.short-description p[align=justify]").text());
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
                 jsonBuilder.endObject();

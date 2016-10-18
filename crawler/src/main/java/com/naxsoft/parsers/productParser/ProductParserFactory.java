@@ -148,9 +148,9 @@ public class ProductParserFactory {
         String host = SitesUtil.getHost(webPageEntity);
         String type = webPageEntity.getType();
         String mailbox = host + "/" + type;
-        assert type.equals("productPageRaw");
+        LOGGER.info("Sending to mailbox {} value {}", mailbox, webPageEntity);
         vertx.eventBus().publish(mailbox, webPageEntity);
-        return parseResult;
+        return parseResult.doOnNext(val -> LOGGER.info("Product parse results {}", val));
     }
 
     public void close() {

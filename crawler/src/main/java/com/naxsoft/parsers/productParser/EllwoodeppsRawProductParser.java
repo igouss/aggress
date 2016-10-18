@@ -57,12 +57,12 @@ class EllwoodeppsRawProductParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -87,7 +87,7 @@ class EllwoodeppsRawProductParser extends AbstractRawPageParser {
                 jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
                 jsonBuilder.field("productName", productName);
 
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".price").text()));
+                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".price").text()));
 
                 Iterator<Element> labels = document.select("th.label").iterator();
                 Iterator<Element> values = document.select("td.data").iterator();

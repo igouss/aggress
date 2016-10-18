@@ -94,16 +94,13 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
         mapping.put("HUNTING CLOTHES", "misc");
     }
 
-    /**
-     * @param price
-     * @return
-     */
-    private static String parsePrice(String price) {
+
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = priceParser.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -126,10 +123,10 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
                     jsonBuilder.field("productImage", document.select("meta[property=og:image]").attr("content"));
 
                     if (document.select(".product_section .was_price").text().equals("")) {
-                        jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .current_price").text()));
+                        jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".product_section .current_price").text()));
                     } else {
-                        jsonBuilder.field("regularPrice", parsePrice(document.select(".product_section .was_price").text()));
-                        jsonBuilder.field("specialPrice", parsePrice(document.select(".product_section-secondary .price-current_price").text()));
+                        jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".product_section .was_price").text()));
+                        jsonBuilder.field("specialPrice", parsePrice(webPageEntity, document.select(".product_section .current_price").text()));
                     }
                     jsonBuilder.field("description", document.select(".product_section .description").text());
                     jsonBuilder.field("category", getNormalizedCategories(webPageEntity));

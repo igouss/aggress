@@ -16,7 +16,6 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.storage.Persistent;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import com.naxsoft.utils.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -27,7 +26,7 @@ import javax.inject.Singleton;
 @Singleton
 public class RedisDatabase implements Persistent {
     private final static Logger LOGGER = LoggerFactory.getLogger(RedisDatabase.class);
-    private static final Long BATCH_SIZE = 20L;
+    private static final int BATCH_SIZE = 20;
 
     private final ClientResources res;
     private final RedisClient redisClient;
@@ -79,19 +78,8 @@ public class RedisDatabase implements Persistent {
         String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
         String member = Encoder.encode(webPageEntity);
-//        return connection.reactive()
-//                .sadd(destination, member);
-        return connection.reactive()
-                .sadd(destination, member)
-                .map(res -> {
-                    if (res == 0L) {
-                        LOGGER.info("Failed to move from {} to {} element {}...", source, destination, member.substring(0, 50));
-                        return 0L;
-                    } else {
-                        LOGGER.trace("Moved from {} to {} element {}...", source, destination, member.substring(0, 50));
-                        return 1L;
-                    }
-                });
+        return connection.reactive().sadd(destination, member);
+        //.doOnNext(res -> LOGGER.info("Moved rc={} from {} to {} element {}...", res, source, destination, member.substring(0, 50)));
     }
 
     @Override
@@ -100,39 +88,18 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Observable<Long> addProductPageEntry(Observable<ProductEntity> productEntity) {
-        return productEntity
-                .flatMap(entity -> {
-                    String key = "ProductEntity";
-                    String member = Encoder.encode(entity);
-                    return Observable.zip(connection.reactive().sadd(key, member), Observable.just(entity), Tuple::new);
-                })
-                .map(res -> {
-                    if (res.getV1() == 0L) {
-                        LOGGER.error("Failed to save {}", res.getV2());
-                    } else {
-                        LOGGER.trace("Saved {}", res.getV2());
-                    }
-                    return res.getV1();
-                });
+    public Observable<Long> addProductPageEntry(ProductEntity productEntity) {
+        String key = "ProductEntity";
+        String member = Encoder.encode(productEntity);
+        return connection.reactive().sadd(key, member);
     }
 
     @Override
-    public Observable<Long> addWebPageEntry(Observable<WebPageEntity> webPageEntity) {
-        return webPageEntity
-                .flatMap(entity -> {
-                    String key = "WebPageEntity" + "." + entity.getType();
-                    String member = Encoder.encode(entity);
-                    return Observable.zip(connection.reactive().sadd(key, member), Observable.just(entity), Tuple::new);
-                })
-                .map(res -> {
-                    if (res.getV1() == 0L) {
-                        LOGGER.error("Failed to save {}", res.getV2());
-                    } else {
-                        LOGGER.trace("Saved {}", res.getV2());
-                    }
-                    return res.getV1();
-                });
+    public Observable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
+        String key = "WebPageEntity" + "." + webPageEntity.getType();
+        String member = Encoder.encode(webPageEntity);
+        LOGGER.info("adding key {} val {}", key, member);
+        return connection.reactive().sadd(key, member);
     }
 
     @Override
@@ -147,24 +114,16 @@ public class RedisDatabase implements Persistent {
     public Observable<WebPageEntity> getUnparsedByType(String type, Long count) {
         LOGGER.info("getUnparsedByType {} {}", type, count);
         String key = "WebPageEntity." + type;
-        long popCount = Math.min(BATCH_SIZE, count);
 //        return connection.reactive().spop(key, popCount).map(webPageEntityEncoder::decode);
         return connection.reactive()
-                .spop(key, popCount)
+                .spop(key, Math.min(count, BATCH_SIZE))
+                .doOnNext(val -> LOGGER.info("SPOP'ed from {} value {}", key, val))
                 .map(WebPageEntityEncoder::decode)
                 .filter(entry -> entry != null);
     }
 
     @Override
-    public Observable<Long> cleanUp(String[] tables) {
-        return connection.reactive().del(
-                "WebPageEntity.frontPage",
-                "WebPageEntity.frontPage.parsed",
-                "WebPageEntity.productList",
-                "WebPageEntity.productList.parsed",
-                "WebPageEntity.productPage",
-                "WebPageEntity.productPage.parsed",
-                "ProductEntity"
-        );
+    public Observable<String> cleanUp(String[] tables) {
+        return connection.reactive().flushall();
     }
 }

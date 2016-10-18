@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -106,6 +107,7 @@ public class AhcHttpClient implements HttpClient {
         boolean useNativeTransport = osName.contains("linux"); //
 
 
+        ThrottleRequestFilter throttleRequestFilter = new ThrottleRequestFilter(MAX_CONNECTIONS);
         AsyncHttpClientConfig asyncHttpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setAcceptAnyCertificate(true)
                 .setSslContext(sslContext)
@@ -113,13 +115,21 @@ public class AhcHttpClient implements HttpClient {
                 .setMaxRequestRetry(10)
                 .setAcceptAnyCertificate(true)
                 .addIOExceptionFilter(new ResumableIOExceptionFilter())
-                .addRequestFilter(new ThrottleRequestFilter(MAX_CONNECTIONS))
+                .addRequestFilter(throttleRequestFilter)
                 .setUseNativeTransport(useNativeTransport)
                 .setUsePooledMemory(true)
                 .build();
         asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig);
 
         try {
+            Field availableField = throttleRequestFilter.getClass().getDeclaredField("available"); //NoSuchFieldException
+            availableField.setAccessible(true);
+            Semaphore available = (Semaphore) availableField.get(throttleRequestFilter); //IllegalAccessException
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "availablePermits"),
+                    (Gauge<Integer>) available::availablePermits);
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "queueLength"),
+                    (Gauge<Integer>) available::getQueueLength);
+
             Field requestSenderField = asyncHttpClient.getClass().getDeclaredField("requestSender"); //NoSuchFieldException
             requestSenderField.setAccessible(true);
             NettyRequestSender requestSender = (NettyRequestSender) requestSenderField.get(asyncHttpClient); //IllegalAccessException
@@ -132,7 +142,6 @@ public class AhcHttpClient implements HttpClient {
             Field openChannelsField = channelManager.getClass().getDeclaredField("openChannels"); //NoSuchFieldException
             openChannelsField.setAccessible(true);
             ChannelGroup openChannels = (ChannelGroup) openChannelsField.get(channelManager); //IllegalAccessException
-
 
             metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "openConnectionCount"),
                     (Gauge<Long>) () -> openChannels.stream().filter(Channel::isOpen).count());
@@ -270,14 +279,14 @@ public class AhcHttpClient implements HttpClient {
         }
         requestBuilder.setFollowRedirect(true);
         requestBuilder.setProxyServer(proxyManager.getProxyServer());
-
-        Request request = requestBuilder.build();
-        handler.setProxyManager(proxyManager);
-
         Set<Map.Entry<String, String>> entries = formParameters.entrySet();
         for (Map.Entry<String, String> e : entries) {
             requestBuilder.addFormParam(e.getKey(), e.getValue());
         }
+
+        Request request = requestBuilder.build();
+        handler.setProxyManager(proxyManager);
+
         return Observable.from(asyncHttpClient.executeRequest(request, handler));
     }
 

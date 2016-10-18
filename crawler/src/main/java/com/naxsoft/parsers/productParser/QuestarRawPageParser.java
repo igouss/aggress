@@ -36,12 +36,12 @@ class QuestarRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -65,7 +65,7 @@ class QuestarRawPageParser extends AbstractRawPageParser {
                 jsonBuilder.field("productImage", document.select("a[rel=lightbox] img").attr("abs:src"));
                 jsonBuilder.field("description", document.select("#main > table > tbody > tr:nth-child(2) > td").text());
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-                jsonBuilder.field("regularPrice", parsePrice(document.select("#main td > span.price").text()));
+                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select("#main td > span.price").text()));
                 jsonBuilder.endObject();
                 product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
             }

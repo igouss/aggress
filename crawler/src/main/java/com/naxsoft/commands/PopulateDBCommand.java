@@ -19,9 +19,6 @@ import javax.inject.Inject;
  */
 public class PopulateDBCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(PopulateDBCommand.class);
-    /**
-     * Sites that crawler can walk and parse
-     */
 
     private final WebPageService webPageService;
 
@@ -29,7 +26,6 @@ public class PopulateDBCommand implements Command {
     public PopulateDBCommand(WebPageService webPageService) {
         this.webPageService = webPageService;
     }
-
 
     @Override
     public void setUp() throws io.vertx.core.cli.CLIException {
@@ -41,13 +37,14 @@ public class PopulateDBCommand implements Command {
 
         roots.observeOn(Schedulers.immediate())
                 .subscribeOn(Schedulers.immediate())
-                .map(entry -> Observable.just(new WebPageEntity(null, "", "frontPage", entry, "")))
+                .map(entry -> new WebPageEntity(null, "", "frontPage", entry, ""))
                 .flatMap(webPageService::addWebPageEntry)
                 .all(result -> result != 0L)
-                .subscribe(result ->
-                                LOGGER.info("Roots populated: {}", result),
+                .subscribe(
+                        result -> LOGGER.info("Roots populated: {}", result),
                         err -> LOGGER.error("Failed to populate roots", err),
-                        () -> LOGGER.info("Root population complete"));
+                        () -> LOGGER.info("Root population complete")
+                );
     }
 
     @Override

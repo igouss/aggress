@@ -26,4 +26,29 @@ public class ProductEntity {
     public String getUrl() {
         return url;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ProductEntity that = (ProductEntity) o;
+
+        return json.equals(that.json) && url.equals(that.url);
+    }
+
+
+    @Override
+    public int hashCode() {
+        int result = json.hashCode();
+        result = 31 * result + url.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ProductEntity{" +
+                "url='" + url + '\'' +
+                '}';
+    }
 }

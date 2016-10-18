@@ -23,7 +23,7 @@ public class ProductService {
     /**
      * @param products Save
      */
-    public Observable<Long> save(Observable<ProductEntity> products) {
+    public Observable<Long> save(ProductEntity products) {
         return database.addProductPageEntry(products);
     }
 

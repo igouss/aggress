@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright NAXSoft 2015
- *
+ * <p>
  * Crawl pages from initial data-set walking breath first. For each page generate one or more sub-pages to parse.
  * Stop at leafs.
  * Process the stream of unparsed webpages. Processed web pages are saved into the
@@ -41,10 +41,12 @@ public class CrawlCommand implements Command {
                 webPageService.getUnparsedByType("frontPage", 5, TimeUnit.SECONDS),
                 webPageService.getUnparsedByType("productList", 5, TimeUnit.SECONDS),
                 webPageService.getUnparsedByType("productPage", 5, TimeUnit.SECONDS))
-                .flatMap(pageToParse -> Observable.zip(Observable.just(webPageParserFactory.parse(pageToParse)), webPageService.markParsed(pageToParse), Tuple::new))
-                .flatMap(tuple -> webPageService.addWebPageEntry(tuple.getV1()))
+                .flatMap(webPage -> Observable.zip(webPageService.markParsed(webPage), Observable.just(webPageParserFactory.parse(webPage)), Tuple::new))
+                .flatMap(Tuple::getV2)
+                .flatMap(webPageService::addWebPageEntry)
                 .subscribe(
                         rc -> {
+//                            LOGGER.info("Added WebPageEntry, parent marked as parsed: {} results added to DB", rc);
                         },
                         err -> LOGGER.error("Failed", err),
                         () -> LOGGER.info("Crawl completed")

@@ -42,12 +42,12 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -75,7 +75,7 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
                     jsonBuilder.field("productImage", img);
                 }
                 jsonBuilder.field("description", document.select(".ProductDescriptionContainer").text());
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".ProductPrice").text()));
+                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".ProductPrice").text()));
                 jsonBuilder.field("category", getNormalizedCategories(category));
                 jsonBuilder.endObject();
                 product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());

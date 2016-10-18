@@ -52,7 +52,8 @@ public class Crawler {
     }
 
     private void start(String[] args) {
-        HealthMonitor.start();
+        HealthMonitor healthMonitor = new HealthMonitor();
+        healthMonitor.start();
         DaggerApplicationComponent.Builder applicationBuilder = DaggerApplicationComponent.builder();
         ApplicationComponent applicationComponent = applicationBuilder.build();
 
@@ -101,9 +102,8 @@ public class Crawler {
             LOGGER.error("Application failure", e);
         } finally {
             try {
-                if (null != metricReporter) {
-                    metricReporter.stop();
-                }
+                metricReporter.stop();
+
                 if (scheduler != null) {
                     scheduler.stop();
                 }
@@ -115,6 +115,7 @@ public class Crawler {
                 ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
                 applicationComponent.getElastic().close();
                 applicationComponent.getVertx().close();
+                healthMonitor.stop();
 
             } catch (Exception e) {
                 e.printStackTrace();

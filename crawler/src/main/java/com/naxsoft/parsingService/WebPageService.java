@@ -29,7 +29,7 @@ public class WebPageService {
      * @param webPageEntity WebPage to persist
      * @return true if successfully persisted, false otherwise
      */
-    public Observable<Long> addWebPageEntry(Observable<WebPageEntity> webPageEntity) {
+    public Observable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
         return database.addWebPageEntry(webPageEntity);
     }
 

@@ -41,12 +41,10 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     }
 
     private final HttpClient client;
-    private final Observable<List<Cookie>> futureCookies;
-    private final List<Cookie> cookies = null;
+    private List<Cookie> cookies = null;
 
     private CanadiangunnutzFrontPageParser(HttpClient client) {
         this.client = client;
-
         Map<String, String> formParameters = new HashMap<>();
         try {
             formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
@@ -57,9 +55,9 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
             formParameters.put("do", "login");
             formParameters.put("vb_login_md5password", "");
             formParameters.put("vb_login_md5password_utf", "");
-            futureCookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler());
+            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).toBlocking().first();
         } catch (PropertyNotFoundException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -116,8 +114,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         WebPageEntity webPageEntity = new WebPageEntity(parent, "", "", "http://www.canadiangunnutz.com/forum/forum.php", "");
-        return futureCookies
-                .flatMap(cookies1 -> client.get(webPageEntity.getUrl(), cookies1, new DocumentCompletionHandler(webPageEntity)))
+        return client.get(webPageEntity.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))
                 .flatMap(this::parseDocument2);

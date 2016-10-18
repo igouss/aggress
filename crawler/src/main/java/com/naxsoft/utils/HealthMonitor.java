@@ -11,8 +11,11 @@ import java.util.concurrent.TimeUnit;
 public class HealthMonitor implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger("HealthMonitor");
 
-    public static void start() {
-        Thread healthCheck = new Thread(new HealthMonitor(), "HealthMonitor");
+    private boolean keepRunning;
+
+    public void start() {
+        keepRunning = true;
+        Thread healthCheck = new Thread(this, "HealthMonitor");
         healthCheck.setDaemon(true);
         healthCheck.setUncaughtExceptionHandler((t, e) -> LOGGER.error("DEAD"));
         healthCheck.start();
@@ -20,7 +23,7 @@ public class HealthMonitor implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
+        while (keepRunning) {
             try {
                 Thread.sleep(TimeUnit.MINUTES.toMillis(1));
             } catch (InterruptedException e) {
@@ -28,6 +31,10 @@ public class HealthMonitor implements Runnable {
             }
             LOGGER.info("ALIVE");
         }
+    }
+
+    public void stop() {
+        keepRunning = false;
     }
 
     private class HealthCheckException extends RuntimeException {

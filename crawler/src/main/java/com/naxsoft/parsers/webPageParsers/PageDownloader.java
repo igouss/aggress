@@ -44,7 +44,7 @@ public class PageDownloader {
 
             @Override
             public WebPageEntity onCompleted(Response response) throws Exception {
-                LOGGER.info("Completed request to {} {}", parentPage.getType(), response.getUri().toString());
+//                LOGGER.info("Completed request to {} {}", parentPage.getType(), response.getUri().toString());
                 WebPageEntity result = null;
                 if (200 == response.getStatusCode()) {
                     result = new WebPageEntity(parentPage, response.getResponseBody(), pageType, response.getUri().toUrl(), parentPage.getCategory());

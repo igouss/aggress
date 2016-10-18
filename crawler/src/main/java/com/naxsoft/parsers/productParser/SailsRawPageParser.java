@@ -30,12 +30,12 @@ class SailsRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -60,10 +60,10 @@ class SailsRawPageParser extends AbstractRawPageParser {
                 jsonBuilder.field("description", document.select(".product-shop .short-description").text() + " " + document.select("div[data-component=product-description-region]").text());
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
                 if (!document.select(".product-shop .special-price").isEmpty()) {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".product-shop .old-price .price").text()));
-                    jsonBuilder.field("specialPrice", parsePrice(document.select(".product-shop .special-price .price").text()));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".product-shop .old-price .price").text()));
+                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, document.select(".product-shop .special-price .price").text()));
                 } else {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".product-shop .regular-price .price").text()));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".product-shop .regular-price .price").text()));
                 }
 
                 Iterator<Element> labels = document.select(".spec-row .label").iterator();

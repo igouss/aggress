@@ -28,12 +28,12 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -64,14 +64,14 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
                 if (document.select(".new .price-value").isEmpty()) {
                     Elements price = document.select(".current .price-value");
                     if (!price.isEmpty()) {
-                        jsonBuilder.field("regularPrice", parsePrice(price.text()));
+                        jsonBuilder.field("regularPrice", parsePrice(webPageEntity, price.text()));
                     } else {
                         price = document.select("div.productDescription span.price-value");
-                        jsonBuilder.field("regularPrice", parsePrice(price.text()));
+                        jsonBuilder.field("regularPrice", parsePrice(webPageEntity, price.text()));
                     }
                 } else {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select(".old .price-value").text()));
-                    jsonBuilder.field("specialPrice", parsePrice(document.select(".new .price-value").text()));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".old .price-value").text()));
+                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, document.select(".new .price-value").text()));
                 }
                 jsonBuilder.field("description", document.select(".summary").text());
                 jsonBuilder.endObject();

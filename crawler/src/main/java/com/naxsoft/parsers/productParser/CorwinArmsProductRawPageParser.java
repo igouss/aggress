@@ -43,13 +43,13 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
 
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -73,7 +73,7 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
                     img = document.select("div.field-name-field-product-mag-image > div > div > img").attr("abs:src");
                 }
                 jsonBuilder.field("productImage", img);
-                jsonBuilder.field("regularPrice", parsePrice(document.select(".field-name-commerce-price").text()));
+                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".field-name-commerce-price").text()));
                 jsonBuilder.field("description", document.select("div.field-type-text-with-summary > div > div").text().replace("\u0160", "\n"));
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
 

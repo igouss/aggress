@@ -58,7 +58,7 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
 
         Matcher matcher = priceMatcher.matcher(price);
         String result;
@@ -69,7 +69,7 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
                 result = Double.valueOf(matcher.group(1)).toString();
             }
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             result = price;
         }
         return result;
@@ -79,23 +79,23 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
      * @param document
      * @return
      */
-    private static String getRegularPrice(Document document) {
+    private static String getRegularPrice(WebPageEntity webPageEntity, Document document) {
         String raw = document.select(".regular-price").text().trim();
         if (raw.isEmpty()) {
             raw = document.select(".old-price .price").text().trim();
         }
-        return parsePrice(raw);
+        return parsePrice(webPageEntity, raw);
     }
 
     /**
      * @param document
      * @return
      */
-    private static String getSpecialPrice(Document document) {
+    private static String getSpecialPrice(WebPageEntity webPageEntity, Document document) {
         String raw = document.select(".special-price .price").text().trim();
         String price = "";
         if (!raw.isEmpty()) {
-            price = parsePrice(raw);
+            price = parsePrice(webPageEntity, raw);
         }
         return price;
     }
@@ -134,8 +134,8 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
                 jsonBuilder.field("productName", productName);
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
                 jsonBuilder.field("productImage", document.select("#product_addtocart_form > div.product-img-box > p > a > img").attr("src").trim());
-                jsonBuilder.field("regularPrice", getRegularPrice(document));
-                jsonBuilder.field("specialPrice", getSpecialPrice(document));
+                jsonBuilder.field("regularPrice", getRegularPrice(webPageEntity, document));
+                jsonBuilder.field("specialPrice", getSpecialPrice(webPageEntity, document));
 
                 try {
                     jsonBuilder.field("freeShipping", BullseyelondonProductRawPageParser.getFreeShipping(document));

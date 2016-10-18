@@ -1,13 +1,10 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.storage.elasticsearch.Elastic;
-import com.naxsoft.utils.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -50,28 +47,23 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        process(webPageService.getUnparsedByType("productPageRaw", 5, TimeUnit.SECONDS), "product", "guns");
+        webPageService.getUnparsedByType("productPageRaw", 5, TimeUnit.SECONDS)
+                .doOnNext(webPageEntity -> LOGGER.info("Starting RAW page parsing {}", webPageEntity))
+                .flatMap(productParserFactory::parse)
+                .doOnNext(productEntity -> LOGGER.info("Starting indexing {}", productEntity))
+                .flatMap(product -> elastic.index(product, "product", "guns"))
+                .subscribe(
+                        val -> {
+//                            LOGGER.info("Indexed: {}", val);
+                        },
+                        err -> LOGGER.error("Failed", err),
+                        () -> LOGGER.info("Completed")
+                );
         LOGGER.info("Parsing complete");
     }
 
 
     @Override
     public void tearDown() throws CLIException {
-    }
-
-    /**
-     * Adds stream of products to Elasticsearch
-     */
-    private void process(Observable<WebPageEntity> productPagesRaw, String index, String type) {
-        productPagesRaw
-                .flatMap(productPageRaw -> Observable.zip(Observable.just(productParserFactory.parse(productPageRaw)), webPageService.markParsed(productPageRaw), Tuple::new))
-                .flatMap(tuple2 -> elastic.index(tuple2.getV1(), index, type))
-                .subscribe(
-                        val -> {
-                            LOGGER.info("Indexted: {}", val);
-                        },
-                        err -> LOGGER.error("Failed", err),
-                        () -> LOGGER.info("Completed")
-                );
     }
 }

@@ -28,12 +28,12 @@ class TheammosourceRawPageParser extends AbstractRawPageParser {
      * @param price
      * @return
      */
-    private static String parsePrice(String price) {
+    private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}", price);
+            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -63,10 +63,10 @@ class TheammosourceRawPageParser extends AbstractRawPageParser {
                 jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
                 Elements specialPrice = document.select("#productPrices .productSpecialPrice");
                 if (!specialPrice.isEmpty()) {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices .normalprice").text()));
-                    jsonBuilder.field("specialPrice", parsePrice(specialPrice.text()));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select("#productPrices .normalprice").text()));
+                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, specialPrice.text()));
                 } else {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select("#productPrices #retail").text()));
+                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select("#productPrices #retail").text()));
                 }
 
                 jsonBuilder.endObject();
