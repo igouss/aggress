@@ -39,7 +39,7 @@ class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                 String linkUrl = e.attr("abs:href");
 
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", linkUrl, e.text());
-                LOGGER.info("Found on front page ={}", linkUrl);
+                LOGGER.info("Found productList page {}", linkUrl);
                 result.add(webPageEntity);
             }
         }

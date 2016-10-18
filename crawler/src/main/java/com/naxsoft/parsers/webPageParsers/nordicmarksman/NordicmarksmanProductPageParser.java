@@ -18,7 +18,9 @@ public class NordicmarksmanProductPageParser extends AbstractWebPageParser {
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
-        return PageDownloader.download(client, webPage, "productPageRaw").filter(data -> null != data);
+        LOGGER.trace("Processing productPage {}", webPage.getUrl());
+        return PageDownloader.download(client, webPage, "productPageRaw")
+                .filter(data -> null != data);
     }
 
     @Override

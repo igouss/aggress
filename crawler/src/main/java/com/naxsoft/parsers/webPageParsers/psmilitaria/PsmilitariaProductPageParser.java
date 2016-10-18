@@ -20,10 +20,10 @@ class PsmilitariaProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return PageDownloader.download(client, parent, "productPageRaw")
+    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+        LOGGER.trace("Processing productPage {}", webPage.getUrl());
+        return PageDownloader.download(client, webPage, "productPageRaw")
                 .filter(data -> null != data);
-
     }
 
     @Override
