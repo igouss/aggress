@@ -3,15 +3,12 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -65,26 +62,33 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
+
+            ProductEntity product;
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
+
             if (document.select("#productDetailsList > li").text().equals("0 Units in Stock")) {
                 return Observable.empty();
             }
 
-            String productName = document.select("#productName").text();
+            productName = document.select("#productName").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-            ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                jsonBuilder.field("productName", productName);
-                jsonBuilder.field("productImage", document.select("#productMainImage a > img").attr("abs:src"));
-                jsonBuilder.field("description", document.select("#productDescription").text());
-                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select("#productPrices").text()));
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
-            }
+
+            url = webPageEntity.getUrl();
+            productImage = document.select("#productMainImage a > img").attr("abs:src");
+            description = document.select("#productDescription").text();
+            category = getNormalizedCategories(webPageEntity);
+            regularPrice = parsePrice(webPageEntity, document.select("#productPrices").text());
+
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

@@ -4,8 +4,6 @@ import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,10 +45,13 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
      * @return
      */
     private static String getFreeShipping(Document document) {
-        String raw = document.select(".freeShip").first().text();
-
-        Matcher matcher = freeShippingPattern.matcher(raw);
-        return matcher.find() ? "true" : "false";
+        if (!document.select(".freeShip").isEmpty()) {
+            String raw = document.select(".freeShip").first().text();
+            Matcher matcher = freeShippingPattern.matcher(raw);
+            return matcher.find() ? "true" : "false";
+        } else {
+            return "false";
+        }
     }
 
     /**
@@ -59,7 +59,6 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
      * @return
      */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
-
         Matcher matcher = priceMatcher.matcher(price);
         String result;
         if (matcher.find()) {
@@ -105,14 +104,17 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
      * @return
      */
     private static String getUnitsAvailable(Document document) {
-        String raw = document.select(".price-box").first().nextElementSibling().text().trim();
-        String result;
+        Elements priceBox = document.select(".price-box");
+        String result = "";
+        if (!priceBox.isEmpty()) {
+            String raw = priceBox.first().nextElementSibling().text().trim();
 
-        Matcher matcher = unitsAvailablePattern.matcher(raw);
-        if (matcher.find()) {
-            result = matcher.group(0);
-        } else {
-            result = raw;
+            Matcher matcher = unitsAvailablePattern.matcher(raw);
+            if (matcher.find()) {
+                result = matcher.group(0);
+            } else {
+                result = raw;
+            }
         }
         return result;
     }
@@ -122,42 +124,45 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-                String productName = document.select(".product-name h1").first().text().trim();
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
+
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Elements productNameEl = document.select(".product-name h1");
+            if (!productNameEl.isEmpty()) {
+                productName = productNameEl.first().text().trim();
                 LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                document.select(".product-name h1").first().children().remove();
-                jsonBuilder.field("productName", productName);
-                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-                jsonBuilder.field("productImage", document.select("#product_addtocart_form > div.product-img-box > p > a > img").attr("src").trim());
-                jsonBuilder.field("regularPrice", getRegularPrice(webPageEntity, document));
-                jsonBuilder.field("specialPrice", getSpecialPrice(webPageEntity, document));
-
-                try {
-                    jsonBuilder.field("freeShipping", BullseyelondonProductRawPageParser.getFreeShipping(document));
-                } catch (Exception ignored) {
-                }
-
-                jsonBuilder.field("unitsAvailable", BullseyelondonProductRawPageParser.getUnitsAvailable(document));
-                jsonBuilder.field("description", document.select(".short-description").text().trim());
-
-                Elements table = document.select("#product_tabs_additional_contents");
-
-                for (Element row : table.select("tr")) {
-                    String th = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, row.select("th").text().replace(' ', '-'));
-                    String td = row.select("td").text();
-                    if (!th.equalsIgnoreCase("category")) {
-                        jsonBuilder.field(th, td);
-                    }
-                }
-
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
+            } else {
+                LOGGER.warn("unable to find product name {}", webPageEntity);
+                return Observable.empty();
             }
+
+            url = webPageEntity.getUrl();
+
+            category = getNormalizedCategories(webPageEntity);
+            productImage = document.select("#product_addtocart_form > div.product-img-box > p > a > img").attr("src").trim();
+            regularPrice = getRegularPrice(webPageEntity, document);
+            specialPrice = getSpecialPrice(webPageEntity, document);
+            attr.put("freeShipping", BullseyelondonProductRawPageParser.getFreeShipping(document));
+            attr.put("unitsAvailable", BullseyelondonProductRawPageParser.getUnitsAvailable(document));
+            description = document.select(".short-description").text().trim();
+
+            Elements table = document.select("#product_tabs_additional_contents");
+
+            for (Element row : table.select("tr")) {
+                String th = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, row.select("th").text().replace(' ', '-'));
+                String td = row.select("td").text();
+                if (!th.equalsIgnoreCase("category")) {
+                    attr.put(th, td);
+                }
+            }
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

@@ -3,8 +3,6 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -12,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -73,37 +70,38 @@ class EllwoodeppsRawProductParser extends AbstractRawPageParser {
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
+            ProductEntity product;
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
+
             if (!document.select(".firearm-links-sold").isEmpty()) {
                 return Observable.empty();
             }
 
-            String productName = document.select(".product-name span").text();
+            productName = document.select(".product-name span").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-            ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                jsonBuilder.field("productName", productName);
+            url = webPageEntity.getUrl();
+            regularPrice = parsePrice(webPageEntity, document.select(".price").text());
+            Iterator<Element> labels = document.select("th.label").iterator();
+            Iterator<Element> values = document.select("td.data").iterator();
 
-                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".price").text()));
-
-                Iterator<Element> labels = document.select("th.label").iterator();
-                Iterator<Element> values = document.select("td.data").iterator();
-
-                while (labels.hasNext()) {
-                    String specName = labels.next().text();
-                    String specValue = values.next().text();
-                    if (!specValue.isEmpty()) {
-                        jsonBuilder.field(specName, specValue);
-                    }
+            while (labels.hasNext()) {
+                String specName = labels.next().text();
+                String specValue = values.next().text();
+                if (!specValue.isEmpty()) {
+                    attr.put(specName, specValue);
                 }
-
-                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
             }
+            category = getNormalizedCategories(webPageEntity);
+
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

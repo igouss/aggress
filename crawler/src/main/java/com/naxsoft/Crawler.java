@@ -48,7 +48,7 @@ public class Crawler {
     }
 
     private static void showHelp() {
-        out.println("com.naxsoft.Crawler [-createESIndex] [-createESMappings] [-clean] [-populate] [-crawl] [-parse]");
+        out.println("com.naxsoft.Crawler [-createESIndex] [-clean] [-populate] [-crawl] [-parse]");
     }
 
     private void start(String[] args) {
@@ -65,6 +65,7 @@ public class Crawler {
         metricReporter.start(1, TimeUnit.SECONDS);
 
         Scheduler scheduler = null;
+
 
         try {
             final OptionSet options = parseCommandLineArguments(args);
@@ -97,29 +98,59 @@ public class Crawler {
                 applicationComponent.getParseCommand().start();
             }
 //            }, 0, 1, TimeUnit.MINUTES);
+
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    LOGGER.info("Stopping crawler..");
+                    metricReporter.stop();
+                    if (scheduler != null) {
+                        scheduler.stop();
+                    }
+
+                    if (options.has("createESIndex")) {
+                        applicationComponent.getCreateESIndexCommand().tearDown();
+                    }
+
+//            scheduler = applicationComponent.getScheduler();
+//            scheduler.add(() -> {
+
+                    if (options.has("clean")) {
+                        applicationComponent.getCleanDbCommand().tearDown();
+
+                    }
+
+                    if (options.has("populate")) {
+                        applicationComponent.getPopulateDBCommand().tearDown();
+                    }
+
+                    if (options.has("crawl")) {
+                        applicationComponent.getCrawlCommand().tearDown();
+                    }
+
+                    if (options.has("parse")) {
+                        applicationComponent.getParseCommand().tearDown();
+                    }
+
+                    applicationComponent.getWebPageParserFactory().close();
+                    applicationComponent.getProductParserFactory().close();
+
+                    applicationComponent.getDatabase().close();
+                    applicationComponent.getHttpClient().close();
+                    applicationComponent.getElastic().close();
+                    applicationComponent.getVertx().close();
+                    healthMonitor.stop();
+                    LOGGER.info("Crawler stopped...");
+
+                    ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }, "Shutdown Hook"));
+
             System.in.read();
         } catch (Exception e) {
             LOGGER.error("Application failure", e);
-        } finally {
-            try {
-                metricReporter.stop();
-
-                if (scheduler != null) {
-                    scheduler.stop();
-                }
-                applicationComponent.getDatabase().close();
-                applicationComponent.getHttpClient().close();
-                applicationComponent.getWebPageParserFactory().close();
-                applicationComponent.getProductParserFactory().close();
-                applicationComponent.getElastic().close();
-                ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
-                applicationComponent.getElastic().close();
-                applicationComponent.getVertx().close();
-                healthMonitor.stop();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }

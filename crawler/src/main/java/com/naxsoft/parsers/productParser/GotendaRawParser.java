@@ -3,15 +3,12 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,29 +57,32 @@ class GotendaRawParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
 
-                Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            url = webPageEntity.getUrl();
 
-                if (!document.select(".ProductOutStockIcon").isEmpty()) {
-                    return Observable.empty();
-                }
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-                String productName = document.select(".InfoArea h1[itemprop=name]").text();
-                LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-
-                jsonBuilder.field("productName", productName);
-                jsonBuilder.field("productImage", document.select("#ProductImages img").attr("abs:src"));
-                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".price-value").text()));
-                jsonBuilder.field("description", document.select(".description").text());
-                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
+            if (!document.select(".ProductOutStockIcon").isEmpty()) {
+                return Observable.empty();
             }
+
+            productName = document.select(".InfoArea h1[itemprop=name]").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+
+            productImage = document.select("#ProductImages img").attr("abs:src");
+            regularPrice = parsePrice(webPageEntity, document.select(".price-value").text());
+            description = document.select(".description").text();
+            category = getNormalizedCategories(webPageEntity);
+
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

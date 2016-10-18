@@ -1,10 +1,13 @@
 package com.naxsoft.commands;
 
+import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.storage.elasticsearch.Elastic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.Subscription;
 
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -32,12 +35,16 @@ public class ParseCommand implements Command {
     private WebPageService webPageService = null;
     private Elastic elastic = null;
     private ProductParserFactory productParserFactory = null;
+    private Subscription productIndexSubscription;
+    private Subscription priceIndexSubscription;
 
     @Inject
     public ParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
         this.webPageService = webPageService;
         this.productParserFactory = productParserFactory;
         this.elastic = elastic;
+        priceIndexSubscription = null;
+        productIndexSubscription = null;
     }
 
     @Override
@@ -47,23 +54,46 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        webPageService.getUnparsedByType("productPageRaw", 5, TimeUnit.SECONDS)
+        Observable<ProductEntity> productPages = webPageService.getUnparsedByType("productPageRaw", 5, TimeUnit.SECONDS)
                 .doOnNext(webPageEntity -> LOGGER.info("Starting RAW page parsing {}", webPageEntity))
                 .flatMap(productParserFactory::parse)
-                .doOnNext(productEntity -> LOGGER.info("Starting indexing {}", productEntity))
+                .doOnNext(productEntity -> LOGGER.info("Parsed page {}", productEntity))
+                .publish()
+                .autoConnect(2);
+
+        productIndexSubscription = productPages
+                .doOnNext(productEntity -> LOGGER.info("Starting product indexing {}", productEntity))
                 .flatMap(product -> elastic.index(product, "product", "guns"))
                 .subscribe(
                         val -> {
 //                            LOGGER.info("Indexed: {}", val);
                         },
-                        err -> LOGGER.error("Failed", err),
-                        () -> LOGGER.info("Completed")
+                        err -> LOGGER.error("Product indexing failed", err),
+                        () -> LOGGER.info("Product indexing completed")
                 );
+
+        priceIndexSubscription = productPages
+                .doOnNext(productEntity -> LOGGER.info("Starting price indexing {}", productEntity))
+                .flatMap(product -> elastic.price_index(product, "product", "prices"))
+                .subscribe(
+                        val -> {
+//                            LOGGER.info("Indexed: {}", val);
+                        },
+                        err -> LOGGER.error("Price indexing failed", err),
+                        () -> LOGGER.info("Price indexing completed")
+                );
+
         LOGGER.info("Parsing complete");
     }
 
 
     @Override
     public void tearDown() throws CLIException {
+        if (productIndexSubscription != null) {
+            productIndexSubscription.unsubscribe();
+        }
+        if (priceIndexSubscription != null) {
+            priceIndexSubscription.unsubscribe();
+        }
     }
 }

@@ -3,8 +3,6 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,14 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Copyright NAXSoft 2015
@@ -57,46 +52,51 @@ class GunshopRawPageParser extends AbstractRawPageParser {
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
+            ProductEntity product;
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
 
-            String productName = document.select("h1.entry-title").first().text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            Elements productNameEl = document.select("h1.entry-title");
+            if (!productNameEl.isEmpty()) {
+                productName = productNameEl.first().text();
+                LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            } else {
+                LOGGER.warn("Unable to find product name {}", webPageEntity);
+                return Observable.empty();
+            }
 
             if (!document.select(".entry-summary .out-of-stock").isEmpty()) {
                 LOGGER.info("Product {} is out of stock. {}", productName, webPageEntity.getUrl());
                 return Observable.empty();
             }
 
-            ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-
-                jsonBuilder.field("productName", productName);
-                jsonBuilder.field("productImage", document.select(".wp-post-image").attr("src"));
-
-                String specialPrice = document.select(".entry-summary .price ins span").text();
-                if ("".equals(specialPrice)) {
-                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".entry-summary .amount").text()));
-                } else {
-                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, specialPrice));
-                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".entry-summary del .amount").text()));
-                }
-
-
-                jsonBuilder.field("description", document.select("#tab-description").text());
-                for (Element next : document.select("product_meta span")) {
-                    String name = next.data();
-                    if (!name.equalsIgnoreCase("categories")) {
-                        Elements values = next.select("a");
-                        List<String> tmp = values.stream().map(Element::text).collect(Collectors.toList());
-                        jsonBuilder.field(name, tmp);
-                    }
-                }
-                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
+            url = webPageEntity.getUrl();
+            productImage = document.select(".wp-post-image").attr("src");
+            specialPrice = document.select(".entry-summary .price ins span").text();
+            if (specialPrice.isEmpty()) {
+                regularPrice = parsePrice(webPageEntity, document.select(".entry-summary .amount").text());
+            } else {
+                specialPrice = parsePrice(webPageEntity, specialPrice);
+                regularPrice = parsePrice(webPageEntity, document.select(".entry-summary del .amount").text());
             }
+
+            description = document.select("#tab-description").text();
+            for (Element next : document.select("product_meta span")) {
+                String name = next.data();
+                if (!name.equalsIgnoreCase("categories")) {
+                    Elements values = next.select("a");
+                    attr.put(name, values.text());
+                }
+            }
+            category = getNormalizedCategories(webPageEntity);
+
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

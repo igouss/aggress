@@ -3,15 +3,12 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -70,24 +67,27 @@ class CrafmProductRawParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-            String productName = document.select(".product-essential .product-name").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-
 
             ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                jsonBuilder.field("productName", productName);
-                String img = document.select(".product-image img").attr("src");
-                jsonBuilder.field("productImage", img);
-                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select("#product_addtocart_form > div.product-shop > div:nth-child(4) > h2 > span").text()));
-                jsonBuilder.field("description", document.select("div.short-description p[align=justify]").text());
-                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
-            }
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
+
+            productName = document.select(".product-essential .product-name").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+
+            url = webPageEntity.getUrl();
+            productImage = document.select(".product-image img").attr("src");
+            regularPrice = parsePrice(webPageEntity, document.select("#product_addtocart_form > div.product-shop > div:nth-child(4) > h2 > span").text());
+            description = document.select("div.short-description p[align=justify]").text();
+            category = getNormalizedCategories(webPageEntity);
+
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

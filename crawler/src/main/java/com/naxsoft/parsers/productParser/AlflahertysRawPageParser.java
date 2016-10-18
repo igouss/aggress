@@ -4,8 +4,6 @@ import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -109,40 +106,43 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
     public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
+
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-            String productName = document.select(".product_name").text();
+            productName = document.select(".product_name").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (!document.select(".product_section .sold_out").text().equals("Sold Out")) {
                 ProductEntity product;
-                try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                    jsonBuilder.startObject();
-                    jsonBuilder.field("url", webPageEntity.getUrl());
-                    jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                    jsonBuilder.field("productName", productName);
-                    jsonBuilder.field("productImage", document.select("meta[property=og:image]").attr("content"));
+                url = webPageEntity.getUrl();
+                productImage = document.select("meta[property=og:image]").attr("content");
 
-                    if (document.select(".product_section .was_price").text().equals("")) {
-                        jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".product_section .current_price").text()));
-                    } else {
-                        jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".product_section .was_price").text()));
-                        jsonBuilder.field("specialPrice", parsePrice(webPageEntity, document.select(".product_section .current_price").text()));
-                    }
-                    jsonBuilder.field("description", document.select(".product_section .description").text());
-                    jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-
-                    Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
-                    Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
-                    while (labels.hasNext()) {
-                        String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
-                        String specValue = values.next().text();
-                        if (!specName.equalsIgnoreCase("category")) {
-                            jsonBuilder.field(specName, specValue);
-                        }
-                    }
-                    jsonBuilder.endObject();
-                    product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
+                if (document.select(".product_section .was_price").text().equals("")) {
+                    regularPrice = parsePrice(webPageEntity, document.select(".product_section .current_price").text());
+                } else {
+                    regularPrice = parsePrice(webPageEntity, document.select(".product_section .was_price").text());
+                    specialPrice = parsePrice(webPageEntity, document.select(".product_section .current_price").text());
                 }
+                description = document.select(".product_section .description").text();
+                category = getNormalizedCategories(webPageEntity);
+
+                Iterator<Element> labels = document.select(".meta span:nth-child(1)").iterator();
+                Iterator<Element> values = document.select(".meta span:nth-child(2)").iterator();
+                while (labels.hasNext()) {
+                    String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
+                    String specValue = values.next().text();
+                    if (!specName.equalsIgnoreCase("category")) {
+                        attr.put(specName, specValue);
+                    }
+                }
+                product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
                 result.add(product);
             }
         } catch (Exception e) {

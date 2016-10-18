@@ -3,8 +3,6 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,8 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,28 +48,36 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
             Elements products = document.select("body > p");
 
             for (Element el : products) {
+
+                ProductEntity product;
+                String productName = null;
+                String url = null;
+                String regularPrice = null;
+                String specialPrice = null;
+                String productImage = null;
+                String description = null;
+                Map<String, String> attr = new HashMap<>();
+                String[] category = null;
+
                 String elText = el.text().trim();
                 elText = elText.replace((char) 160, (char) 32);
                 if (elText.trim().isEmpty() || elText.contains("mainpage") || elText.contains("Main Page.") || elText.trim().equals(",")) {
                     continue;
                 }
-                String productName = elText;
+                productName = elText;
                 LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-                ProductEntity product;
-                try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                    jsonBuilder.startObject();
-                    jsonBuilder.field("url", webPageEntity.getUrl());
-                    jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                    jsonBuilder.field("productName", productName);
-                    String price = parsePrice(webPageEntity, productName);
-                    if (!price.isEmpty()) {
-                        jsonBuilder.field("regularPrice", price);
-                    }
-                    jsonBuilder.field("category", webPageEntity.getCategory().split(","));
-                    jsonBuilder.endObject();
-                    product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
+
+                url = webPageEntity.getUrl();
+
+                String price = parsePrice(webPageEntity, productName);
+                if (!price.isEmpty()) {
+                    regularPrice = price;
                 }
+                category = webPageEntity.getCategory().split(",");
+
+                product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+
                 result.add(product);
 
             }

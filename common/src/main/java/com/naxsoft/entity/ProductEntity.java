@@ -1,30 +1,117 @@
 package com.naxsoft.entity;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.Map;
+
 /**
  *
  */
 public class ProductEntity {
-    /**
-     *
-     */
-    private String json;
+    private final static Gson gson = new Gson();
+    private final String productName;
+    private final String url;
+    private final String regularPrice;
+    private final String specialPrice;
+    private final String productImage;
+    private final String description;
+    private final Timestamp modificationDate;
+    private final Map<String, String> attr;
+    private final String[] category;
+    private final String json;
 
     /**
-     *
+     * @param productName
+     * @param url
+     * @param regularPrice
+     * @param specialPrice
+     * @param productImage
+     * @param description
+     * @param categories
      */
-    private String url;
-
-    public ProductEntity(String json, String url) {
-        this.json = json;
-        this.url = url;
+    public ProductEntity(String productName, String url, String regularPrice, String specialPrice, String productImage, String description, String... categories) {
+        this(productName, url, regularPrice, specialPrice, productImage, description, Collections.emptyMap(), categories);
     }
 
+    /**
+     * @param productName
+     * @param url
+     * @param regularPrice
+     * @param specialPrice
+     * @param productImage
+     * @param description
+     * @param attr
+     * @param category
+     */
+    public ProductEntity(String productName, String url, String regularPrice, String specialPrice, String productImage, String description, Map<String, String> attr, String... category) {
+        this.productName = productName;
+        this.category = category;
+        this.url = url;
+        this.modificationDate = new Timestamp(System.currentTimeMillis());
+        this.regularPrice = regularPrice;
+        this.specialPrice = specialPrice;
+        this.productImage = productImage;
+        this.description = description;
+        this.attr = attr;
+
+        JsonObject jsonObject = new JsonObject();
+        if (productName != null && !productName.isEmpty()) {
+            jsonObject.addProperty("productName", productName);
+        }
+        if (url != null && !url.isEmpty()) {
+            jsonObject.addProperty("url", url);
+        }
+        if (regularPrice != null && !regularPrice.isEmpty()) {
+            jsonObject.addProperty("regularPrice", regularPrice);
+        }
+        if (specialPrice != null && !specialPrice.isEmpty()) {
+            jsonObject.addProperty("specialPrice", specialPrice);
+        }
+        if (productImage != null && !productImage.isEmpty()) {
+            jsonObject.addProperty("productImage", productImage);
+        }
+        if (description != null && !description.isEmpty()) {
+            jsonObject.addProperty("description", description);
+        }
+
+        jsonObject.addProperty("modificationDate", modificationDate.toString());
+
+        attr.forEach(jsonObject::addProperty);
+
+        JsonArray categoryArray = new JsonArray();
+        for (String cat : category) {
+            categoryArray.add(cat);
+        }
+
+        if (categoryArray.size() != 0) {
+            jsonObject.add("category", categoryArray);
+        }
+        json = gson.toJson(jsonObject);
+    }
+
+    /**
+     * Get JSON representation
+     *
+     * @return json encoded product entity
+     */
     public String getJson() {
-        return this.json;
+        return json;
     }
 
     public String getUrl() {
         return url;
+    }
+
+    public String getRegularPrice() {
+        return regularPrice;
+    }
+
+    public String getSpecialPrice() {
+        return specialPrice;
     }
 
     @Override
@@ -34,13 +121,13 @@ public class ProductEntity {
 
         ProductEntity that = (ProductEntity) o;
 
-        return json.equals(that.json) && url.equals(that.url);
+        return getJson().equals(that.getJson()) && url.equals(that.url);
     }
 
 
     @Override
     public int hashCode() {
-        int result = json.hashCode();
+        int result = getJson().hashCode();
         result = 31 * result + url.hashCode();
         return result;
     }

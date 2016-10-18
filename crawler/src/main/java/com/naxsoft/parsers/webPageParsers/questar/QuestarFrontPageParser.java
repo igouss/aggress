@@ -34,7 +34,8 @@ class QuestarFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select("#catnav > li > a");
 
             for (Element e : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", e.attr("abs:href"), e.text());
+                String href = e.attr("abs:href");
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", href, e.text());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }

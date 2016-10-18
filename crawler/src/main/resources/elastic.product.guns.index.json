@@ -140,6 +140,32 @@
           "analyzer": "my_analyzer"
         }
       }
+    },
+    "prices": {
+      "_meta": {
+        "version": 1,
+        "changelog": [
+          "initial schema"
+        ]
+      },
+      "_all": {
+        "enabled": true
+      },
+      "_source": {
+        "enabled": true
+      },
+      "numeric_detection": false,
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "crawlDate": {
+          "type": "date"
+        },
+        "price": {
+          "type": "double"
+        }
+      }
     }
   }
 }

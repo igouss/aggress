@@ -3,16 +3,15 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,38 +41,42 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+
+            ProductEntity product;
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
+
             if (!document.select(".firearm-links-sold").isEmpty()) {
                 return Observable.empty();
             }
 
-            String productName = document.select(".product-name h1").text();
+            productName = document.select(".product-name h1").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-            ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
 
-                jsonBuilder.field("productName", productName);
-                jsonBuilder.field("productImage", document.select(".product-img-box img").attr("src"));
-
-                String specialPrice = document.select(".ProductPrice.retail-product-price").text();
-                if ("".equals(specialPrice)) {
-                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".ProductPrice.VariationProductPrice").text()));
-                } else {
-                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, specialPrice));
-                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".ProductPrice.VariationProductPrice").text()));
-                }
-//        jsonBuilder.field("description", document.select(".short-description").text());
-                jsonBuilder.field("description", document.select("#product_tabs_description_tabbed_contents > div").text());
-                String allCategories = webPageEntity.getCategory();
-                if (allCategories != null) {
-                    jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-                }
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
+            url = webPageEntity.getUrl();
+            productImage = document.select(".product-img-box img").attr("src");
+            specialPrice = document.select(".ProductPrice.retail-product-price").text();
+            if (specialPrice.isEmpty()) {
+                regularPrice = parsePrice(webPageEntity, document.select(".ProductPrice.VariationProductPrice").text());
+            } else {
+                specialPrice = parsePrice(webPageEntity, specialPrice);
+                regularPrice = parsePrice(webPageEntity, document.select(".ProductPrice.VariationProductPrice").text());
             }
+            //        jsonBuilder.field("description", document.select(".short-description").text());
+            description = document.select("#product_tabs_description_tabbed_contents > div").text();
+            String allCategories = webPageEntity.getCategory();
+            if (allCategories != null) {
+                category = getNormalizedCategories(webPageEntity);
+            }
+
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

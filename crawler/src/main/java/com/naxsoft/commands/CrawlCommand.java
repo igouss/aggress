@@ -6,6 +6,7 @@ import com.naxsoft.parsingService.WebPageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Subscription;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -23,11 +24,15 @@ public class CrawlCommand implements Command {
 
     private final WebPageService webPageService;
     private final WebPageParserFactory webPageParserFactory;
+    private Subscription webPageParseSubscription;
+    private Subscription parentMarkSubscription;
 
     @Inject
     public CrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
         this.webPageService = webPageService;
         this.webPageParserFactory = webPageParserFactory;
+        webPageParseSubscription = null;
+        parentMarkSubscription = null;
     }
 
     @Override
@@ -45,7 +50,7 @@ public class CrawlCommand implements Command {
                 .publish()
                 .autoConnect(2);
 
-        webPageEntriesStream
+        webPageParseSubscription = webPageEntriesStream
                 .doOnNext(webPageEntity -> LOGGER.info("Starting parse {}", webPageEntity))
                 .flatMap(webPageParserFactory::parse)
                 .flatMap(webPageService::addWebPageEntry)
@@ -57,7 +62,7 @@ public class CrawlCommand implements Command {
                         () -> LOGGER.info("Crawl completed")
                 );
 
-        webPageEntriesStream
+        parentMarkSubscription = webPageEntriesStream
                 .doOnNext(webPageEntity -> LOGGER.info("Starting to mark as parsed {}", webPageEntity))
                 .flatMap(webPageService::markParsed)
                 .subscribe(
@@ -74,5 +79,11 @@ public class CrawlCommand implements Command {
 
     @Override
     public void tearDown() throws CLIException {
+        if (webPageParseSubscription != null) {
+            webPageParseSubscription.unsubscribe();
+        }
+        if (parentMarkSubscription != null) {
+            parentMarkSubscription.unsubscribe();
+        }
     }
 }

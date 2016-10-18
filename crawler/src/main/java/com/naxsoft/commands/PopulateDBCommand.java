@@ -41,9 +41,9 @@ public class PopulateDBCommand implements Command {
                 .flatMap(webPageService::addWebPageEntry)
                 .all(result -> result != 0L)
                 .subscribe(
-                        result -> LOGGER.info("Roots populated: {}", result),
-                        err -> LOGGER.error("Failed to populate roots", err),
-                        () -> LOGGER.info("Root population complete")
+                        result -> LOGGER.info("Roots populated: {}", result)
+                        , err -> LOGGER.error("Failed to populate roots", err)
+//                      , () -> LOGGER.info("Root population complete")
                 );
     }
 

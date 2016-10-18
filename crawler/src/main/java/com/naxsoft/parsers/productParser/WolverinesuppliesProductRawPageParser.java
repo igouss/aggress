@@ -5,13 +5,11 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -94,29 +92,37 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
             RawProduct[] rawProducts = gson.fromJson(webPageEntity.getContent(), RawProduct[].class);
 
             for (RawProduct rp : rawProducts) {
-                LOGGER.trace("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
                 ProductEntity product;
-                try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                    jsonBuilder.startObject();
-                    jsonBuilder.field("url", "https://www.wolverinesupplies.com/ProductDetail/" + rp.ItemNumber);
-                    jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                    jsonBuilder.field("productName", rp.Title);
-                    jsonBuilder.field("productImage", "https://www.wolverinesupplies.com/images/items/Large/" + rp.ImageFile + rp.ImageExtension);
-                    jsonBuilder.field("regularPrice", rp.ListPrice);
-                    jsonBuilder.field("specialPrice", rp.Price);
-                    jsonBuilder.field("unitsAvailable", rp.StockAmount);
-                    jsonBuilder.field("description", rp.ExtendedDescription);
-                    jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
+                String productName = null;
+                String url = null;
+                String regularPrice = null;
+                String specialPrice = null;
+                String productImage = null;
+                String description = null;
+                Map<String, String> attr = new HashMap<>();
+                String[] category = null;
 
-                    for (int j = 0; j < rp.Attributes.length; ++j) {
-                        jsonBuilder.field(
-                                rp.Attributes[j].AttributeName.toLowerCase(),
-                                rp.Attributes[j].AttributeValue);
-                    }
+                LOGGER.trace("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
 
-                    jsonBuilder.endObject();
-                    product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
+                url = "https://www.wolverinesupplies.com/ProductDetail/" + rp.ItemNumber;
+
+                productName = rp.Title;
+                productImage = "https://www.wolverinesupplies.com/images/items/Large/" + rp.ImageFile + rp.ImageExtension;
+                regularPrice = "" + rp.ListPrice;
+                specialPrice = "" + rp.Price;
+                attr.put("unitsAvailable", "" + rp.StockAmount);
+                description = rp.ExtendedDescription;
+                category = getNormalizedCategories(webPageEntity);
+
+                for (int j = 0; j < rp.Attributes.length; ++j) {
+                    attr.put(
+                            rp.Attributes[j].AttributeName.toLowerCase(),
+                            rp.Attributes[j].AttributeValue);
                 }
+
+
+                product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+
                 result.add(product);
             }
         } catch (Exception e) {

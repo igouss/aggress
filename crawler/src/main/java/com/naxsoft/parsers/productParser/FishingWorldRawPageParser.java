@@ -3,18 +3,17 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,39 +46,41 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
 
-                Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            url = webPageEntity.getUrl();
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-                String productName = document.select("#product > h1").text();
-                LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            productName = document.select("#product > h1").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-                if (document.select("#details div.warning").text().equals("Out of Stock")) {
-                    return Observable.empty();
-                }
-
-                jsonBuilder.field("productName", productName);
-
-                jsonBuilder.field("productImage", document.select(".product-image").attr("abs:src"));
-                String priceBox = document.select("#details > div.column1.float-right > div.model").text();
-                if ("Regular".contains(priceBox)) {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select("#details > div.column1.float-right > div.model").text()));
-                    jsonBuilder.field("specialPrice", parsePrice(document.select("#details > div.column1.float-right > div > div.price.blue").text()));
-                } else {
-                    jsonBuilder.field("regularPrice", parsePrice(document.select("#details > div.column1.float-right > div > div.price.blue").text()));
-                }
-
-                jsonBuilder.field("description", document.select("#details > div.column2.float-left").text());
-                String allCategories = webPageEntity.getCategory();
-                if (allCategories != null) {
-                    jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-                }
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
+            if (document.select("#details div.warning").text().equals("Out of Stock")) {
+                return Observable.empty();
             }
+
+            productImage = document.select(".product-image").attr("abs:src");
+            String priceBox = document.select("#details > div.column1.float-right > div.model").text();
+            if ("Regular".contains(priceBox)) {
+                regularPrice = parsePrice(document.select("#details > div.column1.float-right > div.model").text());
+                specialPrice = parsePrice(document.select("#details > div.column1.float-right > div > div.price.blue").text());
+            } else {
+                regularPrice = parsePrice(document.select("#details > div.column1.float-right > div > div.price.blue").text());
+            }
+
+            description = document.select("#details > div.column2.float-left").text();
+            String allCategories = webPageEntity.getCategory();
+            if (allCategories != null) {
+                category = getNormalizedCategories(webPageEntity);
+            }
+
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

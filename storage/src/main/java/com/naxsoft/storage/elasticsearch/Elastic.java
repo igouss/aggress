@@ -22,6 +22,9 @@ import rx.Observable;
 import javax.inject.Singleton;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class Elastic implements AutoCloseable, Cloneable {
     private static final int BATCH_SIZE = 32;
     private static final Logger LOGGER = LoggerFactory.getLogger(Elastic.class);
+    private final Random rnd = new Random(System.currentTimeMillis());
     private TransportClient client = null;
 
     /**
@@ -75,7 +79,7 @@ public class Elastic implements AutoCloseable, Cloneable {
     /**
      * Bulk insert data to ES.
      *
-     * @param product  Data to insert
+     * @param product   Data to insert
      * @param indexName Target ES index
      * @param type      Target ES type
      * @return Results of bulk insertion
@@ -87,7 +91,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         try {
             XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
             jsonBuilder.startObject();
-            IndexRequestBuilder request = client.prepareIndex(indexName, type, "" + product.getUrl());
+            IndexRequestBuilder request = client.prepareIndex(indexName, type, product.getUrl());
             request.setSource(product.getJson());
             request.setOpType(IndexRequest.OpType.INDEX);
             bulkRequestBuilder.add(request);
@@ -113,7 +117,7 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @param type      ES index type
      * @return Observable that either completes or errors.
      */
-    public Observable<Integer> createIndex(String indexName, String type) {
+    public Observable<Boolean> createIndex(String indexName, String type) {
         return Observable.fromEmitter(emitter -> {
             String resourceName = "/elastic." + indexName + "." + type + ".index.json";
             InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
@@ -126,8 +130,8 @@ public class Elastic implements AutoCloseable, Cloneable {
                     client.admin().indices().create(request, new ActionListener<CreateIndexResponse>() {
                         @Override
                         public void onResponse(CreateIndexResponse createIndexResponse) {
-                            LOGGER.info("OK");
-                            emitter.onNext(1);
+//                            LOGGER.info("Index created {}", createIndexResponse.isAcknowledged());
+                            emitter.onNext(createIndexResponse.isAcknowledged());
                             emitter.onCompleted();
                         }
 
@@ -152,5 +156,44 @@ public class Elastic implements AutoCloseable, Cloneable {
 
     private boolean indexExists(String indexName) throws InterruptedException, java.util.concurrent.ExecutionException {
         return client.admin().indices().exists(new IndicesExistsRequest(indexName)).get().isExists();
+    }
+
+    public Observable<Boolean> price_index(ProductEntity product, String indexName, String type) {
+//        LOGGER.info("Preparing for indexing {} elements", product);
+        BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
+
+        try {
+            XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
+            jsonBuilder.startObject();
+            jsonBuilder.field("url", product.getUrl());
+            jsonBuilder.field("crawlDate", Date.from(Instant.now()));
+            String price;
+            if (product.getSpecialPrice() != null && !product.getSpecialPrice().isEmpty()) {
+                price = product.getSpecialPrice();
+            } else if (product.getRegularPrice() != null && !product.getRegularPrice().isEmpty()) {
+                price = product.getRegularPrice();
+            } else {
+                price = "" + rnd.nextDouble() * 100;
+            }
+            jsonBuilder.field("price", Double.valueOf(price));
+            jsonBuilder.endObject();
+
+            IndexRequestBuilder request = client.prepareIndex(indexName, type);
+            request.setSource(jsonBuilder);
+            request.setOpType(IndexRequest.OpType.CREATE);
+            bulkRequestBuilder.add(request);
+        } catch (Exception e) {
+            LOGGER.error("Failed to generate bulk add operation", e);
+        }
+
+        return Observable.from(bulkRequestBuilder.execute()).map(bulkResponse -> {
+            if (bulkResponse.hasFailures()) {
+                LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
+            } else {
+                LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
+            }
+            return !bulkResponse.hasFailures();
+        });
+
     }
 }

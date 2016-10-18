@@ -4,8 +4,6 @@ import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,9 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,37 +46,45 @@ class SailsRawPageParser extends AbstractRawPageParser {
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-            String productName = document.select(".product-shop .brand").text() + " " + document.select(".product-shop .product-name span").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                jsonBuilder.field("productName", productName);
-                jsonBuilder.field("productImage", document.select(".product-image-gallery > img#image-main").attr("abs:src"));
-                jsonBuilder.field("description", document.select(".product-shop .short-description").text() + " " + document.select("div[data-component=product-description-region]").text());
-                jsonBuilder.field("category", getNormalizedCategories(webPageEntity));
-                if (!document.select(".product-shop .special-price").isEmpty()) {
-                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".product-shop .old-price .price").text()));
-                    jsonBuilder.field("specialPrice", parsePrice(webPageEntity, document.select(".product-shop .special-price .price").text()));
-                } else {
-                    jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".product-shop .regular-price .price").text()));
-                }
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
 
-                Iterator<Element> labels = document.select(".spec-row .label").iterator();
-                Iterator<Element> values = document.select(".spec-row .data").iterator();
+            productName = document.select(".product-shop .brand").text() + " " + document.select(".product-shop .product-name span").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-                while (labels.hasNext()) {
-                    String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
-                    String specValue = values.next().text();
-                    jsonBuilder.field(specName, specValue);
-                }
 
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
+            url = webPageEntity.getUrl();
+
+
+            productImage = document.select(".product-image-gallery > img#image-main").attr("abs:src");
+            description = document.select(".product-shop .short-description").text() + " " + document.select("div[data-component=product-description-region]").text();
+            category = getNormalizedCategories(webPageEntity);
+            if (!document.select(".product-shop .special-price").isEmpty()) {
+                regularPrice = parsePrice(webPageEntity, document.select(".product-shop .old-price .price").text());
+                specialPrice = parsePrice(webPageEntity, document.select(".product-shop .special-price .price").text());
+            } else {
+                regularPrice = parsePrice(webPageEntity, document.select(".product-shop .regular-price .price").text());
             }
+
+            Iterator<Element> labels = document.select(".spec-row .label").iterator();
+            Iterator<Element> values = document.select(".spec-row .data").iterator();
+
+            while (labels.hasNext()) {
+                String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
+                String specValue = values.next().text();
+                attr.put(specName, specValue);
+            }
+
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

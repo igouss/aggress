@@ -3,15 +3,12 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -59,27 +56,34 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-
-            String productName = document.select(".BlockContent > h2").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-            String category = document.select("#ProductBreadcrumb > ul > li:nth-child(2) > a").text();
-
             ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
-                jsonBuilder.field("productName", productName);
-                String img = document.select(".ProductThumbImage img").attr("abs:src");
-                if (!img.contains("DefaultProductImageCustom.jpg")) {
-                    jsonBuilder.field("productImage", img);
-                }
-                jsonBuilder.field("description", document.select(".ProductDescriptionContainer").text());
-                jsonBuilder.field("regularPrice", parsePrice(webPageEntity, document.select(".ProductPrice").text()));
-                jsonBuilder.field("category", getNormalizedCategories(category));
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
+
+            productName = document.select(".BlockContent > h2").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            category = getNormalizedCategories(document.select("#ProductBreadcrumb > ul > li:nth-child(2) > a").text());
+
+
+            url = webPageEntity.getUrl();
+
+
+            String img = document.select(".ProductThumbImage img").attr("abs:src");
+            if (!img.contains("DefaultProductImageCustom.jpg")) {
+                productImage = img;
             }
+            description = document.select(".ProductDescriptionContainer").text();
+            regularPrice = parsePrice(webPageEntity, document.select(".ProductPrice").text());
+
+
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

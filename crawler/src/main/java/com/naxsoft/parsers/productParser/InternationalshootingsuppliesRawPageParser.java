@@ -3,16 +3,15 @@ package com.naxsoft.parsers.productParser;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Copyright NAXSoft 2015
@@ -26,26 +25,27 @@ class InternationalshootingsuppliesRawPageParser extends AbstractRawPageParser {
 
         try {
             ProductEntity product;
-            try (XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()) {
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", webPageEntity.getUrl());
-                jsonBuilder.field("modificationDate", new Timestamp(System.currentTimeMillis()));
+            String productName = null;
+            String url = null;
+            String regularPrice = null;
+            String specialPrice = null;
+            String productImage = null;
+            String description = null;
+            Map<String, String> attr = new HashMap<>();
+            String[] category = null;
 
-                Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            url = webPageEntity.getUrl();
+            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-                String productName = document.select(".product_title").text();
-                LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            productName = document.select(".product_title").text();
+            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-                jsonBuilder.field("productName", productName);
-                jsonBuilder.field("productImage", document.select(".product .wp-post-image").attr("abs:src"));
+            productImage = document.select(".product .wp-post-image").attr("abs:src");
+            regularPrice = document.select("meta[itemprop=price]").attr("content");
+            description = document.select("#tab-description").text().replace("Product Description", "");
+            category = webPageEntity.getCategory().split(",");
 
-                jsonBuilder.field("regularPrice", document.select("meta[itemprop=price]").attr("content"));
-
-                jsonBuilder.field("description", document.select("#tab-description").text().replace("Product Description", ""));
-                jsonBuilder.field("category", webPageEntity.getCategory().split(","));
-                jsonBuilder.endObject();
-                product = new ProductEntity(jsonBuilder.string(), webPageEntity.getUrl());
-            }
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

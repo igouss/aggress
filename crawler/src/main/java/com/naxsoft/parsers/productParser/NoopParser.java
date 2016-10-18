@@ -15,6 +15,7 @@ class NoopParser extends AbstractRawPageParser {
 
     @Override
     public Observable<ProductEntity> parse(WebPageEntity webPage) {
+        LOGGER.warn("Why are we here?! page = " + webPage);
         return Observable.empty();
     }
 
