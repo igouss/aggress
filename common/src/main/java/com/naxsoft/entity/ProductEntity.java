@@ -82,13 +82,15 @@ public class ProductEntity {
 
         attr.forEach(jsonObject::addProperty);
 
-        JsonArray categoryArray = new JsonArray();
-        for (String cat : category) {
-            categoryArray.add(cat);
-        }
+        if (category != null && category.length > 0) {
+            JsonArray categoryArray = new JsonArray();
+            for (String cat : category) {
+                categoryArray.add(cat);
+            }
 
-        if (categoryArray.size() != 0) {
-            jsonObject.add("category", categoryArray);
+            if (categoryArray.size() != 0) {
+                jsonObject.add("category", categoryArray);
+            }
         }
         json = gson.toJson(jsonObject);
     }
