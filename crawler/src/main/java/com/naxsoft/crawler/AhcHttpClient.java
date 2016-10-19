@@ -39,13 +39,11 @@ public class AhcHttpClient implements HttpClient {
     private final AsyncHttpClient asyncHttpClient;
 
     private final ProxyManager proxyManager;
-    private final MetricRegistry metricRegistry;
     private final Meter httpRequestsSensor;
     private final Histogram httpResponseSizeSensor;
     private final Histogram httpLatencySensor;
 
     public AhcHttpClient(MetricRegistry metricRegistry, SslContext sslContext) {
-        this.metricRegistry = metricRegistry;
         httpRequestsSensor = metricRegistry.meter("http.requests");
         httpResponseSizeSensor = metricRegistry.histogram("http.responseSize");
         httpLatencySensor = metricRegistry.histogram("http.latency");
