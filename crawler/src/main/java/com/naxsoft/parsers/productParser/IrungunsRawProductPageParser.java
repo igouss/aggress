@@ -108,11 +108,14 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
             while (labels.hasNext()) {
                 String specName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, labels.next().text().replace(' ', '_').replace(":", "").trim());
                 String specValue = values.next().text();
-                if (specName.contains("Department")) {
+                if (specName.contains("department")) {
                     category = getNormalizedCategories(webPageEntity, specValue);
                 } else {
                     attr.put(specName, specValue);
                 }
+            }
+            if (category == null) {
+                LOGGER.warn("Category not found");
             }
 
             product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
