@@ -17,7 +17,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.AsyncEmitter;
+import rx.Emitter;
 import rx.Observable;
 
 import javax.inject.Singleton;
@@ -159,7 +159,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             } finally {
                 IOUtils.closeQuietly(resourceAsStream);
             }
-        }, AsyncEmitter.BackpressureMode.LATEST);
+        }, Emitter.BackpressureMode.LATEST);
     }
 
     private boolean indexExists(String indexName) throws InterruptedException, java.util.concurrent.ExecutionException {

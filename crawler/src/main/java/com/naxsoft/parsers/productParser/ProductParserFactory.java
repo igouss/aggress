@@ -17,7 +17,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.AsyncEmitter;
+import rx.Emitter;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -115,7 +115,7 @@ public class ProductParserFactory {
         parseResult = Observable.fromEmitter(asyncEmitter -> {
             consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
             consumer.endHandler(v -> asyncEmitter.onCompleted());
-        }, AsyncEmitter.BackpressureMode.BUFFER);
+        }, Emitter.BackpressureMode.BUFFER);
     }
 
     private void createLogger(Class<? extends AbstractRawPageParser> clazz) {

@@ -41,6 +41,8 @@ dependencies {
     compile project(':common')
     compile project(':storage')
 
+    compile "javax.validation:validation-api:1.0.0.GA"
+    compile "javax.inject:javax.inject:1"
 
     compile "com.google.dagger:dagger:2.7"
     compile "com.google.dagger:dagger-compiler:2.7"

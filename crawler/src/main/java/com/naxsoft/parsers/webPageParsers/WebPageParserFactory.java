@@ -17,7 +17,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.AsyncEmitter;
+import rx.Emitter;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
@@ -53,7 +53,7 @@ public class WebPageParserFactory {
         parseResult = Observable.fromEmitter(asyncEmitter -> {
             consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
             consumer.endHandler(v -> asyncEmitter.onCompleted());
-        }, AsyncEmitter.BackpressureMode.BUFFER);
+        }, Emitter.BackpressureMode.BUFFER);
 
 //        parseResult = Observable.fromAsync(asyncEmitter -> {
 //            vertx.eventBus().consumer("webPageParseResult", event -> asyncEmitter.onNext((WebPageEntity) event.body()));
@@ -114,7 +114,7 @@ public class WebPageParserFactory {
 //            }
 //        }
 
-        Observable.fromEmitter((Action1<AsyncEmitter<Class>>) asyncEmitter -> {
+        Observable.fromEmitter((Action1<Emitter<Class>>) asyncEmitter -> {
             classes.stream().filter(clazz -> !Modifier.isAbstract(clazz.getModifiers())).forEach(clazz -> {
                 try {
                     createLogger(clazz);
@@ -136,7 +136,7 @@ public class WebPageParserFactory {
                 }
             });
             asyncEmitter.onCompleted();
-        }, AsyncEmitter.BackpressureMode.BUFFER).subscribeOn(Schedulers.immediate()).subscribe();
+        }, Emitter.BackpressureMode.BUFFER).subscribeOn(Schedulers.immediate()).subscribe();
 
 
     }
