@@ -15,10 +15,9 @@ dependencies {
 
     compile "junit:junit:4.12"
 
-    compile "com.vividsolutions:jts:1.13"
-    compile "org.thymeleaf:thymeleaf:3.0.2.RELEASE"
     compile "io.vertx:vertx-core:3.3.3"
     compile "io.vertx:vertx-web:3.3.3"
+    compile "io.vertx:vertx-web-templ-thymeleaf:3.3.3"
 
     compile project(':crawler')
     compile project(':common')
