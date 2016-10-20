@@ -98,7 +98,7 @@ public class RedisDatabase implements Persistent {
     public Observable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
         String key = "WebPageEntity" + "." + webPageEntity.getType();
         String member = Encoder.encode(webPageEntity);
-        LOGGER.info("adding key {} val {}", key, webPageEntity.getUrl());
+        LOGGER.trace("adding key {} val {}", key, webPageEntity.getUrl());
         return connection.reactive().sadd(key, member);
     }
 

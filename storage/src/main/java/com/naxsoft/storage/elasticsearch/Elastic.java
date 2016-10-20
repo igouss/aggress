@@ -10,6 +10,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -24,6 +25,7 @@ import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -47,14 +49,20 @@ public class Elastic implements AutoCloseable, Cloneable {
     public void connect(String hostname, int port) throws UnknownHostException {
         if (null == client) {
             Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
-            this.client = new TransportClient.Builder().settings(settings).build();
-            this.client.addTransportAddress(new InetSocketTransportAddress(java.net.InetAddress.getByName(hostname), port));
+            client = new TransportClient.Builder().settings(settings).build();
+            client.addTransportAddress(new InetSocketTransportAddress(java.net.InetAddress.getByName(hostname), port));
 
             while (true) {
                 LOGGER.info("Waiting for elastic to connect to a node {}:{}...", hostname, port);
-                int connectedNodes = this.client.connectedNodes().size();
-                if (0 != connectedNodes) {
-                    LOGGER.info("Connection established");
+                List<DiscoveryNode> discoveryNodes = client.connectedNodes();
+                if (0 != discoveryNodes.size()) {
+                    LOGGER.info("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
+                        if (a.isEmpty()) {
+                            return b;
+                        } else {
+                            return a + ", " + b;
+                        }
+                    }));
                     break;
                 }
                 try {
@@ -188,9 +196,9 @@ public class Elastic implements AutoCloseable, Cloneable {
 
         return Observable.from(bulkRequestBuilder.execute()).map(bulkResponse -> {
             if (bulkResponse.hasFailures()) {
-                LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
+                LOGGER.error("Failed to price index products:{}", bulkResponse.buildFailureMessage());
             } else {
-                LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
+                LOGGER.info("Successfully price indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
             }
             return !bulkResponse.hasFailures();
         });

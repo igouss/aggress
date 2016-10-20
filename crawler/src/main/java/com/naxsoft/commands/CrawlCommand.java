@@ -51,26 +51,26 @@ public class CrawlCommand implements Command {
                 .autoConnect(2);
 
         webPageParseSubscription = webPageEntriesStream
-                .doOnNext(webPageEntity -> LOGGER.info("Starting parse {}", webPageEntity))
+                .doOnNext(webPageEntity -> LOGGER.trace("Starting parse {}", webPageEntity))
                 .flatMap(webPageParserFactory::parse)
                 .flatMap(webPageService::addWebPageEntry)
                 .subscribe(
                         rc -> {
-//                            LOGGER.info("Added WebPageEntry, parent marked as parsed: {} results added to DB", rc);
+                            LOGGER.trace("Added WebPageEntry, parent marked as parsed: {} results added to DB", rc);
                         },
                         err -> LOGGER.error("Failed", err),
                         () -> LOGGER.info("Crawl completed")
                 );
 
         parentMarkSubscription = webPageEntriesStream
-                .doOnNext(webPageEntity -> LOGGER.info("Starting to mark as parsed {}", webPageEntity))
+                .doOnNext(webPageEntity -> LOGGER.trace("Starting to mark as parsed {}", webPageEntity))
                 .flatMap(webPageService::markParsed)
                 .subscribe(
                         rc -> {
-                            LOGGER.info("Maked as parsed {}", rc);
+                            LOGGER.trace("Maked as parsed {}", rc);
                         },
                         err -> {
-                            LOGGER.info("Maked as parsed failed", err);
+                            LOGGER.error("Maked as parsed failed", err);
                         },
                         () -> {
                             LOGGER.info("Maked as parsed completed");

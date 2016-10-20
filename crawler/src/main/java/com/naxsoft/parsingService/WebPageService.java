@@ -55,11 +55,11 @@ public class WebPageService {
     public Observable<WebPageEntity> getUnparsedByType(String type, long delay, TimeUnit timeUnit) {
         return database.getUnparsedCount(type)
                 .repeatWhen(observable -> {
-                    LOGGER.info("Retrying getUnparsedByType {} {} {}", type, delay, timeUnit);
+                    LOGGER.trace("Retrying getUnparsedByType {} {} {}", type, delay, timeUnit);
                     return observable.delay(delay, timeUnit);
                 }) // Poll for data periodically using repeatWhen + delay
 //                .takeWhile(val -> val != 0)
-                .doOnNext(val -> LOGGER.info("Found {} of type {}", val, type))
+                .doOnNext(val -> LOGGER.trace("Found {} of type {}", val, type))
                 .filter(count -> count != 0)
                 .flatMap(count -> database.getUnparsedByType(type, count));
     }

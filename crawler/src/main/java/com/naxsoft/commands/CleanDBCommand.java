@@ -35,7 +35,7 @@ public class CleanDBCommand implements Command {
     @Override
     public void start() throws CLIException {
         db.cleanUp(TABLES).observeOn(Schedulers.immediate()).subscribeOn(Schedulers.immediate()).subscribe(
-                result -> LOGGER.info("Rows deleted: {}", result),
+                result -> LOGGER.trace("Rows deleted: {}", result),
                 ex -> LOGGER.error("Crawler Process Exception", ex),
                 () -> LOGGER.info("Delete complete"));
     }

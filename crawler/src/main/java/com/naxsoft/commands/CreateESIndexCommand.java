@@ -32,7 +32,7 @@ public class CreateESIndexCommand implements Command {
         elastic.createIndex("product", "guns")
                 .subscribe(
                         rc -> {
-                            LOGGER.info("Elastic create index rc = {}", rc);
+                            LOGGER.trace("Elastic create index rc = {}", rc);
                         },
                         ex -> {
                             LOGGER.error("CreateIndex Exception", ex);

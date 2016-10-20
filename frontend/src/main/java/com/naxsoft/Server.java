@@ -9,6 +9,7 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -74,15 +76,24 @@ public class Server {
      * @throws UnknownHostException Thrown when we try to connect to invalid host
      */
     private static TransportClient getTransportClient() throws UnknownHostException, PropertyNotFoundException {
+        String elasticHost = AppProperties.getProperty("elasticHost");
+        String elasticPort = AppProperties.getProperty("elasticPort");
+
         Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         TransportClient client = new TransportClient.Builder().settings(settings).build();
-        client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(AppProperties.getProperty("elasticHost")), Integer.parseInt(AppProperties.getProperty("elasticPort"))));
+        client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(elasticHost), Integer.parseInt(elasticPort)));
 
         while (true) {
-            LOGGER.info("Waiting for elastic to connect to a node...");
-            int connectedNodes = client.connectedNodes().size();
-            if (0 != connectedNodes) {
-                LOGGER.info("Connection established");
+            LOGGER.info("Waiting for elastic to connect to a node {}:{}...", elasticHost, elasticPort);
+            List<DiscoveryNode> discoveryNodes = client.connectedNodes();
+            if (0 != discoveryNodes.size()) {
+                LOGGER.info("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
+                    if (a.isEmpty()) {
+                        return b;
+                    } else {
+                        return a + ", " + b;
+                    }
+                }));
                 break;
             }
             try {
