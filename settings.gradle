@@ -5,4 +5,5 @@ include 'crawler'
 include 'frontend'
 include 'webadmin'
 include 'storage'
+include 'crawler-admin'
 
