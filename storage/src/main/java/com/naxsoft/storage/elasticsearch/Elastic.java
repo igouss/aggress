@@ -7,6 +7,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.transport.TransportClient;
@@ -35,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class Elastic implements AutoCloseable, Cloneable {
     private static final int BATCH_SIZE = 32;
-    private static final Logger LOGGER = LoggerFactory.getLogger(Elastic.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger("elastic");
     private final Random rnd = new Random(System.currentTimeMillis());
     private TransportClient client = null;
 
@@ -82,39 +83,6 @@ public class Elastic implements AutoCloseable, Cloneable {
             client.close();
             client = null;
         }
-    }
-
-    /**
-     * Bulk insert data to ES.
-     *
-     * @param product   Data to insert
-     * @param indexName Target ES index
-     * @param type      Target ES type
-     * @return Results of bulk insertion
-     */
-    public Observable<Boolean> index(ProductEntity product, String indexName, String type) {
-//        LOGGER.info("Preparing for indexing {} elements", product);
-        BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
-
-        try {
-            XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-            jsonBuilder.startObject();
-            IndexRequestBuilder request = client.prepareIndex(indexName, type, product.getUrl());
-            request.setSource(product.getJson());
-            request.setOpType(IndexRequest.OpType.INDEX);
-            bulkRequestBuilder.add(request);
-        } catch (Exception e) {
-            LOGGER.error("Failed to generate bulk add operation", e);
-        }
-
-        return Observable.from(bulkRequestBuilder.execute()).map(bulkResponse -> {
-            if (bulkResponse.hasFailures()) {
-                LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
-            } else {
-                LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
-            }
-            return !bulkResponse.hasFailures();
-        });
     }
 
     /**
@@ -166,42 +134,110 @@ public class Elastic implements AutoCloseable, Cloneable {
         return client.admin().indices().exists(new IndicesExistsRequest(indexName)).get().isExists();
     }
 
-    public Observable<Boolean> price_index(ProductEntity product, String indexName, String type) {
+
+    /**
+     * Bulk insert data to ES.
+     *
+     * @param products  Data to insert
+     * @param indexName Target ES index
+     * @param type      Target ES type
+     * @return Results of bulk insertion
+     */
+    public Observable<Boolean> index(List<ProductEntity> products, String indexName, String type) {
 //        LOGGER.info("Preparing for indexing {} elements", product);
         BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
 
         try {
-            XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-            jsonBuilder.startObject();
-            jsonBuilder.field("url", product.getUrl());
-            jsonBuilder.field("crawlDate", Date.from(Instant.now()));
-            String price;
-            if (product.getSpecialPrice() != null && !product.getSpecialPrice().isEmpty()) {
-                price = product.getSpecialPrice();
-            } else if (product.getRegularPrice() != null && !product.getRegularPrice().isEmpty()) {
-                price = product.getRegularPrice();
-            } else {
-                price = "" + rnd.nextDouble() * 100;
+            for (ProductEntity product : products) {
+                XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
+                jsonBuilder.startObject();
+                IndexRequestBuilder request = client.prepareIndex(indexName, type, product.getUrl());
+                LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
+                request.setSource(product.getJson());
+                request.setOpType(IndexRequest.OpType.INDEX);
+                bulkRequestBuilder.add(request);
             }
-            jsonBuilder.field("price", Double.valueOf(price));
-            jsonBuilder.endObject();
-
-            IndexRequestBuilder request = client.prepareIndex(indexName, type);
-            request.setSource(jsonBuilder);
-            request.setOpType(IndexRequest.OpType.CREATE);
-            bulkRequestBuilder.add(request);
         } catch (Exception e) {
             LOGGER.error("Failed to generate bulk add operation", e);
         }
 
-        return Observable.from(bulkRequestBuilder.execute()).map(bulkResponse -> {
-            if (bulkResponse.hasFailures()) {
-                LOGGER.error("Failed to price index products:{}", bulkResponse.buildFailureMessage());
-            } else {
-                LOGGER.info("Successfully price indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
-            }
-            return !bulkResponse.hasFailures();
-        });
+        return Observable.fromEmitter(emitter -> {
+            bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
+                @Override
+                public void onResponse(BulkResponse bulkResponse) {
+                    if (bulkResponse.hasFailures()) {
+                        LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
+                    } else {
+                        LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
+                    }
+                    emitter.onNext(!bulkResponse.hasFailures());
+                    emitter.onCompleted();
+                }
 
+                @Override
+                public void onFailure(Throwable e) {
+                    emitter.onError(e);
+                }
+            });
+        }, Emitter.BackpressureMode.BUFFER);
+    }
+
+    /**
+     * @param products
+     * @param indexName
+     * @param type
+     * @return
+     */
+    public Observable<Boolean> price_index(List<ProductEntity> products, String indexName, String type) {
+        BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
+
+        try {
+            for (ProductEntity product : products) {
+                XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
+                LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
+                jsonBuilder.startObject();
+                jsonBuilder.field("url", product.getUrl());
+                jsonBuilder.field("crawlDate", Date.from(Instant.now()));
+                String price = "N/A";
+                if (product.getSpecialPrice() != null && !product.getSpecialPrice().isEmpty()) {
+                    price = product.getSpecialPrice();
+                } else if (product.getRegularPrice() != null && !product.getRegularPrice().isEmpty()) {
+                    price = product.getRegularPrice();
+                }
+                if (price.equals("N/A")) {
+                    LOGGER.warn("Unable to find price");
+                    continue;
+                }
+                jsonBuilder.field("price", Double.valueOf(price));
+                jsonBuilder.endObject();
+
+                IndexRequestBuilder request = client.prepareIndex(indexName, type);
+                request.setSource(jsonBuilder);
+                request.setOpType(IndexRequest.OpType.CREATE);
+                bulkRequestBuilder.add(request);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Failed to generate bulk add operation", e);
+        }
+
+        return Observable.fromEmitter(emitter -> {
+            bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
+                @Override
+                public void onResponse(BulkResponse bulkResponse) {
+                    if (bulkResponse.hasFailures()) {
+                        LOGGER.error("Failed to price index products:{}", bulkResponse.buildFailureMessage());
+                    } else {
+                        LOGGER.info("Successfully price indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
+                    }
+                    emitter.onNext(!bulkResponse.hasFailures());
+                    emitter.onCompleted();
+                }
+
+                @Override
+                public void onFailure(Throwable e) {
+                    emitter.onError(e);
+                }
+            });
+        }, Emitter.BackpressureMode.BUFFER);
     }
 }

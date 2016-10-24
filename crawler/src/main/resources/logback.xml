@@ -20,6 +20,14 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+
+    <appender name="ELASTIC-LOG" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_DIR:-logs}/elastic.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
     <appender name="ERROR-LOG" class="ch.qos.logback.core.FileAppender">
         <file>${LOG_DIR:-logs}/error.log</file>
         <append>false</append>
@@ -46,6 +54,10 @@
 
     <appender name="ERROR-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="ERROR-LOG"/>
+    </appender>
+
+    <appender name="ELASTIC-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="ELASTIC-LOG"/>
     </appender>
 
     <appender name="METRICS-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
@@ -77,8 +89,11 @@
     <logger name="metrics" level="ALL" additivity="false">
         <appender-ref ref="METRICS-LOG-ASYNC"/>
     </logger>
+    <logger name="elastic" level="ALL" additivity="false">
+        <appender-ref ref="ELASTIC-LOG-ASYNC"/>
+    </logger>
 
-    <root level="DEBUG">
+    <root level="ALL">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="APP-LOG-ASYNC"/>
         <appender-ref ref="ERROR-LOG"/>

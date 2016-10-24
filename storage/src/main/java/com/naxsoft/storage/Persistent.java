@@ -12,7 +12,6 @@ public interface Persistent extends AutoCloseable, Cloneable {
 
     /**
      * Get number of unparsed WebPageEntries
-     *
      * @param type Type of WebPageEntries
      * @return Number unparsed of WebPageEntries of specified type
      */

@@ -42,11 +42,10 @@ public class CrawlCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<WebPageEntity> webPageEntriesStream = Observable.merge(
-                webPageService.getUnparsedByType("frontPage", 5, TimeUnit.SECONDS),
-                webPageService.getUnparsedByType("productList", 5, TimeUnit.SECONDS),
-                webPageService.getUnparsedByType("productPage", 5, TimeUnit.SECONDS));
-        webPageEntriesStream
+        Observable<WebPageEntity> webPageEntriesStream = Observable.mergeDelayError(
+                Observable.interval(5, 5, TimeUnit.SECONDS).flatMap(i -> webPageService.getUnparsedByType("frontPage")),
+                Observable.interval(5, 5, TimeUnit.SECONDS).flatMap(i -> webPageService.getUnparsedByType("productList")),
+                Observable.interval(5, 5, TimeUnit.SECONDS).flatMap(i -> webPageService.getUnparsedByType("productPage")))
                 .publish()
                 .autoConnect(2);
 
@@ -67,13 +66,13 @@ public class CrawlCommand implements Command {
                 .flatMap(webPageService::markParsed)
                 .subscribe(
                         rc -> {
-                            LOGGER.trace("Maked as parsed {}", rc);
+                            LOGGER.trace("Marked as parsed {}", rc);
                         },
                         err -> {
                             LOGGER.error("Maked as parsed failed", err);
                         },
                         () -> {
-                            LOGGER.info("Maked as parsed completed");
+                            LOGGER.info("Marked as parsed completed");
                         });
     }
 

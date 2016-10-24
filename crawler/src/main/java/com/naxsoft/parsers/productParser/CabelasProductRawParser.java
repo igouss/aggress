@@ -27,6 +27,7 @@ class CabelasProductRawParser extends AbstractRawPageParser {
 
     static {
         mapping.put("Firearm", "firearm");
+        mapping.put("Firearms", "firearm");
         mapping.put("Ammunition", "ammo");
         mapping.put("Optics", "optic");
         mapping.put("Firearm Accessories", "misc");

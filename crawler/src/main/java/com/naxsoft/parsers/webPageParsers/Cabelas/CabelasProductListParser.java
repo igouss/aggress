@@ -26,15 +26,21 @@ class CabelasProductListParser extends AbstractWebPageParser {
         this.client = client;
     }
 
+    private static boolean isTerminalSubcategory(DownloadResult downloadResult) {
+        Document document = downloadResult.getDocument();
+        boolean isTerminalCategory = (1 == document.select(".categories .active").size()) || document.select("h1").text().equals("Thanks for visiting Cabelas.ca!");
+        if (isTerminalCategory) {
+            LOGGER.info("Terminal category {}", downloadResult.getSourcePage().getUrl());
+        } else {
+            LOGGER.info("Non-terminal category {}", downloadResult.getSourcePage().getUrl());
+        }
+        return isTerminalCategory;
+    }
+
     private static WebPageEntity getProductList(WebPageEntity parent, String url, String category) {
         WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", url, category);
         LOGGER.info("productList={}", webPageEntity.getUrl());
         return webPageEntity;
-    }
-
-    private static boolean isTerminalSubcategory(DownloadResult downloadResult) {
-        Document document = downloadResult.getDocument();
-        return (1 == document.select(".categories .active").size()) || document.select("h1").text().equals("Thanks for visiting Cabelas.ca!");
     }
 
     private static WebPageEntity productPage(WebPageEntity parent, String url, String category) {
@@ -82,7 +88,7 @@ class CabelasProductListParser extends AbstractWebPageParser {
                 Elements subPages = document.select("#categories > ul > li > a");
                 for (Element element : subPages) {
                     String category;
-                    if (downloadResult.getSourcePage().getCategory() == null) {
+                    if (downloadResult.getSourcePage().getCategory() == null || downloadResult.getSourcePage().getCategory().isEmpty()) {
                         category = element.text();
                     } else {
                         category = downloadResult.getSourcePage().getCategory();

@@ -54,30 +54,33 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<ProductEntity> productPages = webPageService.getUnparsedByType("productPageRaw", 5, TimeUnit.SECONDS)
-                .doOnNext(webPageEntity -> LOGGER.trace("Starting RAW page parsing {}", webPageEntity))
+        Observable<ProductEntity> productPages = Observable.interval(5, TimeUnit.SECONDS)
+                .flatMap(i -> webPageService.getUnparsedByType("productPageRaw"))
+                .doOnNext(webPageEntity -> LOGGER.info("Starting RAW page parsing {}", webPageEntity))
                 .flatMap(productParserFactory::parse)
-                .doOnNext(productEntity -> LOGGER.trace("Parsed page {}", productEntity))
+                .doOnNext(productEntity -> LOGGER.info("Parsed page {}", productEntity))
                 .publish()
                 .autoConnect(2);
 
         productIndexSubscription = productPages
-                .doOnNext(productEntity -> LOGGER.trace("Starting product indexing {}", productEntity))
+                .doOnNext(productEntity -> LOGGER.info("Starting product indexing {}", productEntity))
+                .buffer(16)
                 .flatMap(product -> elastic.index(product, "product", "guns"))
                 .subscribe(
                         val -> {
-                            LOGGER.trace("Indexed: {}", val);
+                            LOGGER.info("Indexed: {}", val);
                         },
                         err -> LOGGER.error("Product indexing failed", err),
                         () -> LOGGER.info("Product indexing completed")
                 );
 
         priceIndexSubscription = productPages
-                .doOnNext(productEntity -> LOGGER.trace("Starting price indexing {}", productEntity))
+                .doOnNext(productEntity -> LOGGER.info("Starting price indexing {}", productEntity))
+                .buffer(16)
                 .flatMap(product -> elastic.price_index(product, "product", "prices"))
                 .subscribe(
                         val -> {
-                            LOGGER.trace("Indexed: {}", val);
+                            LOGGER.trace("Price indexed: {}", val);
                         },
                         err -> LOGGER.error("Price indexing failed", err),
                         () -> LOGGER.info("Price indexing completed")

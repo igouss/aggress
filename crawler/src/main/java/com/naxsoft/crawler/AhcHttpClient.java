@@ -334,36 +334,4 @@ public class AhcHttpClient implements HttpClient {
             httpLatencySensor.update(latencyMs);
         }
     }
-
-    public class ClientStats {
-        private final long totalConnectionCount;
-        private final long activeConnectionCount;
-        private final long idleConnectionCount;
-
-        public ClientStats(final long activeConnectionCount,
-                           final long idleConnectionCount) {
-            this.totalConnectionCount = activeConnectionCount + idleConnectionCount;
-            this.activeConnectionCount = activeConnectionCount;
-            this.idleConnectionCount = idleConnectionCount;
-        }
-
-        public long getTotalConnectionCount() {
-            return totalConnectionCount;
-        }
-
-        public long getActiveConnectionCount() {
-            return activeConnectionCount;
-        }
-
-        public long getIdleConnectionCount() {
-            return idleConnectionCount;
-        }
-
-        @Override
-        public String toString() {
-            return "There are " + totalConnectionCount +
-                    " total connections, " + activeConnectionCount +
-                    " are active and " + idleConnectionCount + " are idle.";
-        }
-    }
 }

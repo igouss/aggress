@@ -65,11 +65,6 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Observable<Long> getUnparsedCount(String type) {
-        return connection.reactive().scard("WebPageEntity." + type);
-    }
-
-    @Override
     public Observable<Long> markWebPageAsParsed(WebPageEntity webPageEntity) {
         if (webPageEntity == null) {
             return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
@@ -111,14 +106,17 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
+    public Observable<Long> getUnparsedCount(String type) {
+        return connection.reactive().scard("WebPageEntity." + type);
+    }
+
+    @Override
     public Observable<WebPageEntity> getUnparsedByType(String type, Long count) {
         LOGGER.info("getUnparsedByType {} {}", type, count);
-        String key = "WebPageEntity." + type;
-//        return connection.reactive().spop(key, popCount).map(webPageEntityEncoder::decode);
         return connection.reactive()
-                .spop(key, Math.min(count, BATCH_SIZE))
-                .doOnNext(val -> LOGGER.info("SPOP'ed from {} value {}", key, val))
+                .spop("WebPageEntity." + type, Math.min(count, BATCH_SIZE))
                 .map(WebPageEntityEncoder::decode)
+                .doOnNext(val -> LOGGER.info("SPOP'ed {} {} {}", val.getType(), val.getUrl(), val.getCategory()))
                 .filter(entry -> entry != null);
     }
 

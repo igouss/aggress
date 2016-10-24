@@ -6,8 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  *
  */
@@ -52,14 +50,9 @@ public class WebPageService {
      * @return Stream of unparsed pages of specefied type
      * @see <a href="http://blog.danlew.net/2016/01/25/rxjavas-repeatwhen-and-retrywhen-explained/">RxJava's repeatWhen and retryWhen, explained</a>
      */
-    public Observable<WebPageEntity> getUnparsedByType(String type, long delay, TimeUnit timeUnit) {
+    public Observable<WebPageEntity> getUnparsedByType(String type) {
         return database.getUnparsedCount(type)
-                .repeatWhen(observable -> {
-                    LOGGER.trace("Retrying getUnparsedByType {} {} {}", type, delay, timeUnit);
-                    return observable.delay(delay, timeUnit);
-                }) // Poll for data periodically using repeatWhen + delay
-//                .takeWhile(val -> val != 0)
-                .doOnNext(val -> LOGGER.trace("Found {} of type {}", val, type))
+                .doOnNext(val -> LOGGER.info("Found {} of type {}", val, type))
                 .filter(count -> count != 0)
                 .flatMap(count -> database.getUnparsedByType(type, count));
     }
