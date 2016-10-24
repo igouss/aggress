@@ -157,7 +157,8 @@
       "numeric_detection": false,
       "properties": {
         "url": {
-          "type": "string"
+          "type": "string",
+          "index": "not_analyzed"
         },
         "crawlDate": {
           "type": "date"
