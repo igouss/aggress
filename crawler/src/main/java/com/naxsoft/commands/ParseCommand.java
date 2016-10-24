@@ -80,7 +80,7 @@ public class ParseCommand implements Command {
                 .flatMap(product -> elastic.price_index(product, "product", "prices"))
                 .subscribe(
                         val -> {
-                            LOGGER.trace("Price indexed: {}", val);
+                            LOGGER.info("Price indexed: {}", val);
                         },
                         err -> LOGGER.error("Price indexing failed", err),
                         () -> LOGGER.info("Price indexing completed")

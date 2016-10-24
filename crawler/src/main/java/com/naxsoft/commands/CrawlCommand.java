@@ -47,6 +47,7 @@ public class CrawlCommand implements Command {
                         webPageService.getUnparsedByType("frontPage"),
                         webPageService.getUnparsedByType("productList"),
                         webPageService.getUnparsedByType("productPage")))
+                .retry()
                 .publish()
                 .autoConnect(2);
 
