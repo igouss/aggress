@@ -52,8 +52,8 @@ public class WebPageService {
      */
     public Observable<WebPageEntity> getUnparsedByType(String type) {
         return database.getUnparsedCount(type)
-                .doOnNext(val -> LOGGER.info("Found {} of type {}", val, type))
                 .filter(count -> count != 0)
+                .doOnNext(val -> LOGGER.info("Found {} of type {}", val, type))
                 .flatMap(count -> database.getUnparsedByType(type, count));
     }
 }

@@ -42,10 +42,11 @@ public class CrawlCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<WebPageEntity> webPageEntriesStream = Observable.mergeDelayError(
-                Observable.interval(5, 5, TimeUnit.SECONDS).flatMap(i -> webPageService.getUnparsedByType("frontPage")),
-                Observable.interval(5, 5, TimeUnit.SECONDS).flatMap(i -> webPageService.getUnparsedByType("productList")),
-                Observable.interval(5, 5, TimeUnit.SECONDS).flatMap(i -> webPageService.getUnparsedByType("productPage")))
+        Observable<WebPageEntity> webPageEntriesStream = Observable.interval(5, 5, TimeUnit.SECONDS).flatMap(i ->
+                Observable.mergeDelayError(
+                        webPageService.getUnparsedByType("frontPage"),
+                        webPageService.getUnparsedByType("productList"),
+                        webPageService.getUnparsedByType("productPage")))
                 .publish()
                 .autoConnect(2);
 
