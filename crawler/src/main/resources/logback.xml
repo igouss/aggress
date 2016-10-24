@@ -89,7 +89,7 @@
     <logger name="metrics" level="ALL" additivity="false">
         <appender-ref ref="METRICS-LOG-ASYNC"/>
     </logger>
-    <logger name="elastic" level="ALL" additivity="false">
+    <logger name="elastic" level="ALL" additivity="true">
         <appender-ref ref="ELASTIC-LOG-ASYNC"/>
     </logger>
 
