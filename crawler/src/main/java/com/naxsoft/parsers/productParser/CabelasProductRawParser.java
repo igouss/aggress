@@ -78,6 +78,11 @@ class CabelasProductRawParser extends AbstractRawPageParser {
             productName = document.select("h1.product-heading").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
+            if (document.select("link[itemprop=availability]").text().contains("No Longer Available")) {
+                LOGGER.info("Product {} no longer available", productName);
+                return Observable.empty();
+            }
+
             url = webPageEntity.getUrl();
             productImage = document.select("#product-image img").attr("src");
 
