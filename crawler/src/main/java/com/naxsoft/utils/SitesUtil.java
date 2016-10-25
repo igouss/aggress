@@ -7,7 +7,7 @@ public class SitesUtil {
      * Sites that crawler can walk and parse
      */
     public final static String[] SOURCES = {
-            "http://www.alflahertys.com/",
+//            "http://www.alflahertys.com/",
 //            "http://www.bullseyelondon.com/",
 //            "http://www.cabelas.ca/",
 //            "https://www.canadaammo.com/",
@@ -39,7 +39,8 @@ public class SitesUtil {
 //            "http://www.wholesalesports.com/",
 //            "https://www.wolverinesupplies.com/",
 //            "http://www.nordicmarksman.com/",
-//            "http://www.grouseriver.com/"
+//            "http://www.grouseriver.com/",
+            "http://www.westcoasthunting.ca/"
     };
 
     public static String getHost(WebPageEntity webPageEntity) {
@@ -115,6 +116,8 @@ public class SitesUtil {
             host = "nordicmarksman.com";
         } else if (url.contains("grouseriver.com")) {
             host = "grouseriver.com";
+        } else if (url.contains("westcoasthunting.ca")) {
+            host = "westcoasthunting.ca";
         }
         return host;
     }

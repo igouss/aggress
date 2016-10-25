@@ -74,6 +74,12 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
+            if (document.select(".stock.out-of-stock").size() != 0) {
+                LOGGER.info("Product {} out of stock", productName);
+                return Observable.empty();
+            }
+
+
             productImage = document.select(".wp-post-image").attr("abs:src");
 
             regularPrice = document.select("meta[itemprop=price]").attr("content");

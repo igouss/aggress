@@ -45,5 +45,4 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
             });
         };
     }
-
 }
