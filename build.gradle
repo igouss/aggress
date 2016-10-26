@@ -11,10 +11,16 @@ buildscript {
 plugins {
     id "java"
     id "idea"
+    id 'com.gradle.build-scan' version '1.2'
 }
 apply plugin: 'com.bmuschko.docker-remote-api'
 
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+buildScan {
+    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+    licenseAgree = 'yes'
+}
 
 dependencies {
     compile project(":common")
@@ -25,7 +31,8 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "3.0"
+    gradleVersion = "3.1"
+    distributionUrl = "https://services.gradle.org/distributions/gradle-" + gradleVersion + "-all.zip"
 }
 
 allprojects {
