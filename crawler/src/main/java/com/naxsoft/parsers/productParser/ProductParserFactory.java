@@ -4,6 +4,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.encoders.Encoder;
 import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
@@ -36,10 +38,17 @@ public class ProductParserFactory {
     private final ArrayList<String> parserVertex;
     private final Observable<ProductEntity> parseResult;
 
+    private final Meter parseWebPageRawRequestsSensor;
+    private final Meter parseProductResultSensor;
+
     @Inject
-    public ProductParserFactory(Vertx vertx) {
+    public ProductParserFactory(Vertx vertx, MetricRegistry metricRegistry) {
         this.vertx = vertx;
         parserVertex = new ArrayList<>();
+
+        parseWebPageRawRequestsSensor = metricRegistry.meter("parse.webPage.raw.requests");
+        parseProductResultSensor = metricRegistry.meter("parse.Product.result");
+
         vertx.eventBus().registerDefaultCodec(ProductEntity.class, new MessageCodec<ProductEntity, Object>() {
             @Override
             public void encodeToWire(Buffer buffer, ProductEntity productEntity) {
@@ -145,12 +154,17 @@ public class ProductParserFactory {
      * @return Parser capable of parsing the page
      */
     public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+        parseWebPageRawRequestsSensor.mark();
+
         String host = SitesUtil.getHost(webPageEntity);
         String type = webPageEntity.getType();
         String mailbox = host + "/" + type;
         LOGGER.info("Sending to mailbox {} value {}", mailbox, webPageEntity);
         vertx.eventBus().publish(mailbox, webPageEntity);
-        return parseResult.doOnNext(val -> LOGGER.info("Product parse results {}", val));
+        return parseResult.doOnNext(val -> {
+            LOGGER.info("Product parse results {}", val);
+            parseProductResultSensor.mark();
+        });
     }
 
     public void close() {

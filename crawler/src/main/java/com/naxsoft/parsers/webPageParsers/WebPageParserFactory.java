@@ -4,6 +4,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.encoders.Encoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;
@@ -37,6 +39,8 @@ public class WebPageParserFactory {
     private final Vertx vertx;
     private final LinkedBlockingDeque<String> parserVertex;
     private final Observable<WebPageEntity> parseResult;
+    private final Meter parseWebPageRequestsSensor;
+    private final Meter parseWebPageResultsSensor;
 
     /**
      * Create new WebPageParserFactory that using reflection to locate all WebPageParsers in the classpath
@@ -44,9 +48,12 @@ public class WebPageParserFactory {
      * @param client HTTP client for WebPageParsers to use
      */
     @Inject
-    public WebPageParserFactory(Vertx vertx, HttpClient client) {
+    public WebPageParserFactory(Vertx vertx, HttpClient client, MetricRegistry metricRegistry) {
         this.vertx = vertx;
         parserVertex = new LinkedBlockingDeque<>();
+
+        parseWebPageRequestsSensor = metricRegistry.meter("parse.webPage.requests");
+        parseWebPageResultsSensor = metricRegistry.meter("parse.webPage.results");
 
         MessageConsumer<WebPageEntity> consumer = vertx.eventBus().consumer("webPageParseResult");
 
@@ -161,19 +168,21 @@ public class WebPageParserFactory {
         logger.addAppender(fileAppender);
     }
 
-    public void close() {
-        parserVertex.forEach(vertx::undeploy);
-    }
-
     /**
      * Get a WebPageParser that is capable of parsing webPageEntity
      *
      * @param webPageEntity Page to parse
      */
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+        parseWebPageRequestsSensor.mark();
+
         String host = SitesUtil.getHost(webPageEntity);
         String mailBox = host + "/" + webPageEntity.getType();
         vertx.eventBus().publish(mailBox, webPageEntity);
-        return parseResult;
+        return parseResult.doOnNext(val -> parseWebPageResultsSensor.mark());
+    }
+
+    public void close() {
+        parserVertex.forEach(vertx::undeploy);
     }
 }
