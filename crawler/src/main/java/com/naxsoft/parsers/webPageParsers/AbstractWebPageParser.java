@@ -18,7 +18,7 @@ import java.util.List;
  * Copyright NAXSoft 2015
  */
 public abstract class AbstractWebPageParser extends AbstractVerticle implements WebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger("WebPageParser");
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWebPageParser.class);
     /**
      * @return HTTP cookie handler
      */
@@ -41,7 +41,7 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
             webPageEntityObservable.subscribeOn(Schedulers.io()).subscribe(value -> {
                 vertx.eventBus().publish("webPageParseResult", value);
             }, error -> {
-                LOGGER.error("Failed to parse", error);
+                LOGGER.error("Failed to parse {}", event.body().getUrl(), error);
             });
         };
     }
