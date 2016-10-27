@@ -31,6 +31,7 @@ public class Crawler {
 
         Crawler aggress = new Crawler();
         aggress.start(args);
+        System.exit(0);
     }
 
     private static OptionSet parseCommandLineArguments(String[] args) {
