@@ -88,7 +88,12 @@ class EllwoodeppsRawProductParser extends AbstractRawPageParser {
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             url = webPageEntity.getUrl();
-            regularPrice = parsePrice(webPageEntity, document.select(".price").text());
+            if (!document.select(".old-price").isEmpty()) {
+                specialPrice = parsePrice(webPageEntity, document.select(".special-price .price").text());
+                regularPrice = parsePrice(webPageEntity, document.select(".old-price .price").text());
+            } else {
+                regularPrice = parsePrice(webPageEntity, document.select(".price").text());
+            }
             Iterator<Element> labels = document.select("th.label").iterator();
             Iterator<Element> values = document.select("td.data").iterator();
 
