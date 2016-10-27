@@ -69,6 +69,10 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
 
 
                 url = webPageEntity.getUrl();
+                Element img = el.previousElementSibling().select("img").first();
+                if (img != null) {
+                    productImage = img.attr("src").trim();
+                }
 
                 String price = parsePrice(webPageEntity, productName);
                 if (!price.isEmpty()) {
