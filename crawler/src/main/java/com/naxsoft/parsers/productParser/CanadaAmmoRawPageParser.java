@@ -76,6 +76,8 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntityUrl);
             if (document.select(".product-details__add").isEmpty()) {
                 return Observable.empty();
+            } else if (document.select(".product-details__warranty-text").text().contains("sold out")) {
+                return Observable.empty();
             }
             productName = document.select(".product-details__title .product__name").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntityUrl);
