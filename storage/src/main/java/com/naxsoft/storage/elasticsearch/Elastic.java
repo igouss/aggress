@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 public class Elastic implements AutoCloseable, Cloneable {
     private static final int BATCH_SIZE = 32;
     private static final Logger LOGGER = LoggerFactory.getLogger("elastic");
+    private final static Semaphore esConcurrency = new Semaphore(4);
     private final Random rnd = new Random(System.currentTimeMillis());
     private TransportClient client = null;
 
@@ -166,25 +168,30 @@ public class Elastic implements AutoCloseable, Cloneable {
 
 
         return Observable.fromEmitter(emitter -> {
-            bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
-                @Override
-                public void onResponse(BulkResponse bulkItemResponses) {
-                    if (bulkItemResponses.hasFailures()) {
-                        LOGGER.error("Failed to index products:{}", bulkItemResponses.buildFailureMessage());
-                    } else {
-                        LOGGER.info("Successfully indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
+            try {
+                esConcurrency.acquire();
+                bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
+                    @Override
+                    public void onResponse(BulkResponse bulkItemResponses) {
+                        if (bulkItemResponses.hasFailures()) {
+                            LOGGER.error("Failed to index products:{}", bulkItemResponses.buildFailureMessage());
+                        } else {
+                            LOGGER.info("Successfully indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
+                        }
+                        emitter.onNext(!bulkItemResponses.hasFailures());
+                        emitter.onCompleted();
+                        esConcurrency.release();
                     }
-                    emitter.onNext(!bulkItemResponses.hasFailures());
-                    emitter.onCompleted();
 
-                }
+                    @Override
+                    public void onFailure(Exception e) {
+                        emitter.onError(e);
 
-                @Override
-                public void onFailure(Exception e) {
-                    emitter.onError(e);
-
-                }
-            });
+                    }
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }, Emitter.BackpressureMode.BUFFER);
     }
 
@@ -227,23 +234,30 @@ public class Elastic implements AutoCloseable, Cloneable {
         }
 
         return Observable.fromEmitter(emitter -> {
-            bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
-                @Override
-                public void onResponse(BulkResponse bulkItemResponses) {
-                    if (bulkItemResponses.hasFailures()) {
-                        LOGGER.error("Failed to price index products:{}", bulkItemResponses.buildFailureMessage());
-                    } else {
-                        LOGGER.info("Successfully price indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
+            try {
+                esConcurrency.acquire();
+                bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
+                    @Override
+                    public void onResponse(BulkResponse bulkItemResponses) {
+                        if (bulkItemResponses.hasFailures()) {
+                            LOGGER.error("Failed to price index products:{}", bulkItemResponses.buildFailureMessage());
+                        } else {
+                            LOGGER.info("Successfully price indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
+                        }
+                        emitter.onNext(!bulkItemResponses.hasFailures());
+                        emitter.onCompleted();
+                        esConcurrency.release();
                     }
-                    emitter.onNext(!bulkItemResponses.hasFailures());
-                    emitter.onCompleted();
-                }
 
-                @Override
-                public void onFailure(Exception e) {
-                    emitter.onError(e);
-                }
-            });
+                    @Override
+                    public void onFailure(Exception e) {
+                        emitter.onError(e);
+                    }
+                });
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }, Emitter.BackpressureMode.BUFFER);
     }
 }
