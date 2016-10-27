@@ -12,6 +12,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
@@ -77,11 +78,12 @@ public class Server {
      */
     private static TransportClient getTransportClient() throws UnknownHostException, PropertyNotFoundException {
         String elasticHost = AppProperties.getProperty("elasticHost");
-        String elasticPort = AppProperties.getProperty("elasticPort");
+        int elasticPort = Integer.valueOf(AppProperties.getProperty("elasticPort"));
 
-        Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
-        TransportClient client = new TransportClient.Builder().settings(settings).build();
-        client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(elasticHost), Integer.parseInt(elasticPort)));
+        Settings settings = Settings.builder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
+        TransportClient client = new PreBuiltTransportClient(settings)
+                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(elasticHost), elasticPort));
+
 
         while (true) {
             LOGGER.info("Waiting for elastic to connect to a node {}:{}...", elasticHost, elasticPort);

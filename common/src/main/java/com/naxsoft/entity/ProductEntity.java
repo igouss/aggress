@@ -116,6 +116,10 @@ public class ProductEntity {
         return specialPrice;
     }
 
+    public String getProductName() {
+        return productName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -15,7 +15,7 @@ dependencies {
 
     compile "junit:junit:4.12"
 
-    compile "org.elasticsearch:elasticsearch:2.3.4"
+    compile 'org.elasticsearch.client:transport:5.0.0'
 
     compile "com.vividsolutions:jts:1.13"
 

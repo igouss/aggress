@@ -1,6 +1,7 @@
 package com.naxsoft.storage.elasticsearch;
 
 import com.naxsoft.entity.ProductEntity;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -16,6 +17,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Emitter;
@@ -23,6 +25,7 @@ import rx.Observable;
 
 import javax.inject.Singleton;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.Date;
@@ -49,9 +52,9 @@ public class Elastic implements AutoCloseable, Cloneable {
      */
     public void connect(String hostname, int port) throws UnknownHostException {
         if (null == client) {
-            Settings settings = Settings.settingsBuilder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
-            client = new TransportClient.Builder().settings(settings).build();
-            client.addTransportAddress(new InetSocketTransportAddress(java.net.InetAddress.getByName(hostname), port));
+            Settings settings = Settings.builder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
+            client = new PreBuiltTransportClient(settings)
+                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(hostname), port));
 
             while (true) {
                 LOGGER.info("Waiting for elastic to connect to a node {}:{}...", hostname, port);
@@ -106,13 +109,13 @@ public class Elastic implements AutoCloseable, Cloneable {
                     client.admin().indices().create(request, new ActionListener<CreateIndexResponse>() {
                         @Override
                         public void onResponse(CreateIndexResponse createIndexResponse) {
-//                            LOGGER.info("Index created {}", createIndexResponse.isAcknowledged());
+                            //                            LOGGER.info("Index created {}", createIndexResponse.isAcknowledged());
                             emitter.onNext(createIndexResponse.isAcknowledged());
                             emitter.onCompleted();
                         }
 
                         @Override
-                        public void onFailure(Throwable e) {
+                        public void onFailure(Exception e) {
                             LOGGER.error("Failed to create index", e);
                             emitter.onError(e);
                         }
@@ -151,7 +154,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             for (ProductEntity product : products) {
                 XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
                 jsonBuilder.startObject();
-                IndexRequestBuilder request = client.prepareIndex(indexName, type, product.getUrl());
+                IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
                 LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
                 request.setSource(product.getJson());
                 request.setOpType(IndexRequest.OpType.INDEX);
@@ -161,22 +164,25 @@ public class Elastic implements AutoCloseable, Cloneable {
             LOGGER.error("Failed to generate bulk add operation", e);
         }
 
+
         return Observable.fromEmitter(emitter -> {
             bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
                 @Override
-                public void onResponse(BulkResponse bulkResponse) {
-                    if (bulkResponse.hasFailures()) {
-                        LOGGER.error("Failed to index products:{}", bulkResponse.buildFailureMessage());
+                public void onResponse(BulkResponse bulkItemResponses) {
+                    if (bulkItemResponses.hasFailures()) {
+                        LOGGER.error("Failed to index products:{}", bulkItemResponses.buildFailureMessage());
                     } else {
-                        LOGGER.info("Successfully indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
+                        LOGGER.info("Successfully indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
                     }
-                    emitter.onNext(!bulkResponse.hasFailures());
+                    emitter.onNext(!bulkItemResponses.hasFailures());
                     emitter.onCompleted();
+
                 }
 
                 @Override
-                public void onFailure(Throwable e) {
+                public void onFailure(Exception e) {
                     emitter.onError(e);
+
                 }
             });
         }, Emitter.BackpressureMode.BUFFER);
@@ -211,7 +217,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                 jsonBuilder.field("price", Double.valueOf(price));
                 jsonBuilder.endObject();
 
-                IndexRequestBuilder request = client.prepareIndex(indexName, type);
+                IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
                 request.setSource(jsonBuilder);
                 request.setOpType(IndexRequest.OpType.CREATE);
                 bulkRequestBuilder.add(request);
@@ -223,18 +229,18 @@ public class Elastic implements AutoCloseable, Cloneable {
         return Observable.fromEmitter(emitter -> {
             bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
                 @Override
-                public void onResponse(BulkResponse bulkResponse) {
-                    if (bulkResponse.hasFailures()) {
-                        LOGGER.error("Failed to price index products:{}", bulkResponse.buildFailureMessage());
+                public void onResponse(BulkResponse bulkItemResponses) {
+                    if (bulkItemResponses.hasFailures()) {
+                        LOGGER.error("Failed to price index products:{}", bulkItemResponses.buildFailureMessage());
                     } else {
-                        LOGGER.info("Successfully price indexed {} in {}ms", bulkResponse.getItems().length, bulkResponse.getTookInMillis());
+                        LOGGER.info("Successfully price indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
                     }
-                    emitter.onNext(!bulkResponse.hasFailures());
+                    emitter.onNext(!bulkItemResponses.hasFailures());
                     emitter.onCompleted();
                 }
 
                 @Override
-                public void onFailure(Throwable e) {
+                public void onFailure(Exception e) {
                     emitter.onError(e);
                 }
             });
