@@ -224,7 +224,8 @@ public class Elastic implements AutoCloseable, Cloneable {
                 jsonBuilder.field("price", Double.valueOf(price));
                 jsonBuilder.endObject();
 
-                IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
+                String id = DigestUtils.sha1Hex(product.getUrl() + product.getProductName() + price);
+                IndexRequestBuilder request = client.prepareIndex(indexName, type, id);
                 request.setSource(jsonBuilder);
                 request.setOpType(IndexRequest.OpType.CREATE);
                 bulkRequestBuilder.add(request);
