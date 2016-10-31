@@ -41,7 +41,8 @@ public class SitesUtil {
             "http://www.nordicmarksman.com/",
             "http://www.grouseriver.com/",
             "http://www.westcoasthunting.ca/",
-            "https://www.ammosupply.ca/"
+            "https://www.ammosupply.ca/",
+            "http://www.gunhub.ca/"
     };
 
     public static String getHost(WebPageEntity webPageEntity) {
@@ -121,6 +122,8 @@ public class SitesUtil {
             host = "westcoasthunting.ca";
         } else if (url.contains("ammosupply.ca")) {
             host = "ammosupply.ca";
+        } else if (url.contains("gunhub.ca")) {
+            host = "gunhub.ca";
         }
         return host;
     }

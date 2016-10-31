@@ -5,29 +5,41 @@ import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AmmoSupplyRawPageParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
-    private static final Pattern priceParser = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
+public class GunhubRawPageParser extends AbstractRawPageParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GunhubRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
+    private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
 
     static {
+        mapping.put("firearm", "firearm");
         mapping.put("ammo", "ammo");
     }
 
+    /**
+     * @param price
+     * @return
+     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
-        Matcher matcher = priceParser.matcher(price);
+        Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
-            return matcher.group(1).replace(",", "");
+            try {
+                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
+            } catch (Exception ignored) {
+                return Double.valueOf(matcher.group(1)).toString();
+            }
         } else {
             LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
@@ -38,6 +50,7 @@ public class AmmoSupplyRawPageParser extends AbstractRawPageParser {
     public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
+            ProductEntity product;
             String productName = null;
             String url = null;
             String regularPrice = null;
@@ -47,25 +60,28 @@ public class AmmoSupplyRawPageParser extends AbstractRawPageParser {
             Map<String, String> attr = new HashMap<>();
             String[] category = null;
 
+            url = webPageEntity.getUrl();
+
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-            productName = document.select(".p-name").text();
+            productName = document.select(".product-info-container h2").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-            if (document.select(".ct-counts").text().equals("Out Of Stock")) {
-                LOGGER.info("Ignoring {}", webPageEntity.getUrl());
-            } else {
-                ProductEntity product;
-                url = webPageEntity.getUrl();
-                productImage = document.select(".item-img img").attr("src").trim();
-                regularPrice = parsePrice(webPageEntity, document.select(".price").text());
-                description = document.select("#tab-description").text();
-                category = getNormalizedCategories(webPageEntity);
-
-                attr.put("rounds", document.select(".p-rounds").first().text());
-
-                product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
-                result.add(product);
+            if (document.select(".banner").text().contains("SOLD OUT")) {
+                return Observable.empty();
             }
+
+            Elements productImageElement = document.select(".large-image-container a");
+            if (!productImageElement.isEmpty()) {
+                productImage = productImageElement.attr("data-image-url");
+            }
+
+            regularPrice = parsePrice(webPageEntity, document.select(".product-price").text());
+
+            description = ""; // document.select(".product-info-container").text();
+            category = getNormalizedCategories(webPageEntity);
+
+            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+            result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
@@ -77,8 +93,7 @@ public class AmmoSupplyRawPageParser extends AbstractRawPageParser {
      * @return
      */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
-        String category = webPageEntity.getCategory().toUpperCase();
-        String s = mapping.get(category);
+        String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {
             return s.split(",");
         }
@@ -88,13 +103,13 @@ public class AmmoSupplyRawPageParser extends AbstractRawPageParser {
 
     @Override
     public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("ammosupply.ca") && webPage.getType().equals("productPageRaw");
+        return webPage.getUrl().contains("gunhub.ca") && webPage.getType().equals("productPageRaw");
     }
 
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer("ammosupply.ca/productPageRaw", (Message<WebPageEntity> event) ->
+        vertx.eventBus().consumer("gunhub.ca/productPageRaw", (Message<WebPageEntity> event) ->
                 parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err)));
     }
 }
