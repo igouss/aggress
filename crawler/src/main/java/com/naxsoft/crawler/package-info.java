@@ -1,4 +1,4 @@
 /**
- * Copyright NAXSoft 2016
+ * HTTP Client
  */
 package com.naxsoft.crawler;

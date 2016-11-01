@@ -1,4 +1,4 @@
 /**
- * Copyright NAXSoft 2016
+ * Command line commands
  */
 package com.naxsoft.commands;

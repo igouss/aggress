@@ -1,4 +1,4 @@
 /**
- * Copyright NAXSoft 2016
+ * Dagger 2 modules
  */
 package com.naxsoft.modules;

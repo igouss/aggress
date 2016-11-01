@@ -1,4 +1,4 @@
 /**
- * Copyright NAXSoft 2016
+ * Web page parsers
  */
 package com.naxsoft.parsers.webPageParsers;

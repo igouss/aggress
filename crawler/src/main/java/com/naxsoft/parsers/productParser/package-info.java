@@ -1,4 +1,4 @@
 /**
- * Copyright NAXSoft 2016
+ * Product parsers
  */
 package com.naxsoft.parsers.productParser;
