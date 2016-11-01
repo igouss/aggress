@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -37,6 +38,10 @@ class CabelasProductRawParser extends AbstractRawPageParser {
         mapping.put("Firearm Care", "misc");
         mapping.put("Muzzleloading", "firearm");
         mapping.put("Airsoft", "misc");
+    }
+
+    public CabelasProductRawParser(MetricRegistry metricRegistry) {
+        super(metricRegistry);
     }
 
     /**
@@ -100,7 +105,8 @@ class CabelasProductRawParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result);
+        return Observable.from(result)
+                .doOnNext(e -> parseResultCounter.inc());
     }
 
     /**
@@ -122,7 +128,7 @@ class CabelasProductRawParser extends AbstractRawPageParser {
     }
 
     @Override
-    String getType() {
+    String getParserType() {
         return "productPageRaw";
     }
 

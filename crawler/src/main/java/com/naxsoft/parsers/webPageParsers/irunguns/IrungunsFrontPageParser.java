@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.irunguns;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,10 +21,9 @@ import java.util.Set;
  */
 class IrungunsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(IrungunsFrontPageParser.class);
-    private final HttpClient client;
 
-    private IrungunsFrontPageParser(HttpClient client) {
-        this.client = client;
+    public IrungunsFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -46,7 +46,8 @@ class IrungunsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return client.get("https://www.irunguns.us/product_categories.php", new DocumentCompletionHandler(webPage))
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.wanstallsonline;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,10 +21,9 @@ import java.util.Set;
  */
 class WanstallsonlineProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WanstallsonlineProductListParser.class);
-    private final HttpClient client;
 
-    private WanstallsonlineProductListParser(HttpClient client) {
-        this.client = client;
+    public WanstallsonlineProductListParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -44,7 +44,8 @@ class WanstallsonlineProductListParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

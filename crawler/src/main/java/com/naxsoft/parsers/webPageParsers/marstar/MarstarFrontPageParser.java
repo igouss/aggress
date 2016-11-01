@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.marstar;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -15,8 +16,8 @@ import java.util.HashSet;
 class MarstarFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarFrontPageParser.class);
 
-    private MarstarFrontPageParser(HttpClient client) {
-
+    public MarstarFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
@@ -30,7 +31,8 @@ class MarstarFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=3", "ammo")); // ammo
         webPageEntities.add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=81526", "firearm")); // Firearms
 
-        return Observable.from(webPageEntities);
+        return Observable.from(webPageEntities)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

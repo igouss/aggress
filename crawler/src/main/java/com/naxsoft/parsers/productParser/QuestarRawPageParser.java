@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -26,6 +27,10 @@ class QuestarRawPageParser extends AbstractRawPageParser {
         mapping.put("Firearms-Handguns", "firearm");
         mapping.put("Firearms-Long Guns", "firearm");
         mapping.put("Sights/Lasers/Scopes", "optic");
+    }
+
+    public QuestarRawPageParser(MetricRegistry metricRegistry) {
+        super(metricRegistry);
     }
 
     /**
@@ -71,12 +76,12 @@ class QuestarRawPageParser extends AbstractRawPageParser {
             regularPrice = parsePrice(webPageEntity, document.select("#main td > span.price").text());
 
             product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
-
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result);
+        return Observable.from(result)
+                .doOnNext(e -> parseResultCounter.inc());
     }
 
     /**
@@ -98,7 +103,7 @@ class QuestarRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    String getType() {
+    String getParserType() {
         return "productPageRaw";
     }
 

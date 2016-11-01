@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.internationalshootingsupplies;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -30,10 +31,8 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
         cookies.add(Cookie.newValidCookie("store_language", "english", false, null, null, Long.MAX_VALUE, false, false));
     }
 
-    private final HttpClient client;
-
-    private InternationalshootingsuppliesFrontPageParser(HttpClient client) {
-        this.client = client;
+    public InternationalshootingsuppliesFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
@@ -84,7 +83,8 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
         webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/shooting-accessories/", "misc"));
         return Observable.from(webPageEntities)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseProductPage);
+                .flatMap(this::parseProductPage)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

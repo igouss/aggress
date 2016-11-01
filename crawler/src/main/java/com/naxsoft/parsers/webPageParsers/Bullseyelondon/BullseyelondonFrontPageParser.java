@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.bullseyelondon;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -17,10 +18,9 @@ import java.util.Set;
 
 class BullseyelondonFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(BullseyelondonFrontPageParser.class);
-    private final HttpClient client;
 
-    private BullseyelondonFrontPageParser(HttpClient client) {
-        this.client = client;
+    public BullseyelondonFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -41,7 +41,8 @@ class BullseyelondonFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return client.get(webPage.getUrl(), new DocumentCompletionHandler(webPage))
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

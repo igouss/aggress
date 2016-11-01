@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.gson.Gson;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
@@ -82,6 +83,10 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         mapping.put("rifle accessories", "misc");
     }
 
+    public WolverinesuppliesProductRawPageParser(MetricRegistry metricRegistry) {
+        super(metricRegistry);
+    }
+
     @Override
     public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
@@ -121,13 +126,13 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
 
 
                 product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
-
                 result.add(product);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result);
+        return Observable.from(result)
+                .doOnNext(e -> parseResultCounter.inc());
     }
 
     /**
@@ -148,7 +153,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    String getType() {
+    String getParserType() {
         return "productPageRaw";
     }
 

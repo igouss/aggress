@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.psmilitaria;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -21,8 +22,8 @@ import java.util.Set;
 class PsmilitariaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaFrontPageParser.class);
 
-    private PsmilitariaFrontPageParser(HttpClient client) {
-
+    public PsmilitariaFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
@@ -37,7 +38,8 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select("table > tbody > tr > th > a");
             for (Element e : elements) {
                 String url = e.attr("abs:href");
-                result.add(create(downloadResult.getSourcePage(), url, e.text()));
+                WebPageEntity webPageEntity = create(downloadResult.getSourcePage(), url, e.text());
+                result.add(webPageEntity);
             }
         }
         return result;
@@ -63,7 +65,8 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/miscel.html", "misc"));
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/newitems.html", "firearm,misc"));
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/tools.html", "reload"));
-        return Observable.from(webPageEntities);
+        return Observable.from(webPageEntities)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

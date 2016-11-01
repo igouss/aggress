@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.sail;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -30,10 +31,8 @@ class SailsFrontPageParser extends AbstractWebPageParser {
         cookies.add(Cookie.newValidCookie("store_language", "english", false, null, null, Long.MAX_VALUE, false, false));
     }
 
-    private final HttpClient client;
-
-    private SailsFrontPageParser(HttpClient client) {
-        this.client = client;
+    public SailsFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
@@ -65,7 +64,8 @@ class SailsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/ammunition", "ammo"));
         return Observable.from(webPageEntities)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

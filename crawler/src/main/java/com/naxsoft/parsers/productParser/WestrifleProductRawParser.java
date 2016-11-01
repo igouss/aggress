@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -38,6 +39,10 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
         mapping.put("STOCKS", "misc");
         mapping.put("COLLECTIBLE MOSIN NAGANT 91/30", "firearm");
         mapping.put("ROCK SOLID MOUNTS", "misc");
+    }
+
+    public WestrifleProductRawParser(MetricRegistry metricRegistry) {
+        super(metricRegistry);
     }
 
     /**
@@ -87,12 +92,12 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
             regularPrice = parsePrice(webPageEntity, document.select("#productPrices").text());
 
             product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
-
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result);
+        return Observable.from(result)
+                .doOnNext(e -> parseResultCounter.inc());
     }
 
     /**
@@ -113,7 +118,7 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
     }
 
     @Override
-    String getType() {
+    String getParserType() {
         return "productPageRaw";
     }
 

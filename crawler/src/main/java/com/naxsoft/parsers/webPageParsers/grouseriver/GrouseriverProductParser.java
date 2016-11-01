@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.grouseriver;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -16,11 +17,11 @@ import java.util.Map;
 
 public class GrouseriverProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GrouseriverProductParser.class);
-    private final HttpClient client;
 
-    private GrouseriverProductParser(HttpClient client) {
-        this.client = client;
+    public GrouseriverProductParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
+
 
     public Observable<WebPageEntity> parseJson(JsonResult downloadResult) {
         HashSet<WebPageEntity> result = new HashSet<>();
@@ -28,7 +29,8 @@ public class GrouseriverProductParser extends AbstractWebPageParser {
         List<Map<String, String>> items = (List<Map<String, String>>) parsedJson.get("items");
         for (Map<String, String> itemData : items) {
             LOGGER.info("Processing: " + itemData.get("displayname"));
-            result.add(new WebPageEntity(downloadResult.getSourcePage(), "", "productPageRaw", "http://www.grouseriver.com/" + itemData.get("urlcomponent"), downloadResult.getSourcePage().getCategory()));
+            WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPageRaw", "http://www.grouseriver.com/" + itemData.get("urlcomponent"), downloadResult.getSourcePage().getCategory());
+            result.add(webPageEntity);
         }
         return Observable.from(result);
     }
@@ -38,7 +40,8 @@ public class GrouseriverProductParser extends AbstractWebPageParser {
         return client.get(parent.getUrl(), new JsonCompletionHandler(parent))
                 .flatMap(this::parseJson)
                 .flatMap(webPage -> PageDownloader.download(client, webPage, "productPageRaw")
-                        .filter(data -> null != data));
+                        .filter(data -> null != data))
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override
@@ -50,6 +53,4 @@ public class GrouseriverProductParser extends AbstractWebPageParser {
     public String getSite() {
         return "grouseriver.com";
     }
-
-
 }

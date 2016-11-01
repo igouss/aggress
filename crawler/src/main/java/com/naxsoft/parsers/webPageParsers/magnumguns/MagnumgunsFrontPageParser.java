@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.magnumguns;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,10 +21,9 @@ import java.util.Set;
  */
 class MagnumgunsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MagnumgunsFrontPageParser.class);
-    private final HttpClient client;
 
-    private MagnumgunsFrontPageParser(HttpClient client) {
-        this.client = client;
+    public MagnumgunsFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
@@ -38,7 +38,8 @@ class MagnumgunsFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".product-category > a");
             for (Element e : elements) {
                 String url = e.attr("abs:href");
-                result.add(create(downloadResult.getSourcePage(), url, e.text()));
+                WebPageEntity webPageEntity = create(downloadResult.getSourcePage(), url, e.text());
+                result.add(webPageEntity);
             }
         }
         return Observable.from(result);
@@ -76,7 +77,8 @@ class MagnumgunsFrontPageParser extends AbstractWebPageParser {
         return client.get("http://www.magnumguns.ca/shop/", new DocumentCompletionHandler(parent))
                 .flatMap(this::parseFrontPage)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseSubPages);
+                .flatMap(this::parseSubPages)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

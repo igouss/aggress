@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
@@ -13,13 +14,13 @@ import rx.Observable;
 class NoopParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(NoopParser.class);
 
-    private NoopParser(HttpClient client) {
+    public NoopParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.error("Using NOOP parser for: " + webPage);
-
         return Observable.empty();
     }
 

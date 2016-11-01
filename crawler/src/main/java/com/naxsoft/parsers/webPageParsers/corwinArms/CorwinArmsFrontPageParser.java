@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.corwinArms;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -23,10 +24,9 @@ import java.util.regex.Pattern;
 class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsFrontPageParser.class);
     private static final Pattern pagerPattern = Pattern.compile("(\\d+) of (\\d+)");
-    private final HttpClient client;
 
-    private CorwinArmsFrontPageParser(HttpClient client) {
-        this.client = client;
+    private CorwinArmsFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -74,7 +74,8 @@ class CorwinArmsFrontPageParser extends AbstractWebPageParser {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
-                .flatMap(this::parseDocument2);
+                .flatMap(this::parseDocument2)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

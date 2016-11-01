@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.westcoasthunting;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -17,10 +18,9 @@ import java.util.HashSet;
 
 public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestcoastHuntingFrontPageParser.class);
-    private final HttpClient client;
 
-    private WestcoastHuntingFrontPageParser(HttpClient client) {
-        this.client = client;
+    public WestcoastHuntingFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
@@ -56,8 +56,8 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/ammunition/", "ammo"));
         return Observable.from(webPageEntities)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseDocument);
-
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -21,11 +22,10 @@ import java.util.Map;
  */
 class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
-    private final HttpClient client;
     private final List<Cookie> cookies;
 
-    private CanadiangunnutzProductPageParser(HttpClient client) {
-        this.client = client;
+    private CanadiangunnutzProductPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
         Map<String, String> formParameters = new HashMap<>();
         try {
             formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
@@ -45,7 +45,8 @@ class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
-        return PageDownloader.download(client, cookies, webPage, "productPageRaw");
+        return PageDownloader.download(client, cookies, webPage, "productPageRaw")
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

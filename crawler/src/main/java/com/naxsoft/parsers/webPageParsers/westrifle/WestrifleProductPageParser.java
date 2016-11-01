@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.westrifle;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -13,17 +14,17 @@ import rx.Observable;
  */
 class WestrifleProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductPageParser.class);
-    private final HttpClient client;
 
-    private WestrifleProductPageParser(HttpClient client) {
-        this.client = client;
+    public WestrifleProductPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         return PageDownloader.download(client, webPage, "productPageRaw")
-                .filter(data -> null != data);
+                .filter(data -> null != data)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

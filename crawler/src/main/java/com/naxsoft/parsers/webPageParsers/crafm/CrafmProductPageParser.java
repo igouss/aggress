@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.crafm;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -17,11 +18,10 @@ import java.util.List;
  */
 class CrafmProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmProductPageParser.class);
-    private final HttpClient client;
     private final List<Cookie> cookies;
 
-    private CrafmProductPageParser(HttpClient client) {
-        this.client = client;
+    private CrafmProductPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
         cookies = new ArrayList<>(1);
         cookies.add(Cookie.newValidCookie("store", "english", false, null, null, Long.MAX_VALUE, false, false));
     }
@@ -30,7 +30,8 @@ class CrafmProductPageParser extends AbstractWebPageParser {
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         return PageDownloader.download(client, cookies, webPage, "productPageRaw")
-                .filter(data -> null != data);
+                .filter(data -> null != data)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

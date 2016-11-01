@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.frontierfirearms;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -19,10 +20,9 @@ import java.util.Set;
  */
 class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsFrontPageParser.class);
-    private final HttpClient client;
 
-    private FrontierfirearmsFrontPageParser(HttpClient client) {
-        this.client = client;
+    public FrontierfirearmsFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
@@ -71,7 +71,8 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
                     }
                     return true;
                 })
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

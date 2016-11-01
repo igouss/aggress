@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.alflahertys;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,10 +21,9 @@ import java.util.Set;
  */
 class AlflahertysProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysProductListParser.class);
-    private final HttpClient client;
 
-    private AlflahertysProductListParser(HttpClient client) {
-        this.client = client;
+    public AlflahertysProductListParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     /**
@@ -57,7 +57,8 @@ class AlflahertysProductListParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

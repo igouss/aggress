@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.canadaAmmo;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -19,10 +20,9 @@ import java.util.HashSet;
  */
 class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoFrontPageParser.class);
-    private final HttpClient client;
 
-    private CanadaAmmoFrontPageParser(HttpClient client) {
-        this.client = client;
+    public CanadaAmmoFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> parseCategories(DownloadResult downloadResult) {
@@ -72,7 +72,8 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseCategories)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
-                .flatMap(this::parseCategoryPages);
+                .flatMap(this::parseCategoryPages)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

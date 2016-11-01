@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.tradeexcanada;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,10 +21,9 @@ import java.util.Set;
  */
 class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaFrontPageParser.class);
-    private final HttpClient client;
 
-    private TradeexCanadaFrontPageParser(HttpClient client) {
-        this.client = client;
+    public TradeexCanadaFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url) {
@@ -63,7 +63,6 @@ class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
                 }
 
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), category);
-
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -78,7 +77,8 @@ class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
 
         return Observable.from(webPageEntities)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

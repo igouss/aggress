@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.theammosource;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,10 +21,9 @@ import java.util.Set;
  */
 class TheammosourceFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceFrontPageParser.class);
-    private final HttpClient client;
 
-    private TheammosourceFrontPageParser(HttpClient client) {
-        this.client = client;
+    public TheammosourceFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
@@ -69,7 +69,8 @@ class TheammosourceFrontPageParser extends AbstractWebPageParser {
 
         return Observable.from(webPageEntities)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

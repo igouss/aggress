@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.firearmsoutletcanada;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -13,17 +14,17 @@ import rx.Observable;
  */
 class FirearmsoutletcanadaProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FirearmsoutletcanadaProductPageParser.class);
-    private final HttpClient client;
 
-    private FirearmsoutletcanadaProductPageParser(HttpClient client) {
-        this.client = client;
+    public FirearmsoutletcanadaProductPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         return PageDownloader.download(client, webPage, "productPageRaw")
-                .filter(data -> null != data);
+                .filter(data -> null != data)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

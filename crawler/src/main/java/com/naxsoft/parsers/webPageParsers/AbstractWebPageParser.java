@@ -1,6 +1,9 @@
 package com.naxsoft.parsers.webPageParsers;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.AbstractCompletionHandler;
+import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
@@ -18,11 +21,18 @@ import java.util.List;
  */
 public abstract class AbstractWebPageParser extends AbstractVerticle implements WebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWebPageParser.class);
-    protected Handler<Message<WebPageEntity>> messageHandler;
+    protected final Counter parseResultCounter;
+    protected final HttpClient client;
+    private Handler<Message<WebPageEntity>> messageHandler;
     private Subscription webPageParseResult;
 
-    public AbstractWebPageParser() {
-        messageHandler = event -> webPageParseResult = AbstractWebPageParser.this.parse(event.body()).subscribe(value -> {
+    public AbstractWebPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        this.client = client;
+
+        String metricName = MetricRegistry.name(getSite().replaceAll("\\.", "_") + "." + getParserType(), "parseResults");
+        parseResultCounter = metricRegistry.counter(metricName);
+
+        messageHandler = event -> webPageParseResult = parse(event.body()).subscribe(value -> {
             vertx.eventBus().publish("webPageParseResult", value);
         }, error -> {
             LOGGER.error("Failed to parse {}", event.body().getUrl(), error);

@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.ctcsupplies;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,10 +21,9 @@ import java.util.Set;
  */
 class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
-    private final HttpClient client;
 
-    private CtcsuppliesFrontPageParser(HttpClient client) {
-        this.client = client;
+    public CtcsuppliesFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> parseCategories(DownloadResult downloadResult) {
@@ -73,7 +73,8 @@ class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
         return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
                 .flatMap(this::parseCategories)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseCategoryPages);
+                .flatMap(this::parseCategoryPages)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

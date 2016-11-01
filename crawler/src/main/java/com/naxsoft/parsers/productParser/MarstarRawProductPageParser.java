@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
@@ -20,6 +21,10 @@ import java.util.regex.Pattern;
 class MarstarRawProductPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarRawProductPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("((\\d+(\\.|,))+\\d\\d)+");
+
+    public MarstarRawProductPageParser(MetricRegistry metricRegistry) {
+        super(metricRegistry);
+    }
 
     /**
      * @param webPageEntity
@@ -104,7 +109,8 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result);
+        return Observable.from(result)
+                .doOnNext(e -> parseResultCounter.inc());
     }
 
     @Override
@@ -113,7 +119,7 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    String getType() {
+    String getParserType() {
         return "productPageRaw";
     }
 

@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.dantesports;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -21,10 +22,9 @@ import java.util.Set;
  */
 class DantesportsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
-    private final HttpClient client;
 
-    private DantesportsFrontPageParser(HttpClient client) {
-        this.client = client;
+    public DantesportsFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -48,7 +48,8 @@ class DantesportsFrontPageParser extends AbstractWebPageParser {
         return client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false)
                 .first()
                 .flatMap(cookies1 -> client.get(webPage.getUrl(), cookies1, new DocumentCompletionHandler(webPage)))
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

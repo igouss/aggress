@@ -63,7 +63,7 @@ public class Crawler {
                 .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .build();
-        metricReporter.start(1, TimeUnit.SECONDS);
+        metricReporter.start(30, TimeUnit.SECONDS);
 
         Scheduler scheduler = null;
 

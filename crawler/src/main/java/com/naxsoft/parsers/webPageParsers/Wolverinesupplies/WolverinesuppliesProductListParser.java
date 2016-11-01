@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.Wolverinesupplies;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -22,10 +23,9 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
     private static final Pattern itemNumberPattern = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"");
     private static final Pattern categoryPattern = Pattern.compile("\'\\d+\'");
-    private final HttpClient client;
 
-    private WolverinesuppliesProductListParser(HttpClient client) {
-        this.client = client;
+    public WolverinesuppliesProductListParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> onCompleted(WebPageEntity parent) {
@@ -79,7 +79,8 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         return client.get(webPageEntity.getUrl() + "?sortValue=0&Stock=In%20Stock", new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .flatMap(webPageEntity1 -> PageDownloader.download(client, webPageEntity1, "tmp"))
-                .flatMap(this::onCompleted);
+                .flatMap(this::onCompleted)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

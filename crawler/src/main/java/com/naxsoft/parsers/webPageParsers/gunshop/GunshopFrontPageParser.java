@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.gunshop;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -23,10 +24,9 @@ import java.util.regex.Pattern;
 class GunshopFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopFrontPageParser.class);
     private static final Pattern maxPagesPattern = Pattern.compile("(\\d+) of (\\d+)");
-    private final HttpClient client;
 
-    private GunshopFrontPageParser(HttpClient client) {
-        this.client = client;
+    public GunshopFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> categoriesDocument(DownloadResult downloadResult) {
@@ -80,7 +80,8 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
         return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
                 .flatMap(this::categoriesDocument)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
-                .flatMap(this::parseSubpages);
+                .flatMap(this::parseSubpages)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

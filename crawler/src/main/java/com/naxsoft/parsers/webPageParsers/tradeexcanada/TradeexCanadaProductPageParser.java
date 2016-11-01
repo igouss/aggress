@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.tradeexcanada;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -13,10 +14,9 @@ import rx.Observable;
  */
 class TradeexCanadaProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaProductPageParser.class);
-    private final HttpClient client;
 
-    private TradeexCanadaProductPageParser(HttpClient client) {
-        this.client = client;
+    public TradeexCanadaProductPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     @Override
@@ -33,7 +33,7 @@ class TradeexCanadaProductPageParser extends AbstractWebPageParser {
                             LOGGER.error("failed to download web page {}", webPage.getUrl());
                             return false;
                         }
-                    });
+                    }).doOnNext(e -> this.parseResultCounter.inc());
         }
     }
 

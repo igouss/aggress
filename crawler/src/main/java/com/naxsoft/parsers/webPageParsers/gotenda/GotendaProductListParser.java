@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.gotenda;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -20,10 +21,9 @@ import java.util.Set;
  */
 class GotendaProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotendaProductListParser.class);
-    private final HttpClient client;
 
-    private GotendaProductListParser(HttpClient client) {
-        this.client = client;
+    public GotendaProductListParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -50,7 +50,8 @@ class GotendaProductListParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         Observable<DownloadResult> pages = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
-        return pages.flatMap(this::parseDocument);
+        return pages.flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

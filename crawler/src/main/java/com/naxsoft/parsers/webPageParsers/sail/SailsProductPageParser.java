@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.sail;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -24,17 +25,17 @@ class SailsProductPageParser extends AbstractWebPageParser {
         cookies.add(Cookie.newValidCookie("store_language", "english", false, null, null, Long.MAX_VALUE, false, false));
     }
 
-    private final HttpClient client;
-
-    private SailsProductPageParser(HttpClient client) {
-        this.client = client;
+    public SailsProductPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
+
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         return PageDownloader.download(client, cookies, webPage, "productPageRaw")
-                .filter(data -> null != data);
+                .filter(data -> null != data)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

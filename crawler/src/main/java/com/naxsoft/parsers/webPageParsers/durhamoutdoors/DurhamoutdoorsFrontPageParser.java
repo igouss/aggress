@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.durhamoutdoors;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -17,10 +18,9 @@ import java.util.Set;
 
 public class DurhamoutdoorsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DurhamoutdoorsFrontPageParser.class);
-    private final HttpClient client;
 
-    private DurhamoutdoorsFrontPageParser(HttpClient client) {
-        this.client = client;
+    public DurhamoutdoorsFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -42,7 +42,8 @@ public class DurhamoutdoorsFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         return client.get("https://durhamoutdoors.ca/collections/", new DocumentCompletionHandler(webPage))
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

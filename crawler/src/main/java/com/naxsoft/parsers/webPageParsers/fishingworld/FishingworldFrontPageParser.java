@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.fishingworld;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -22,10 +23,9 @@ import java.util.regex.Pattern;
 class FishingworldFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingworldFrontPageParser.class);
     private static final Pattern maxPagesPattern = Pattern.compile("(\\d+) of (\\d+)");
-    private final HttpClient client;
 
-    private FishingworldFrontPageParser(HttpClient client) {
-        this.client = client;
+    public FishingworldFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
+        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
@@ -72,7 +72,8 @@ class FishingworldFrontPageParser extends AbstractWebPageParser {
 
         return Observable.from(webPageEntities)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseDocument);
+                .flatMap(this::parseDocument)
+                .doOnNext(e -> this.parseResultCounter.inc());
     }
 
     @Override

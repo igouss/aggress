@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.slf4j.Logger;
@@ -11,6 +12,10 @@ import rx.Observable;
  */
 class NoopParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(NoopParser.class);
+
+    public NoopParser(MetricRegistry metricRegistry) {
+        super(metricRegistry);
+    }
 
     @Override
     public Observable<ProductEntity> parse(WebPageEntity webPage) {
@@ -24,7 +29,7 @@ class NoopParser extends AbstractRawPageParser {
     }
 
     @Override
-    String getType() {
+    String getParserType() {
         return "productPageRaw";
     }
 

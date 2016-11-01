@@ -92,7 +92,10 @@ public class ProductParserFactory {
             }
         });
 
-        DeploymentOptions options = new DeploymentOptions().setWorker(true);
+        DeploymentOptions options = new DeploymentOptions()
+                .setWorker(true)
+                .setMultiThreaded(true)
+                .setWorkerPoolName("productParser");
 
         Reflections reflections = new Reflections("com.naxsoft.parsers.productParser");
         Set<Class<? extends AbstractRawPageParser>> classes = reflections.getSubTypesOf(AbstractRawPageParser.class);
@@ -103,10 +106,10 @@ public class ProductParserFactory {
                     try {
                         createLogger(clazz);
 
-                        Constructor<? extends AbstractRawPageParser> constructor = clazz.getDeclaredConstructor();
+                        Constructor<? extends AbstractRawPageParser> constructor = clazz.getDeclaredConstructor(MetricRegistry.class);
                         constructor.setAccessible(true);
 
-                        AbstractRawPageParser productParser = constructor.newInstance();
+                        AbstractRawPageParser productParser = constructor.newInstance(metricRegistry);
                         vertx.deployVerticle(productParser, options, res -> {
                             if (res.succeeded()) {
                                 LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());

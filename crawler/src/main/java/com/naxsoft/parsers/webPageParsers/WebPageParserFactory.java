@@ -109,26 +109,23 @@ public class WebPageParserFactory {
             }
         });
 
-        DeploymentOptions options = new DeploymentOptions().setWorker(true);
+        DeploymentOptions options = new DeploymentOptions()
+                .setWorker(true)
+                .setMultiThreaded(true)
+                .setWorkerPoolName("webPageParsers");
+
 
         Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
         Set<Class<? extends AbstractWebPageParser>> classes = reflections.getSubTypesOf(AbstractWebPageParser.class);
-
-        final Class<?> asyncFetchClient = HttpClient.class;
-//        for (Class iface : client.getClass().getInterfaces()) {
-//            if (iface.getCanonicalName().equals("com.naxsoft.crawler.HttpClient")) {
-//                asyncFetchClient = iface;
-//            }
-//        }
 
         Observable.fromEmitter((Action1<Emitter<Class>>) asyncEmitter -> {
             classes.stream().filter(clazz -> !Modifier.isAbstract(clazz.getModifiers())).forEach(clazz -> {
                 try {
                     createLogger(clazz);
 
-                    Constructor<? extends AbstractWebPageParser> constructor = clazz.getDeclaredConstructor(asyncFetchClient);
+                    Constructor<? extends AbstractWebPageParser> constructor = clazz.getDeclaredConstructor(MetricRegistry.class, HttpClient.class);
                     constructor.setAccessible(true);
-                    AbstractWebPageParser webPageParser = constructor.newInstance(client);
+                    AbstractWebPageParser webPageParser = constructor.newInstance(metricRegistry, client);
                     vertx.deployVerticle(webPageParser, options, res -> {
                         if (res.succeeded()) {
                             LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());

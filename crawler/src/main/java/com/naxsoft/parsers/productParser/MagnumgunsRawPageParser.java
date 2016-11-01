@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -32,6 +33,10 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
         mapping.put("Safes", "misc");
         mapping.put("Shotguns", "firearm");
         mapping.put("Youth", "firearm");
+    }
+
+    public MagnumgunsRawPageParser(MetricRegistry metricRegistry) {
+        super(metricRegistry);
     }
 
     /**
@@ -87,12 +92,12 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
             category = getNormalizedCategories(webPageEntity);
 
             product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
-
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result);
+        return Observable.from(result)
+                .doOnNext(e -> parseResultCounter.inc());
     }
 
     /**
@@ -115,7 +120,7 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    String getType() {
+    String getParserType() {
         return "productPageRaw";
     }
 

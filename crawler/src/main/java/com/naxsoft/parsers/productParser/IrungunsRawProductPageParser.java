@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
@@ -35,6 +36,10 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
         mapping.put("Handguns", "firearm");
         mapping.put("Antiques", "firearm");
         mapping.put("Parts & Gear", "firearm,misc");
+    }
+
+    public IrungunsRawProductPageParser(MetricRegistry metricRegistry) {
+        super(metricRegistry);
     }
 
     /**
@@ -122,7 +127,8 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result);
+        return Observable.from(result)
+                .doOnNext(e -> parseResultCounter.inc());
     }
 
     /**
@@ -144,7 +150,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    String getType() {
+    String getParserType() {
         return "productPageRaw";
     }
 
