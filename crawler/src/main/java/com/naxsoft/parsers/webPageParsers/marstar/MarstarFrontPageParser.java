@@ -4,10 +4,10 @@ import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 
@@ -32,7 +32,7 @@ class MarstarFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=3", "ammo")); // ammo
         webPageEntities.add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=81526", "firearm")); // Firearms
 
-        return Observable.from(webPageEntities)
+        return Observable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .doOnNext(e -> this.parseResultCounter.inc());
     }

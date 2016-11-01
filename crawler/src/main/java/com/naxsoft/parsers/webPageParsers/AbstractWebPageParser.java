@@ -5,6 +5,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
+import io.reactivex.disposables.Disposable;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -12,7 +13,6 @@ import org.asynchttpclient.Response;
 import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Subscription;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
     protected final Counter parseResultCounter;
     protected final HttpClient client;
     private Handler<Message<WebPageEntity>> messageHandler;
-    private Subscription webPageParseResult;
+    private Disposable webPageParseResult;
 
 
     public AbstractWebPageParser(MetricRegistry metricRegistry, HttpClient client) {
@@ -74,6 +74,6 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
 
     @Override
     public void stop() throws Exception {
-        webPageParseResult.unsubscribe();
+        webPageParseResult.dispose();
     }
 }

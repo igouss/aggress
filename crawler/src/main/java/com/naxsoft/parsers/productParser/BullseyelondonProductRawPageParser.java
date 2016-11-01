@@ -4,13 +4,13 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import io.reactivex.Observable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -171,7 +171,7 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
+        return Observable.fromIterable(result)
                 .doOnNext(e -> parseResultCounter.inc());
     }
 

@@ -1,6 +1,8 @@
 package com.naxsoft.storage.elasticsearch;
 
 import com.naxsoft.entity.ProductEntity;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.ActionListener;
@@ -20,8 +22,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter;
-import rx.Observable;
 
 import javax.inject.Singleton;
 import java.io.InputStream;
@@ -99,7 +99,7 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @return Observable that either completes or errors.
      */
     public Observable<Boolean> createIndex(String indexName, String type) {
-        return Observable.fromEmitter(emitter -> {
+        return Observable.create((ObservableEmitter<Boolean> emitter) -> {
             String resourceName = "/elastic." + indexName + "." + type + ".index.json";
             InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
             try {
@@ -113,7 +113,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                         public void onResponse(CreateIndexResponse createIndexResponse) {
                             //                            LOGGER.info("Index created {}", createIndexResponse.isAcknowledged());
                             emitter.onNext(createIndexResponse.isAcknowledged());
-                            emitter.onCompleted();
+                            emitter.onComplete();
                         }
 
                         @Override
@@ -124,7 +124,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                     });
                 } else {
                     LOGGER.info("Index already exists");
-                    emitter.onCompleted();
+                    emitter.onComplete();
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to create index", e);
@@ -132,7 +132,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             } finally {
                 IOUtils.closeQuietly(resourceAsStream);
             }
-        }, Emitter.BackpressureMode.LATEST);
+        });
     }
 
     private boolean indexExists(String indexName) throws InterruptedException, java.util.concurrent.ExecutionException {
@@ -167,7 +167,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         }
 
 
-        return Observable.fromEmitter(emitter -> {
+        return Observable.create((ObservableEmitter<Boolean> emitter) -> {
             try {
                 esConcurrency.acquire();
                 bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
@@ -179,7 +179,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                             LOGGER.info("Successfully indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
                         }
                         emitter.onNext(!bulkItemResponses.hasFailures());
-                        emitter.onCompleted();
+                        emitter.onComplete();
                         esConcurrency.release();
                     }
 
@@ -192,7 +192,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }, Emitter.BackpressureMode.BUFFER);
+        });
     }
 
     /**
@@ -234,7 +234,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             LOGGER.error("Failed to generate bulk add operation", e);
         }
 
-        return Observable.fromEmitter(emitter -> {
+        return Observable.create((ObservableEmitter<Boolean> emitter) -> {
             try {
                 esConcurrency.acquire();
                 bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
@@ -246,7 +246,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                             LOGGER.info("Successfully price indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
                         }
                         emitter.onNext(!bulkItemResponses.hasFailures());
-                        emitter.onCompleted();
+                        emitter.onComplete();
                         esConcurrency.release();
                     }
 
@@ -259,6 +259,6 @@ public class Elastic implements AutoCloseable, Cloneable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }, Emitter.BackpressureMode.BUFFER);
+        });
     }
 }

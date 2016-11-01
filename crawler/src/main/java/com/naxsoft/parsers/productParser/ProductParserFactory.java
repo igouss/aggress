@@ -11,6 +11,8 @@ import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.SitesUtil;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -19,8 +21,6 @@ import io.vertx.core.eventbus.MessageConsumer;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter;
-import rx.Observable;
 
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
@@ -124,10 +124,10 @@ public class ProductParserFactory {
                 });
 
         MessageConsumer<ProductEntity> consumer = vertx.eventBus().consumer("productParseResult");
-        parseResult = Observable.fromEmitter(asyncEmitter -> {
-            consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
-            consumer.endHandler(v -> asyncEmitter.onCompleted());
-        }, Emitter.BackpressureMode.BUFFER);
+        parseResult = Observable.create((ObservableEmitter<ProductEntity> emitter) -> {
+            consumer.handler(handler -> emitter.onNext(handler.body()));
+            consumer.endHandler(v -> emitter.onComplete());
+        });
     }
 
     private void createLogger(Class<? extends AbstractRawPageParser> clazz) {

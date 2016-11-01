@@ -11,6 +11,9 @@ import com.naxsoft.encoders.Encoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.SitesUtil;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.schedulers.Schedulers;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -19,10 +22,6 @@ import io.vertx.core.eventbus.MessageConsumer;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter;
-import rx.Observable;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
@@ -57,10 +56,10 @@ public class WebPageParserFactory {
 
         MessageConsumer<WebPageEntity> consumer = vertx.eventBus().consumer("webPageParseResult");
 
-        parseResult = Observable.fromEmitter(asyncEmitter -> {
-            consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
-            consumer.endHandler(v -> asyncEmitter.onCompleted());
-        }, Emitter.BackpressureMode.BUFFER);
+        parseResult = Observable.create((ObservableEmitter<WebPageEntity> emitter) -> {
+            consumer.handler(handler -> emitter.onNext(handler.body()));
+            consumer.endHandler(v -> emitter.onComplete());
+        });
 
 //        parseResult = Observable.fromAsync(asyncEmitter -> {
 //            vertx.eventBus().consumer("webPageParseResult", event -> asyncEmitter.onNext((WebPageEntity) event.body()));
@@ -118,7 +117,7 @@ public class WebPageParserFactory {
         Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
         Set<Class<? extends AbstractWebPageParser>> classes = reflections.getSubTypesOf(AbstractWebPageParser.class);
 
-        Observable.fromEmitter((Action1<Emitter<Class>>) asyncEmitter -> {
+        Observable.create((ObservableEmitter<Class<? extends AbstractWebPageParser>> emitter) -> {
             classes.stream().filter(clazz -> !Modifier.isAbstract(clazz.getModifiers())).forEach(clazz -> {
                 try {
                     createLogger(clazz);
@@ -130,7 +129,7 @@ public class WebPageParserFactory {
                         if (res.succeeded()) {
                             LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
                             parserVertex.add(res.result());
-                            asyncEmitter.onNext(clazz);
+                            emitter.onNext(clazz);
                         } else {
                             LOGGER.error("Deployment failed!", res.cause());
                         }
@@ -139,10 +138,8 @@ public class WebPageParserFactory {
                     LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
                 }
             });
-            asyncEmitter.onCompleted();
-        }, Emitter.BackpressureMode.BUFFER).subscribeOn(Schedulers.immediate()).subscribe();
-
-
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.computation()).subscribe();
     }
 
     private void createLogger(Class<? extends AbstractWebPageParser> clazz) {

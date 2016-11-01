@@ -6,13 +6,13 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -68,7 +68,7 @@ class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return Observable.fromIterable(result);
     }
 
     @Override
@@ -81,7 +81,7 @@ class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.wanstallsonline.com/storage-transport/", "misc"));
         webPageEntities.add(create(parent, "http://www.wanstallsonline.com/hunting-shooting-supplies/", "misc"));
         webPageEntities.add(create(parent, "http://www.wanstallsonline.com/firearms-ammunition", "ammo"));
-        return Observable.from(webPageEntities)
+        return Observable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)

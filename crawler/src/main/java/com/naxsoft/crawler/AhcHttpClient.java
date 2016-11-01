@@ -7,6 +7,8 @@ import com.codahale.metrics.MetricRegistry;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.ssl.SslContext;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.asynchttpclient.*;
 import org.asynchttpclient.cookie.Cookie;
 import org.asynchttpclient.filter.ThrottleRequestFilter;
@@ -15,8 +17,6 @@ import org.asynchttpclient.netty.channel.ChannelManager;
 import org.asynchttpclient.netty.request.NettyRequestSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -208,7 +208,7 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
 
         handler.setProxyManager(proxyManager);
-        return Observable.from(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(handler)), Schedulers.io());
+        return Observable.fromFuture(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(handler)), Schedulers.io());
     }
 
 
@@ -254,7 +254,7 @@ public class AhcHttpClient implements HttpClient {
 
         handler.setProxyManager(proxyManager);
 
-        return Observable.from(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
+        return Observable.fromFuture(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
     }
 
     /**
@@ -286,7 +286,7 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
         handler.setProxyManager(proxyManager);
 
-        return Observable.from(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
+        return Observable.fromFuture(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
     }
 
     /**

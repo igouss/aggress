@@ -4,10 +4,10 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.storage.elasticsearch.Elastic;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.Subscription;
 
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -35,8 +35,8 @@ public class ParseCommand implements Command {
     private WebPageService webPageService = null;
     private Elastic elastic = null;
     private ProductParserFactory productParserFactory = null;
-    private Subscription productIndexSubscription;
-    private Subscription priceIndexSubscription;
+    private Disposable productIndexSubscription;
+    private Disposable priceIndexSubscription;
 
     @Inject
     public ParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
@@ -70,8 +70,7 @@ public class ParseCommand implements Command {
                         val -> {
                             LOGGER.info("Indexed: {}", val);
                         },
-                        err -> LOGGER.error("Product indexing failed", err),
-                        () -> LOGGER.info("Product indexing completed")
+                        err -> LOGGER.error("Product indexing failed", err)
                 );
 
         priceIndexSubscription = productPages
@@ -82,8 +81,7 @@ public class ParseCommand implements Command {
                         val -> {
                             LOGGER.info("Price indexed: {}", val);
                         },
-                        err -> LOGGER.error("Price indexing failed", err),
-                        () -> LOGGER.info("Price indexing completed")
+                        err -> LOGGER.error("Price indexing failed", err)
                 );
     }
 
@@ -91,10 +89,10 @@ public class ParseCommand implements Command {
     @Override
     public void tearDown() throws CLIException {
         if (productIndexSubscription != null) {
-            productIndexSubscription.unsubscribe();
+            productIndexSubscription.dispose();
         }
         if (priceIndexSubscription != null) {
-            priceIndexSubscription.unsubscribe();
+            priceIndexSubscription.dispose();
         }
     }
 }

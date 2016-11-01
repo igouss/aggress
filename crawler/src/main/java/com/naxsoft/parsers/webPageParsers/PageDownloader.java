@@ -3,12 +3,12 @@ package com.naxsoft.parsers.webPageParsers;
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.asynchttpclient.Response;
 import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.Collections;
 import java.util.List;

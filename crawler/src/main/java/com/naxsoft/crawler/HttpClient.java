@@ -1,8 +1,8 @@
 package com.naxsoft.crawler;
 
 
+import io.reactivex.Observable;
 import org.asynchttpclient.cookie.Cookie;
-import rx.Observable;
 
 import java.util.Collection;
 import java.util.Map;

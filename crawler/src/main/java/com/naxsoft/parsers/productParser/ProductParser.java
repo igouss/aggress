@@ -2,7 +2,8 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * Copyright NAXSoft 2015

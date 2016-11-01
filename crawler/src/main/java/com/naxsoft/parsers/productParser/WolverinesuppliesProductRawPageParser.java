@@ -4,10 +4,10 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.gson.Gson;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import io.reactivex.Observable;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -131,7 +131,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
+        return Observable.fromIterable(result)
                 .doOnNext(e -> parseResultCounter.inc());
     }
 

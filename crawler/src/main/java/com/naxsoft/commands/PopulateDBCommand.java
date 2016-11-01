@@ -4,10 +4,10 @@ package com.naxsoft.commands;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.utils.SitesUtil;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
 
@@ -33,17 +33,16 @@ public class PopulateDBCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<String> roots = Observable.from(SitesUtil.SOURCES);
+        Observable<String> roots = Observable.fromArray(SitesUtil.SOURCES);
 
-        roots.observeOn(Schedulers.immediate())
-                .subscribeOn(Schedulers.immediate())
+        roots.observeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.computation())
                 .map(entry -> new WebPageEntity(null, "", "frontPage", entry, ""))
                 .flatMap(webPageService::addWebPageEntry)
                 .all(result -> result != 0L)
                 .subscribe(
                         result -> LOGGER.trace("Roots populated: {}", result)
                         , err -> LOGGER.error("Failed to populate roots", err)
-                        , () -> LOGGER.info("Root population complete")
                 );
     }
 

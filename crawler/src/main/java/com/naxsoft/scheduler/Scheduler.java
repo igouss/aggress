@@ -1,8 +1,9 @@
 package com.naxsoft.scheduler;
 
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,9 +31,9 @@ public class Scheduler {
         ScheduledFuture<?> scheduledFuture = scheduler.scheduleAtFixedRate(command, initialDelay, period, unit);
         tasks.add(scheduledFuture);
 
-        rx.Observable.from(scheduledFuture)
+        Observable.fromFuture(scheduledFuture)
                 .observeOn(Schedulers.computation())
-                .subscribeOn(Schedulers.immediate())
+                .subscribeOn(Schedulers.computation())
                 .subscribe(
                         v -> tasks.remove(scheduledFuture),
                         e -> LOGGER.error("Scheduling error", e),

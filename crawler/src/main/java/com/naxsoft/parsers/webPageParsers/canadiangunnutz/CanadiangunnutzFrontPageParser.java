@@ -8,13 +8,13 @@ import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
+import io.reactivex.Observable;
 import org.asynchttpclient.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -55,7 +55,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
             formParameters.put("do", "login");
             formParameters.put("vb_login_md5password", "");
             formParameters.put("vb_login_md5password_utf", "");
-            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).toBlocking().first();
+            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).blockingFirst();
         } catch (PropertyNotFoundException e) {
             e.printStackTrace();
         }
@@ -86,7 +86,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.from(result);
+        return Observable.fromIterable(result);
     }
 
     private Observable<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
@@ -108,7 +108,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.from(result);
+        return Observable.fromIterable(result);
     }
 
     @Override

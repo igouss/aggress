@@ -6,14 +6,14 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.schedulers.Schedulers;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 
@@ -29,7 +29,7 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        return Observable.fromEmitter(emitter -> {
+        return Observable.create((ObservableEmitter<WebPageEntity> emitter) -> {
             try {
                 Document document = downloadResult.getDocument();
                 Elements elements = document.select(".product-category > a");
@@ -38,12 +38,12 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
                     LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                     emitter.onNext(webPageEntity);
                 }
-                emitter.onCompleted();
             } catch (Exception e) {
                 LOGGER.error("Failed to parse", e);
-                emitter.onCompleted();
+
             }
-        }, Emitter.BackpressureMode.BUFFER);
+            emitter.onComplete();
+        });
     }
 
     @Override
@@ -55,7 +55,7 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/firearms-accessories/", "misc"));
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/gun-maintenance/", "misc"));
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/ammunition/", "ammo"));
-        return Observable.from(webPageEntities)
+        return Observable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)

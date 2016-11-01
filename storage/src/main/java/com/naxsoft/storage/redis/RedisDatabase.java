@@ -16,12 +16,13 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.storage.Persistent;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
+import io.reactivex.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 import rx.schedulers.Schedulers;
 
 import javax.inject.Singleton;
+import java.util.Set;
 
 @Singleton
 public class RedisDatabase implements Persistent {
@@ -73,7 +74,7 @@ public class RedisDatabase implements Persistent {
         String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
         String member = Encoder.encode(webPageEntity);
-        return connection.reactive().sadd(destination, member);
+        return Observable.fromFuture(connection.async().sadd(destination, member));
         //.doOnNext(res -> LOGGER.info("Moved rc={} from {} to {} element {}...", res, source, destination, member.substring(0, 50)));
     }
 
@@ -86,7 +87,7 @@ public class RedisDatabase implements Persistent {
     public Observable<Long> addProductPageEntry(ProductEntity productEntity) {
         String key = "ProductEntity";
         String member = Encoder.encode(productEntity);
-        return connection.reactive().sadd(key, member);
+        return Observable.fromFuture(connection.async().sadd(key, member));
     }
 
     @Override
@@ -94,34 +95,35 @@ public class RedisDatabase implements Persistent {
         String key = "WebPageEntity" + "." + webPageEntity.getType();
         String member = Encoder.encode(webPageEntity);
         LOGGER.trace("adding key {} val {}", key, webPageEntity.getUrl());
-        return connection.reactive().sadd(key, member);
+        return Observable.fromFuture(connection.async().sadd(key, member));
     }
 
     @Override
     public Observable<ProductEntity> getProducts() {
-        return connection.reactive()
-                .smembers("ProductEntity")
+        return Observable.fromFuture(connection.async().smembers("ProductEntity"))
+                .flatMap(Observable::fromIterable)
                 .map(ProductEntityEncoder::decode)
                 .filter(productEntity -> productEntity != null);
     }
 
     @Override
     public Observable<Long> getUnparsedCount(String type) {
-        return connection.reactive().scard("WebPageEntity." + type);
+        return Observable.fromFuture(connection.async().scard("WebPageEntity." + type));
     }
 
     @Override
     public Observable<WebPageEntity> getUnparsedByType(String type, Long count) {
         LOGGER.info("getUnparsedByType {} {}", type, count);
-        return connection.reactive()
-                .spop("WebPageEntity." + type, Math.min(count, BATCH_SIZE))
-                .map(WebPageEntityEncoder::decode)
+        Observable<Set<String>> setObservable = Observable.fromFuture(connection.async()
+                .spop("WebPageEntity." + type, Math.min(count, BATCH_SIZE)));
+
+        return setObservable.flatMap(Observable::fromIterable).map(WebPageEntityEncoder::decode)
                 .doOnNext(val -> LOGGER.info("SPOP'ed {} {} {}", val.getType(), val.getUrl(), val.getCategory()))
                 .filter(entry -> entry != null);
     }
 
     @Override
     public Observable<String> cleanUp(String[] tables) {
-        return connection.reactive().flushall();
+        return Observable.fromFuture(connection.async().flushall());
     }
 }

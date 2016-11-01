@@ -3,10 +3,11 @@ package com.naxsoft.parsers.webPageParsers;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
+import io.reactivex.Observable;
 import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+
 
 /**
  * Copyright NAXSoft 2015

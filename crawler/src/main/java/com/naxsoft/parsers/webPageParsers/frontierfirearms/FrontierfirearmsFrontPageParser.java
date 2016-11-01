@@ -6,12 +6,12 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -53,7 +53,7 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.from(result);
+        return Observable.fromIterable(result);
     }
 
     @Override
@@ -63,7 +63,7 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://frontierfirearms.ca/ammunition-reloading.html", "ammo"));
         webPageEntities.add(create(parent, "http://frontierfirearms.ca/shooting-accessories.html", "misc"));
         webPageEntities.add(create(parent, "http://frontierfirearms.ca/optics.html", "optic"));
-        return Observable.from(webPageEntities)
+        return Observable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .filter(downloadResult -> {

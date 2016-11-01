@@ -2,9 +2,9 @@ package com.naxsoft.commands;
 
 
 import com.naxsoft.storage.Persistent;
+import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.schedulers.Schedulers;
 
 /**
  * Copyright NAXSoft 2015
@@ -34,7 +34,7 @@ public class CleanDBCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        db.cleanUp(TABLES).observeOn(Schedulers.immediate()).subscribeOn(Schedulers.immediate()).subscribe(
+        db.cleanUp(TABLES).observeOn(Schedulers.computation()).subscribeOn(Schedulers.computation()).subscribe(
                 result -> LOGGER.trace("Rows deleted: {}", result),
                 ex -> LOGGER.error("Crawler Process Exception", ex),
                 () -> LOGGER.info("Delete complete"));

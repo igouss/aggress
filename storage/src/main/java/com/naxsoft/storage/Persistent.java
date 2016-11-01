@@ -2,7 +2,8 @@ package com.naxsoft.storage;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 public interface Persistent extends AutoCloseable, Cloneable {
     /**

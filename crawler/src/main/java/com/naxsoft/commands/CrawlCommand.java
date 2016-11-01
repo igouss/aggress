@@ -3,10 +3,10 @@ package com.naxsoft.commands;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.parsingService.WebPageService;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.Subscription;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -24,8 +24,8 @@ public class CrawlCommand implements Command {
 
     private final WebPageService webPageService;
     private final WebPageParserFactory webPageParserFactory;
-    private Subscription webPageParseSubscription;
-    private Subscription parentMarkSubscription;
+    private Disposable webPageParseSubscription;
+    private Disposable parentMarkSubscription;
 
     @Inject
     public CrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
@@ -59,8 +59,7 @@ public class CrawlCommand implements Command {
                         rc -> {
                             LOGGER.trace("Added WebPageEntry, parent marked as parsed: {} results added to DB", rc);
                         },
-                        err -> LOGGER.error("Failed", err),
-                        () -> LOGGER.info("Crawl completed")
+                        err -> LOGGER.error("Failed", err)
                 );
 
         parentMarkSubscription = webPageEntriesStream
@@ -72,19 +71,16 @@ public class CrawlCommand implements Command {
                         },
                         err -> {
                             LOGGER.error("Maked as parsed failed", err);
-                        },
-                        () -> {
-                            LOGGER.info("Marked as parsed completed");
                         });
     }
 
     @Override
     public void tearDown() throws CLIException {
         if (webPageParseSubscription != null) {
-            webPageParseSubscription.unsubscribe();
+            webPageParseSubscription.dispose();
         }
         if (parentMarkSubscription != null) {
-            parentMarkSubscription.unsubscribe();
+            parentMarkSubscription.dispose();
         }
     }
 }

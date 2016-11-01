@@ -28,7 +28,6 @@ import javax.inject.Singleton;
         , WebPageParserFactoryModule.class
         , ProductParserFactoryModule.class
         , EncoderModule.class
-        , EventBusModule.class
         , CommandModule.class
         , SchedulerModule.class
         , VertxModule.class

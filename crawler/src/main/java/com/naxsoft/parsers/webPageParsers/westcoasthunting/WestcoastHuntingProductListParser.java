@@ -6,13 +6,13 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter;
-import rx.Observable;
 
 public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestcoastHuntingProductListParser.class);
@@ -22,7 +22,7 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        return Observable.fromEmitter(emitter -> {
+        return Observable.create((ObservableEmitter<WebPageEntity> emitter) -> {
             try {
                 Document document = downloadResult.getDocument();
                 if (document != null) {
@@ -61,14 +61,14 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
                         emitter.onNext(webPageEntity);
                     }
 
-                    emitter.onCompleted();
+                    emitter.onComplete();
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to parse", e);
-                emitter.onCompleted();
+                emitter.onComplete();
             }
 
-        }, Emitter.BackpressureMode.BUFFER);
+        });
     }
 
     @Override

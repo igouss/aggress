@@ -6,13 +6,13 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -43,7 +43,7 @@ public class GrouseriverFrontPageParser extends AbstractWebPageParser {
             }
 
         }
-        return Observable.from(result);
+        return Observable.fromIterable(result);
     }
 
 
@@ -53,7 +53,7 @@ public class GrouseriverFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.grouseriver.com/Firearms", "firearm"));
         webPageEntities.add(create(parent, "http://www.grouseriver.com/Optics", "optic"));
 
-        return Observable.from(webPageEntities)
+        return Observable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)

@@ -7,12 +7,12 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
+import io.reactivex.Observable;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -49,7 +49,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         } catch (NullPointerException npe) {
             LOGGER.error("NPE = {}", parent, npe);
         }
-        return Observable.from(result);
+        return Observable.fromIterable(result);
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
@@ -71,7 +71,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.from(result);
+        return Observable.fromIterable(result);
     }
 
     @Override

@@ -13,7 +13,8 @@ ext {
 dependencies {
     compile project(':common')
     compile "javax.inject:javax.inject:1"
-    compile "io.reactivex:rxjava:1.2.1"
+    compile 'io.reactivex.rxjava2:rxjava:2.0.0'
+
 
     compile "ch.qos.logback:logback-core:1.1.7"
     compile "ch.qos.logback:logback-classic:1.1.7"

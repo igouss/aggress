@@ -1,7 +1,8 @@
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.entity.WebPageEntity;
-import rx.Observable;
+import io.reactivex.Observable;
+
 
 /**
  * Copyright NAXSoft 2015

@@ -7,9 +7,9 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.JsonCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.JsonResult;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
+import io.reactivex.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +32,7 @@ public class GrouseriverProductParser extends AbstractWebPageParser {
             WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPageRaw", "http://www.grouseriver.com/" + itemData.get("urlcomponent"), downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }
-        return Observable.from(result);
+        return Observable.fromIterable(result);
     }
 
     @Override

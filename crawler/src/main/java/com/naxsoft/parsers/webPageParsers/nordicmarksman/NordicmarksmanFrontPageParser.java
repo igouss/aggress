@@ -6,11 +6,11 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import io.reactivex.Observable;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +43,7 @@ public class NordicmarksmanFrontPageParser extends AbstractWebPageParser {
                     .collect(Collectors.toList());
             result.addAll(webPageEntities);
         }
-        return Observable.from(result);
+        return Observable.fromIterable(result);
     }
 
     @Override
