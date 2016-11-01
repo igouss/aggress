@@ -13,32 +13,56 @@
         </filter>
     </appender>
 
-    <appender name="APP-LOG" class="ch.qos.logback.core.FileAppender">
+    <appender name="APP-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR:-logs}/app.log</file>
         <append>false</append>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_DIR:-logs}/app-%d{yyyy-MM-dd}.%i.out.gz</fileNamePattern>
+            <maxHistory>12</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
     </appender>
 
-    <appender name="ELASTIC-LOG" class="ch.qos.logback.core.FileAppender">
+    <appender name="ELASTIC-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR:-logs}/elastic.log</file>
         <append>false</append>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_DIR:-logs}/elastic-%d{yyyy-MM-dd}.%i.out.gz</fileNamePattern>
+            <maxHistory>12</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
     </appender>
-    <appender name="ERROR-LOG" class="ch.qos.logback.core.FileAppender">
+    <appender name="ERROR-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR:-logs}/error.log</file>
         <append>false</append>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>ERROR</level>
+            <level>WARN</level>
         </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_DIR:-logs}/error-%d{yyyy-MM-dd}.%i.out.gz</fileNamePattern>
+            <maxHistory>12</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
     </appender>
-    <appender name="METRICS-LOG" class="ch.qos.logback.core.FileAppender">
+    <appender name="METRICS-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR:-logs}/metrics.log</file>
         <append>false</append>
         <encoder>
@@ -47,6 +71,14 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_DIR:-logs}/metrics-%d{yyyy-MM-dd}.%i.out.gz</fileNamePattern>
+            <maxHistory>12</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
     </appender>
     <appender name="APP-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="APP-LOG"/>
