@@ -16,6 +16,7 @@ import org.asynchttpclient.netty.request.NettyRequestSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -207,7 +208,7 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
 
         handler.setProxyManager(proxyManager);
-        return Observable.from(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(handler)));
+        return Observable.from(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(handler)), Schedulers.io());
     }
 
 
@@ -253,7 +254,7 @@ public class AhcHttpClient implements HttpClient {
 
         handler.setProxyManager(proxyManager);
 
-        return Observable.from(asyncHttpClient.executeRequest(request, handler));
+        return Observable.from(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
     }
 
     /**
@@ -285,7 +286,7 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
         handler.setProxyManager(proxyManager);
 
-        return Observable.from(asyncHttpClient.executeRequest(request, handler));
+        return Observable.from(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
     }
 
     /**

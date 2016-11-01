@@ -7,6 +7,7 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 
@@ -32,6 +33,7 @@ class MarstarFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=81526", "firearm")); // Firearms
 
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

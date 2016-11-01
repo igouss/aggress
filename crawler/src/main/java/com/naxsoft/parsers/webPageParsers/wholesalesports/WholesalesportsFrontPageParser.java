@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -72,6 +73,7 @@ class WholesalesportsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.wholesalesports.com/store/wsoo/en/Categories/Hunting/Black-Powder/c/black-powder?viewPageSize=72", "firearm"));
 
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

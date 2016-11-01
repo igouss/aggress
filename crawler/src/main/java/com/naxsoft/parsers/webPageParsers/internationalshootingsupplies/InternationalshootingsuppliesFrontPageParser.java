@@ -13,6 +13,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,6 +83,7 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
         webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/reloading-equipment/", "reload"));
         webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/shooting-accessories/", "misc"));
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseProductPage)
                 .doOnNext(e -> this.parseResultCounter.inc());

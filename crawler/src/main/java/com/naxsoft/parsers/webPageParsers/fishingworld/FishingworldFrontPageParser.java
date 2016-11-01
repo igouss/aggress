@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -71,6 +72,7 @@ class FishingworldFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/205-pellet-gun", "firearm"));
 
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

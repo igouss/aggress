@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Emitter;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 
@@ -55,6 +56,7 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/gun-maintenance/", "misc"));
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/ammunition/", "ammo"));
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

@@ -13,6 +13,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,6 +64,7 @@ class SailsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/optics-and-shooting-accessories", "optic"));
         webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/ammunition", "ammo"));
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

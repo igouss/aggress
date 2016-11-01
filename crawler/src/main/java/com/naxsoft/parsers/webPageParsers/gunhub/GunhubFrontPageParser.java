@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -52,6 +53,7 @@ public class GunhubFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.gunhub.ca/apps/webstore/products/category/1487024", "ammo"));
 
         return Observable.from(webPageEntities)
+                .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());
