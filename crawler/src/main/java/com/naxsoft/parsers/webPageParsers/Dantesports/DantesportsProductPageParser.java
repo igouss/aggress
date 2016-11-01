@@ -27,13 +27,14 @@ class DantesportsProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("dantesports.com") && webPage.getType().equals("productPage");
+    public String getParserType() {
+        return "productPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("dantesports.com/productPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "dantesports.com";
     }
+
+
 }

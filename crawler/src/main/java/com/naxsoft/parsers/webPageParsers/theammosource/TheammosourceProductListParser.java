@@ -65,13 +65,13 @@ class TheammosourceProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("theammosource.com") && webPage.getType().equals("productList");
+    public String getParserType() {
+        return "productList";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("theammosource.com/productList", getParseRequestMessageHandler());
+    public String getSite() {
+        return "theammosource.com";
     }
+
 }

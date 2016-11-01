@@ -2,7 +2,6 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -20,14 +19,13 @@ class NoopParser extends AbstractRawPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return true;
+    String getSite() {
+        return "noopProductPageParser";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("noopProductPageParser/productPageRaw", (Message<WebPageEntity> event) ->
-                parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+    String getType() {
+        return "productPageRaw";
     }
+
 }

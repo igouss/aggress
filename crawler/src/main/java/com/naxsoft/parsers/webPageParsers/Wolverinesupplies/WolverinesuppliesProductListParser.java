@@ -82,15 +82,14 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                 .flatMap(this::onCompleted);
     }
 
-
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("wolverinesupplies.com") && webPage.getType().equals("productList");
+    public String getParserType() {
+        return "productList";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("wolverinesupplies.com/productList", getParseRequestMessageHandler());
+    public String getSite() {
+        return "wolverinesupplies.com";
     }
+
 }

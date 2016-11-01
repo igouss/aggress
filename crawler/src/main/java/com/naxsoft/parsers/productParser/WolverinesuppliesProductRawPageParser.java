@@ -3,7 +3,6 @@ package com.naxsoft.parsers.productParser;
 import com.google.gson.Gson;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.vertx.core.eventbus.Message;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,15 +143,13 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("wolverinesupplies.com") && webPage.getType().equals("productPageRaw");
+    String getSite() {
+        return "wolverinesupplies.com";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("wolverinesupplies.com/productPageRaw", (Message<WebPageEntity> event) ->
-                parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+    String getType() {
+        return "productPageRaw";
     }
 
     /**

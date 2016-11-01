@@ -3,7 +3,6 @@ package com.naxsoft.parsers.productParser;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.vertx.core.eventbus.Message;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -102,14 +101,13 @@ class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("firearmsoutletcanada.com") && webPage.getType().equals("productPageRaw");
+    String getSite() {
+        return "firearmsoutletcanada.com";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("firearmsoutletcanada.com/productPageRaw", (Message<WebPageEntity> event) ->
-                parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+    String getType() {
+        return "productPageRaw";
     }
+
 }

@@ -24,8 +24,13 @@ class NoopParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return false;
+    public String getParserType() {
+        return "noopWebPageParser";
+    }
+
+    @Override
+    public String getSite() {
+        return "anySite";
     }
 
     @Override

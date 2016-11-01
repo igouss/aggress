@@ -28,13 +28,13 @@ class InternationalshootingsuppliesProductPageParser extends AbstractWebPagePars
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("internationalshootingsupplies.com") && webPage.getType().equals("productPage");
+    public String getParserType() {
+        return "productPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("internationalshootingsupplies.com/productPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "internationalshootingsupplies.com";
     }
+
 }

@@ -15,11 +15,7 @@ public interface WebPageParser {
      */
     Observable<WebPageEntity> parse(WebPageEntity webPage);
 
-    /**
-     * Can this class parse webPage?
-     *
-     * @param webPage webPage to parse
-     * @return True is this parser can parse this page, false otherwise
-     */
-    boolean canParse(WebPageEntity webPage);
+    String getParserType();
+
+    String getSite();
 }

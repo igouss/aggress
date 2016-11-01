@@ -77,13 +77,13 @@ class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("ctcsupplies.ca") && webPage.getType().equals("frontPage");
+    public String getParserType() {
+        return "frontPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("ctcsupplies.ca/frontPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "ctcsupplies.ca";
     }
+
 }

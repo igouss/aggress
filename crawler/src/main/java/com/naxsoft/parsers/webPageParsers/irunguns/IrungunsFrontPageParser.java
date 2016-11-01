@@ -50,13 +50,13 @@ class IrungunsFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("irunguns.us") && webPage.getType().equals("frontPage");
+    public String getParserType() {
+        return "frontPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("irunguns.us/frontPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "irunguns.us";
     }
+
 }

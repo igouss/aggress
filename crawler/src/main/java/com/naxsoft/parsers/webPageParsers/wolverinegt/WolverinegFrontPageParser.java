@@ -58,13 +58,13 @@ public class WolverinegFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("wolverinegt.ca") && webPage.getType().equals("frontPage");
+    public String getParserType() {
+        return "frontPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("wolverinegt.ca/frontPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "wolverinegt.ca";
     }
+
 }

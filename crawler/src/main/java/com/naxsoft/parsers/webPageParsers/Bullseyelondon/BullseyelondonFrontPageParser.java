@@ -45,13 +45,12 @@ class BullseyelondonFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("bullseyelondon.com") && webPage.getType().equals("frontPage");
+    public String getParserType() {
+        return "frontPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("bullseyelondon.com/frontPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "bullseyelondon.com";
     }
 }

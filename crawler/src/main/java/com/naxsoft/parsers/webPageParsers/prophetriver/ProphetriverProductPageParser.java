@@ -27,13 +27,13 @@ class ProphetriverProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("prophetriver.com") && webPage.getType().equals("productPage");
+    public String getParserType() {
+        return "productPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("prophetriver.com/productPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "prophetriver.com";
     }
+
 }

@@ -78,13 +78,13 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("westcoasthunting.ca") && webPage.getType().equals("productList");
+    public String getParserType() {
+        return "productList";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("westcoasthunting.ca/productList", getParseRequestMessageHandler());
+    public String getSite() {
+        return "westcoasthunting.ca";
     }
+
 }

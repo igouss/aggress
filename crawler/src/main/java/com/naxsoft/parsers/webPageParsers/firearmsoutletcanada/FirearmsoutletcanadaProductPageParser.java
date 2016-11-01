@@ -27,13 +27,14 @@ class FirearmsoutletcanadaProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("firearmsoutletcanada.com") && webPage.getType().equals("productPage");
+    public String getParserType() {
+        return "productPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("firearmsoutletcanada.com/productPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "firearmsoutletcanada.com";
     }
+
+
 }

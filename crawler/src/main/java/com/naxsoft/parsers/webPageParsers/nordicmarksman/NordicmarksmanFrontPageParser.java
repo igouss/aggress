@@ -52,13 +52,13 @@ public class NordicmarksmanFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("nordicmarksman.com") && webPage.getType().equals("frontPage");
+    public String getParserType() {
+        return "frontPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("nordicmarksman.com/frontPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "nordicmarksman.com";
     }
+
 }

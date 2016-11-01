@@ -2,7 +2,6 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.vertx.core.eventbus.Message;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -128,14 +127,13 @@ class EllwoodeppsRawProductParser extends AbstractRawPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("ellwoodepps.com") && webPage.getType().equals("productPageRaw");
+    String getSite() {
+        return "ellwoodepps.com";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("ellwoodepps.com/productPageRaw", (Message<WebPageEntity> event) ->
-                parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+    String getType() {
+        return "productPageRaw";
     }
+
 }

@@ -49,13 +49,14 @@ class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("canadiangunnutz.com") && webPage.getType().equals("productPage");
+    public String getParserType() {
+        return "productPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("canadiangunnutz.com/productPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "canadiangunnutz.com";
     }
+
+
 }

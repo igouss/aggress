@@ -27,13 +27,13 @@ class MagnumgunsProductParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("magnumguns.ca") && webPage.getType().equals("productPage");
+    public String getParserType() {
+        return "productPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("magnumguns.ca/productPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "magnumguns.ca";
     }
+
 }

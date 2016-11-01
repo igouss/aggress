@@ -48,13 +48,13 @@ class CanadaAmmoProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("canadaammo.com") && webPage.getType().equals("productList");
+    public String getParserType() {
+        return "productList";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("canadaammo.com/productList", getParseRequestMessageHandler());
+    public String getSite() {
+        return "canadaammo.com";
     }
+
 }

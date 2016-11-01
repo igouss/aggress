@@ -9,8 +9,7 @@ import org.asynchttpclient.Response;
 import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import rx.Subscription;
 
 import java.util.List;
 
@@ -19,6 +18,17 @@ import java.util.List;
  */
 public abstract class AbstractWebPageParser extends AbstractVerticle implements WebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWebPageParser.class);
+    protected Handler<Message<WebPageEntity>> messageHandler;
+    private Subscription webPageParseResult;
+
+    public AbstractWebPageParser() {
+        messageHandler = event -> webPageParseResult = AbstractWebPageParser.this.parse(event.body()).subscribe(value -> {
+            vertx.eventBus().publish("webPageParseResult", value);
+        }, error -> {
+            LOGGER.error("Failed to parse {}", event.body().getUrl(), error);
+        });
+    }
+
     /**
      * @return HTTP cookie handler
      */
@@ -35,14 +45,14 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
         };
     }
 
-    protected Handler<Message<WebPageEntity>> getParseRequestMessageHandler() {
-        return (Message<WebPageEntity> event) -> {
-            Observable<WebPageEntity> webPageEntityObservable = parse(event.body());
-            webPageEntityObservable.subscribeOn(Schedulers.io()).subscribe(value -> {
-                vertx.eventBus().publish("webPageParseResult", value);
-            }, error -> {
-                LOGGER.error("Failed to parse {}", event.body().getUrl(), error);
-            });
-        };
+    @Override
+    public void start() throws Exception {
+        super.start();
+        vertx.eventBus().consumer(getSite() + "/" + getParserType(), messageHandler);
+    }
+
+    @Override
+    public void stop() throws Exception {
+        webPageParseResult.unsubscribe();
     }
 }

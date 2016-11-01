@@ -27,13 +27,13 @@ class WholesalesportsProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("wholesalesports.com") && webPage.getType().equals("productPage");
+    public String getParserType() {
+        return "productPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("wholesalesports.com/productPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "wholesalesports.com";
     }
+
 }

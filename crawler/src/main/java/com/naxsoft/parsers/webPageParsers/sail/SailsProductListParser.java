@@ -69,13 +69,13 @@ class SailsProductListParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("sail.ca") && webPage.getType().equals("productList");
+    public String getParserType() {
+        return "productList";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("sail.ca/productList", getParseRequestMessageHandler());
+    public String getSite() {
+        return "sail.ca";
     }
+
 }

@@ -24,13 +24,12 @@ class BullseyelondonProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("bullseyelondon.com") && webPage.getType().equals("productPage");
+    public String getParserType() {
+        return "productPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("bullseyelondon.com/productPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "bullseyelondon.com";
     }
 }

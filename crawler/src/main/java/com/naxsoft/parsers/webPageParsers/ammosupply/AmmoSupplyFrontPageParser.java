@@ -47,15 +47,14 @@ public class AmmoSupplyFrontPageParser extends AbstractWebPageParser {
                 .flatMap(this::parseDocument);
     }
 
-
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("ammosupply.ca") && webPage.getType().equals("frontPage");
+    public String getParserType() {
+        return "frontPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("ammosupply.ca/frontPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "ammosupply.ca";
     }
+
 }

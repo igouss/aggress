@@ -13,10 +13,4 @@ interface ProductParser {
      * @return All products on the pahe
      */
     Observable<ProductEntity> parse(WebPageEntity webPage);
-
-    /**
-     * @param webPage Can this parser process this page?
-     * @return True if the parser can parse the page, false otherwise
-     */
-    boolean canParse(WebPageEntity webPage);
 }

@@ -49,14 +49,13 @@ class CabelasFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("cabelas.ca") && webPage.getType().equals("frontPage");
+    public String getParserType() {
+        return "frontPage";
     }
-
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("cabelas.ca/frontPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "cabelas.ca";
     }
+
 }

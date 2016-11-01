@@ -57,13 +57,14 @@ public class GunhubFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public boolean canParse(WebPageEntity webPage) {
-        return webPage.getUrl().contains("gunhub.ca") && webPage.getType().equals("frontPage");
+    public String getParserType() {
+        return "frontPage";
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        vertx.eventBus().consumer("gunhub.ca/frontPage", getParseRequestMessageHandler());
+    public String getSite() {
+        return "gunhub.ca";
     }
+
+
 }
