@@ -26,6 +26,7 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
     private Handler<Message<WebPageEntity>> messageHandler;
     private Subscription webPageParseResult;
 
+
     public AbstractWebPageParser(MetricRegistry metricRegistry, HttpClient client) {
         this.client = client;
 
@@ -54,6 +55,16 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
             }
         };
     }
+
+    /**
+     * @return website this parser can parse
+     */
+    protected abstract String getSite();
+
+    /**
+     * @return type of the page this parser can parse
+     */
+    protected abstract String getParserType();
 
     @Override
     public void start() throws Exception {

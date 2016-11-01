@@ -14,8 +14,4 @@ public interface WebPageParser {
      * @return All sub-pages
      */
     Observable<WebPageEntity> parse(WebPageEntity webPage);
-
-    String getParserType();
-
-    String getSite();
 }

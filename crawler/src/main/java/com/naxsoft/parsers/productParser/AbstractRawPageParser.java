@@ -23,8 +23,14 @@ abstract class AbstractRawPageParser extends AbstractVerticle implements Product
         parseResultCounter = metricRegistry.counter(metricName);
     }
 
+    /**
+     * @return website this parser can parse
+     */
     abstract String getSite();
 
+    /**
+     * @return type of the page this parser can parse
+     */
     abstract String getParserType();
 
     @Override
