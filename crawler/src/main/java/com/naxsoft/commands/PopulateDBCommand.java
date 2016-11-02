@@ -5,7 +5,6 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.utils.SitesUtil;
 import io.reactivex.Flowable;
-import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,16 +33,12 @@ public class PopulateDBCommand implements Command {
     @Override
     public void start() throws CLIException {
         Flowable<String> roots = Flowable.fromArray(SitesUtil.SOURCES);
-
-        roots.observeOn(Schedulers.computation())
-                .subscribeOn(Schedulers.computation())
-                .map(entry -> new WebPageEntity(null, "", "frontPage", entry, ""))
+        Boolean rootsPopulated = roots.map(entry -> new WebPageEntity(null, "", "frontPage", entry, ""))
                 .flatMap(webPageService::addWebPageEntry)
                 .all(result -> result != 0L)
-                .subscribe(
-                        result -> LOGGER.trace("Roots populated: {}", result)
-                        , err -> LOGGER.error("Failed to populate roots", err)
-                );
+                .blockingGet();
+
+        LOGGER.info("Roots populated: " + rootsPopulated);
     }
 
     @Override
