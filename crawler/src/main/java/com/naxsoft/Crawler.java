@@ -3,7 +3,6 @@ package com.naxsoft;
 import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
-import com.naxsoft.scheduler.Scheduler;
 import com.naxsoft.utils.HealthMonitor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -44,12 +43,13 @@ public class Crawler {
         parser.accepts("createESIndex");
         parser.accepts("createESMappings");
         parser.accepts("server");
+        parser.accepts("remoteAccess");
 
         return parser.parse(args);
     }
 
     private static void showHelp() {
-        out.println("com.naxsoft.Crawler [-createESIndex] [-clean] [-populate] [-crawl] [-parse]");
+        out.println("com.naxsoft.Crawler [-createESIndex] [-clean] [-populate] [-crawl] [-parse] [-remoteAccess]");
     }
 
     private void start(String[] args) {
@@ -65,9 +65,6 @@ public class Crawler {
                 .build();
         metricReporter.start(30, TimeUnit.SECONDS);
 
-        Scheduler scheduler = null;
-
-
         try {
             final OptionSet options = parseCommandLineArguments(args);
             if (!options.hasOptions() || options.has("help")) {
@@ -79,8 +76,6 @@ public class Crawler {
                 applicationComponent.getCreateESIndexCommand().start();
             }
 
-//            scheduler = applicationComponent.getScheduler();
-//            scheduler.add(() -> {
 
             if (options.has("clean")) {
                 applicationComponent.getCleanDbCommand().start();
@@ -98,27 +93,23 @@ public class Crawler {
             if (options.has("parse")) {
                 applicationComponent.getParseCommand().start();
             }
-//            }, 0, 1, TimeUnit.MINUTES);
+
+            if (options.has("remoteAccess")) {
+                applicationComponent.getRemoteAccess().startHttpShellService();
+            }
 
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
                     LOGGER.info("Stopping crawler..");
                     metricReporter.stop();
-                    if (scheduler != null) {
-                        scheduler.stop();
-                    }
 
                     if (options.has("createESIndex")) {
                         applicationComponent.getCreateESIndexCommand().tearDown();
                     }
 
-//            scheduler = applicationComponent.getScheduler();
-//            scheduler.add(() -> {
-
                     if (options.has("clean")) {
                         applicationComponent.getCleanDbCommand().tearDown();
-
                     }
 
                     if (options.has("populate")) {
@@ -131,6 +122,9 @@ public class Crawler {
 
                     if (options.has("parse")) {
                         applicationComponent.getParseCommand().tearDown();
+                    }
+                    if (options.has("remoteAccess")) {
+                        applicationComponent.getRemoteAccess().stop();
                     }
 
                     applicationComponent.getWebPageParserFactory().close();

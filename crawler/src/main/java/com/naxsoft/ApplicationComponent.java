@@ -6,7 +6,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.modules.*;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
-import com.naxsoft.scheduler.Scheduler;
+import com.naxsoft.parsingService.ShellService;
 import com.naxsoft.storage.Persistent;
 import com.naxsoft.storage.elasticsearch.Elastic;
 import dagger.Component;
@@ -29,10 +29,10 @@ import javax.inject.Singleton;
         , ProductParserFactoryModule.class
         , EncoderModule.class
         , CommandModule.class
-        , SchedulerModule.class
         , VertxModule.class
+        , ShellServiceModule.class
 }, dependencies = {})
-public interface ApplicationComponent {
+interface ApplicationComponent {
     Persistent getDatabase();
 
     HttpClient getHttpClient();
@@ -45,8 +45,6 @@ public interface ApplicationComponent {
 
     MetricRegistry getMetricRegistry();
 
-    Scheduler getScheduler();
-
     CleanDBCommand getCleanDbCommand();
 
     CrawlCommand getCrawlCommand();
@@ -58,4 +56,6 @@ public interface ApplicationComponent {
     PopulateDBCommand getPopulateDBCommand();
 
     Vertx getVertx();
+
+    ShellService getRemoteAccess();
 }
