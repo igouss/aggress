@@ -135,18 +135,21 @@ public class ProductParserFactory {
         String clazzName = clazz.getName();
 
         ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz);
-        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
-        fileAppender.setAppend(true);
-        fileAppender.setFile("logs/" + clazzName + ".log");
-        fileAppender.setName(clazzName);
-        fileAppender.setContext(logger.getLoggerContext());
+
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
         encoder.setContext(logger.getLoggerContext());
         encoder.setImmediateFlush(false);
         encoder.start();
+
+        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
+        fileAppender.setAppend(true);
+        fileAppender.setFile("logs/" + clazzName + ".log");
+        fileAppender.setName(clazzName);
+        fileAppender.setContext(logger.getLoggerContext());
         fileAppender.setEncoder(encoder);
         fileAppender.start();
+
         logger.setLevel(Level.ALL);
         logger.addAppender(fileAppender);
     }

@@ -14,7 +14,6 @@ import com.naxsoft.utils.SitesUtil;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
-import io.reactivex.schedulers.Schedulers;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -118,45 +117,44 @@ public class WebPageParserFactory {
         Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
         Set<Class<? extends AbstractWebPageParser>> classes = reflections.getSubTypesOf(AbstractWebPageParser.class);
 
-        Flowable.create((FlowableEmitter<Class<? extends AbstractWebPageParser>> emitter) -> {
-            classes.stream().filter(clazz -> !Modifier.isAbstract(clazz.getModifiers())).forEach(clazz -> {
-                try {
-                    createLogger(clazz);
 
-                    Constructor<? extends AbstractWebPageParser> constructor = clazz.getDeclaredConstructor(MetricRegistry.class, HttpClient.class);
-                    constructor.setAccessible(true);
-                    AbstractWebPageParser webPageParser = constructor.newInstance(metricRegistry, client);
-                    vertx.deployVerticle(webPageParser, options, res -> {
-                        if (res.succeeded()) {
-                            LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
-                            parserVertex.add(res.result());
-                            emitter.onNext(clazz);
-                        } else {
-                            LOGGER.error("Deployment failed!", res.cause());
-                        }
-                    });
-                } catch (Exception e) {
-                    LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
-                }
-            });
-            emitter.onComplete();
-        }, BackpressureStrategy.BUFFER).subscribeOn(Schedulers.computation()).subscribe();
+        classes.stream().filter(clazz -> !Modifier.isAbstract(clazz.getModifiers())).forEach(clazz -> {
+            try {
+                createLogger(clazz);
+
+                Constructor<? extends AbstractWebPageParser> constructor = clazz.getDeclaredConstructor(MetricRegistry.class, HttpClient.class);
+                constructor.setAccessible(true);
+                AbstractWebPageParser webPageParser = constructor.newInstance(metricRegistry, client);
+                vertx.deployVerticle(webPageParser, options, res -> {
+                    if (res.succeeded()) {
+                        LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
+                        parserVertex.add(res.result());
+                    } else {
+                        LOGGER.error("Deployment failed!", res.cause());
+                    }
+                });
+            } catch (Exception e) {
+                LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
+            }
+        });
     }
 
     private void createLogger(Class<? extends AbstractWebPageParser> clazz) {
         String clazzName = clazz.getName();
 
         ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz);
-        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
-        fileAppender.setAppend(true);
-        fileAppender.setFile("logs/" + clazzName + ".log");
-        fileAppender.setName(clazzName);
-        fileAppender.setContext(logger.getLoggerContext());
+
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
         encoder.setContext(logger.getLoggerContext());
         encoder.setImmediateFlush(false);
         encoder.start();
+
+        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
+        fileAppender.setAppend(true);
+        fileAppender.setFile("logs/" + clazzName + ".log");
+        fileAppender.setName(clazzName);
+        fileAppender.setContext(logger.getLoggerContext());
         fileAppender.setEncoder(encoder);
         fileAppender.start();
         logger.setLevel(Level.ALL);
