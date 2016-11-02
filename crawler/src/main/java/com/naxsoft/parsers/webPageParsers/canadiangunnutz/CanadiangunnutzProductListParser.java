@@ -8,7 +8,7 @@ import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.asynchttpclient.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -43,7 +43,7 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
         }
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -66,11 +66,11 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.fromIterable(result);
+        return Flowable.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         return client.get(parent.getUrl(), cookies, new DocumentCompletionHandler(parent))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

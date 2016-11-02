@@ -11,8 +11,9 @@ import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.SitesUtil;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -36,7 +37,7 @@ public class ProductParserFactory {
 
     private final Vertx vertx;
     private final ArrayList<String> parserVertex;
-    private final Observable<ProductEntity> parseResult;
+    private final Flowable<ProductEntity> parseResult;
 
     private final Meter parseWebPageRawRequestsSensor;
     private final Meter parseProductResultSensor;
@@ -124,10 +125,10 @@ public class ProductParserFactory {
                 });
 
         MessageConsumer<ProductEntity> consumer = vertx.eventBus().consumer("productParseResult");
-        parseResult = Observable.create((ObservableEmitter<ProductEntity> emitter) -> {
+        parseResult = Flowable.create((FlowableEmitter<ProductEntity> emitter) -> {
             consumer.handler(handler -> emitter.onNext(handler.body()));
             consumer.endHandler(v -> emitter.onComplete());
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
     private void createLogger(Class<? extends AbstractRawPageParser> clazz) {
@@ -156,7 +157,7 @@ public class ProductParserFactory {
      * @param webPageEntity page to parse
      * @return Parser capable of parsing the page
      */
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
         parseWebPageRawRequestsSensor.mark();
 
         String host = SitesUtil.getHost(webPageEntity);

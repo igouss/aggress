@@ -4,7 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -106,7 +106,7 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             String productName = null;
@@ -151,7 +151,7 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.fromIterable(result)
+        return Flowable.fromIterable(result)
                 .doOnNext(e -> parseResultCounter.inc());
     }
 

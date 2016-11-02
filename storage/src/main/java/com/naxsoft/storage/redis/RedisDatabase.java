@@ -16,7 +16,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.storage.Persistent;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.schedulers.Schedulers;
@@ -66,64 +66,64 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Observable<Long> markWebPageAsParsed(WebPageEntity webPageEntity) {
+    public Flowable<Long> markWebPageAsParsed(WebPageEntity webPageEntity) {
         if (webPageEntity == null) {
-            return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
+            return Flowable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
         }
 
         String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
         String member = Encoder.encode(webPageEntity);
-        return Observable.fromFuture(connection.async().sadd(destination, member));
+        return Flowable.fromFuture(connection.async().sadd(destination, member));
         //.doOnNext(res -> LOGGER.info("Moved rc={} from {} to {} element {}...", res, source, destination, member.substring(0, 50)));
     }
 
     @Override
-    public Observable<Integer> markAllProductPagesAsIndexed() {
+    public Flowable<Integer> markAllProductPagesAsIndexed() {
         return null;
     }
 
     @Override
-    public Observable<Long> addProductPageEntry(ProductEntity productEntity) {
+    public Flowable<Long> addProductPageEntry(ProductEntity productEntity) {
         String key = "ProductEntity";
         String member = Encoder.encode(productEntity);
-        return Observable.fromFuture(connection.async().sadd(key, member));
+        return Flowable.fromFuture(connection.async().sadd(key, member));
     }
 
     @Override
-    public Observable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
+    public Flowable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
         String key = "WebPageEntity" + "." + webPageEntity.getType();
         String member = Encoder.encode(webPageEntity);
         LOGGER.trace("adding key {} val {}", key, webPageEntity.getUrl());
-        return Observable.fromFuture(connection.async().sadd(key, member));
+        return Flowable.fromFuture(connection.async().sadd(key, member));
     }
 
     @Override
-    public Observable<ProductEntity> getProducts() {
-        return Observable.fromFuture(connection.async().smembers("ProductEntity"))
-                .flatMap(Observable::fromIterable)
+    public Flowable<ProductEntity> getProducts() {
+        return Flowable.fromFuture(connection.async().smembers("ProductEntity"))
+                .flatMap(Flowable::fromIterable)
                 .map(ProductEntityEncoder::decode)
                 .filter(productEntity -> productEntity != null);
     }
 
     @Override
-    public Observable<Long> getUnparsedCount(String type) {
-        return Observable.fromFuture(connection.async().scard("WebPageEntity." + type));
+    public Flowable<Long> getUnparsedCount(String type) {
+        return Flowable.fromFuture(connection.async().scard("WebPageEntity." + type));
     }
 
     @Override
-    public Observable<WebPageEntity> getUnparsedByType(String type, Long count) {
+    public Flowable<WebPageEntity> getUnparsedByType(String type, Long count) {
         LOGGER.info("getUnparsedByType {} {}", type, count);
-        Observable<Set<String>> setObservable = Observable.fromFuture(connection.async()
+        Flowable<Set<String>> setFlowable = Flowable.fromFuture(connection.async()
                 .spop("WebPageEntity." + type, Math.min(count, BATCH_SIZE)));
 
-        return setObservable.flatMap(Observable::fromIterable).map(WebPageEntityEncoder::decode)
+        return setFlowable.flatMap(Flowable::fromIterable).map(WebPageEntityEncoder::decode)
                 .doOnNext(val -> LOGGER.info("SPOP'ed {} {} {}", val.getType(), val.getUrl(), val.getCategory()))
                 .filter(entry -> entry != null);
     }
 
     @Override
-    public Observable<String> cleanUp(String[] tables) {
-        return Observable.fromFuture(connection.async().flushall());
+    public Flowable<String> cleanUp(String[] tables) {
+        return Flowable.fromFuture(connection.async().flushall());
     }
 }

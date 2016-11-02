@@ -4,7 +4,7 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.storage.elasticsearch.Elastic;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<ProductEntity> productPages = Observable.interval(5, TimeUnit.SECONDS)
+        Flowable<ProductEntity> productPages = Flowable.interval(5, TimeUnit.SECONDS)
                 .flatMap(i -> webPageService.getUnparsedByType("productPageRaw"))
                 .doOnNext(webPageEntity -> LOGGER.info("Starting RAW page parsing {}", webPageEntity))
                 .flatMap(productParserFactory::parse)

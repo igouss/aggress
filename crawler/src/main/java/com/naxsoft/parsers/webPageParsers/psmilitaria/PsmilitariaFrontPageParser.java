@@ -5,7 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -47,7 +47,7 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         LOGGER.info("Parsing psmilitaria front-page");
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/guns.html", "firearm"));
@@ -66,7 +66,7 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/miscel.html", "misc"));
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/newitems.html", "firearm,misc"));
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/tools.html", "reload"));
-        return Observable.fromIterable(webPageEntities)
+        return Flowable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .doOnNext(e -> this.parseResultCounter.inc());
     }

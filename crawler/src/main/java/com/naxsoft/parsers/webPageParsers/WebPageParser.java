@@ -1,7 +1,7 @@
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 
 
 /**
@@ -14,5 +14,5 @@ public interface WebPageParser {
      * @param webPage Page to parse
      * @return All sub-pages
      */
-    Observable<WebPageEntity> parse(WebPageEntity webPage);
+    Flowable<WebPageEntity> parse(WebPageEntity webPage);
 }

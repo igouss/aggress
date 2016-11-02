@@ -8,7 +8,7 @@ import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.asynchttpclient.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -61,7 +61,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         }
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -86,10 +86,10 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.fromIterable(result);
+        return Flowable.fromIterable(result);
     }
 
-    private Observable<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
+    private Flowable<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -108,11 +108,11 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.fromIterable(result);
+        return Flowable.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         WebPageEntity webPageEntity = new WebPageEntity(parent, "", "", "http://www.canadiangunnutz.com/forum/forum.php", "");
         return client.get(webPageEntity.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)

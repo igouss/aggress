@@ -1,8 +1,9 @@
 package com.naxsoft.storage.elasticsearch;
 
 import com.naxsoft.entity.ProductEntity;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.ActionListener;
@@ -96,10 +97,10 @@ public class Elastic implements AutoCloseable, Cloneable {
      *
      * @param indexName Name of the ES index
      * @param type      ES index type
-     * @return Observable that either completes or errors.
+     * @return Flowable that either completes or errors.
      */
-    public Observable<Boolean> createIndex(String indexName, String type) {
-        return Observable.create((ObservableEmitter<Boolean> emitter) -> {
+    public Flowable<Boolean> createIndex(String indexName, String type) {
+        return Flowable.create((FlowableEmitter<Boolean> emitter) -> {
             String resourceName = "/elastic." + indexName + "." + type + ".index.json";
             InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
             try {
@@ -132,7 +133,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             } finally {
                 IOUtils.closeQuietly(resourceAsStream);
             }
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
     private boolean indexExists(String indexName) throws InterruptedException, java.util.concurrent.ExecutionException {
@@ -148,7 +149,7 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @param type      Target ES type
      * @return Results of bulk insertion
      */
-    public Observable<Boolean> index(List<ProductEntity> products, String indexName, String type) {
+    public Flowable<Boolean> index(List<ProductEntity> products, String indexName, String type) {
 //        LOGGER.info("Preparing for indexing {} elements", product);
         BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
 
@@ -167,7 +168,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         }
 
 
-        return Observable.create((ObservableEmitter<Boolean> emitter) -> {
+        return Flowable.create((FlowableEmitter<Boolean> emitter) -> {
             try {
                 esConcurrency.acquire();
                 bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
@@ -192,7 +193,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
     /**
@@ -201,7 +202,7 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @param type
      * @return
      */
-    public Observable<Boolean> price_index(List<ProductEntity> products, String indexName, String type) {
+    public Flowable<Boolean> price_index(List<ProductEntity> products, String indexName, String type) {
         BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
 
         try {
@@ -234,7 +235,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             LOGGER.error("Failed to generate bulk add operation", e);
         }
 
-        return Observable.create((ObservableEmitter<Boolean> emitter) -> {
+        return Flowable.create((FlowableEmitter<Boolean> emitter) -> {
             try {
                 esConcurrency.acquire();
                 bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
@@ -259,6 +260,6 @@ public class Elastic implements AutoCloseable, Cloneable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 }

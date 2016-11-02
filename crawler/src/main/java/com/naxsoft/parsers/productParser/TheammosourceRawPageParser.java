@@ -3,7 +3,7 @@ package com.naxsoft.parsers.productParser;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ class TheammosourceRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -62,7 +62,7 @@ class TheammosourceRawPageParser extends AbstractRawPageParser {
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (document.select("#productDetailsList > li:nth-child(2)").text().equals("0 Units in Stock")) {
-                return Observable.empty();
+                return Flowable.empty();
             }
 
 
@@ -83,7 +83,7 @@ class TheammosourceRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.fromIterable(result)
+        return Flowable.fromIterable(result)
                 .doOnNext(e -> parseResultCounter.inc());
     }
 

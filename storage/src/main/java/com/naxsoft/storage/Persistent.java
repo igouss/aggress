@@ -2,7 +2,7 @@ package com.naxsoft.storage;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 
 
 public interface Persistent extends AutoCloseable, Cloneable {
@@ -16,7 +16,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param type Type of WebPageEntries
      * @return Number unparsed of WebPageEntries of specified type
      */
-    Observable<Long> getUnparsedCount(String type);
+    Flowable<Long> getUnparsedCount(String type);
 
     /**
      * Mark webPageEntity as parsed
@@ -24,14 +24,14 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param webPageEntity page to make as parsed
      * @return Number of entries affected. Should be 1 on success.
      */
-    Observable<Long> markWebPageAsParsed(WebPageEntity webPageEntity);
+    Flowable<Long> markWebPageAsParsed(WebPageEntity webPageEntity);
 
     /**
      * Mark all ProductEntity as parsed
      *
      * @return number of ProductEntity's affected
      */
-    Observable<Integer> markAllProductPagesAsIndexed();
+    Flowable<Integer> markAllProductPagesAsIndexed();
 
     /**
      * Persist ProductEntity
@@ -39,7 +39,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param productEntity entity to persist
      * @return True of success, false otherwise
      */
-    Observable<Long> addProductPageEntry(ProductEntity productEntity);
+    Flowable<Long> addProductPageEntry(ProductEntity productEntity);
 
     /**
      * Persist WebPageEntity
@@ -47,14 +47,14 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param webPageEntity entity to persist
      * @return True of success, false otherwise
      */
-    Observable<Long> addWebPageEntry(WebPageEntity webPageEntity);
+    Flowable<Long> addWebPageEntry(WebPageEntity webPageEntity);
 
     /**
      * Get all ProductEntity from the storage
      *
      * @return all ProductEntity from the storage
      */
-    Observable<ProductEntity> getProducts();
+    Flowable<ProductEntity> getProducts();
 
     /**
      * Get at most count unparsed WebPageEntity's of specified type
@@ -62,12 +62,12 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param type Specify type of unparsed WebPageEntity's to return
      * @return all unparsed WebPageEntity's of specified type
      */
-    Observable<WebPageEntity> getUnparsedByType(String type, Long count);
+    Flowable<WebPageEntity> getUnparsedByType(String type, Long count);
 
     /**
      * Delete data from tables
      *
      * @param tables WebPageEntity or ProductEntity
      */
-    Observable<String> cleanUp(String[] tables);
+    Flowable<String> cleanUp(String[] tables);
 }

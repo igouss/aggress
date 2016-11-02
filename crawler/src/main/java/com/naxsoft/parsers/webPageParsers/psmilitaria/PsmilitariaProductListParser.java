@@ -4,7 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +21,9 @@ class PsmilitariaProductListParser extends AbstractWebPageParser {
 
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         WebPageEntity webPageEntity = new WebPageEntity(parent, parent.getContent(), "productPage", parent.getUrl(), parent.getCategory());
-        return Observable.just(webPageEntity)
+        return Flowable.just(webPageEntity)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

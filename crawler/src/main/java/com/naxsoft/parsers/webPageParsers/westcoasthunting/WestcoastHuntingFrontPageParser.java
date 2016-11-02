@@ -6,8 +6,9 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
 import io.reactivex.schedulers.Schedulers;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 
-public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
+class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestcoastHuntingFrontPageParser.class);
 
     public WestcoastHuntingFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
@@ -28,8 +29,8 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
         return new WebPageEntity(parent, "", "productList", url, category);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        return Observable.create((ObservableEmitter<WebPageEntity> emitter) -> {
+    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        return Flowable.create((FlowableEmitter<WebPageEntity> emitter) -> {
             try {
                 Document document = downloadResult.getDocument();
                 Elements elements = document.select(".product-category > a");
@@ -43,11 +44,11 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
 
             }
             emitter.onComplete();
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/firearms/", "firearm"));
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/optics/", "optic"));
@@ -55,7 +56,7 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/firearms-accessories/", "misc"));
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/gun-maintenance/", "misc"));
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/ammunition/", "ammo"));
-        return Observable.fromIterable(webPageEntities)
+        return Flowable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)

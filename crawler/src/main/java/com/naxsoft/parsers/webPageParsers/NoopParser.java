@@ -3,7 +3,7 @@ package com.naxsoft.parsers.webPageParsers;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +20,9 @@ class NoopParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Flowable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.error("Using NOOP parser for: " + webPage);
-        return Observable.empty();
+        return Flowable.empty();
     }
 
     @Override

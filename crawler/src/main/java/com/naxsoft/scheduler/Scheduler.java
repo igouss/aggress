@@ -1,6 +1,6 @@
 package com.naxsoft.scheduler;
 
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class Scheduler {
         ScheduledFuture<?> scheduledFuture = scheduler.scheduleAtFixedRate(command, initialDelay, period, unit);
         tasks.add(scheduledFuture);
 
-        Observable.fromFuture(scheduledFuture)
+        Flowable.fromFuture(scheduledFuture)
                 .observeOn(Schedulers.computation())
                 .subscribeOn(Schedulers.computation())
                 .subscribe(

@@ -6,7 +6,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -30,7 +30,7 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         return new WebPageEntity(parent, "", "productList", url, category);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(2);
 
         Document document = downloadResult.getDocument();
@@ -53,17 +53,17 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.fromIterable(result);
+        return Flowable.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create(parent, "http://frontierfirearms.ca/firearms.html", "firearm"));
         webPageEntities.add(create(parent, "http://frontierfirearms.ca/ammunition-reloading.html", "ammo"));
         webPageEntities.add(create(parent, "http://frontierfirearms.ca/shooting-accessories.html", "misc"));
         webPageEntities.add(create(parent, "http://frontierfirearms.ca/optics.html", "optic"));
-        return Observable.fromIterable(webPageEntities)
+        return Flowable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .filter(downloadResult -> {

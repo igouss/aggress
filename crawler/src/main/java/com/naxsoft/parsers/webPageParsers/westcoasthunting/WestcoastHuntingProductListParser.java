@@ -6,23 +6,24 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
+class WestcoastHuntingProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestcoastHuntingProductListParser.class);
 
     public WestcoastHuntingProductListParser(MetricRegistry metricRegistry, HttpClient client) {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        return Observable.create((ObservableEmitter<WebPageEntity> emitter) -> {
+    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        return Flowable.create((FlowableEmitter<WebPageEntity> emitter) -> {
             try {
                 Document document = downloadResult.getDocument();
                 if (document != null) {
@@ -67,12 +68,11 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
                 LOGGER.error("Failed to parse", e);
                 emitter.onComplete();
             }
-
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flowable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

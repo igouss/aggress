@@ -3,7 +3,7 @@ package com.naxsoft.parsers.productParser;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AmmoSupplyRawPageParser extends AbstractRawPageParser {
+class AmmoSupplyRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
     private static final Pattern priceParser = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
     private static final Map<String, String> mapping = new HashMap<>();
@@ -39,7 +39,7 @@ public class AmmoSupplyRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             String productName = null;
@@ -73,7 +73,7 @@ public class AmmoSupplyRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.fromIterable(result)
+        return Flowable.fromIterable(result)
                 .doOnNext(e -> parseResultCounter.inc());
     }
 

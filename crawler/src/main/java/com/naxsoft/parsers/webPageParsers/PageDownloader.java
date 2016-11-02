@@ -3,7 +3,7 @@ package com.naxsoft.parsers.webPageParsers;
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 import org.asynchttpclient.Response;
 import org.asynchttpclient.cookie.Cookie;
@@ -24,7 +24,7 @@ public class PageDownloader {
      * @param webPageEntity Page to download
      * @return Stream of downloaded pages.
      */
-    public static Observable<WebPageEntity> download(HttpClient client, WebPageEntity webPageEntity, String type) {
+    public static Flowable<WebPageEntity> download(HttpClient client, WebPageEntity webPageEntity, String type) {
         return download(client, Collections.emptyList(), webPageEntity, type);
     }
 
@@ -36,7 +36,7 @@ public class PageDownloader {
      * @param parent  Page to download
      * @return Stream of downloaded pages.
      */
-    public static Observable<WebPageEntity> download(final HttpClient client, final List<Cookie> cookies, final WebPageEntity parent, final String type) {
+    public static Flowable<WebPageEntity> download(final HttpClient client, final List<Cookie> cookies, final WebPageEntity parent, final String type) {
         return client.get(parent.getUrl(), cookies, new AbstractCompletionHandler<WebPageEntity>() {
             private final Logger LOGGER = LoggerFactory.getLogger("com.naxsoft.parsers.webPageParsers.PageDownloader.Handler");
             private final String pageType = type;

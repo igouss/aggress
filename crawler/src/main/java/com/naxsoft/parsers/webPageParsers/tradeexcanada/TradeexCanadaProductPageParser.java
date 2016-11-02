@@ -5,7 +5,7 @@ import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +21,10 @@ class TradeexCanadaProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Flowable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         if (webPage.getUrl().contains("out-stock") || webPage.getUrl().contains("-sold")) {
-            return Observable.empty();
+            return Flowable.empty();
         } else {
             return PageDownloader.download(client, webPage, "productPageRaw")
                     .filter(data -> {

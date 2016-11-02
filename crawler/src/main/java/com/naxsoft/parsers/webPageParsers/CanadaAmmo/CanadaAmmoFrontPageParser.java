@@ -6,7 +6,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -25,7 +25,7 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> parseCategories(DownloadResult downloadResult) {
+    private Flowable<WebPageEntity> parseCategories(DownloadResult downloadResult) {
         HashSet<WebPageEntity> result = new HashSet<>();
 
         Document document = downloadResult.getDocument();
@@ -38,11 +38,11 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Observable.fromIterable(result);
+        return Flowable.fromIterable(result);
     }
 
 
-    private Observable<WebPageEntity> parseCategoryPages(DownloadResult downloadResult) {
+    private Flowable<WebPageEntity> parseCategoryPages(DownloadResult downloadResult) {
         HashSet<WebPageEntity> subResult = new HashSet<>();
 
         Document document = downloadResult.getDocument();
@@ -63,12 +63,12 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.fromIterable(subResult);
+        return Flowable.fromIterable(subResult);
     }
 
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flowable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseCategories)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))

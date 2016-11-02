@@ -2,7 +2,7 @@ package com.naxsoft.parsingService;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.storage.Persistent;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ public class ProductService {
     /**
      * @param products Save
      */
-    public Observable<Long> save(ProductEntity products) {
+    public Flowable<Long> save(ProductEntity products) {
         return database.addProductPageEntry(products);
     }
 
@@ -33,7 +33,7 @@ public class ProductService {
      *
      * @return Stream of unindexed products
      */
-    public Observable<ProductEntity> getProducts() {
+    public Flowable<ProductEntity> getProducts() {
         return database.getProducts();
     }
 

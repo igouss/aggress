@@ -7,7 +7,7 @@ import com.codahale.metrics.MetricRegistry;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.ssl.SslContext;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 import org.asynchttpclient.*;
 import org.asynchttpclient.cookie.Cookie;
@@ -166,7 +166,7 @@ public class AhcHttpClient implements HttpClient {
      */
 
     @Override
-    public <R> Observable<R> get(String url, AbstractCompletionHandler<R> handler) {
+    public <R> Flowable<R> get(String url, AbstractCompletionHandler<R> handler) {
         return get(url, Collections.emptyList(), handler);
     }
 
@@ -180,7 +180,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Observable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
+    public <R> Flowable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         return get(url, cookies, handler, true);
     }
 
@@ -195,7 +195,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Observable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
+    public <R> Flowable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
         LOGGER.trace("Starting async http GET request url = {}", url);
         httpRequestsSensor.mark();
 
@@ -208,7 +208,7 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
 
         handler.setProxyManager(proxyManager);
-        return Observable.fromFuture(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(handler)), Schedulers.io());
+        return Flowable.fromFuture(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(handler)), Schedulers.io());
     }
 
 
@@ -222,7 +222,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Observable<R> post(String url, String content, AbstractCompletionHandler<R> handler) {
+    public <R> Flowable<R> post(String url, String content, AbstractCompletionHandler<R> handler) {
         return post(url, content, Collections.emptyList(), handler);
     }
 
@@ -237,7 +237,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Observable<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
+    public <R> Flowable<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         httpRequestsSensor.mark();
 
@@ -254,7 +254,7 @@ public class AhcHttpClient implements HttpClient {
 
         handler.setProxyManager(proxyManager);
 
-        return Observable.fromFuture(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
+        return Flowable.fromFuture(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
     }
 
     /**
@@ -268,7 +268,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Observable<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
+    public <R> Flowable<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         httpRequestsSensor.mark();
 
@@ -286,7 +286,7 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
         handler.setProxyManager(proxyManager);
 
-        return Observable.fromFuture(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
+        return Flowable.fromFuture(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
     }
 
     /**

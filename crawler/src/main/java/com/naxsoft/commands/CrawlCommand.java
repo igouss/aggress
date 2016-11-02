@@ -3,7 +3,7 @@ package com.naxsoft.commands;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.parsingService.WebPageService;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +42,8 @@ public class CrawlCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<WebPageEntity> webPageEntriesStream = Observable.interval(5, 5, TimeUnit.SECONDS).flatMap(i ->
-                Observable.mergeDelayError(
+        Flowable<WebPageEntity> webPageEntriesStream = Flowable.interval(5, 5, TimeUnit.SECONDS).flatMap(i ->
+                Flowable.mergeDelayError(
                         webPageService.getUnparsedByType("frontPage"),
                         webPageService.getUnparsedByType("productList"),
                         webPageService.getUnparsedByType("productPage")))

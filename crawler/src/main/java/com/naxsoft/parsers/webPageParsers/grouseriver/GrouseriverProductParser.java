@@ -7,7 +7,7 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.JsonCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.JsonResult;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,15 +15,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-public class GrouseriverProductParser extends AbstractWebPageParser {
+class GrouseriverProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GrouseriverProductParser.class);
 
     public GrouseriverProductParser(MetricRegistry metricRegistry, HttpClient client) {
         super(metricRegistry, client);
     }
 
-
-    public Observable<WebPageEntity> parseJson(JsonResult downloadResult) {
+    private Flowable<WebPageEntity> parseJson(JsonResult downloadResult) {
         HashSet<WebPageEntity> result = new HashSet<>();
         Map parsedJson = downloadResult.getJson();
         List<Map<String, String>> items = (List<Map<String, String>>) parsedJson.get("items");
@@ -32,11 +31,11 @@ public class GrouseriverProductParser extends AbstractWebPageParser {
             WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPageRaw", "http://www.grouseriver.com/" + itemData.get("urlcomponent"), downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }
-        return Observable.fromIterable(result);
+        return Flowable.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         return client.get(parent.getUrl(), new JsonCompletionHandler(parent))
                 .flatMap(this::parseJson)
                 .flatMap(webPage -> PageDownloader.download(client, webPage, "productPageRaw")

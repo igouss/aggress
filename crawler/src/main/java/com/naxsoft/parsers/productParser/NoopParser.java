@@ -3,7 +3,7 @@ package com.naxsoft.parsers.productParser;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +19,9 @@ class NoopParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPage) {
+    public Flowable<ProductEntity> parse(WebPageEntity webPage) {
         LOGGER.warn("Why are we here?! page = " + webPage);
-        return Observable.empty();
+        return Flowable.empty();
     }
 
     @Override

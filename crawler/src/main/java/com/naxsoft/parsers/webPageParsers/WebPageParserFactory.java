@@ -11,8 +11,9 @@ import com.naxsoft.encoders.Encoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.SitesUtil;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
 import io.reactivex.schedulers.Schedulers;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
@@ -37,7 +38,7 @@ public class WebPageParserFactory {
 
     private final Vertx vertx;
     private final LinkedBlockingDeque<String> parserVertex;
-    private final Observable<WebPageEntity> parseResult;
+    private final Flowable<WebPageEntity> parseResult;
     private final Meter parseWebPageRequestsSensor;
     private final Meter parseWebPageResultsSensor;
 
@@ -56,12 +57,12 @@ public class WebPageParserFactory {
 
         MessageConsumer<WebPageEntity> consumer = vertx.eventBus().consumer("webPageParseResult");
 
-        parseResult = Observable.create((ObservableEmitter<WebPageEntity> emitter) -> {
+        parseResult = Flowable.create((FlowableEmitter<WebPageEntity> emitter) -> {
             consumer.handler(handler -> emitter.onNext(handler.body()));
             consumer.endHandler(v -> emitter.onComplete());
-        });
+        }, BackpressureStrategy.BUFFER);
 
-//        parseResult = Observable.fromAsync(asyncEmitter -> {
+//        parseResult = Flowable.fromAsync(asyncEmitter -> {
 //            vertx.eventBus().consumer("webPageParseResult", event -> asyncEmitter.onNext((WebPageEntity) event.body()));
 //        }, AsyncEmitter.BackpressureMode.ERROR);
 
@@ -117,7 +118,7 @@ public class WebPageParserFactory {
         Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
         Set<Class<? extends AbstractWebPageParser>> classes = reflections.getSubTypesOf(AbstractWebPageParser.class);
 
-        Observable.create((ObservableEmitter<Class<? extends AbstractWebPageParser>> emitter) -> {
+        Flowable.create((FlowableEmitter<Class<? extends AbstractWebPageParser>> emitter) -> {
             classes.stream().filter(clazz -> !Modifier.isAbstract(clazz.getModifiers())).forEach(clazz -> {
                 try {
                     createLogger(clazz);
@@ -139,7 +140,7 @@ public class WebPageParserFactory {
                 }
             });
             emitter.onComplete();
-        }).subscribeOn(Schedulers.computation()).subscribe();
+        }, BackpressureStrategy.BUFFER).subscribeOn(Schedulers.computation()).subscribe();
     }
 
     private void createLogger(Class<? extends AbstractWebPageParser> clazz) {
@@ -167,7 +168,7 @@ public class WebPageParserFactory {
      *
      * @param webPageEntity Page to parse
      */
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flowable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         parseWebPageRequestsSensor.mark();
 
         String host = SitesUtil.getHost(webPageEntity);

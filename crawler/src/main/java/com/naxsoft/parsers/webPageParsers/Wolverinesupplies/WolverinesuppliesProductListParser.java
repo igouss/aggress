@@ -7,7 +7,7 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
+class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
     private static final Pattern itemNumberPattern = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"");
     private static final Pattern categoryPattern = Pattern.compile("\'\\d+\'");
@@ -28,7 +28,7 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> onCompleted(WebPageEntity parent) {
+    private Flowable<WebPageEntity> onCompleted(WebPageEntity parent) {
         Set<WebPageEntity> result = new HashSet<>();
         try {
             String productDetailsJson = parent.getContent();
@@ -49,10 +49,10 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         } catch (NullPointerException npe) {
             LOGGER.error("NPE = {}", parent, npe);
         }
-        return Observable.fromIterable(result);
+        return Flowable.fromIterable(result);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -71,11 +71,11 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.fromIterable(result);
+        return Flowable.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flowable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl() + "?sortValue=0&Stock=In%20Stock", new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .flatMap(webPageEntity1 -> PageDownloader.download(client, webPageEntity1, "tmp"))

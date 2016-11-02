@@ -3,7 +3,7 @@ package com.naxsoft.parsers.productParser;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -51,7 +51,7 @@ class GunshopRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
@@ -72,12 +72,12 @@ class GunshopRawPageParser extends AbstractRawPageParser {
                 LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
             } else {
                 LOGGER.warn("Unable to find product name {}", webPageEntity);
-                return Observable.empty();
+                return Flowable.empty();
             }
 
             if (!document.select(".entry-summary .out-of-stock").isEmpty()) {
                 LOGGER.info("Product {} is out of stock. {}", productName, webPageEntity.getUrl());
-                return Observable.empty();
+                return Flowable.empty();
             }
 
             url = webPageEntity.getUrl();
@@ -105,7 +105,7 @@ class GunshopRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.fromIterable(result)
+        return Flowable.fromIterable(result)
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
