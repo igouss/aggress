@@ -151,35 +151,35 @@ public class Elastic implements AutoCloseable, Cloneable {
      */
     public Flowable<Boolean> index(List<ProductEntity> products, String indexName, String type) {
 //        LOGGER.info("Preparing for indexing {} elements", product);
-        BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
-
-        try {
-            for (ProductEntity product : products) {
-                XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-                jsonBuilder.startObject();
-                IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
-                LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
-                request.setSource(product.getJson());
-                request.setOpType(IndexRequest.OpType.INDEX);
-                bulkRequestBuilder.add(request);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to generate bulk add operation", e);
-        }
-
 
         return Flowable.create((FlowableEmitter<Boolean> emitter) -> {
             try {
+                BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
+
+                try {
+                    for (ProductEntity product : products) {
+                        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
+                        jsonBuilder.startObject();
+                        IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
+                        LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
+                        request.setSource(product.getJson());
+                        request.setOpType(IndexRequest.OpType.INDEX);
+                        bulkRequestBuilder.add(request);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Failed to generate bulk add operation", e);
+                }
+
                 esConcurrency.acquire();
                 bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
                     @Override
-                    public void onResponse(BulkResponse bulkItemResponses) {
-                        if (bulkItemResponses.hasFailures()) {
-                            LOGGER.error("Failed to index products:{}", bulkItemResponses.buildFailureMessage());
+                    public void onResponse(BulkResponse response) {
+                        if (response.hasFailures()) {
+                            LOGGER.error("Failed to index products:{}", response.buildFailureMessage());
                         } else {
-                            LOGGER.info("Successfully indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
+                            LOGGER.info("Successfully indexed {} in {}ms", response.getItems().length, response.getTookInMillis());
                         }
-                        emitter.onNext(!bulkItemResponses.hasFailures());
+                        emitter.onNext(!response.hasFailures());
                         emitter.onComplete();
                         esConcurrency.release();
                     }
@@ -187,7 +187,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                     @Override
                     public void onFailure(Exception e) {
                         emitter.onError(e);
-
+                        esConcurrency.release();
                     }
                 });
             } catch (InterruptedException e) {
@@ -203,50 +203,50 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @return
      */
     public Flowable<Boolean> price_index(List<ProductEntity> products, String indexName, String type) {
-        BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
-
-        try {
-            for (ProductEntity product : products) {
-                XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-                LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
-                jsonBuilder.startObject();
-                jsonBuilder.field("url", product.getUrl());
-                jsonBuilder.field("crawlDate", Date.from(Instant.now()));
-                String price = "N/A";
-                if (product.getSpecialPrice() != null && !product.getSpecialPrice().isEmpty()) {
-                    price = product.getSpecialPrice();
-                } else if (product.getRegularPrice() != null && !product.getRegularPrice().isEmpty()) {
-                    price = product.getRegularPrice();
-                }
-                if (price.equals("N/A")) {
-                    LOGGER.warn("Unable to find price");
-                    continue;
-                }
-                jsonBuilder.field("price", Double.valueOf(price));
-                jsonBuilder.endObject();
-
-                String id = DigestUtils.sha1Hex(product.getUrl() + product.getProductName() + price);
-                IndexRequestBuilder request = client.prepareIndex(indexName, type, id);
-                request.setSource(jsonBuilder);
-                request.setOpType(IndexRequest.OpType.CREATE);
-                bulkRequestBuilder.add(request);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to generate bulk add operation", e);
-        }
-
         return Flowable.create((FlowableEmitter<Boolean> emitter) -> {
             try {
+                BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
+
+                try {
+                    for (ProductEntity product : products) {
+                        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
+                        LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
+                        jsonBuilder.startObject();
+                        jsonBuilder.field("url", product.getUrl());
+                        jsonBuilder.field("crawlDate", Date.from(Instant.now()));
+                        String price = "N/A";
+                        if (product.getSpecialPrice() != null && !product.getSpecialPrice().isEmpty()) {
+                            price = product.getSpecialPrice();
+                        } else if (product.getRegularPrice() != null && !product.getRegularPrice().isEmpty()) {
+                            price = product.getRegularPrice();
+                        }
+                        if (price.equals("N/A")) {
+                            LOGGER.warn("Unable to find price");
+                            continue;
+                        }
+                        jsonBuilder.field("price", Double.valueOf(price));
+                        jsonBuilder.endObject();
+
+                        String id = DigestUtils.sha1Hex(product.getUrl() + product.getProductName() + price);
+                        IndexRequestBuilder request = client.prepareIndex(indexName, type, id);
+                        request.setSource(jsonBuilder);
+                        request.setOpType(IndexRequest.OpType.CREATE);
+                        bulkRequestBuilder.add(request);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Failed to generate bulk add operation", e);
+                }
+
                 esConcurrency.acquire();
                 bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
                     @Override
-                    public void onResponse(BulkResponse bulkItemResponses) {
-                        if (bulkItemResponses.hasFailures()) {
-                            LOGGER.error("Failed to price index products:{}", bulkItemResponses.buildFailureMessage());
+                    public void onResponse(BulkResponse response) {
+                        if (response.hasFailures()) {
+                            LOGGER.error("Failed to price index products:{}", response.buildFailureMessage());
                         } else {
-                            LOGGER.info("Successfully price indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
+                            LOGGER.info("Successfully price indexed {} in {}ms", response.getItems().length, response.getTookInMillis());
                         }
-                        emitter.onNext(!bulkItemResponses.hasFailures());
+                        emitter.onNext(!response.hasFailures());
                         emitter.onComplete();
                         esConcurrency.release();
                     }
@@ -254,9 +254,9 @@ public class Elastic implements AutoCloseable, Cloneable {
                     @Override
                     public void onFailure(Exception e) {
                         emitter.onError(e);
+                        esConcurrency.release();
                     }
                 });
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -6,6 +6,7 @@ import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.storage.elasticsearch.Elastic;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +67,7 @@ public class ParseCommand implements Command {
                 .doOnNext(productEntity -> LOGGER.info("Starting product indexing {}", productEntity))
                 .buffer(16)
                 .flatMap(product -> elastic.index(product, "product", "guns"))
+                .subscribeOn(Schedulers.io())
                 .subscribe(
                         val -> {
                             LOGGER.info("Indexed: {}", val);
@@ -77,6 +79,7 @@ public class ParseCommand implements Command {
                 .doOnNext(productEntity -> LOGGER.info("Starting price indexing {}", productEntity))
                 .buffer(16)
                 .flatMap(product -> elastic.price_index(product, "product", "prices"))
+                .subscribeOn(Schedulers.io())
                 .subscribe(
                         val -> {
                             LOGGER.info("Price indexed: {}", val);
