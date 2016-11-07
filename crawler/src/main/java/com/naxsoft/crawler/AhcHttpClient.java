@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -124,10 +126,6 @@ public class AhcHttpClient implements HttpClient {
             Field availableField = throttleRequestFilter.getClass().getDeclaredField("available"); //NoSuchFieldException
             availableField.setAccessible(true);
             Semaphore available = (Semaphore) availableField.get(throttleRequestFilter); //IllegalAccessException
-            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "availablePermits"),
-                    (Gauge<Integer>) available::availablePermits);
-            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "queueLength"),
-                    (Gauge<Integer>) available::getQueueLength);
 
             Field requestSenderField = asyncHttpClient.getClass().getDeclaredField("requestSender"); //NoSuchFieldException
             requestSenderField.setAccessible(true);
@@ -142,15 +140,11 @@ public class AhcHttpClient implements HttpClient {
             openChannelsField.setAccessible(true);
             ChannelGroup openChannels = (ChannelGroup) openChannelsField.get(channelManager); //IllegalAccessException
 
-            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "openConnectionCount"),
-                    (Gauge<Long>) () -> openChannels.stream().filter(Channel::isOpen).count());
-
-            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "activeConnectionCount"),
-                    (Gauge<Long>) () -> openChannels.stream().filter(Channel::isActive).count());
-
-            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "chanelCount"),
-                    (Gauge<Long>) () -> openChannels.stream().count());
-
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "availablePermits"), (Gauge<Integer>) available::availablePermits);
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "queueLength"), (Gauge<Integer>) available::getQueueLength);
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "openConnectionCount"), (Gauge<Long>) () -> openChannels.stream().filter(Channel::isOpen).count());
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "activeConnectionCount"), (Gauge<Long>) () -> openChannels.stream().filter(Channel::isActive).count());
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "chanelCount"), (Gauge<Long>) () -> openChannels.stream().count());
         } catch (Exception e) {
             LOGGER.error("Failed to get requestSender from HTTP client", e);
         }
@@ -301,7 +295,8 @@ public class AhcHttpClient implements HttpClient {
         //        private Sensor requestSizeSensor;
 //        private Sensor responseSizeSensor;
 //        private Sensor requestLatencySensor;
-        private long started;
+        private Instant started;
+
         private long responseSize;
 
 
@@ -311,7 +306,7 @@ public class AhcHttpClient implements HttpClient {
 
         @Override
         public State onHeadersReceived(HttpResponseHeaders headers) throws Exception {
-            started = System.nanoTime();
+            started = Instant.now();
             return super.onHeadersReceived(headers);
         }
 
@@ -323,16 +318,11 @@ public class AhcHttpClient implements HttpClient {
 
         @Override
         public R onCompleted(Response response) throws Exception {
-            finished(response, responseSize, System.nanoTime() - started);
+            httpResponseSizeSensor.update(responseSize);
+            httpLatencySensor.update(Duration.between(Instant.now(), started).toMillis());
+
             return handler.onCompleted(response);
         }
 
-        /**
-         * Indicate that a request has finished successfully.
-         */
-        void finished(Response response, long responseSize, long latencyMs) {
-            httpResponseSizeSensor.update(responseSize);
-            httpLatencySensor.update(latencyMs);
-        }
     }
 }

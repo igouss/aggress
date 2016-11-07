@@ -125,10 +125,12 @@ public class Elastic implements AutoCloseable, Cloneable {
                     });
                 } else {
                     LOGGER.info("Index already exists");
+                    emitter.onNext(true);
                     emitter.onComplete();
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to create index", e);
+                emitter.onNext(false);
                 emitter.onError(e);
             } finally {
                 IOUtils.closeQuietly(resourceAsStream);

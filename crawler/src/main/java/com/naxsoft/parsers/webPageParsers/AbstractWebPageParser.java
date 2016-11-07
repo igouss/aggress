@@ -6,6 +6,7 @@ import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -33,11 +34,13 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
         String metricName = MetricRegistry.name(getSite().replaceAll("\\.", "_") + "." + getParserType(), "parseResults");
         parseResultCounter = metricRegistry.counter(metricName);
 
-        messageHandler = event -> webPageParseResult = parse(event.body()).subscribe(value -> {
-            vertx.eventBus().publish("webPageParseResult", value);
-        }, error -> {
-            LOGGER.error("Failed to parse {}", event.body().getUrl(), error);
-        });
+        messageHandler = event -> webPageParseResult = parse(event.body())
+                .subscribeOn(Schedulers.io())
+                .subscribe(value -> {
+                    vertx.eventBus().publish("webPageParseResult", value);
+                }, error -> {
+                    LOGGER.error("Failed to parse {}", event.body().getUrl(), error);
+                });
     }
 
     /**

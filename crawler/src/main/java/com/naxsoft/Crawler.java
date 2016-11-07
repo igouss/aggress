@@ -3,6 +3,8 @@ package com.naxsoft;
 import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
+import com.naxsoft.commands.*;
+import com.naxsoft.parsingService.ShellService;
 import com.naxsoft.utils.HealthMonitor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -72,32 +74,38 @@ public class Crawler {
                 return;
             }
 
+            CreateESIndexCommand createESIndexCommand = applicationComponent.getCreateESIndexCommand();
+            CleanDBCommand cleanDbCommand = applicationComponent.getCleanDbCommand();
+            PopulateDBCommand populateDBCommand = applicationComponent.getPopulateDBCommand();
+            CrawlCommand crawlCommand = applicationComponent.getCrawlCommand();
+            ParseCommand parseCommand = applicationComponent.getParseCommand();
+            ShellService remoteAccess = applicationComponent.getRemoteAccess();
+
             if (options.has("createESIndex")) {
-                applicationComponent.getCreateESIndexCommand().start();
+                createESIndexCommand.start();
             }
 
-
             if (options.has("clean")) {
-                applicationComponent.getCleanDbCommand().start();
+                cleanDbCommand.start();
 
             }
 
             if (options.has("populate")) {
-                applicationComponent.getPopulateDBCommand().start();
+                populateDBCommand.start();
             }
 
+
             if (options.has("crawl")) {
-                applicationComponent.getCrawlCommand().start();
+                crawlCommand.start();
             }
 
             if (options.has("parse")) {
-                applicationComponent.getParseCommand().start();
+                parseCommand.start();
             }
 
             if (options.has("remoteAccess")) {
-                applicationComponent.getRemoteAccess().startHttpShellService();
+                remoteAccess.startHttpShellService();
             }
-
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
@@ -105,26 +113,27 @@ public class Crawler {
                     metricReporter.stop();
 
                     if (options.has("createESIndex")) {
-                        applicationComponent.getCreateESIndexCommand().tearDown();
+                        createESIndexCommand.tearDown();
                     }
 
                     if (options.has("clean")) {
-                        applicationComponent.getCleanDbCommand().tearDown();
+                        cleanDbCommand.tearDown();
+
                     }
 
                     if (options.has("populate")) {
-                        applicationComponent.getPopulateDBCommand().tearDown();
+                        populateDBCommand.tearDown();
                     }
 
                     if (options.has("crawl")) {
-                        applicationComponent.getCrawlCommand().tearDown();
+                        crawlCommand.tearDown();
                     }
 
                     if (options.has("parse")) {
-                        applicationComponent.getParseCommand().tearDown();
+                        parseCommand.tearDown();
                     }
                     if (options.has("remoteAccess")) {
-                        applicationComponent.getRemoteAccess().stop();
+                        remoteAccess.stop();
                     }
 
                     applicationComponent.getWebPageParserFactory().close();

@@ -41,9 +41,11 @@ public class ProductService {
      * Mark all products as indexed
      */
     public void markAllAsIndexed() {
-        database.markAllProductPagesAsIndexed().subscribe(
-                value -> LOGGER.trace("The number of entities affected: {}", value),
-                err -> LOGGER.error("Failed to mark as indexed", err),
-                () -> LOGGER.info("markAllProductPagesAsIndexed complete"));
+        database.markAllProductPagesAsIndexed()
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        value -> LOGGER.trace("The number of entities affected: {}", value),
+                        err -> LOGGER.error("Failed to mark as indexed", err),
+                        () -> LOGGER.info("markAllProductPagesAsIndexed complete"));
     }
 }

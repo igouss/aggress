@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.concurrent.Semaphore;
 
 /**
  * Copyright NAXSoft 2015
@@ -28,25 +27,7 @@ public class CreateESIndexCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Semaphore semaphore = new Semaphore(0);
-        elastic.createIndex("product", "guns")
-                .subscribe(
-                        rc -> {
-                            LOGGER.trace("Elastic create index rc = {}", rc);
-                        },
-                        ex -> {
-                            LOGGER.error("CreateIndex Exception", ex);
-                            semaphore.release();
-                        },
-                        () -> {
-                            LOGGER.info("CreateIndex complete");
-                            semaphore.release();
-                        });
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        LOGGER.trace("Elastic create index rc = {}", elastic.createIndex("product", "guns").blockingFirst());
     }
 
     @Override

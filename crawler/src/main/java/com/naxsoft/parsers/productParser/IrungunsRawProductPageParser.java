@@ -99,10 +99,12 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
                 productImage = document.select(".es-carousel img").attr("abs:src");
             }
 
-            regularPrice = parsePrice(webPageEntity, document.select("#desPrice > li:nth-child(1) > span.pricetag.show").text());
-            specialPrice = document.select("#desPrice > li:nth-child(2) > span.pricetag.show").text();
-            if (!specialPrice.isEmpty()) {
-                specialPrice = parsePrice(webPageEntity, specialPrice);
+            String tmp = document.select("#desPrice > li:nth-child(2) > span.pricetag.show").text();
+            if (tmp.isEmpty()) {
+                regularPrice = parsePrice(webPageEntity, document.select("#desPrice > li:nth-child(1) > span.pricetag.show").text());
+            } else {
+                specialPrice = parsePrice(webPageEntity, document.select("#desPrice > li:nth-child(1) > span.pricetag.show").text());
+                regularPrice = parsePrice(webPageEntity, document.select("#desPrice > li:nth-child(2) > span.pricetag.show").text());
             }
             description = document.select("#TabbedPanels1 > div > div:nth-child(1)").text();
 

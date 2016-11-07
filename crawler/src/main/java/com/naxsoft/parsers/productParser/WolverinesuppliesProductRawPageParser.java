@@ -113,7 +113,9 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
                 productName = rp.Title;
                 productImage = "https://www.wolverinesupplies.com/images/items/Thumbnail/" + rp.ImageFile + rp.ImageExtension;
                 regularPrice = "" + rp.ListPrice;
-                specialPrice = "" + rp.Price;
+                if (rp.Price != rp.ListPrice) {
+                    specialPrice = "" + rp.Price;
+                }
                 attr.put("unitsAvailable", "" + rp.StockAmount);
                 description = rp.ExtendedDescription;
                 category = getNormalizedCategories(webPageEntity);

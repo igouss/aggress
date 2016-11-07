@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
 import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,10 @@ class NoopParser extends AbstractWebPageParser {
     public void start() throws Exception {
         super.start();
         vertx.eventBus().consumer("noopWebPageParser", (Message<WebPageEntity> event) ->
-                parse(event.body()).subscribe(message -> vertx.eventBus().publish("webPageParseResult", message), err -> LOGGER.error("Failed to parse", err)));
+                parse(event.body())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                                message -> vertx.eventBus().publish("webPageParseResult", message),
+                                err -> LOGGER.error("Failed to parse", err)));
     }
 }

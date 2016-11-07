@@ -5,6 +5,7 @@ import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,7 @@ public class CrawlCommand implements Command {
                 .doOnNext(webPageEntity -> LOGGER.trace("Starting parse {}", webPageEntity))
                 .flatMap(webPageParserFactory::parse)
                 .flatMap(webPageService::addWebPageEntry)
+                .subscribeOn(Schedulers.io())
                 .subscribe(
                         rc -> {
                             LOGGER.trace("Added WebPageEntry, parent marked as parsed: {} results added to DB", rc);
@@ -65,6 +67,7 @@ public class CrawlCommand implements Command {
         parentMarkSubscription = webPageEntriesStream
                 .doOnNext(webPageEntity -> LOGGER.trace("Starting to mark as parsed {}", webPageEntity))
                 .flatMap(webPageService::markParsed)
+                .subscribeOn(Schedulers.io())
                 .subscribe(
                         rc -> {
                             LOGGER.trace("Marked as parsed {}", rc);

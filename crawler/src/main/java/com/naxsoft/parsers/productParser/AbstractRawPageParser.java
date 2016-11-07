@@ -4,6 +4,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
@@ -37,9 +38,11 @@ abstract class AbstractRawPageParser extends AbstractVerticle implements Product
     @Override
     public void start() throws Exception {
         vertx.eventBus().consumer(getSite() + "/" + getParserType(), (Message<WebPageEntity> event) -> {
-            productParseResult = parse(event.body()).subscribe(
-                    message -> vertx.eventBus().publish("productParseResult", message),
-                    err -> LOGGER.error("Failed to parse", err));
+            productParseResult = parse(event.body())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(
+                            message -> vertx.eventBus().publish("productParseResult", message),
+                            err -> LOGGER.error("Failed to parse", err));
         });
     }
 
