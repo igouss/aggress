@@ -3,7 +3,9 @@ package com.naxsoft.parsers.productParser;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import ch.qos.logback.core.util.FileSize;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.encoders.Encoder;
@@ -142,12 +144,20 @@ public class ProductParserFactory {
         encoder.setImmediateFlush(false);
         encoder.start();
 
-        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
+        TimeBasedRollingPolicy rollingPolicy = new TimeBasedRollingPolicy();
+        rollingPolicy.setMaxHistory(12);
+        rollingPolicy.setCleanHistoryOnStart(true);
+        rollingPolicy.setTotalSizeCap(new FileSize(10 * FileSize.MB_COEFFICIENT));
+        rollingPolicy.setFileNamePattern("logs/" + clazzName + "-%d{yyyy-MM-dd}.%i.out.gz");
+
+
+        RollingFileAppender<ILoggingEvent> fileAppender = new RollingFileAppender<>();
         fileAppender.setAppend(true);
         fileAppender.setFile("logs/" + clazzName + ".log");
         fileAppender.setName(clazzName);
         fileAppender.setContext(logger.getLoggerContext());
         fileAppender.setEncoder(encoder);
+        fileAppender.setRollingPolicy(rollingPolicy);
         fileAppender.start();
 
         logger.setLevel(Level.ALL);
