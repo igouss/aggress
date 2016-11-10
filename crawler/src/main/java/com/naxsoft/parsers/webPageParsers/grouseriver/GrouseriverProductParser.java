@@ -25,6 +25,8 @@ class GrouseriverProductParser extends AbstractWebPageParser {
     private Flowable<WebPageEntity> parseJson(JsonResult downloadResult) {
         HashSet<WebPageEntity> result = new HashSet<>();
         Map parsedJson = downloadResult.getJson();
+
+        @SuppressWarnings("unchecked")
         List<Map<String, String>> items = (List<Map<String, String>>) parsedJson.get("items");
         for (Map<String, String> itemData : items) {
             LOGGER.info("Processing: " + itemData.get("displayname"));
