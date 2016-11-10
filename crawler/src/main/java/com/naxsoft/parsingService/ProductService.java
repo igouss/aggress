@@ -3,6 +3,7 @@ package com.naxsoft.parsingService;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.storage.Persistent;
 import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
