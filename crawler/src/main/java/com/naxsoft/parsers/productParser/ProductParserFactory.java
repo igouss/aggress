@@ -171,17 +171,15 @@ public class ProductParserFactory {
      * @return Parser capable of parsing the page
      */
     public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
-        parseWebPageRawRequestsSensor.mark();
 
         String host = SitesUtil.getHost(webPageEntity);
         String type = webPageEntity.getType();
         String mailbox = host + "/" + type;
         LOGGER.info("Sending to mailbox {} value {}", mailbox, webPageEntity);
         vertx.eventBus().publish(mailbox, webPageEntity);
-        return parseResult.doOnNext(val -> {
-            LOGGER.info("Product parse results {}", val);
-            parseProductResultSensor.mark();
-        });
+        parseProductResultSensor.mark();
+
+        return parseResult;
     }
 
     public void close() {
