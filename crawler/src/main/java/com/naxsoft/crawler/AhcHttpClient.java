@@ -287,6 +287,7 @@ public class AhcHttpClient implements HttpClient {
      * Close HTTP client
      */
     public void close() throws java.io.IOException {
+        LOGGER.info("Shuttind down HTTP client");
         asyncHttpClient.close();
     }
 

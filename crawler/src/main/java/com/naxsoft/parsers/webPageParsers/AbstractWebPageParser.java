@@ -37,6 +37,7 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
         messageHandler = event -> webPageParseResult = parse(event.body())
                 .subscribeOn(Schedulers.io())
                 .subscribe(value -> {
+                    LOGGER.info("Publishing to webPageParseResult {}", value);
                     vertx.eventBus().publish("webPageParseResult", value);
                 }, error -> {
                     LOGGER.error("Failed to parse {}", event.body().getUrl(), error);
@@ -72,7 +73,8 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.eventBus().consumer(getSite() + "/" + getParserType(), messageHandler);
+        String address = getSite() + "/" + getParserType();
+        vertx.eventBus().consumer(address, messageHandler);
     }
 
     @Override
