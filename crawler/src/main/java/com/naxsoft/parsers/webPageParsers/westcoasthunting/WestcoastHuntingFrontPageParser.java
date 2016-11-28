@@ -44,7 +44,7 @@ class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
 
             }
             emitter.onComplete();
-        }, BackpressureStrategy.BUFFER);
+        }, BackpressureStrategy.BUFFER).onBackpressureBuffer();
     }
 
     @Override

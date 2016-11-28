@@ -130,7 +130,7 @@ public class ProductParserFactory {
         parseResult = Flowable.create((FlowableEmitter<ProductEntity> emitter) -> {
             consumer.handler(handler -> emitter.onNext(handler.body()));
             consumer.endHandler(v -> emitter.onComplete());
-        }, BackpressureStrategy.BUFFER);
+        }, BackpressureStrategy.BUFFER).onBackpressureBuffer();
     }
 
     private void createLogger(Class<? extends AbstractRawPageParser> clazz) {
@@ -171,7 +171,6 @@ public class ProductParserFactory {
      * @return Parser capable of parsing the page
      */
     public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
-
         String host = SitesUtil.getHost(webPageEntity);
         String type = webPageEntity.getType();
         String mailbox = host + "/" + type;

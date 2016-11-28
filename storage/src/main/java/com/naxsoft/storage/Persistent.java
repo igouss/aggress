@@ -4,6 +4,8 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import io.reactivex.Flowable;
 
+import java.util.List;
+
 
 public interface Persistent extends AutoCloseable, Cloneable {
     /**
@@ -24,7 +26,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param webPageEntity page to make as parsed
      * @return Number of entries affected. Should be 1 on success.
      */
-    Flowable<Long> markWebPageAsParsed(WebPageEntity webPageEntity);
+    Long markWebPageAsParsed(List<WebPageEntity> webPageEntity);
 
     /**
      * Mark all ProductEntity as parsed
@@ -39,7 +41,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param productEntity entity to persist
      * @return True of success, false otherwise
      */
-    Flowable<Long> addProductPageEntry(ProductEntity productEntity);
+    Long addProductPageEntry(List<ProductEntity> productEntity);
 
     /**
      * Persist WebPageEntity
@@ -47,7 +49,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param webPageEntity entity to persist
      * @return True of success, false otherwise
      */
-    Flowable<Long> addWebPageEntry(WebPageEntity webPageEntity);
+    Long addWebPageEntry(List<WebPageEntity> webPageEntity);
 
     /**
      * Get all ProductEntity from the storage

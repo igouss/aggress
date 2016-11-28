@@ -6,6 +6,7 @@ import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 
 /**
  *
@@ -13,6 +14,9 @@ import org.slf4j.LoggerFactory;
 public class WebPageService {
     private final static Logger LOGGER = LoggerFactory.getLogger(WebPageService.class);
 
+    /**
+     *
+     */
     private final Persistent database;
 
     /**
@@ -28,7 +32,7 @@ public class WebPageService {
      * @param webPageEntity WebPage to persist
      * @return true if successfully persisted, false otherwise
      */
-    public Flowable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
+    public Long addWebPageEntry(List<WebPageEntity> webPageEntity) {
         return database.addWebPageEntry(webPageEntity);
     }
 
@@ -38,10 +42,9 @@ public class WebPageService {
      * @param webPageEntity Page to update
      * @return The number of entities updated.
      */
-    public Flowable<Long> markParsed(WebPageEntity webPageEntity) {
+    public Long markParsed(List<WebPageEntity> webPageEntity) {
         return database.markWebPageAsParsed(webPageEntity);
     }
-
 
     /**
      * Get stream of un-parsed pages.
@@ -53,8 +56,9 @@ public class WebPageService {
      */
     public Flowable<WebPageEntity> getUnparsedByType(String type) {
         return database.getUnparsedCount(type)
-                .filter(count -> count != 0)
                 .doOnNext(val -> LOGGER.info("Found {} of type {}", val, type))
-                .flatMap(count -> database.getUnparsedByType(type, count));
+                .filter(count -> count != 0)
+                .flatMap(count -> database.getUnparsedByType(type, count))
+                .doOnNext(val -> LOGGER.info("Found unparsed {} {} {}", val.getType(), val.getUrl(), val.getCategory()));
     }
 }

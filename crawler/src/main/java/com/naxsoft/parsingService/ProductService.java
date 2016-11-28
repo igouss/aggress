@@ -7,6 +7,8 @@ import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 
 /**
  *
@@ -25,7 +27,7 @@ public class ProductService {
     /**
      * @param products Save
      */
-    public Flowable<Long> save(ProductEntity products) {
+    public Long save(List<ProductEntity> products) {
         return database.addProductPageEntry(products);
     }
 

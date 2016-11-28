@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import rx.schedulers.Schedulers;
 
 import javax.inject.Singleton;
+import java.util.List;
 import java.util.Set;
 
 @Singleton
@@ -29,7 +30,6 @@ public class RedisDatabase implements Persistent {
     private final static Logger LOGGER = LoggerFactory.getLogger(RedisDatabase.class);
     private static final int BATCH_SIZE = 20;
 
-    private final ClientResources res;
     private final RedisClient redisClient;
     //    private StatefulRedisPubSubConnection<String, String> pubSub;
 //    private RedisConnectionPool<RedisAsyncCommands<String, String>> pool;
@@ -40,8 +40,7 @@ public class RedisDatabase implements Persistent {
     }
 
     private RedisDatabase(String host, int port) {
-        res = DefaultClientResources
-                .builder()
+        ClientResources res = DefaultClientResources.builder()
                 .commandLatencyCollectorOptions(DefaultCommandLatencyCollectorOptions.create())
                 .build();
         redisClient = RedisClient.create(res, RedisURI.Builder.redis(host, port).build());
@@ -61,20 +60,28 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public void close() {
+        LOGGER.info("Shutting down redis connection");
         redisClient.shutdown();
-        res.shutdown();
     }
 
     @Override
-    public Flowable<Long> markWebPageAsParsed(WebPageEntity webPageEntity) {
+    public Long markWebPageAsParsed(List<WebPageEntity> webPageEntity) {
+
         if (webPageEntity == null) {
-            return Flowable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
+            return 0L;
+        } else if (webPageEntity.size() == 0) {
+            return 0L;
         }
 
-        String source = "WebPageEntity." + webPageEntity.getType();
-        String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
-        String member = Encoder.encode(webPageEntity);
-        return Flowable.fromFuture(connection.async().sadd(destination, member));
+        String source = "WebPageEntity." + webPageEntity.get(0).getType();
+        String destination = "WebPageEntity." + webPageEntity.get(0).getType() + ".parsed";
+
+
+        String[] jsonValues = webPageEntity.stream().map((entity) -> {
+            LOGGER.info("Adding {} to parsed", entity);
+            return Encoder.encode(entity);
+        }).toArray(String[]::new);
+        return connection.sync().sadd(destination, jsonValues);
         //.doOnNext(res -> LOGGER.info("Moved rc={} from {} to {} element {}...", res, source, destination, member.substring(0, 50)));
     }
 
@@ -84,23 +91,35 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Flowable<Long> addProductPageEntry(ProductEntity productEntity) {
+    public Long addProductPageEntry(List<ProductEntity> productEntity) {
+        if (productEntity == null) {
+            return 0L;
+        } else if (productEntity.size() == 0) {
+            return 0L;
+        }
+
         String key = "ProductEntity";
-        String member = Encoder.encode(productEntity);
-        return Flowable.fromFuture(connection.async().sadd(key, member));
+        String[] jsonValues = productEntity.stream().map(Encoder::encode).toArray(String[]::new);
+        return connection.sync().sadd(key, jsonValues);
     }
 
     @Override
-    public Flowable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
-        String key = "WebPageEntity" + "." + webPageEntity.getType();
-        String member = Encoder.encode(webPageEntity);
-        LOGGER.trace("adding key {} val {}", key, webPageEntity.getUrl());
-        return Flowable.fromFuture(connection.async().sadd(key, member));
+    public Long addWebPageEntry(List<WebPageEntity> webPageEntity) {
+        if (webPageEntity == null) {
+            return 0L;
+        } else if (webPageEntity.size() == 0) {
+            return 0L;
+        }
+
+        String key = "WebPageEntity" + "." + webPageEntity.get(0).getType();
+        String[] jsonValues = webPageEntity.stream().map(Encoder::encode).toArray(String[]::new);
+        LOGGER.trace("adding key {} val {}", key, webPageEntity.get(0).getUrl());
+        return connection.sync().sadd(key, jsonValues);
     }
 
     @Override
     public Flowable<ProductEntity> getProducts() {
-        return Flowable.fromFuture(connection.async().smembers("ProductEntity"))
+        return Flowable.just(connection.sync().smembers("ProductEntity"))
                 .flatMap(Flowable::fromIterable)
                 .map(ProductEntityEncoder::decode)
                 .filter(productEntity -> productEntity != null);
@@ -108,22 +127,21 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public Flowable<Long> getUnparsedCount(String type) {
-        return Flowable.fromFuture(connection.async().scard("WebPageEntity." + type));
+        return Flowable.just(connection.sync().scard("WebPageEntity." + type));
     }
 
     @Override
     public Flowable<WebPageEntity> getUnparsedByType(String type, Long count) {
         LOGGER.info("getUnparsedByType {} {}", type, count);
-        Flowable<Set<String>> setFlowable = Flowable.fromFuture(connection.async()
+        Flowable<Set<String>> setFlowable = Flowable.just(connection.sync()
                 .spop("WebPageEntity." + type, Math.min(count, BATCH_SIZE)));
 
         return setFlowable.flatMap(Flowable::fromIterable).map(WebPageEntityEncoder::decode)
-                .doOnNext(val -> LOGGER.info("SPOP'ed {} {} {}", val.getType(), val.getUrl(), val.getCategory()))
-                .filter(entry -> entry != null);
+                .doOnNext(val -> LOGGER.info("SPOP'ed {} {} {}", val.getType(), val.getUrl(), val.getCategory()));
     }
 
     @Override
     public Flowable<String> cleanUp(String[] tables) {
-        return Flowable.fromFuture(connection.async().flushall());
+        return Flowable.just(connection.sync().flushall());
     }
 }

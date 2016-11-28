@@ -118,7 +118,6 @@ public class Crawler {
 
                     if (options.has("clean")) {
                         cleanDbCommand.tearDown();
-
                     }
 
                     if (options.has("populate")) {
@@ -132,13 +131,13 @@ public class Crawler {
                     if (options.has("parse")) {
                         parseCommand.tearDown();
                     }
+
                     if (options.has("remoteAccess")) {
                         remoteAccess.stop();
                     }
 
                     applicationComponent.getWebPageParserFactory().close();
                     applicationComponent.getProductParserFactory().close();
-
                     applicationComponent.getDatabase().close();
                     applicationComponent.getHttpClient().close();
                     applicationComponent.getElastic().close();

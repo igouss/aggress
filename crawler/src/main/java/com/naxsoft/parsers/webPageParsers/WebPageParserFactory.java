@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -38,8 +39,9 @@ public class WebPageParserFactory {
     private final Vertx vertx;
     private final LinkedBlockingDeque<String> parserVertex;
     private final Flowable<WebPageEntity> parseResult;
-    private final Meter parseWebPageRequestsSensor;
     private final Meter parseWebPageResultsSensor;
+
+    private MessageConsumer<WebPageEntity> consumer;
 
     /**
      * Create new WebPageParserFactory that using reflection to locate all WebPageParsers in the classpath
@@ -51,19 +53,25 @@ public class WebPageParserFactory {
         this.vertx = vertx;
         parserVertex = new LinkedBlockingDeque<>();
 
-        parseWebPageRequestsSensor = metricRegistry.meter("parse.webPage.requests");
         parseWebPageResultsSensor = metricRegistry.meter("parse.webPage.results");
 
-        MessageConsumer<WebPageEntity> consumer = vertx.eventBus().consumer("webPageParseResult");
+        consumer = vertx.eventBus().consumer("webPageParseResult");
 
         parseResult = Flowable.create((FlowableEmitter<WebPageEntity> emitter) -> {
-            consumer.handler(handler -> emitter.onNext(handler.body()));
-            consumer.endHandler(v -> emitter.onComplete());
-        }, BackpressureStrategy.BUFFER);
+            consumer.endHandler(v -> {
+                LOGGER.error("End received");
+                emitter.onComplete();
+            });
+            consumer.exceptionHandler(error -> {
+                LOGGER.error("Error received", error);
+                emitter.onError(error);
+            });
+            consumer.handler(message -> {
+                LOGGER.info("Message received {} {}", message.address(), message.body());
+                emitter.onNext(message.body());
+            });
+        }, BackpressureStrategy.BUFFER).onBackpressureBuffer();
 
-//        parseResult = Flowable.fromAsync(asyncEmitter -> {
-//            vertx.eventBus().consumer("webPageParseResult", event -> asyncEmitter.onNext((WebPageEntity) event.body()));
-//        }, AsyncEmitter.BackpressureMode.ERROR);
 
         vertx.eventBus().registerDefaultCodec(WebPageEntity.class, new MessageCodec<WebPageEntity, Object>() {
             @Override
@@ -113,10 +121,8 @@ public class WebPageParserFactory {
                 .setMultiThreaded(true)
                 .setWorkerPoolName("webPageParsers");
 
-
         Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
         Set<Class<? extends AbstractWebPageParser>> classes = reflections.getSubTypesOf(AbstractWebPageParser.class);
-
 
         classes.stream().filter(clazz -> !Modifier.isAbstract(clazz.getModifiers())).forEach(clazz -> {
             try {
@@ -143,6 +149,7 @@ public class WebPageParserFactory {
         String clazzName = clazz.getName();
 
         ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz);
+        LOGGER.info("Adding new {}", logger);
 
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
@@ -166,16 +173,19 @@ public class WebPageParserFactory {
      *
      * @param webPageEntity Page to parse
      */
-    public Flowable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        parseWebPageRequestsSensor.mark();
-
-        String host = SitesUtil.getHost(webPageEntity);
-        String mailBox = host + "/" + webPageEntity.getType();
-        vertx.eventBus().publish(mailBox, webPageEntity);
-        return parseResult.doOnNext(val -> parseWebPageResultsSensor.mark());
+    public Flowable<WebPageEntity> parse(List<WebPageEntity> webPageEntity) {
+        for (WebPageEntity entity : webPageEntity) {
+            LOGGER.info("Publishing work {}", entity);
+            String host = SitesUtil.getHost(entity);
+            String mailBox = host + "/" + entity.getType();
+            vertx.eventBus().publish(mailBox, entity);
+            parseWebPageResultsSensor.mark();
+        }
+        return parseResult;
     }
 
     public void close() {
+        consumer.unregister();
         parserVertex.forEach(vertx::undeploy);
     }
 }

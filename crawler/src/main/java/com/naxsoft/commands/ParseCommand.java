@@ -1,6 +1,5 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.storage.elasticsearch.Elastic;
@@ -11,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,21 +20,12 @@ import java.util.concurrent.TimeUnit;
 public class ParseCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(ParseCommand.class);
 
-    private final static Set<String> VALID_CATEGORIES = new HashSet<>();
-
-    static {
-        VALID_CATEGORIES.add("firearm");
-        VALID_CATEGORIES.add("reload");
-        VALID_CATEGORIES.add("optic");
-        VALID_CATEGORIES.add("ammo");
-        VALID_CATEGORIES.add("misc");
-    }
-
-    private WebPageService webPageService = null;
-    private Elastic elastic = null;
-    private ProductParserFactory productParserFactory = null;
+    private WebPageService webPageService;
+    private Elastic elastic;
+    private ProductParserFactory productParserFactory;
     private Disposable productIndexSubscription;
     private Disposable priceIndexSubscription;
+    private Disposable connection;
 
     @Inject
     public ParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
@@ -55,42 +43,29 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Flowable<ProductEntity> productPages = Flowable.interval(5, TimeUnit.SECONDS)
+        connection = Flowable.interval(5, TimeUnit.SECONDS, Schedulers.io())
+                .onBackpressureDrop()
                 .flatMap(i -> webPageService.getUnparsedByType("productPageRaw"))
                 .doOnNext(webPageEntity -> LOGGER.info("Starting RAW page parsing {}", webPageEntity))
                 .flatMap(productParserFactory::parse)
-                .doOnNext(productEntity -> LOGGER.info("Parsed page {}", productEntity))
-                .publish()
-                .autoConnect(2);
-
-        productIndexSubscription = productPages
                 .doOnNext(productEntity -> LOGGER.info("Starting product indexing {}", productEntity))
-                .buffer(16)
-                .flatMap(product -> elastic.index(product, "product", "guns"))
-                .subscribeOn(Schedulers.io())
+                .buffer(1, TimeUnit.SECONDS).map(product ->
+                        elastic.index(product, "product", "guns") && elastic.price_index(product, "product", "prices"))
+                .onBackpressureBuffer()
                 .subscribe(
-                        val -> {
-                            LOGGER.info("Indexed: {}", val);
-                        },
-                        err -> LOGGER.error("Product indexing failed", err)
+                        val -> LOGGER.info("Indexed: {}", val),
+                        err -> LOGGER.error("Product indexing failed", err),
+                        () -> LOGGER.info("Product indexing complete")
                 );
 
-        priceIndexSubscription = productPages
-                .doOnNext(productEntity -> LOGGER.info("Starting price indexing {}", productEntity))
-                .buffer(16)
-                .flatMap(product -> elastic.price_index(product, "product", "prices"))
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        val -> {
-                            LOGGER.info("Price indexed: {}", val);
-                        },
-                        err -> LOGGER.error("Price indexing failed", err)
-                );
     }
 
 
     @Override
     public void tearDown() throws CLIException {
+        if (connection != null) {
+            connection.dispose();
+        }
         if (productIndexSubscription != null) {
             productIndexSubscription.dispose();
         }

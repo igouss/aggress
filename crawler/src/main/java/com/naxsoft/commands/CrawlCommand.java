@@ -1,6 +1,5 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import io.reactivex.Flowable;
@@ -27,6 +26,7 @@ public class CrawlCommand implements Command {
     private final WebPageParserFactory webPageParserFactory;
     private Disposable webPageParseSubscription;
     private Disposable parentMarkSubscription;
+    private Disposable connection;
 
     @Inject
     public CrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
@@ -40,50 +40,48 @@ public class CrawlCommand implements Command {
     public void setUp() throws CLIException {
     }
 
-
     @Override
     public void start() throws CLIException {
-        Flowable<WebPageEntity> webPageEntriesStream = Flowable.interval(5, 5, TimeUnit.SECONDS).flatMap(i ->
-                Flowable.mergeDelayError(
+        connection = Flowable.interval(5, TimeUnit.SECONDS)
+                .onBackpressureDrop()
+                .flatMap(i -> Flowable.concat(
                         webPageService.getUnparsedByType("frontPage"),
                         webPageService.getUnparsedByType("productList"),
                         webPageService.getUnparsedByType("productPage")))
-                .retry()
-                .publish()
-                .autoConnect(2);
-
-        webPageParseSubscription = webPageEntriesStream
-                .doOnNext(webPageEntity -> LOGGER.trace("Starting parse {}", webPageEntity))
+                .onBackpressureBuffer()
+                .doOnCancel(() -> LOGGER.warn("parse cancel called"))
+                .doOnError(throwable -> LOGGER.error("Error", throwable))
+                .doOnNext(webPageEntity -> LOGGER.info("Starting parse {}", webPageEntity))
+                .subscribeOn(Schedulers.io())
+                .buffer(1, TimeUnit.SECONDS)
+                .onBackpressureBuffer()
+                .doOnNext(webPageService::markParsed)
+                .subscribeOn(Schedulers.io())
                 .flatMap(webPageParserFactory::parse)
-                .flatMap(webPageService::addWebPageEntry)
+                .buffer(1, TimeUnit.SECONDS)
+                .onBackpressureBuffer()
                 .subscribeOn(Schedulers.io())
-                .subscribe(
-                        rc -> {
-                            LOGGER.trace("Added WebPageEntry, parent marked as parsed: {} results added to DB", rc);
-                        },
-                        err -> LOGGER.error("Failed", err)
-                );
-
-        parentMarkSubscription = webPageEntriesStream
-                .doOnNext(webPageEntity -> LOGGER.trace("Starting to mark as parsed {}", webPageEntity))
-                .flatMap(webPageService::markParsed)
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        rc -> {
-                            LOGGER.trace("Marked as parsed {}", rc);
-                        },
-                        err -> {
-                            LOGGER.error("Maked as parsed failed", err);
-                        });
+                .map(webPageService::addWebPageEntry)
+                .subscribe(val -> {
+                    LOGGER.info("Added new page {}", val);
+                }, err -> {
+                    LOGGER.error("Crawl error", err);
+                }, () -> {
+                    LOGGER.info("Crawl command completed");
+                });
     }
 
     @Override
     public void tearDown() throws CLIException {
+        LOGGER.info("Shutting down crawl command");
         if (webPageParseSubscription != null) {
             webPageParseSubscription.dispose();
         }
         if (parentMarkSubscription != null) {
             parentMarkSubscription.dispose();
+        }
+        if (connection != null) {
+            connection.dispose();
         }
     }
 }

@@ -68,7 +68,7 @@ class WestcoastHuntingProductListParser extends AbstractWebPageParser {
                 LOGGER.error("Failed to parse", e);
                 emitter.onComplete();
             }
-        }, BackpressureStrategy.BUFFER);
+        }, BackpressureStrategy.BUFFER).onBackpressureBuffer();
     }
 
     @Override
