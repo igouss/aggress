@@ -87,13 +87,11 @@ public class Crawler {
 
             if (options.has("clean")) {
                 cleanDbCommand.start();
-
             }
 
             if (options.has("populate")) {
                 populateDBCommand.start();
             }
-
 
             if (options.has("crawl")) {
                 crawlCommand.start();

@@ -1,5 +1,6 @@
 package com.naxsoft.commands;
 
+import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import io.reactivex.Flowable;
@@ -24,16 +25,18 @@ public class CrawlCommand implements Command {
 
     private final WebPageService webPageService;
     private final WebPageParserFactory webPageParserFactory;
-    private Disposable webPageParseSubscription;
-    private Disposable parentMarkSubscription;
-    private Disposable connection;
+
+    private Disposable parentMarkDisposable;
+    private Disposable parserDisposable;
+    private Disposable listFlowableDisposable;
 
     @Inject
     public CrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
         this.webPageService = webPageService;
         this.webPageParserFactory = webPageParserFactory;
-        webPageParseSubscription = null;
-        parentMarkSubscription = null;
+
+        parentMarkDisposable = null;
+        parserDisposable = null;
     }
 
     @Override
@@ -42,46 +45,76 @@ public class CrawlCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        connection = Flowable.interval(5, TimeUnit.SECONDS)
+        Flowable<WebPageEntity> listFlowable = Flowable.interval(0, 5, TimeUnit.SECONDS)
                 .onBackpressureDrop()
-                .flatMap(i -> Flowable.concat(
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .flatMap(i -> Flowable.mergeDelayError(
                         webPageService.getUnparsedByType("frontPage"),
                         webPageService.getUnparsedByType("productList"),
                         webPageService.getUnparsedByType("productPage")))
+                .doOnNext(val -> LOGGER.info("listFlowable: {}", val))
+                .publish().autoConnect(2, val -> {
+                    listFlowableDisposable = val;
+                });
+
+        parentMarkDisposable = listFlowable
                 .onBackpressureBuffer()
-                .doOnCancel(() -> LOGGER.warn("parse cancel called"))
-                .doOnError(throwable -> LOGGER.error("Error", throwable))
-                .doOnNext(webPageEntity -> LOGGER.info("Starting parse {}", webPageEntity))
-                .subscribeOn(Schedulers.io())
+                .doOnCancel(() -> LOGGER.warn("parentMarkDisposable: parse cancel called"))
+                .doOnError(throwable -> LOGGER.error("parentMarkDisposable: Error", throwable))
+                .doOnNext(webPageEntity -> LOGGER.info("parentMarkDisposable: Starting parse {}", webPageEntity))
+                .observeOn(Schedulers.io())
                 .buffer(1, TimeUnit.SECONDS)
                 .onBackpressureBuffer()
-                .doOnNext(webPageService::markParsed)
+                .filter(webPageEntities -> !webPageEntities.isEmpty())
+                .flatMap(webPageService::markParsed)
                 .subscribeOn(Schedulers.io())
+                .subscribe(val -> {
+                    LOGGER.info("parentMarkDisposable: Added new page {}", val);
+                }, err -> {
+                    LOGGER.error("parentMarkDisposable: Crawl error", err);
+                }, () -> {
+                    LOGGER.info("parentMarkDisposable: Crawl command completed");
+                });
+
+        parserDisposable = listFlowable
+                .onBackpressureBuffer()
+                .doOnCancel(() -> LOGGER.warn("parserDisposable: parse cancel called"))
+                .doOnError(throwable -> LOGGER.error("parserDisposable: Error", throwable))
+                .doOnNext(webPageEntity -> LOGGER.info("parserDisposable: Starting parse {}", webPageEntity))
+                .observeOn(Schedulers.io())
+                .buffer(1, TimeUnit.SECONDS)
+                .onBackpressureBuffer()
+                .filter(webPageEntities -> !webPageEntities.isEmpty())
+                .observeOn(Schedulers.io())
                 .flatMap(webPageParserFactory::parse)
                 .buffer(1, TimeUnit.SECONDS)
+                .filter(webPageEntities -> !webPageEntities.isEmpty())
                 .onBackpressureBuffer()
+                .observeOn(Schedulers.io())
+                .flatMap(webPageService::addWebPageEntry)
                 .subscribeOn(Schedulers.io())
-                .map(webPageService::addWebPageEntry)
                 .subscribe(val -> {
-                    LOGGER.info("Added new page {}", val);
+                    LOGGER.info("parserDisposable: Added new page {}", val);
                 }, err -> {
-                    LOGGER.error("Crawl error", err);
+                    LOGGER.error("parserDisposable: Crawl error", err);
                 }, () -> {
-                    LOGGER.info("Crawl command completed");
+                    LOGGER.info("parserDisposable: Crawl command completed");
                 });
     }
 
     @Override
     public void tearDown() throws CLIException {
         LOGGER.info("Shutting down crawl command");
-        if (webPageParseSubscription != null) {
-            webPageParseSubscription.dispose();
+
+        if (parentMarkDisposable != null && !parentMarkDisposable.isDisposed()) {
+            parentMarkDisposable.dispose();
         }
-        if (parentMarkSubscription != null) {
-            parentMarkSubscription.dispose();
+        if (parserDisposable != null && !parserDisposable.isDisposed()) {
+            parserDisposable.dispose();
         }
-        if (connection != null) {
-            connection.dispose();
+        if (listFlowableDisposable != null && !listFlowableDisposable.isDisposed()) {
+            listFlowableDisposable.dispose();
         }
     }
 }

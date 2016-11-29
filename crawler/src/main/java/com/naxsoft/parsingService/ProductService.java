@@ -27,7 +27,7 @@ public class ProductService {
     /**
      * @param products Save
      */
-    public Long save(List<ProductEntity> products) {
+    public Flowable<Long> save(List<ProductEntity> products) {
         return database.addProductPageEntry(products);
     }
 

@@ -36,7 +36,7 @@ public class PopulateDBCommand implements Command {
         Boolean rootsPopulated = roots.map(entry -> new WebPageEntity(null, "", "frontPage", entry, ""))
                 .buffer(20)
                 .onBackpressureBuffer()
-                .map(webPageService::addWebPageEntry)
+                .flatMap(webPageService::addWebPageEntry)
                 .all(result -> result != 0L)
                 .blockingGet();
 

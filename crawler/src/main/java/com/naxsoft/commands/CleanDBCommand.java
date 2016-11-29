@@ -33,7 +33,7 @@ public class CleanDBCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        System.out.println(db.cleanUp(TABLES).blockingFirst());
+        LOGGER.info("DB cleared {}", db.cleanUp(TABLES).blockingFirst());
     }
 
     @Override

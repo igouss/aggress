@@ -32,7 +32,7 @@ public class WebPageService {
      * @param webPageEntity WebPage to persist
      * @return true if successfully persisted, false otherwise
      */
-    public Long addWebPageEntry(List<WebPageEntity> webPageEntity) {
+    public Flowable<Long> addWebPageEntry(List<WebPageEntity> webPageEntity) {
         return database.addWebPageEntry(webPageEntity);
     }
 
@@ -42,7 +42,7 @@ public class WebPageService {
      * @param webPageEntity Page to update
      * @return The number of entities updated.
      */
-    public Long markParsed(List<WebPageEntity> webPageEntity) {
+    public Flowable<Long> markParsed(List<WebPageEntity> webPageEntity) {
         return database.markWebPageAsParsed(webPageEntity);
     }
 
