@@ -202,6 +202,7 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
 
         handler.setProxyManager(proxyManager);
+
         return Flowable.fromFuture(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(handler)), Schedulers.io());
     }
 

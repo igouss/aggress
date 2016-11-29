@@ -149,6 +149,9 @@ public class Crawler {
                 }
             }, "Shutdown Hook"));
 
+//            System.out.print("Loading...  ");
+//            for(int i=0;;Thread.sleep(250))System.out.print("\b"+"\\|/-".charAt(i++&3));
+
             System.in.read();
         } catch (Exception e) {
             LOGGER.error("Application failure", e);

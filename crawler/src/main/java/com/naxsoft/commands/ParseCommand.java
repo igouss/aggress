@@ -7,11 +7,12 @@ import com.naxsoft.storage.elasticsearch.Elastic;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,16 +23,18 @@ import java.util.concurrent.TimeUnit;
 public class ParseCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(ParseCommand.class);
 
-    private final WebPageService webPageService;
-    private final Elastic elastic;
-    private final ProductParserFactory productParserFactory;
+    private final Vertx vertx;
+    private WebPageService webPageService;
+    private Elastic elastic;
+    private ProductParserFactory productParserFactory;
 
     private Disposable productPageRawDisposable;
     private Disposable productIndexDisposable;
     private Disposable priceIndexDisposable;
 
     @Inject
-    public ParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
+    public ParseCommand(Vertx vertx, WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
+        this.vertx = vertx;
         this.webPageService = webPageService;
         this.productParserFactory = productParserFactory;
         this.elastic = elastic;
@@ -46,31 +49,32 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
+        MessageConsumer<ProductEntity> consumer = vertx.eventBus().consumer("productParseResult");
+        consumer.handler(message -> {
+            LOGGER.info("Message received {} {}", message.address(), message.body());
+            ProductEntity productEntity = message.body();
+            if (productEntity != null) {
+                elastic.index(productEntity, "product", "guns").subscribe();
+            } else {
+                LOGGER.error("Unexpected product", new Exception("NULL ProductEntity"));
+            }
+        });
+        consumer.exceptionHandler(error -> {
+            LOGGER.error("Error received", error);
+        });
 
-        Flowable<List<ProductEntity>> productPageRaw = Flowable.interval(5, TimeUnit.SECONDS, Schedulers.io())
+
+        productPageRawDisposable = Flowable
+                .interval(5, TimeUnit.SECONDS, Schedulers.io())
                 .observeOn(Schedulers.io())
                 .onBackpressureDrop()
                 .flatMap(i -> webPageService.getUnparsedByType("productPageRaw"))
-                .doOnNext(webPageEntity -> LOGGER.info("Starting RAW page parsing {}", webPageEntity))
-                .flatMap(productParserFactory::parse)
-                .doOnNext(productEntity -> LOGGER.info("Starting product indexing {}", productEntity))
-                .buffer(1, TimeUnit.SECONDS)
-                .onBackpressureBuffer()
-                .filter(productEntities -> !productEntities.isEmpty())
-                .publish().autoConnect(2, con -> productPageRawDisposable = con);
-
-        productIndexDisposable = productPageRaw.flatMap(product -> elastic.index(product, "product", "guns"))
+                .doOnNext(webPageEntity -> LOGGER.info("productPageRaw: Starting RAW page parsing {}", webPageEntity))
+                .doOnNext(productParserFactory::parse)
                 .subscribe(
-                        val -> LOGGER.info("Indexed: {}", val),
-                        err -> LOGGER.error("Product indexing failed", err),
-                        () -> LOGGER.info("Product indexing complete")
-                );
-
-        priceIndexDisposable = productPageRaw.flatMap(product -> elastic.price_index(product, "product", "prices"))
-                .subscribe(
-                        val -> LOGGER.info("Price indexed: {}", val),
-                        err -> LOGGER.error("Price indexing failed", err),
-                        () -> LOGGER.info("Price indexing complete")
+                        val -> LOGGER.info("productIndex: Indexed: {}", val),
+                        err -> LOGGER.error("productIndex: Product indexing failed", err),
+                        () -> LOGGER.info("productIndex: Product indexing complete")
                 );
     }
 

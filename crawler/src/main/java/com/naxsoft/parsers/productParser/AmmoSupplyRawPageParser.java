@@ -81,7 +81,7 @@ class AmmoSupplyRawPageParser extends AbstractRawPageParser {
      */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory().toUpperCase();
-        String s = mapping.get(category);
+        String s = mapping.get(category.toLowerCase());
         if (null != s) {
             return s.split(",");
         }

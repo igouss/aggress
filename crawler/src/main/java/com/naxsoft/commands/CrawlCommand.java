@@ -6,6 +6,8 @@ import com.naxsoft.parsingService.WebPageService;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class CrawlCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(CrawlCommand.class);
 
+    private final Vertx vertx;
     private final WebPageService webPageService;
     private final WebPageParserFactory webPageParserFactory;
 
@@ -31,7 +34,8 @@ public class CrawlCommand implements Command {
     private Disposable listFlowableDisposable;
 
     @Inject
-    public CrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
+    public CrawlCommand(Vertx vertx, WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
+        this.vertx = vertx;
         this.webPageService = webPageService;
         this.webPageParserFactory = webPageParserFactory;
 
@@ -45,6 +49,20 @@ public class CrawlCommand implements Command {
 
     @Override
     public void start() throws CLIException {
+        MessageConsumer<WebPageEntity> consumer = vertx.eventBus().consumer("webPageParseResult");
+        consumer.handler(message -> {
+            WebPageEntity webPageEntity = message.body();
+            LOGGER.info("Message received {} {}", message.address(), webPageEntity);
+            if (webPageEntity != null) {
+                webPageService.addWebPageEntry(webPageEntity).subscribeOn(Schedulers.io()).subscribe();
+            } else {
+                LOGGER.error("Invalid message received", new Exception("NULL ProductEntity"));
+            }
+        });
+        consumer.exceptionHandler(error -> {
+            LOGGER.error("Error received", error);
+        });
+
         Flowable<WebPageEntity> listFlowable = Flowable.interval(0, 5, TimeUnit.SECONDS)
                 .onBackpressureDrop()
                 .subscribeOn(Schedulers.io())
@@ -57,14 +75,13 @@ public class CrawlCommand implements Command {
                 .publish().autoConnect(2, val -> listFlowableDisposable = val);
 
         parentMarkDisposable = listFlowable
-                .onBackpressureBuffer()
+                .onBackpressureBuffer(32, () -> {
+                    LOGGER.error("Buffer overflowed");
+                })
                 .doOnCancel(() -> LOGGER.warn("parentMarkDisposable: parse cancel called"))
                 .doOnError(throwable -> LOGGER.error("parentMarkDisposable: Error", throwable))
                 .doOnNext(webPageEntity -> LOGGER.info("parentMarkDisposable: Starting parse {}", webPageEntity))
                 .observeOn(Schedulers.io())
-                .buffer(1, TimeUnit.SECONDS)
-                .onBackpressureBuffer()
-                .filter(webPageEntities -> !webPageEntities.isEmpty())
                 .flatMap(webPageService::markParsed)
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -73,26 +90,31 @@ public class CrawlCommand implements Command {
                         () -> LOGGER.info("parentMarkDisposable: Crawl command completed"));
 
         parserDisposable = listFlowable
-                .onBackpressureBuffer()
+                .onBackpressureBuffer(32, () -> {
+                    LOGGER.error("Buffer overflowed");
+                })
                 .doOnCancel(() -> LOGGER.warn("parserDisposable: parse cancel called"))
                 .doOnError(throwable -> LOGGER.error("parserDisposable: Error", throwable))
                 .doOnNext(webPageEntity -> LOGGER.info("parserDisposable: Starting parse {}", webPageEntity))
                 .observeOn(Schedulers.io())
                 .buffer(1, TimeUnit.SECONDS)
-                .onBackpressureBuffer()
+                .onBackpressureBuffer(32, () -> {
+                    LOGGER.error("Buffer overflowed");
+                })
                 .filter(webPageEntities -> !webPageEntities.isEmpty())
                 .observeOn(Schedulers.io())
-                .flatMap(webPageParserFactory::parse)
-                .buffer(1, TimeUnit.SECONDS)
-                .filter(webPageEntities -> !webPageEntities.isEmpty())
-                .onBackpressureBuffer()
-                .observeOn(Schedulers.io())
-                .flatMap(webPageService::addWebPageEntry)
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        val -> LOGGER.info("parserDisposable: Added new page {}", val),
-                        err -> LOGGER.error("parserDisposable: Crawl error", err),
-                        () -> LOGGER.info("parserDisposable: Crawl command completed"));
+                .doOnNext(webPageParserFactory::parse)
+//                .onBackpressureBuffer(32, () -> {LOGGER.error("Buffer overflowed");})
+//                .observeOn(Schedulers.io())
+//                .flatMap(webPageService::addWebPageEntry)
+//                .subscribeOn(Schedulers.io())
+                .subscribe(val -> {
+                    LOGGER.info("parserDisposable: Parsed {}", val);
+                }, err -> {
+                    LOGGER.error("parserDisposable: Crawl error", err);
+                }, () -> {
+                    LOGGER.info("parserDisposable: Crawl command completed");
+                });
     }
 
     @Override

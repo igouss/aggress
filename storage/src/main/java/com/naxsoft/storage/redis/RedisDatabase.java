@@ -65,21 +65,12 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Flowable<Long> markWebPageAsParsed(List<WebPageEntity> webPageEntity) {
+    public Flowable<Long> markWebPageAsParsed(WebPageEntity webPageEntity) {
+//        String source = "WebPageEntity." + webPageEntity.getType();
+        String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
 
-        if (webPageEntity == null || webPageEntity.size() == 0) {
-            return Flowable.just(0L);
-        }
-
-        String source = "WebPageEntity." + webPageEntity.get(0).getType();
-        String destination = "WebPageEntity." + webPageEntity.get(0).getType() + ".parsed";
-
-
-        String[] jsonValues = webPageEntity.stream().map((entity) -> {
-            LOGGER.info("Adding {} to parsed", entity);
-            return Encoder.encode(entity);
-        }).toArray(String[]::new);
-        return Flowable.fromFuture(connection.async().sadd(destination, jsonValues));
+        LOGGER.info("Adding {} to {}", webPageEntity, destination);
+        return Flowable.fromFuture(connection.async().sadd(destination, Encoder.encode(webPageEntity)));
         //.doOnNext(res -> LOGGER.info("Moved rc={} from {} to {} element {}...", res, source, destination, member.substring(0, 50)));
     }
 
@@ -100,15 +91,10 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Flowable<Long> addWebPageEntry(List<WebPageEntity> webPageEntity) {
-        if (webPageEntity == null || webPageEntity.size() == 0) {
-            return Flowable.just(0L);
-        }
-
-        String key = "WebPageEntity" + "." + webPageEntity.get(0).getType();
-        String[] jsonValues = webPageEntity.stream().map(Encoder::encode).toArray(String[]::new);
-        LOGGER.trace("adding key {} val {}", key, webPageEntity.get(0).getUrl());
-        return Flowable.fromFuture(connection.async().sadd(key, jsonValues));
+    public Flowable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
+        String key = "WebPageEntity" + "." + webPageEntity.getType();
+        LOGGER.trace("adding key {} val {}", key, webPageEntity.getUrl());
+        return Flowable.fromFuture(connection.async().sadd(key, Encoder.encode(webPageEntity)));
     }
 
     @Override

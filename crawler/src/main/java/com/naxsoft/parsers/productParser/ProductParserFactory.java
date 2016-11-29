@@ -13,14 +13,10 @@ import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.SitesUtil;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
-import io.vertx.core.eventbus.MessageConsumer;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +35,6 @@ public class ProductParserFactory {
 
     private final Vertx vertx;
     private final ArrayList<String> parserVertex;
-    private final Flowable<ProductEntity> parseResult;
 
     private final Meter parseProductResultSensor;
 
@@ -124,11 +119,6 @@ public class ProductParserFactory {
                     }
                 });
 
-        MessageConsumer<ProductEntity> consumer = vertx.eventBus().consumer("productParseResult");
-        parseResult = Flowable.create((FlowableEmitter<ProductEntity> emitter) -> {
-            consumer.handler(handler -> emitter.onNext(handler.body()));
-            consumer.endHandler(v -> emitter.onComplete());
-        }, BackpressureStrategy.BUFFER).onBackpressureBuffer();
     }
 
     private void createLogger(Class<? extends AbstractRawPageParser> clazz) {
@@ -168,15 +158,13 @@ public class ProductParserFactory {
      * @param webPageEntity page to parse
      * @return Parser capable of parsing the page
      */
-    public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public void parse(WebPageEntity webPageEntity) {
         String host = SitesUtil.getHost(webPageEntity);
         String type = webPageEntity.getType();
         String mailbox = host + "/" + type;
         LOGGER.info("Sending to mailbox {} value {}", mailbox, webPageEntity);
         vertx.eventBus().publish(mailbox, webPageEntity);
         parseProductResultSensor.mark();
-
-        return parseResult;
     }
 
     public void close() {

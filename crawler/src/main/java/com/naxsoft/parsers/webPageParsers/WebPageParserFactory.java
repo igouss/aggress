@@ -11,9 +11,6 @@ import com.naxsoft.encoders.Encoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.utils.SitesUtil;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -38,7 +35,6 @@ public class WebPageParserFactory {
 
     private final Vertx vertx;
     private final LinkedBlockingDeque<String> parserVertex;
-    private final Flowable<WebPageEntity> parseResult;
     private final Meter parseWebPageResultsSensor;
 
     private final MessageConsumer<WebPageEntity> consumer;
@@ -54,24 +50,6 @@ public class WebPageParserFactory {
         parserVertex = new LinkedBlockingDeque<>();
 
         parseWebPageResultsSensor = metricRegistry.meter("parse.webPage.results");
-
-        consumer = vertx.eventBus().consumer("webPageParseResult");
-
-        parseResult = Flowable.create((FlowableEmitter<WebPageEntity> emitter) -> {
-            consumer.endHandler(v -> {
-                LOGGER.error("End received");
-                emitter.onComplete();
-            });
-            consumer.exceptionHandler(error -> {
-                LOGGER.error("Error received", error);
-                emitter.onError(error);
-            });
-            consumer.handler(message -> {
-                LOGGER.info("Message received {} {}", message.address(), message.body());
-                emitter.onNext(message.body());
-            });
-        }, BackpressureStrategy.BUFFER).onBackpressureBuffer();
-
 
         vertx.eventBus().registerDefaultCodec(WebPageEntity.class, new MessageCodec<WebPageEntity, Object>() {
             @Override
@@ -173,7 +151,7 @@ public class WebPageParserFactory {
      *
      * @param webPageEntity Page to parse
      */
-    public Flowable<WebPageEntity> parse(List<WebPageEntity> webPageEntity) {
+    public boolean parse(List<WebPageEntity> webPageEntity) {
         for (WebPageEntity entity : webPageEntity) {
             LOGGER.info("Publishing work {}", entity);
             String host = SitesUtil.getHost(entity);
@@ -181,7 +159,7 @@ public class WebPageParserFactory {
             vertx.eventBus().publish(mailBox, entity);
             parseWebPageResultsSensor.mark();
         }
-        return parseResult;
+        return true;
     }
 
     public void close() {

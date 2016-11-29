@@ -34,8 +34,6 @@ public class PopulateDBCommand implements Command {
     public void start() throws CLIException {
         Flowable<String> roots = Flowable.fromArray(SitesUtil.SOURCES);
         Boolean rootsPopulated = roots.map(entry -> new WebPageEntity(null, "", "frontPage", entry, ""))
-                .buffer(20)
-                .onBackpressureBuffer()
                 .flatMap(webPageService::addWebPageEntry)
                 .all(result -> result != 0L)
                 .blockingGet();

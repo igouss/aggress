@@ -6,8 +6,6 @@ import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 /**
  *
  */
@@ -32,7 +30,7 @@ public class WebPageService {
      * @param webPageEntity WebPage to persist
      * @return true if successfully persisted, false otherwise
      */
-    public Flowable<Long> addWebPageEntry(List<WebPageEntity> webPageEntity) {
+    public Flowable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
         return database.addWebPageEntry(webPageEntity);
     }
 
@@ -42,7 +40,7 @@ public class WebPageService {
      * @param webPageEntity Page to update
      * @return The number of entities updated.
      */
-    public Flowable<Long> markParsed(List<WebPageEntity> webPageEntity) {
+    public Flowable<Long> markParsed(WebPageEntity webPageEntity) {
         return database.markWebPageAsParsed(webPageEntity);
     }
 

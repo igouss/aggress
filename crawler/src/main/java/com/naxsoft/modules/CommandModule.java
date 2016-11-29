@@ -8,6 +8,7 @@ import com.naxsoft.storage.Persistent;
 import com.naxsoft.storage.elasticsearch.Elastic;
 import dagger.Module;
 import dagger.Provides;
+import io.vertx.core.Vertx;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
@@ -28,8 +29,8 @@ public class CommandModule {
     @Provides
     @Singleton
     @NotNull
-    static CrawlCommand provideCrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
-        return new CrawlCommand(webPageService, webPageParserFactory);
+    static CrawlCommand provideCrawlCommand(Vertx vertx, WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
+        return new CrawlCommand(vertx, webPageService, webPageParserFactory);
     }
 
 
@@ -43,8 +44,8 @@ public class CommandModule {
     @Provides
     @Singleton
     @NotNull
-    static ParseCommand provideParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
-        return new ParseCommand(webPageService, productParserFactory, elastic);
+    static ParseCommand provideParseCommand(Vertx vertx, WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
+        return new ParseCommand(vertx, webPageService, productParserFactory, elastic);
     }
 
     @Provides

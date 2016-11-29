@@ -130,32 +130,23 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @param type      Target ES type
      * @return Results of bulk insertion
      */
-    public Flowable<Boolean> index(List<ProductEntity> products, String indexName, String type) {
-        if (products == null || products.size() == 0) {
-            return Flowable.just(false);
-        }
+    public Flowable<Boolean> index(ProductEntity product, String indexName, String type) {
 
         BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
 
         try {
-            for (ProductEntity product : products) {
-                XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-                jsonBuilder.startObject();
-                IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
-                LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
-                request.setSource(product.getJson());
-                request.setOpType(IndexRequest.OpType.INDEX);
-                bulkRequestBuilder.add(request);
-            }
+            XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
+            jsonBuilder.startObject();
+            IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
+            LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
+            request.setSource(product.getJson());
+            request.setOpType(IndexRequest.OpType.INDEX);
+            bulkRequestBuilder.add(request);
+            return Flowable.just(bulkRequestBuilder.execute().get()).map(bulkItemResponses -> !bulkItemResponses.hasFailures());
         } catch (Exception e) {
-            LOGGER.error("Failed to generate bulk add operation", e);
+            LOGGER.error("Failed to index", e);
         }
-
-        if (bulkRequestBuilder.numberOfActions() > 0) {
-            return Flowable.fromFuture(bulkRequestBuilder.execute()).map(bulkItemResponses -> !bulkItemResponses.hasFailures());
-        } else {
-            return Flowable.just(false);
-        }
+        return Flowable.just(false);
     }
 
     /**
@@ -195,14 +186,12 @@ public class Elastic implements AutoCloseable, Cloneable {
                 request.setOpType(IndexRequest.OpType.CREATE);
                 bulkRequestBuilder.add(request);
             }
+            if (bulkRequestBuilder.numberOfActions() > 0) {
+                return Flowable.just(bulkRequestBuilder.execute().get()).map(bulkItemResponses -> !bulkItemResponses.hasFailures());
+            }
         } catch (Exception e) {
-            LOGGER.error("Failed to generate bulk add operation", e);
+            LOGGER.error("Failed to price index", e);
         }
-
-        if (bulkRequestBuilder.numberOfActions() > 0) {
-            return Flowable.fromFuture(bulkRequestBuilder.execute()).map(bulkItemResponses -> !bulkItemResponses.hasFailures());
-        } else {
-            return Flowable.just(false);
-        }
+        return Flowable.just(false);
     }
 }
