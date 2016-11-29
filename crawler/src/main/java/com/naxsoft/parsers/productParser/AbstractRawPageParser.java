@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 abstract class AbstractRawPageParser extends AbstractVerticle implements ProductParser {
     private static final Logger LOGGER = LoggerFactory.getLogger("RawPageParser");
-    protected final Counter parseResultCounter;
+    private final Counter parseResultCounter;
 
     private Disposable productParseResult;
 
@@ -33,17 +33,18 @@ abstract class AbstractRawPageParser extends AbstractVerticle implements Product
     /**
      * @return type of the page this parser can parse
      */
-    abstract String getParserType();
+    String getParserType() {
+        return "productPageRaw";
+    }
 
     @Override
     public void start() throws Exception {
-        vertx.eventBus().consumer(getSite() + "/" + getParserType(), (Message<WebPageEntity> event) -> {
-            productParseResult = parse(event.body())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(
-                            message -> vertx.eventBus().publish("productParseResult", message),
-                            err -> LOGGER.error("Failed to parse", err));
-        });
+        vertx.eventBus().consumer(getSite() + "/" + getParserType(), (Message<WebPageEntity> event) -> productParseResult = parse(event.body())
+                .subscribeOn(Schedulers.io())
+                .doOnNext(productEntity -> parseResultCounter.inc())
+                .subscribe(
+                        message -> vertx.eventBus().publish("productParseResult", message),
+                        err -> LOGGER.error("Failed to parse", err)));
     }
 
     @Override

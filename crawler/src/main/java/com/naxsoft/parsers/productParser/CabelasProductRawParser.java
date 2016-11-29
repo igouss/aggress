@@ -70,14 +70,14 @@ class CabelasProductRawParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             ProductEntity product;
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
-            String specialPrice = null;
-            String productImage = null;
-            String description = null;
+            String productName;
+            String url;
+            String regularPrice;
+            String specialPrice;
+            String productImage;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
             productName = document.select("h1.product-heading").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
@@ -105,8 +105,7 @@ class CabelasProductRawParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -125,11 +124,6 @@ class CabelasProductRawParser extends AbstractRawPageParser {
     @Override
     String getSite() {
         return "cabelas.ca";
-    }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
     }
 
 }

@@ -68,14 +68,14 @@ class HicalRawProductParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             ProductEntity product;
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
-            String specialPrice = null;
-            String productImage = null;
-            String description = null;
+            String productName;
+            String url;
+            String regularPrice;
+            String specialPrice;
+            String productImage;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
             productName = document.select("h2[itemprop='name']").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
@@ -98,8 +98,7 @@ class HicalRawProductParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -119,10 +118,4 @@ class HicalRawProductParser extends AbstractRawPageParser {
     String getSite() {
         return "hical.ca";
     }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
-    }
-
 }

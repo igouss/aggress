@@ -22,9 +22,9 @@ import java.util.concurrent.TimeUnit;
 public class ParseCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(ParseCommand.class);
 
-    private WebPageService webPageService;
-    private Elastic elastic;
-    private ProductParserFactory productParserFactory;
+    private final WebPageService webPageService;
+    private final Elastic elastic;
+    private final ProductParserFactory productParserFactory;
 
     private Disposable productPageRawDisposable;
     private Disposable productIndexDisposable;
@@ -57,9 +57,7 @@ public class ParseCommand implements Command {
                 .buffer(1, TimeUnit.SECONDS)
                 .onBackpressureBuffer()
                 .filter(productEntities -> !productEntities.isEmpty())
-                .publish().autoConnect(2, con -> {
-                    productPageRawDisposable = con;
-                });
+                .publish().autoConnect(2, con -> productPageRawDisposable = con);
 
         productIndexDisposable = productPageRaw.flatMap(product -> elastic.index(product, "product", "guns"))
                 .subscribe(

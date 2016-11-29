@@ -54,14 +54,14 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
             for (Element el : products) {
 
                 ProductEntity product;
-                String productName = null;
-                String url = null;
+                String productName;
+                String url;
                 String regularPrice = null;
                 String specialPrice = null;
                 String productImage = null;
                 String description = null;
                 Map<String, String> attr = new HashMap<>();
-                String[] category = null;
+                String[] category;
 
                 String elText = el.text().trim();
                 elText = elText.replace((char) 160, (char) 32);
@@ -90,18 +90,11 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     @Override
     String getSite() {
         return "psmilitaria.50megs.com";
     }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
-    }
-
 }

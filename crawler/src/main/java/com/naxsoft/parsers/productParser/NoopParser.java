@@ -28,10 +28,4 @@ class NoopParser extends AbstractRawPageParser {
     String getSite() {
         return "noopProductPageParser";
     }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
-    }
-
 }

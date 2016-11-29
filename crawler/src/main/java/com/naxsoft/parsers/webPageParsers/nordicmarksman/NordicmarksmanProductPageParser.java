@@ -9,6 +9,8 @@ import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 
 class NordicmarksmanProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(NordicmarksmanProductPageParser.class);
@@ -21,7 +23,7 @@ class NordicmarksmanProductPageParser extends AbstractWebPageParser {
     public Flowable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         return PageDownloader.download(client, webPage, "productPageRaw")
-                .filter(data -> null != data)
+                .filter(Objects::nonNull)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

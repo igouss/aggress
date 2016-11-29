@@ -68,14 +68,14 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
 
 
             ProductEntity product;
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
+            String productName;
+            String url;
+            String regularPrice;
             String specialPrice = null;
-            String productImage = null;
-            String description = null;
+            String productImage;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
             if (document.select("#productDetailsList > li").text().equals("0 Units in Stock")) {
                 return Flowable.empty();
@@ -96,8 +96,7 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -116,10 +115,4 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
     String getSite() {
         return "westrifle.com";
     }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
-    }
-
 }

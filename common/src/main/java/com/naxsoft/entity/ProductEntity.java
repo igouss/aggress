@@ -17,11 +17,6 @@ public class ProductEntity {
     private final String url;
     private final String regularPrice;
     private final String specialPrice;
-    private final String productImage;
-    private final String description;
-    private final Timestamp modificationDate;
-    private final Map<String, String> attr;
-    private final String[] category;
     private final String json;
 
     /**
@@ -49,14 +44,10 @@ public class ProductEntity {
      */
     public ProductEntity(String productName, String url, String regularPrice, String specialPrice, String productImage, String description, Map<String, String> attr, String... category) {
         this.productName = productName;
-        this.category = category;
         this.url = url;
-        this.modificationDate = new Timestamp(System.currentTimeMillis());
+        Timestamp modificationDate = new Timestamp(System.currentTimeMillis());
         this.regularPrice = regularPrice;
         this.specialPrice = specialPrice;
-        this.productImage = productImage;
-        this.description = description;
-        this.attr = attr;
 
         JsonObject jsonObject = new JsonObject();
         if (productName != null && !productName.isEmpty()) {

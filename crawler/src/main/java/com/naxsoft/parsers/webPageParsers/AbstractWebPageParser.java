@@ -24,7 +24,7 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWebPageParser.class);
     protected final Counter parseResultCounter;
     protected final HttpClient client;
-    private Handler<Message<WebPageEntity>> messageHandler;
+    private final Handler<Message<WebPageEntity>> messageHandler;
     private Disposable webPageParseResult;
 
 
@@ -39,9 +39,7 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
                 .subscribe(value -> {
                     LOGGER.info("Publishing to webPageParseResult {}", value);
                     vertx.eventBus().publish("webPageParseResult", value);
-                }, error -> {
-                    LOGGER.error("Failed to parse {}", event.body().getUrl(), error);
-                });
+                }, error -> LOGGER.error("Failed to parse {}", event.body().getUrl(), error));
     }
 
     /**

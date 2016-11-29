@@ -57,14 +57,14 @@ class GunshopRawPageParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             ProductEntity product;
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
-            String specialPrice = null;
-            String productImage = null;
-            String description = null;
+            String productName;
+            String url;
+            String regularPrice;
+            String specialPrice;
+            String productImage;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
             Elements productNameEl = document.select("h1.entry-title");
             if (!productNameEl.isEmpty()) {
@@ -105,8 +105,7 @@ class GunshopRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -127,10 +126,4 @@ class GunshopRawPageParser extends AbstractRawPageParser {
     String getSite() {
         return "gun-shop.ca";
     }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
-    }
-
 }

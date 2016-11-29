@@ -23,6 +23,7 @@ import rx.schedulers.Schedulers;
 
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Objects;
 
 @Singleton
 public class RedisDatabase implements Persistent {
@@ -115,7 +116,7 @@ public class RedisDatabase implements Persistent {
         return Flowable.fromFuture(connection.async().smembers("ProductEntity"))
                 .flatMap(Flowable::fromIterable)
                 .map(ProductEntityEncoder::decode)
-                .filter(productEntity -> productEntity != null);
+                .filter(Objects::nonNull);
     }
 
     @Override

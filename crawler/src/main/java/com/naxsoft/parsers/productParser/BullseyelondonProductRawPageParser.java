@@ -128,14 +128,14 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             ProductEntity product;
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
-            String specialPrice = null;
-            String productImage = null;
-            String description = null;
+            String productName;
+            String url;
+            String regularPrice;
+            String specialPrice;
+            String productImage;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             Elements productNameEl = document.select(".product-name h1");
@@ -171,8 +171,7 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -191,10 +190,5 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
     @Override
     String getSite() {
         return "bullseyelondon.com";
-    }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
     }
 }

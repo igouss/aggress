@@ -73,14 +73,14 @@ class CrafmProductRawParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             ProductEntity product;
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
+            String productName;
+            String url;
+            String regularPrice;
             String specialPrice = null;
-            String productImage = null;
-            String description = null;
+            String productImage;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
             productName = document.select(".product-essential .product-name").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
@@ -96,8 +96,7 @@ class CrafmProductRawParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -117,10 +116,4 @@ class CrafmProductRawParser extends AbstractRawPageParser {
     String getSite() {
         return "crafm.com";
     }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
-    }
-
 }

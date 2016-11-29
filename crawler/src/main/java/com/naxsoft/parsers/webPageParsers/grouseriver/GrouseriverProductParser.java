@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 class GrouseriverProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GrouseriverProductParser.class);
@@ -41,7 +42,7 @@ class GrouseriverProductParser extends AbstractWebPageParser {
         return client.get(parent.getUrl(), new JsonCompletionHandler(parent))
                 .flatMap(this::parseJson)
                 .flatMap(webPage -> PageDownloader.download(client, webPage, "productPageRaw")
-                        .filter(data -> null != data))
+                        .filter(Objects::nonNull))
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

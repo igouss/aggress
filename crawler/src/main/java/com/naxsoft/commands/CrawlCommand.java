@@ -54,9 +54,7 @@ public class CrawlCommand implements Command {
                         webPageService.getUnparsedByType("productList"),
                         webPageService.getUnparsedByType("productPage")))
                 .doOnNext(val -> LOGGER.info("listFlowable: {}", val))
-                .publish().autoConnect(2, val -> {
-                    listFlowableDisposable = val;
-                });
+                .publish().autoConnect(2, val -> listFlowableDisposable = val);
 
         parentMarkDisposable = listFlowable
                 .onBackpressureBuffer()
@@ -69,13 +67,10 @@ public class CrawlCommand implements Command {
                 .filter(webPageEntities -> !webPageEntities.isEmpty())
                 .flatMap(webPageService::markParsed)
                 .subscribeOn(Schedulers.io())
-                .subscribe(val -> {
-                    LOGGER.info("parentMarkDisposable: Added new page {}", val);
-                }, err -> {
-                    LOGGER.error("parentMarkDisposable: Crawl error", err);
-                }, () -> {
-                    LOGGER.info("parentMarkDisposable: Crawl command completed");
-                });
+                .subscribe(
+                        val -> LOGGER.info("parentMarkDisposable: Added new page {}", val),
+                        err -> LOGGER.error("parentMarkDisposable: Crawl error", err),
+                        () -> LOGGER.info("parentMarkDisposable: Crawl command completed"));
 
         parserDisposable = listFlowable
                 .onBackpressureBuffer()
@@ -94,13 +89,10 @@ public class CrawlCommand implements Command {
                 .observeOn(Schedulers.io())
                 .flatMap(webPageService::addWebPageEntry)
                 .subscribeOn(Schedulers.io())
-                .subscribe(val -> {
-                    LOGGER.info("parserDisposable: Added new page {}", val);
-                }, err -> {
-                    LOGGER.error("parserDisposable: Crawl error", err);
-                }, () -> {
-                    LOGGER.info("parserDisposable: Crawl command completed");
-                });
+                .subscribe(
+                        val -> LOGGER.info("parserDisposable: Added new page {}", val),
+                        err -> LOGGER.error("parserDisposable: Crawl error", err),
+                        () -> LOGGER.info("parserDisposable: Crawl command completed"));
     }
 
     @Override

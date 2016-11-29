@@ -47,12 +47,12 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             ProductEntity product;
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
-            String specialPrice = null;
-            String productImage = null;
-            String description = null;
+            String productName;
+            String url;
+            String regularPrice;
+            String specialPrice;
+            String productImage;
+            String description;
             Map<String, String> attr = new HashMap<>();
             String[] category = null;
 
@@ -85,8 +85,7 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -106,10 +105,4 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
     String getSite() {
         return "frontierfirearms.ca";
     }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
-    }
-
 }

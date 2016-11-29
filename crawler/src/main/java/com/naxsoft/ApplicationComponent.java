@@ -31,7 +31,7 @@ import javax.inject.Singleton;
         , CommandModule.class
         , VertxModule.class
         , ShellServiceModule.class
-}, dependencies = {})
+})
 interface ApplicationComponent {
     Persistent getDatabase();
 

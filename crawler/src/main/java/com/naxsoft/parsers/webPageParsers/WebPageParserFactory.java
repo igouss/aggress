@@ -41,7 +41,7 @@ public class WebPageParserFactory {
     private final Flowable<WebPageEntity> parseResult;
     private final Meter parseWebPageResultsSensor;
 
-    private MessageConsumer<WebPageEntity> consumer;
+    private final MessageConsumer<WebPageEntity> consumer;
 
     /**
      * Create new WebPageParserFactory that using reflection to locate all WebPageParsers in the classpath

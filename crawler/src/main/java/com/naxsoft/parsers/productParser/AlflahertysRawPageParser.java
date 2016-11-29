@@ -109,14 +109,14 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
     public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
+            String productName;
+            String url;
+            String regularPrice;
             String specialPrice = null;
-            String productImage = null;
-            String description = null;
+            String productImage;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             productName = document.select(".product_name").text();
@@ -151,8 +151,7 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -172,10 +171,5 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
     @Override
     String getSite() {
         return "alflahertys.com";
-    }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
     }
 }

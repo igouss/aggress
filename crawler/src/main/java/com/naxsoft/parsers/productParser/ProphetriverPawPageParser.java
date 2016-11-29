@@ -61,14 +61,14 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             ProductEntity product;
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
+            String productName;
+            String url;
+            String regularPrice;
             String specialPrice = null;
             String productImage = null;
-            String description = null;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
             productName = document.select(".BlockContent > h2").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
@@ -91,8 +91,7 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -111,10 +110,4 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
     String getSite() {
         return "prophetriver.com";
     }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
-    }
-
 }

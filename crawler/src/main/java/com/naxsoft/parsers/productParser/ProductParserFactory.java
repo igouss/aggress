@@ -41,7 +41,6 @@ public class ProductParserFactory {
     private final ArrayList<String> parserVertex;
     private final Flowable<ProductEntity> parseResult;
 
-    private final Meter parseWebPageRawRequestsSensor;
     private final Meter parseProductResultSensor;
 
     @Inject
@@ -49,7 +48,6 @@ public class ProductParserFactory {
         this.vertx = vertx;
         parserVertex = new ArrayList<>();
 
-        parseWebPageRawRequestsSensor = metricRegistry.meter("parse.webPage.raw.requests");
         parseProductResultSensor = metricRegistry.meter("parse.Product.result");
 
         vertx.eventBus().registerDefaultCodec(ProductEntity.class, new MessageCodec<ProductEntity, Object>() {

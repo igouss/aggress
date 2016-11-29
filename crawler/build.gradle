@@ -57,10 +57,10 @@ javadoc {
 }
 
 test {
-    testLogging.showStandardStreams = true;
-    testLogging.showStackTraces = true;
-    testLogging.showCauses = true;
-    testLogging.showExceptions = true;
+    testLogging.showStandardStreams = true
+    testLogging.showStackTraces = true
+    testLogging.showCauses = true
+    testLogging.showExceptions = true
     maxParallelForks = 5
     forkEvery = 50
     include "**/Test*.*"

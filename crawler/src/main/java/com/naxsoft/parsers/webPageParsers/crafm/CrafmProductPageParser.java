@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Copyright NAXSoft 2015
@@ -30,7 +31,7 @@ class CrafmProductPageParser extends AbstractWebPageParser {
     public Flowable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         return PageDownloader.download(client, cookies, webPage, "productPageRaw")
-                .filter(data -> null != data)
+                .filter(Objects::nonNull)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

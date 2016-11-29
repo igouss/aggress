@@ -59,14 +59,14 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
 
         try {
             ProductEntity product;
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
+            String productName;
+            String url;
+            String regularPrice;
             String specialPrice = null;
-            String productImage = null;
-            String description = null;
+            String productImage;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
 
             url = webPageEntity.getUrl();
@@ -96,8 +96,7 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -118,10 +117,4 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
     String getSite() {
         return "magnumguns.ca";
     }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
-    }
-
 }

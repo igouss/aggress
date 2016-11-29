@@ -9,6 +9,8 @@ import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 
 /**
  * Copyright NAXSoft 2015
@@ -25,7 +27,7 @@ class InternationalshootingsuppliesProductPageParser extends AbstractWebPagePars
     public Flowable<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         return PageDownloader.download(client, webPage, "productPageRaw")
-                .filter(data -> null != data)
+                .filter(Objects::nonNull)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

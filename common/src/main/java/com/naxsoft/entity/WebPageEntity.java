@@ -21,27 +21,27 @@ public class WebPageEntity {
     /**
      *
      */
-    private String url;
+    private final String url;
 
     /**
      *
      */
-    private String type;
+    private final String type;
 
     /**
      *
      */
-    private String content;
+    private final String content;
 
     /**
      *
      */
-    private String category;
+    private final String category;
 
     /*
 
      */
-    private transient WebPageEntity parent;
+    private final transient WebPageEntity parent;
 
     public WebPageEntity(WebPageEntity parent, String content, String type, String url, String category) {
         this.parent = parent;

@@ -94,14 +94,14 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             ProductEntity product;
-            String productName = null;
-            String url = null;
+            String productName;
+            String url;
             String regularPrice = null;
             String specialPrice = null;
-            String productImage = null;
-            String description = null;
+            String productImage;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
             url = webPageEntity.getUrl();
 
@@ -127,8 +127,7 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return Flowable.fromIterable(result);
     }
 
     /**
@@ -149,10 +148,4 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
     String getSite() {
         return "dantesports.com";
     }
-
-    @Override
-    String getParserType() {
-        return "productPageRaw";
-    }
-
 }

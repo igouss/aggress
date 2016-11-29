@@ -144,7 +144,7 @@ public class AhcHttpClient implements HttpClient {
             metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "queueLength"), (Gauge<Integer>) available::getQueueLength);
             metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "openConnectionCount"), (Gauge<Long>) () -> openChannels.stream().filter(Channel::isOpen).count());
             metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "activeConnectionCount"), (Gauge<Long>) () -> openChannels.stream().filter(Channel::isActive).count());
-            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "chanelCount"), (Gauge<Long>) () -> openChannels.stream().count());
+            metricRegistry.register(MetricRegistry.name(AhcHttpClient.class, "chanelCount"), (Gauge<Long>) () -> (long) openChannels.size());
         } catch (Exception e) {
             LOGGER.error("Failed to get requestSender from HTTP client", e);
         }
