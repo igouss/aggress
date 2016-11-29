@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class AmmoSupplyRawPageParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AmmoSupplyRawPageParser.class);
     private static final Pattern priceParser = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
     private static final Map<String, String> mapping = new HashMap<>();
 
