@@ -3,12 +3,12 @@ package com.naxsoft.parsers.productParser;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Flowable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -54,7 +54,7 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Collection<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -80,7 +80,7 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
 
             if (document.select(".stock.out-of-stock").size() != 0) {
                 LOGGER.info("Product {} out of stock", productName);
-                return Flowable.empty();
+                return result;
             }
 
 
@@ -96,7 +96,7 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result);
+        return result;
     }
 
     /**

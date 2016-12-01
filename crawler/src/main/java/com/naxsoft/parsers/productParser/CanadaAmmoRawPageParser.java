@@ -4,7 +4,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Flowable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -57,7 +56,7 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
     }
 
     @Override
-    public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Collection<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -79,9 +78,9 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
             url = webPageEntityUrl;
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntityUrl);
             if (document.select(".product-details__add").isEmpty()) {
-                return Flowable.empty();
+                return result;
             } else if (document.select(".product-details__warranty-text").text().contains("sold out")) {
-                return Flowable.empty();
+                return result;
             }
             productName = document.select(".product-details__title .product__name").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntityUrl);
@@ -112,7 +111,7 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result);
+        return result;
     }
 
     /**

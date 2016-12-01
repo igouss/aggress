@@ -3,6 +3,7 @@ package com.naxsoft.parsers.productParser;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
+import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.vertx.core.AbstractVerticle;
@@ -39,7 +40,7 @@ abstract class AbstractRawPageParser extends AbstractVerticle implements Product
 
     @Override
     public void start() throws Exception {
-        vertx.eventBus().consumer(getSite() + "/" + getParserType(), (Message<WebPageEntity> event) -> productParseResult = parse(event.body())
+        vertx.eventBus().consumer(getSite() + "/" + getParserType(), (Message<WebPageEntity> event) -> productParseResult = Observable.fromIterable(parse(event.body()))
                 .subscribeOn(Schedulers.io())
                 .doOnNext(productEntity -> parseResultCounter.inc())
                 .subscribe(

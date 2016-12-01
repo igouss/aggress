@@ -3,17 +3,13 @@ package com.naxsoft.parsers.productParser;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import io.reactivex.Flowable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,7 +42,7 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Flowable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Collection<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             ProductEntity product;
@@ -66,7 +62,7 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (document.select("#details div.warning").text().equals("Out of Stock")) {
-                return Flowable.empty();
+                return result;
             }
 
             productImage = document.select(".product-image").attr("abs:src");
@@ -89,7 +85,7 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Flowable.fromIterable(result);
+        return result;
     }
 
     /**
