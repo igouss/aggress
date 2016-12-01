@@ -29,7 +29,6 @@ public class ParseCommand implements Command {
     private ProductParserFactory productParserFactory;
 
     private Disposable productPageRawDisposable;
-    private Disposable productIndexDisposable;
     private Disposable priceIndexDisposable;
 
     @Inject
@@ -84,10 +83,6 @@ public class ParseCommand implements Command {
         LOGGER.info("Shutting down ParseCommand");
         if (productPageRawDisposable != null && !productPageRawDisposable.isDisposed()) {
             productPageRawDisposable.dispose();
-        }
-
-        if (productIndexDisposable != null && !productIndexDisposable.isDisposed()) {
-            productIndexDisposable.dispose();
         }
 
         if (priceIndexDisposable != null && !priceIndexDisposable.isDisposed()) {

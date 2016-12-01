@@ -125,7 +125,7 @@ public class Elastic implements AutoCloseable, Cloneable {
     /**
      * Bulk insert data to ES.
      *
-     * @param products  Data to insert
+     * @param product  Data to insert
      * @param indexName Target ES index
      * @param type      Target ES type
      * @return Results of bulk insertion

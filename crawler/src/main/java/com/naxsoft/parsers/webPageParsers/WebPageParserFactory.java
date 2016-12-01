@@ -15,7 +15,6 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
-import io.vertx.core.eventbus.MessageConsumer;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +35,6 @@ public class WebPageParserFactory {
     private final Vertx vertx;
     private final LinkedBlockingDeque<String> parserVertex;
     private final Meter parseWebPageResultsSensor;
-
-    private final MessageConsumer<WebPageEntity> consumer;
 
     /**
      * Create new WebPageParserFactory that using reflection to locate all WebPageParsers in the classpath
@@ -163,7 +160,6 @@ public class WebPageParserFactory {
     }
 
     public void close() {
-        consumer.unregister();
         parserVertex.forEach(vertx::undeploy);
     }
 }
