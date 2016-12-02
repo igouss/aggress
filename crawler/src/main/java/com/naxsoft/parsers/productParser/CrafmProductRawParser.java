@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -20,33 +21,31 @@ import java.util.regex.Pattern;
  */
 class CrafmProductRawParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmProductRawParser.class);
-    private static final Map<String, String> mapping = new HashMap<>();
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("Competition Accessories", "misc")
+            .put("Firearms", "firearm")
+            .put("Batteries", "misc")
+            .put("Magazines", "misc")
+            .put("Chronographs", "misc")
+            .put("Targets", "misc")
+            .put("Safes & Cases", "misc")
+            .put("Knives & Tools", "misc")
+            .put("Miscellaneous", "misc")
+            .put("Lights & Lasers", "misc")
+            .put("Books & DVD's", "misc")
+            .put("Mounts & Rings", "misc")
+            .put("Ammunition", "ammo")
+            .put("Parts & Accessories", "misc")
+            .put("Grips", "misc")
+            .put("Cleaning Products", "misc")
+            .put("Protection", "misc")
+            .put("Reloading", "reload")
+            .put("Scopes& Opticals", "optic")
+            .put("Clothing", "misc")
+            .put("LIQUIDATION", "misc")
+            .put("PROMOTIONS", "misc")
+            .build();
     private static final Pattern pricePattern = Pattern.compile("((\\d+|,)+\\.\\d+)");
-
-    static {
-        mapping.put("Competition Accessories", "misc");
-        mapping.put("Firearms", "firearm");
-        mapping.put("Batteries", "misc");
-        mapping.put("Magazines", "misc");
-        mapping.put("Chronographs", "misc");
-        mapping.put("Targets", "misc");
-        mapping.put("Safes & Cases", "misc");
-        mapping.put("Knives & Tools", "misc");
-        mapping.put("Miscellaneous", "misc");
-        mapping.put("Lights & Lasers", "misc");
-        mapping.put("Books & DVD's", "misc");
-        mapping.put("Mounts & Rings", "misc");
-        mapping.put("Ammunition", "ammo");
-        mapping.put("Parts & Accessories", "misc");
-        mapping.put("Grips", "misc");
-        mapping.put("Cleaning Products", "misc");
-        mapping.put("Protection", "misc");
-        mapping.put("Reloading", "reload");
-        mapping.put("Scopes& Opticals", "optic");
-        mapping.put("Clothing", "misc");
-        mapping.put("LIQUIDATION", "misc");
-        mapping.put("PROMOTIONS", "misc");
-    }
 
     public CrafmProductRawParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

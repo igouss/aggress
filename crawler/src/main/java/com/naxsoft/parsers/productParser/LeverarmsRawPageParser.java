@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -21,29 +22,25 @@ import java.util.regex.Pattern;
 class LeverarmsRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsRawPageParser.class);
 
-    private static final Map<String, String> mapping = new HashMap<>();
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("Semi-Automatic Rifles", "firearm")
+            .put("Bolt Action Rifles", "firearm")
+            .put("Lever Action Rifles", "firearm")
+            .put("Pistols", "firearm")
+            .put("Semi-Automatic Pistols", "firearm")
+            .put("Revolvers", "firearm")
+            .put("Shotguns", "firearm")
+            .put("Mauser K98k", "firearm,misc")
+            .put("SKS", "firearm,misc")
+            .put("Rifle Ammo", "ammo")
+            .put("Pistol Ammo", "ammo")
+            .put("Shotgun Ammo", "ammo")
+            .put("Rimfire Ammo", "ammo")
+            .put("Optics", "optic")
+            .put("Used", "firearm")
+            .build();
+
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
-
-    static {
-        mapping.put("Semi-Automatic Rifles", "firearm");
-        mapping.put("Bolt Action Rifles", "firearm");
-        mapping.put("Lever Action Rifles", "firearm");
-        mapping.put("Pistols", "firearm");
-        mapping.put("Semi-Automatic Pistols", "firearm");
-        mapping.put("Revolvers", "firearm");
-        mapping.put("Shotguns", "firearm");
-        mapping.put("Mauser K98k", "firearm,misc");
-        mapping.put("SKS", "firearm,misc");
-
-        mapping.put("Rifle Ammo", "ammo");
-        mapping.put("Pistol Ammo", "ammo");
-        mapping.put("Shotgun Ammo", "ammo");
-        mapping.put("Rimfire Ammo", "ammo");
-
-        mapping.put("Optics", "optic");
-
-        mapping.put("Used", "firearm");
-    }
 
     public LeverarmsRawPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

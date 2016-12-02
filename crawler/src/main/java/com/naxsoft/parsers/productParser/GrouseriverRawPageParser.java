@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -16,13 +17,12 @@ import java.util.regex.Pattern;
 
 class GrouseriverRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotendaRawParser.class);
-    private static final Map<String, String> mapping = new HashMap<>();
-    private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("firearm", "firearm")
+            .put("optic", "optic")
+            .build();
 
-    static {
-        mapping.put("firearm", "firearm");
-        mapping.put("optic", "optic");
-    }
+    private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
 
     public GrouseriverRawPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

@@ -2,6 +2,7 @@ package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.CaseFormat;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -20,72 +21,63 @@ import java.util.regex.Pattern;
 class AlflahertysRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
     private static final Pattern priceParser = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
-    private static final Map<String, String> mapping = new HashMap<>();
-
-    static {
-        mapping.put("FIREARMS", "firearm");
-        mapping.put("HANDGUNS", "firearm");
-        mapping.put("RESTRICTED RIFLES", "firearm");
-        mapping.put("RIFLES", "firearm");
-        mapping.put("SHOTGUNS", "firearm");
-        mapping.put("BLACK POWDER", "firearm");
-
-        mapping.put("HANDGUN AMMUNITION", "ammo");
-        mapping.put("BULK RIFLE AMMO", "ammo");
-        mapping.put("RIFLE AMMO", "ammo");
-        mapping.put("RIMFIRE AMMUNTION", "ammo");
-        mapping.put("SHOTGUN AMMO", "ammo");
-        mapping.put("RELOADING", "reload");
-
-        mapping.put("SCOPES", "optic");
-        mapping.put("CLOSE QUARTERS optic & IRON SIGHTS", "optic");
-        mapping.put("RANGE FINDERS", "optic");
-        mapping.put("SPOTTING SCOPES", "optic");
-        mapping.put("BINOCULARS", "optic");
-        mapping.put("OPTIC CARE", "optic");
-        mapping.put("OPTIC MOUNTS", "optic");
-        mapping.put("NIGHT VISION", "optic");
-        mapping.put("SIGHTING TOOLS", "optic");
-
-        mapping.put("HANDGUN CASES", "misc");
-        mapping.put("SOFT CASES", "misc");
-        mapping.put("HARD CASES", "misc");
-        mapping.put("RANGE BAGS", "misc");
-        mapping.put("AMMUNITION STORAGE", "misc");
-        mapping.put("CABINETS & SAFES", "misc");
-        mapping.put("SAFE ACCESSORIES", "misc");
-        mapping.put("LOCKS", "misc");
-
-        mapping.put("HOLSTERS, MAG POUCHES, & SHELL HOLDERS", "misc");
-        mapping.put("LIGHTS & LASERS", "misc");
-        mapping.put("RAILS & MOUNTS", "misc");
-        mapping.put("UTILITY BAGS & PACKS", "misc");
-        mapping.put("TACTICAL TOOLS", "misc");
-
-        mapping.put("AR COMPONENTS", "misc");
-        mapping.put("GRIPS", "misc");
-        mapping.put("RIFLE PARTS & STOCKS", "misc");
-        mapping.put("HANDGUN PARTS", "misc");
-        mapping.put("SHOTGUN PARTS & STOCKS", "misc");
-        mapping.put("SHOTGUN BARRELS & CHOKES", "misc");
-        mapping.put("CONVERSION KITS", "misc");
-
-        mapping.put("FIREARM MAINTENANCE & TOOLS", "misc");
-        mapping.put("BIPODS AND SHOOTING RESTS", "misc");
-        mapping.put("SLINGS & SWIVELS", "misc");
-        mapping.put("EYES & EARS", "misc");
-        mapping.put("CLIPS & MAGAZINES", "misc");
-        mapping.put("SHOTGUN ACCESSORIES", "misc");
-        mapping.put("TARGETS", "misc");
-
-        mapping.put("ACCESSORIES", "misc");
-        mapping.put("FIELD DRESSING & TOOLS", "misc");
-        mapping.put("GAME CALLS DECOYS & ACCESSORIES", "misc");
-        mapping.put("SCENTS, DETERGENTS, & ATTRACTANTS", "misc");
-        mapping.put("BLINDS & CAMOUFLAGE", "misc");
-        mapping.put("TRAIL CAMERAS", "misc");
-        mapping.put("HUNTING CLOTHES", "misc");
-    }
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("FIREARMS", "firearm")
+            .put("HANDGUNS", "firearm")
+            .put("RESTRICTED RIFLES", "firearm")
+            .put("RIFLES", "firearm")
+            .put("SHOTGUNS", "firearm")
+            .put("BLACK POWDER", "firearm")
+            .put("HANDGUN AMMUNITION", "ammo")
+            .put("BULK RIFLE AMMO", "ammo")
+            .put("RIFLE AMMO", "ammo")
+            .put("RIMFIRE AMMUNTION", "ammo")
+            .put("SHOTGUN AMMO", "ammo")
+            .put("RELOADING", "reload")
+            .put("SCOPES", "optic")
+            .put("CLOSE QUARTERS optic & IRON SIGHTS", "optic")
+            .put("RANGE FINDERS", "optic")
+            .put("SPOTTING SCOPES", "optic")
+            .put("BINOCULARS", "optic")
+            .put("OPTIC CARE", "optic")
+            .put("OPTIC MOUNTS", "optic")
+            .put("NIGHT VISION", "optic")
+            .put("SIGHTING TOOLS", "optic")
+            .put("HANDGUN CASES", "misc")
+            .put("SOFT CASES", "misc")
+            .put("HARD CASES", "misc")
+            .put("RANGE BAGS", "misc")
+            .put("AMMUNITION STORAGE", "misc")
+            .put("CABINETS & SAFES", "misc")
+            .put("SAFE ACCESSORIES", "misc")
+            .put("LOCKS", "misc")
+            .put("HOLSTERS, MAG POUCHES, & SHELL HOLDERS", "misc")
+            .put("LIGHTS & LASERS", "misc")
+            .put("RAILS & MOUNTS", "misc")
+            .put("UTILITY BAGS & PACKS", "misc")
+            .put("TACTICAL TOOLS", "misc")
+            .put("AR COMPONENTS", "misc")
+            .put("GRIPS", "misc")
+            .put("RIFLE PARTS & STOCKS", "misc")
+            .put("HANDGUN PARTS", "misc")
+            .put("SHOTGUN PARTS & STOCKS", "misc")
+            .put("SHOTGUN BARRELS & CHOKES", "misc")
+            .put("CONVERSION KITS", "misc")
+            .put("FIREARM MAINTENANCE & TOOLS", "misc")
+            .put("BIPODS AND SHOOTING RESTS", "misc")
+            .put("SLINGS & SWIVELS", "misc")
+            .put("EYES & EARS", "misc")
+            .put("CLIPS & MAGAZINES", "misc")
+            .put("SHOTGUN ACCESSORIES", "misc")
+            .put("TARGETS", "misc")
+            .put("ACCESSORIES", "misc")
+            .put("FIELD DRESSING & TOOLS", "misc")
+            .put("GAME CALLS DECOYS & ACCESSORIES", "misc")
+            .put("SCENTS, DETERGENTS, & ATTRACTANTS", "misc")
+            .put("BLINDS & CAMOUFLAGE", "misc")
+            .put("TRAIL CAMERAS", "misc")
+            .put("HUNTING CLOTHES", "misc")
+            .build();
 
     public AlflahertysRawPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

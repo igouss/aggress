@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -22,26 +23,23 @@ import java.util.regex.Pattern;
 class HicalRawProductParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(HicalRawProductParser.class);
 
-    private static final Map<String, String> mapping = new HashMap<>();
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("Firearms", "misc")
+            .put("Handguns", "misc")
+            .put("Rifles - Restricted", "misc")
+            .put("Rifles- Non restricted", "misc")
+            .put("Rimfire", "misc")
+            .put("Shotguns", "misc")
+            .put("Used Firearms", "misc")
+            .put("Sights & Optics", "optic")
+            .put("Binoculars & Spotting Scopes", "optic")
+            .put("Optic Accessories", "optic")
+            .put("Red/ green dot sights", "optic")
+            .put("Scope Rings & Bases", "optic")
+            .put("Scopes", "optic")
+            .put("Sights", "optic")
+            .build();
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
-
-    static {
-        mapping.put("Firearms", "misc");
-        mapping.put("Handguns", "misc");
-        mapping.put("Rifles - Restricted", "misc");
-        mapping.put("Rifles- Non restricted", "misc");
-        mapping.put("Rimfire", "misc");
-        mapping.put("Shotguns", "misc");
-        mapping.put("Used Firearms", "misc");
-
-        mapping.put("Sights & Optics", "optic");
-        mapping.put("Binoculars & Spotting Scopes", "optic");
-        mapping.put("Optic Accessories", "optic");
-        mapping.put("Red/ green dot sights", "optic");
-        mapping.put("Scope Rings & Bases", "optic");
-        mapping.put("Scopes", "optic");
-        mapping.put("Sights", "optic");
-    }
 
     public HicalRawProductParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

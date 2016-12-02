@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -18,33 +19,31 @@ import java.util.regex.Pattern;
  */
 class EllwoodeppsRawProductParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsRawProductParser.class);
-    private static final Map<String, String> mapping = new HashMap<>();
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("firearm", "firearm")
+            .put("Ammo", "ammo")
+            .put("Archery Accessories", "misc")
+            .put("Barrels", "misc")
+            .put("Bayonets", "misc")
+            .put("Binoculars", "misc")
+            .put("Bipods", "optic")
+            .put("Books, Manuals and Videos", "misc")
+            .put("Chokes", "misc")
+            .put("Firearm Cleaning &Tools ", "misc")
+            .put("Grips", "misc")
+            .put("Gun Cases", "misc")
+            .put("Holsters", "misc")
+            .put("Knives", "misc")
+            .put("Magazines", "misc")
+            .put("Militaria", "misc")
+            .put("Misc Gun Parts", "misc")
+            .put("Misc Hunting Accessories", "misc")
+            .put("Reloading", "reload")
+            .put("Scopes & Mounts", "optic")
+            .put("Shooting Accessories", "misc")
+            .put("Stocks", "misc")
+            .build();
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
-
-    static {
-        mapping.put("firearm", "firearm");
-        mapping.put("Ammo", "ammo");
-        mapping.put("Archery Accessories", "misc");
-        mapping.put("Barrels", "misc");
-        mapping.put("Bayonets", "misc");
-        mapping.put("Binoculars", "misc");
-        mapping.put("Bipods", "optic");
-        mapping.put("Books, Manuals and Videos", "misc");
-        mapping.put("Chokes", "misc");
-        mapping.put("Firearm Cleaning &Tools ", "misc");
-        mapping.put("Grips", "misc");
-        mapping.put("Gun Cases", "misc");
-        mapping.put("Holsters", "misc");
-        mapping.put("Knives", "misc");
-        mapping.put("Magazines", "misc");
-        mapping.put("Militaria", "misc");
-        mapping.put("Misc Gun Parts", "misc");
-        mapping.put("Misc Hunting Accessories", "misc");
-        mapping.put("Reloading", "reload");
-        mapping.put("Scopes & Mounts", "optic");
-        mapping.put("Shooting Accessories", "misc");
-        mapping.put("Stocks", "misc");
-    }
 
     public EllwoodeppsRawProductParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

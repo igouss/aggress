@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -18,23 +19,22 @@ import java.util.regex.Pattern;
 class NordicmarksmanRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductRawParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
-    private static final Map<String, String> mapping = new HashMap<>();
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("AR-15", "firearm")
+            .put("Shotguns", "firearm")
+            .put("Air Rifles", "firearm")
+            .put("Barreled Actions", "firearm")
+            .put("Benchrest Rifles", "firearm")
+            .put("Biathlon Rifles", "firearm")
+            .put("Target Rifles", "firearm")
+            .put("Hunting Rifles", "firearm")
+            .put("MSR Rifles", "firearm")
+            .put("Laser Rifles", "firearm")
+            .put("Anschutz Rifle Stocks", "misc")
+            .put("Biathlon Rifle Stocks", "misc")
+            .put("Used/Demo Rifles", "firearm")
+            .build();
 
-    static {
-        mapping.put("AR-15", "firearm");
-        mapping.put("Shotguns", "firearm");
-        mapping.put("Air Rifles", "firearm");
-        mapping.put("Barreled Actions", "firearm");
-        mapping.put("Benchrest Rifles", "firearm");
-        mapping.put("Biathlon Rifles", "firearm");
-        mapping.put("Target Rifles", "firearm");
-        mapping.put("Hunting Rifles", "firearm");
-        mapping.put("MSR Rifles", "firearm");
-        mapping.put("Laser Rifles", "firearm");
-        mapping.put("Anschutz Rifle Stocks", "misc");
-        mapping.put("Biathlon Rifle Stocks", "misc");
-        mapping.put("Used/Demo Rifles", "firearm");
-    }
 
     public NordicmarksmanRawPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

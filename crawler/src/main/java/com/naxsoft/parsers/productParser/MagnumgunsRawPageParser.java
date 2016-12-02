@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -21,19 +22,18 @@ import java.util.regex.Pattern;
 class MagnumgunsRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsRawPageParser.class);
 
-    private static final Map<String, String> mapping = new HashMap<>();
-    private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("Left Handed", "firearm")
+            .put("Air Guns", "firearm")
+            .put("Optics", "optic")
+            .put("Pistols", "firearm")
+            .put("Rifles", "firearm")
+            .put("Safes", "misc")
+            .put("Shotguns", "firearm")
+            .put("Youth", "firearm")
+            .build();
 
-    static {
-        mapping.put("Left Handed", "firearm");
-        mapping.put("Air Guns", "firearm");
-        mapping.put("Optics", "optic");
-        mapping.put("Pistols", "firearm");
-        mapping.put("Rifles", "firearm");
-        mapping.put("Safes", "misc");
-        mapping.put("Shotguns", "firearm");
-        mapping.put("Youth", "firearm");
-    }
+    private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
 
     public MagnumgunsRawPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

@@ -2,6 +2,7 @@ package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.CaseFormat;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -20,18 +21,17 @@ import java.util.regex.Pattern;
  */
 class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoRawPageParser.class);
-    private static final Map<String, String> mapping = new HashMap<>();
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("Ammunition", "ammo")
+            .put("Firearms", "firearm")
+            .put("Accessories", "misc")
+            .put("Equipment", "misc")
+            .put("Range Accessories", "misc")
+            .put("Optics", "optic")
+            .put("Bargain Centre", "firearm,misc,ammo")
+            .build();
     private static final Pattern priceMatcher = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
 
-    static {
-        mapping.put("Ammunition", "ammo");
-        mapping.put("Firearms", "firearm");
-        mapping.put("Accessories", "misc");
-        mapping.put("Equipment", "misc");
-        mapping.put("Range Accessories", "misc");
-        mapping.put("Optics", "optic");
-        mapping.put("Bargain Centre", "firearm,misc,ammo");
-    }
 
     public CanadaAmmoRawPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

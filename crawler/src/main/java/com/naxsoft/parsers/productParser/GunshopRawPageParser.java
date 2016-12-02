@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -22,15 +23,13 @@ import java.util.regex.Pattern;
  */
 class GunshopRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopRawPageParser.class);
-    private static final Map<String, String> mapping = new HashMap<>();
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("/product-category/firearms/", "firearm")
+            .put("/product-category/ammunition/", "ammo")
+            .put("/product-category/optics/", "optic")
+            .put("/product-category/reloading-components/", "reload")
+            .build();
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
-
-    static {
-        mapping.put("/product-category/firearms/", "firearm");
-        mapping.put("/product-category/ammunition/", "ammo");
-        mapping.put("/product-category/optics/", "optic");
-        mapping.put("/product-category/reloading-components/", "reload");
-    }
 
     public GunshopRawPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -21,25 +22,23 @@ import java.util.regex.Pattern;
 class WestrifleProductRawParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductRawParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
-    private static final Map<String, String> mapping = new HashMap<>();
-
-    static {
-        mapping.put("RUSSIAN SKS", "firearm");
-        mapping.put("MOSIN NAGANT 91/30", "firearm");
-        mapping.put("SHOTGUNS", "firearm");
-        mapping.put("AMMUNITIONS", "ammo");
-        mapping.put("MOSIN NAGANT PARTS", "misc");
-        mapping.put("SKS PARTS", "misc");
-        mapping.put("RIFLE SCOPES", "optic");
-        mapping.put("ACCESSORIES", "misc");
-        mapping.put("BIPODS", "misc");
-        mapping.put("MAGAZINES", "misc");
-        mapping.put("MOUNTS", "misc");
-        mapping.put("MUZZLEBRAKES", "misc");
-        mapping.put("STOCKS", "misc");
-        mapping.put("COLLECTIBLE MOSIN NAGANT 91/30", "firearm");
-        mapping.put("ROCK SOLID MOUNTS", "misc");
-    }
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("RUSSIAN SKS", "firearm")
+            .put("MOSIN NAGANT 91/30", "firearm")
+            .put("SHOTGUNS", "firearm")
+            .put("AMMUNITIONS", "ammo")
+            .put("MOSIN NAGANT PARTS", "misc")
+            .put("SKS PARTS", "misc")
+            .put("RIFLE SCOPES", "optic")
+            .put("ACCESSORIES", "misc")
+            .put("BIPODS", "misc")
+            .put("MAGAZINES", "misc")
+            .put("MOUNTS", "misc")
+            .put("MUZZLEBRAKES", "misc")
+            .put("STOCKS", "misc")
+            .put("COLLECTIBLE MOSIN NAGANT 91/30", "firearm")
+            .put("ROCK SOLID MOUNTS", "misc")
+            .build();
 
     public WestrifleProductRawParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

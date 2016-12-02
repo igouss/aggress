@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -20,65 +21,55 @@ import java.util.regex.Pattern;
  */
 class DantesportsProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsProductRawPageParser.class);
-    private static final Map<String, String> mapping = new HashMap<>();
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("Shotguns", "firearm")
+            .put("Rifles", "firearm")
+            .put("Restricted", "firearm")
+            .put("Air Rifles", "firearm")
+            .put("Shotguns", "firearm")
+            .put("Rifles", "firearm")
+            .put("Prohibited", "firearm")
+            .put("Restricted", "firearm")
+            .put("CVA", "firearm")
+            .put("Thompson/Center", "firearm")
+            .put("Bushnell", "optic")
+            .put("Burris", "optic")
+            .put("Kaps", "optic")
+            .put("Leupold", "optic")
+            .put("Nightforce", "optic")
+            .put("Nikon", "optic")
+            .put("Redfield", "optic")
+            .put("Swarovski", "optic")
+            .put("Tasco", "optic")
+            .put("Vortex", "optic")
+            .put("Zeiss", "optic")
+            .put("Binoculars", "optic")
+            .put("Holographic Sights", "optic")
+            .put("Laser Sights", "optic")
+            .put("Illuminated Dot Sights", "optic")
+            .put("Rangefinders", "optic")
+            .put("Accessories", "optic")
+            .put("Shotshells", "ammo")
+            .put("Centerfire", "ammo")
+            .put("Rimfire", "ammo")
+            .put("Cases", "misc")
+            .put("Ruger Firearm Accessories", "misc")
+            .put("Gunsmithing Tools", "misc")
+            .put("Shooting Rests", "misc")
+            .put("Trail Camera", "misc")
+            .put("Target Thrower", "misc")
+            .put("Magazines", "misc")
+            .put("Tactical Accessories", "misc")
+            .put("Hearing Protection", "misc")
+            .put("Knives", "misc")
+            .put("ZEV Technologies", "misc")
+            .put("CamPro", "reload")
+            .put("Frankford Arsenal", "reload")
+            .put("Redding", "reload")
+            .put("Hornady", "reload")
+            .put("Carbon Express", "misc")
+            .build();
     private static final Pattern pricePattern = Pattern.compile("(\\d+|,+)+\\.\\d\\d");
-
-    static {
-        mapping.put("Shotguns", "firearm");
-        mapping.put("Rifles", "firearm");
-        mapping.put("Restricted", "firearm");
-        mapping.put("Air Rifles", "firearm");
-
-        mapping.put("Shotguns", "firearm");
-        mapping.put("Rifles", "firearm");
-        mapping.put("Prohibited", "firearm");
-        mapping.put("Restricted", "firearm");
-
-        mapping.put("CVA", "firearm");
-        mapping.put("Thompson/Center", "firearm");
-
-        mapping.put("Bushnell", "optic");
-        mapping.put("Burris", "optic");
-        mapping.put("Kaps", "optic");
-        mapping.put("Leupold", "optic");
-        mapping.put("Nightforce", "optic");
-        mapping.put("Nikon", "optic");
-        mapping.put("Redfield", "optic");
-        mapping.put("Swarovski", "optic");
-        mapping.put("Tasco", "optic");
-        mapping.put("Vortex", "optic");
-        mapping.put("Zeiss", "optic");
-
-        mapping.put("Binoculars", "optic");
-        mapping.put("Holographic Sights", "optic");
-        mapping.put("Laser Sights", "optic");
-        mapping.put("Illuminated Dot Sights", "optic");
-        mapping.put("Rangefinders", "optic");
-        mapping.put("Accessories", "optic");
-
-        mapping.put("Shotshells", "ammo");
-        mapping.put("Centerfire", "ammo");
-        mapping.put("Rimfire", "ammo");
-
-        mapping.put("Cases", "misc");
-        mapping.put("Ruger Firearm Accessories", "misc");
-        mapping.put("Gunsmithing Tools", "misc");
-        mapping.put("Shooting Rests", "misc");
-        mapping.put("Trail Camera", "misc");
-        mapping.put("Target Thrower", "misc");
-        mapping.put("Magazines", "misc");
-        mapping.put("Tactical Accessories", "misc");
-        mapping.put("Hearing Protection", "misc");
-        mapping.put("Knives", "misc");
-        mapping.put("ZEV Technologies", "misc");
-
-        mapping.put("CamPro", "reload");
-        mapping.put("Frankford Arsenal", "reload");
-        mapping.put("Redding", "reload");
-        mapping.put("Hornady", "reload");
-
-        mapping.put("Carbon Express", "misc");
-    }
 
     public DantesportsProductRawPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

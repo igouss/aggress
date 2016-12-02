@@ -2,6 +2,7 @@ package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.CaseFormat;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -20,19 +21,18 @@ import java.util.regex.Pattern;
 class IrungunsRawProductPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(IrungunsRawProductPageParser.class);
 
-    private static final Map<String, String> mapping = new HashMap<>();
-    private static final Pattern pricePattern = Pattern.compile("((\\d+|,)+\\.\\d+)");
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("Optics", "optic")
+            .put("Ammunition", "ammo")
+            .put("Previously Enjoyed Guns & Accessories", "firearm,misc")
+            .put("Rifles", "firearm")
+            .put("shotgun", "firearm")
+            .put("Handguns", "firearm")
+            .put("Antiques", "firearm")
+            .put("Parts & Gear", "firearm,misc")
+            .build();
 
-    static {
-        mapping.put("Optics", "optic");
-        mapping.put("Ammunition", "ammo");
-        mapping.put("Previously Enjoyed Guns & Accessories", "firearm,misc");
-        mapping.put("Rifles", "firearm");
-        mapping.put("shotgun", "firearm");
-        mapping.put("Handguns", "firearm");
-        mapping.put("Antiques", "firearm");
-        mapping.put("Parts & Gear", "firearm,misc");
-    }
+    private static final Pattern pricePattern = Pattern.compile("((\\d+|,)+\\.\\d+)");
 
     public IrungunsRawProductPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

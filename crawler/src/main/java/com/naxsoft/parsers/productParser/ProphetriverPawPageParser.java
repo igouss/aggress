@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -21,19 +22,17 @@ import java.util.regex.Pattern;
 class ProphetriverPawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductRawParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
-    private static final Map<String, String> mapping = new HashMap<>();
-
-    static {
-        mapping.put("Rifles", "firearm");
-        mapping.put("Shotguns", "firearm");
-        mapping.put("Handguns", "firearm");
-        mapping.put("Ammunition", "ammo");
-        mapping.put("Reloading Equipment", "reload");
-        mapping.put("Reloading Components", "reload");
-        mapping.put("Rifle Scopes", "optic");
-        mapping.put("Optics Accessories", "optic");
-        mapping.put("Other Optics", "optic");
-    }
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("Rifles", "firearm")
+            .put("Shotguns", "firearm")
+            .put("Handguns", "firearm")
+            .put("Ammunition", "ammo")
+            .put("Reloading Equipment", "reload")
+            .put("Reloading Components", "reload")
+            .put("Rifle Scopes", "optic")
+            .put("Optics Accessories", "optic")
+            .put("Other Optics", "optic")
+            .build();
 
     public ProphetriverPawPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);
