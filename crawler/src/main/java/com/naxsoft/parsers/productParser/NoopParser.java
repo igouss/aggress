@@ -1,13 +1,13 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.HashSet;
 
 
 /**
@@ -23,7 +23,7 @@ class NoopParser extends AbstractRawPageParser {
     @Override
     public Collection<ProductEntity> parse(WebPageEntity webPage) {
         LOGGER.warn("Why are we here?! page = " + webPage);
-        return new HashSet<>(0);
+        return ImmutableSet.of();
     }
 
     @Override

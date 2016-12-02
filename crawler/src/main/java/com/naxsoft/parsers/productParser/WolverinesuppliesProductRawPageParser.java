@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
@@ -10,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
@@ -89,7 +89,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
 
     @Override
     public Collection<ProductEntity> parse(WebPageEntity webPageEntity) {
-        HashSet<ProductEntity> result = new HashSet<>();
+        ImmutableSet.Builder<ProductEntity> result = ImmutableSet.builder();
 
         try {
             Gson gson = new Gson();
@@ -133,7 +133,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return result;
+        return result.build();
     }
 
     /**

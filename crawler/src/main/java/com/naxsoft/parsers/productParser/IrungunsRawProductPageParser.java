@@ -3,6 +3,7 @@ package com.naxsoft.parsers.productParser;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -11,7 +12,10 @@ import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,7 +63,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
 
     @Override
     public Collection<ProductEntity> parse(WebPageEntity webPageEntity) {
-        HashSet<ProductEntity> result = new HashSet<>();
+        ImmutableSet.Builder<ProductEntity> result = ImmutableSet.builder();
 
         try {
             ProductEntity product;
@@ -76,12 +80,12 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             if (!document.select(".saleImage").isEmpty()) {
-                return result;
+                return result.build();
             }
 
             productName = document.select("div.innercontentDiv > div > div > h2").text();
             if (productName.isEmpty()) {
-                return result;
+                return result.build();
             }
 
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
@@ -125,7 +129,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return result;
+        return result.build();
     }
 
     /**

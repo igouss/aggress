@@ -2,6 +2,7 @@ package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.CaseFormat;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -55,7 +56,7 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
 
     @Override
     public Collection<ProductEntity> parse(WebPageEntity webPageEntity) {
-        HashSet<ProductEntity> result = new HashSet<>();
+        ImmutableSet.Builder<ProductEntity> result = ImmutableSet.builder();
 
         try {
             ProductEntity product;
@@ -81,7 +82,7 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
             category = getNormalizedCategories(webPageEntity);
             ArrayList<String> price = parsePrice(document.select(".priceAvail").text());
             if (price.isEmpty()) {
-                return result;
+                return result.build();
             } else if (1 == price.size()) {
                 regularPrice = price.get(0);
             } else {
@@ -108,7 +109,7 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return result;
+        return result.build();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -10,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,7 +42,7 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
 
     @Override
     public Collection<ProductEntity> parse(WebPageEntity webPageEntity) {
-        HashSet<ProductEntity> result = new HashSet<>();
+        ImmutableSet.Builder<ProductEntity> result = ImmutableSet.builder();
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
@@ -57,7 +57,7 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
             String[] category = null;
 
             if (!document.select(".firearm-links-sold").isEmpty()) {
-                return result;
+                return result.build();
             }
 
             productName = document.select(".product-name h1").text();
@@ -85,7 +85,7 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return result;
+        return result.build();
     }
 
     /**
