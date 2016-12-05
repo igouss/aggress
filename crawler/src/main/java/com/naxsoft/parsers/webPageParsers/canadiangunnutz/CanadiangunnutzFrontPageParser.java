@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -26,20 +27,19 @@ import java.util.regex.Pattern;
 class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzFrontPageParser.class);
 
-    private static final Map<String, String> categories = new HashMap<>();
     private static final Pattern threadsPattern = Pattern.compile("Threads (\\d+) to (\\d+) of (\\d+)");
 
-    static {
-        categories.put("Precision and Target Rifles", "firearm");
-        categories.put("Hunting and Sporting Arms", "firearm");
-        categories.put("Military Surplus Rifle", "firearm");
-        categories.put("Pistols and Revolvers", "firearm");
-        categories.put("Shotguns", "firearm");
-        categories.put("Modern Military and Black Rifles", "firearm");
-        categories.put("Rimfire Firearms", "firearm");
-        categories.put("Optics and Sights", "optic");
-        categories.put("Factory Ammo and Reloading Equipment", "reload,ammo");
-    }
+    private static final Map<String, String> categories = ImmutableMap.<String, String>builder()
+            .put("Precision and Target Rifles", "firearm")
+            .put("Hunting and Sporting Arms", "firearm")
+            .put("Military Surplus Rifle", "firearm")
+            .put("Pistols and Revolvers", "firearm")
+            .put("Shotguns", "firearm")
+            .put("Modern Military and Black Rifles", "firearm")
+            .put("Rimfire Firearms", "firearm")
+            .put("Optics and Sights", "optic")
+            .put("Factory Ammo and Reloading Equipment", "reload,ammo")
+            .build();
 
     private List<Cookie> cookies = null;
 

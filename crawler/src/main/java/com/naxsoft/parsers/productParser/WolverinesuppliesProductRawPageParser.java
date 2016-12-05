@@ -1,11 +1,11 @@
 package com.naxsoft.parsers.productParser;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import org.apache.commons.collections4.map.ListOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,73 +15,64 @@ import java.util.Map;
 
 class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
-    private static final Map<String, String> mapping = new ListOrderedMap<>();
+    private static final Map<String, String> mapping = ImmutableMap.<String, String>builder()
+            .put("rifles", "firearm")
+            .put("surplus rifles", "firearm")
+            .put("rimfire rifles", "firearm")
+            .put("muzzleloaders", "firearm")
+            .put("hunting rifles", "firearm")
+            .put("big game rifles", "firearm")
+            .put("tactical rifles", "firearm")
+            .put("shotguns", "firearm")
+            .put("tactical shotguns", "firearm")
+            .put("hunting shotguns", "firearm")
+            .put("handguns", "firearm")
+            .put("surplus handguns", "firearm")
+            .put("revolvers", "firearm")
+            .put("antique & misc. handguns", "firearm")
+            .put("semi auto handguns", "firearm")
+            .put("special purpose", "firearm")
+            .put("airguns over 500fps", "firearm")
+            .put("airguns under 500fps", "firearm")
+            .put("oem parts", "misc")
+            .put("semi-auto handguns", "firearm")
+            .put("commemorative", "firearm")
+            .put("antique handguns", "firearm")
+            .put("hunting scopes", "optic")
+            .put("tactical scopes-sights", "optic")
+            .put("rimfire scopes", "optic")
+            .put("nightvision", "optic")
+            .put("optics accessories", "optic")
+            .put("observation", "optic")
+            .put("trail camera", "optic")
+            .put("spotting scopes", "optic")
+            .put("rangefinders", "optic")
+            .put("binoculars", "optic")
+            .put("mounting", "optic")
+            .put("scope rings", "optic")
+            .put("scope bases", "optic")
+            .put("muzzleloading", "ammo")
+            .put("air gun pellets", "ammo")
+            .put("handgun ammo", "ammo")
+            .put("practice ammo", "ammo")
+            .put("rimfire ammo", "ammo")
+            .put("reloading", "reload")
+            .put("reloading components", "reload")
+            .put("reloading equipment", "reload")
+            .put("rifle ammo", "ammo")
+            .put("premium rifle ammo", "ammo")
+            .put("hunting rifle ammo", "ammo")
+            .put("fmj rifle ammo", "ammo")
+            .put("big game rifle ammo", "ammo")
+            .put("surplus rifle ammo", "ammo")
+            .put("shotgun ammo", "ammo")
+            .put("shotgun ammo -steel", "ammo")
+            .put("shotgun ammo -lead", "ammo")
+            .put("rings and mounts", "misc")
+            .put("entry eools", "misc")
+            .put("rifle accessories", "misc")
+            .build();
 
-    static {
-        mapping.put("rifles", "firearm");
-        mapping.put("surplus rifles", "firearm");
-        mapping.put("rimfire rifles", "firearm");
-        mapping.put("muzzleloaders", "firearm");
-        mapping.put("hunting rifles", "firearm");
-        mapping.put("big game rifles", "firearm");
-        mapping.put("tactical rifles", "firearm");
-        mapping.put("shotguns", "firearm");
-        mapping.put("tactical shotguns", "firearm");
-        mapping.put("hunting shotguns", "firearm");
-        mapping.put("handguns", "firearm");
-        mapping.put("surplus handguns", "firearm");
-        mapping.put("revolvers", "firearm");
-        mapping.put("antique & misc. handguns", "firearm");
-        mapping.put("semi auto handguns", "firearm");
-        mapping.put("special purpose", "firearm");
-        mapping.put("airguns over 500fps", "firearm");
-        mapping.put("airguns under 500fps", "firearm");
-        mapping.put("oem parts", "misc");
-
-        mapping.put("semi-auto handguns", "firearm");
-        mapping.put("commemorative", "firearm");
-        mapping.put("antique handguns", "firearm");
-
-
-        mapping.put("hunting scopes", "optic");
-        mapping.put("tactical scopes-sights", "optic");
-        mapping.put("rimfire scopes", "optic");
-        mapping.put("nightvision", "optic");
-        mapping.put("optics accessories", "optic");
-        mapping.put("observation", "optic");
-        mapping.put("trail camera", "optic");
-        mapping.put("spotting scopes", "optic");
-        mapping.put("rangefinders", "optic");
-        mapping.put("binoculars", "optic");
-        mapping.put("mounting", "optic");
-        mapping.put("scope rings", "optic");
-        mapping.put("scope bases", "optic");
-
-
-        mapping.put("muzzleloading", "ammo");
-        mapping.put("air gun pellets", "ammo");
-        mapping.put("handgun ammo", "ammo");
-        mapping.put("practice ammo", "ammo");
-        mapping.put("rimfire ammo", "ammo");
-
-        mapping.put("reloading", "reload");
-        mapping.put("reloading components", "reload");
-        mapping.put("reloading equipment", "reload");
-
-        mapping.put("rifle ammo", "ammo");
-        mapping.put("premium rifle ammo", "ammo");
-        mapping.put("hunting rifle ammo", "ammo");
-        mapping.put("fmj rifle ammo", "ammo");
-        mapping.put("big game rifle ammo", "ammo");
-        mapping.put("surplus rifle ammo", "ammo");
-        mapping.put("shotgun ammo", "ammo");
-        mapping.put("shotgun ammo -steel", "ammo");
-        mapping.put("shotgun ammo -lead", "ammo");
-
-        mapping.put("rings and mounts", "misc");
-        mapping.put("entry eools", "misc");
-        mapping.put("rifle accessories", "misc");
-    }
 
     public WolverinesuppliesProductRawPageParser(MetricRegistry metricRegistry) {
         super(metricRegistry);

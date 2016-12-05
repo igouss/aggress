@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.alflahertys;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -21,6 +22,63 @@ import java.util.Set;
  */
 class AlflahertysFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysFrontPageParser.class);
+    private final static Set<String> validCategories = ImmutableSet.<String>builder()
+            .add("HANDGUNS")
+            .add("RESTRICTED RIFLES")
+            .add("RIFLES")
+            .add("SHOTGUNS")
+            .add("BLACK POWDER")
+            .add("AIRGUNS")
+            .add("HANDGUN AMMUNITION")
+            .add("BULK RIFLE AMMO")
+            .add("RIFLE AMMO")
+            .add("RIMFIRE AMMUNTION")
+            .add("SHOTGUN AMMO")
+            .add("RELOADING")
+            .add("SCOPES")
+            .add("CLOSE QUARTERS OPTICS & IRON SIGHTS")
+            .add("RANGE FINDERS")
+            .add("SPOTTING SCOPES")
+            .add("BINOCULARS")
+            .add("OPTIC CARE")
+            .add("OPTIC MOUNTS")
+            .add("NIGHT VISION")
+            .add("SIGHTING TOOLS")
+            .add("HANDGUN CASES")
+            .add("SOFT CASES")
+            .add("HARD CASES")
+            .add("RANGE BAGS")
+            .add("AMMUNITION STORAGE")
+            .add("CABINETS & SAFES")
+            .add("SAFE ACCESSORIES")
+            .add("LOCKS")
+            .add("HOLSTERS, MAG POUCHES, & SHELL HOLDERS")
+            .add("LIGHTS & LASERS")
+            .add("RAILS & MOUNTS")
+            .add("UTILITY BAGS & PACKS")
+            .add("TACTICAL TOOLS")
+            .add("AR COMPONENTS")
+            .add("GRIPS")
+            .add("RIFLE PARTS & STOCKS")
+            .add("HANDGUN PARTS")
+            .add("SHOTGUN PARTS & STOCKS")
+            .add("SHOTGUN BARRELS & CHOKES")
+            .add("CONVERSION KITS")
+            .add("FIREARM MAINTENANCE & TOOLS")
+            .add("BIPODS AND SHOOTING RESTS")
+            .add("SLINGS & SWIVELS")
+            .add("EYES & EARS")
+            .add("CLIPS & MAGAZINES")
+            .add("SHOTGUN ACCESSORIES")
+            .add("TARGETS")
+            .add("ACCESSORIES")
+            .add("FIELD DRESSING & TOOLS")
+            .add("GAME CALLS DECOYS & ACCESSORIES")
+            .add("SCENTS, DETERGENTS, & ATTRACTANTS")
+            .add("BLINDS & CAMOUFLAGE")
+            .add("TRAIL CAMERAS")
+            .add("HUNTING CLOTHES")
+            .build();
 
     public AlflahertysFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
         super(metricRegistry, client);
@@ -32,70 +90,6 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
         if (document != null) {
             Elements elements = document.select("ul.main.menu a");
 
-            Set<String> validCategories = new HashSet<>();
-            validCategories.add("HANDGUNS");
-            validCategories.add("RESTRICTED RIFLES");
-            validCategories.add("RIFLES");
-            validCategories.add("SHOTGUNS");
-            validCategories.add("BLACK POWDER");
-            validCategories.add("AIRGUNS");
-
-
-            validCategories.add("HANDGUN AMMUNITION");
-            validCategories.add("BULK RIFLE AMMO");
-            validCategories.add("RIFLE AMMO");
-            validCategories.add("RIMFIRE AMMUNTION");
-            validCategories.add("SHOTGUN AMMO");
-            validCategories.add("RELOADING");
-
-            validCategories.add("SCOPES");
-            validCategories.add("CLOSE QUARTERS OPTICS & IRON SIGHTS");
-            validCategories.add("RANGE FINDERS");
-            validCategories.add("SPOTTING SCOPES");
-            validCategories.add("BINOCULARS");
-            validCategories.add("OPTIC CARE");
-            validCategories.add("OPTIC MOUNTS");
-            validCategories.add("NIGHT VISION");
-            validCategories.add("SIGHTING TOOLS");
-
-            validCategories.add("HANDGUN CASES");
-            validCategories.add("SOFT CASES");
-            validCategories.add("HARD CASES");
-            validCategories.add("RANGE BAGS");
-            validCategories.add("AMMUNITION STORAGE");
-            validCategories.add("CABINETS & SAFES");
-            validCategories.add("SAFE ACCESSORIES");
-            validCategories.add("LOCKS");
-
-            validCategories.add("HOLSTERS, MAG POUCHES, & SHELL HOLDERS");
-            validCategories.add("LIGHTS & LASERS");
-            validCategories.add("RAILS & MOUNTS");
-            validCategories.add("UTILITY BAGS & PACKS");
-            validCategories.add("TACTICAL TOOLS");
-
-            validCategories.add("AR COMPONENTS");
-            validCategories.add("GRIPS");
-            validCategories.add("RIFLE PARTS & STOCKS");
-            validCategories.add("HANDGUN PARTS");
-            validCategories.add("SHOTGUN PARTS & STOCKS");
-            validCategories.add("SHOTGUN BARRELS & CHOKES");
-            validCategories.add("CONVERSION KITS");
-
-            validCategories.add("FIREARM MAINTENANCE & TOOLS");
-            validCategories.add("BIPODS AND SHOOTING RESTS");
-            validCategories.add("SLINGS & SWIVELS");
-            validCategories.add("EYES & EARS");
-            validCategories.add("CLIPS & MAGAZINES");
-            validCategories.add("SHOTGUN ACCESSORIES");
-            validCategories.add("TARGETS");
-
-            validCategories.add("ACCESSORIES");
-            validCategories.add("FIELD DRESSING & TOOLS");
-            validCategories.add("GAME CALLS DECOYS & ACCESSORIES");
-            validCategories.add("SCENTS, DETERGENTS, & ATTRACTANTS");
-            validCategories.add("BLINDS & CAMOUFLAGE");
-            validCategories.add("TRAIL CAMERAS");
-            validCategories.add("HUNTING CLOTHES");
 
             for (Element e : elements) {
                 if (e.attr("href").endsWith("#")) {
