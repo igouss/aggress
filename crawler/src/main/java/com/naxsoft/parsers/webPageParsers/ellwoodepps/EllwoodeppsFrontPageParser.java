@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.ellwoodepps;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -12,7 +13,6 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,8 +32,8 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
         return new WebPageEntity(parent, "", "productList", url, category);
     }
 
-    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -41,7 +41,7 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
             Matcher matcher = productTotalPattern.matcher(elements);
             if (!matcher.find()) {
                 LOGGER.error("Unable to parse total pages");
-                return Flowable.empty();
+                return result.build();
             }
 
             int productTotal = Integer.parseInt(matcher.group(1));
@@ -53,19 +53,20 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create(parent, "https://ellwoodepps.com/hunting/accessories.html?product_sold=3175&limit=100", "accessories"));
-        webPageEntities.add(create(parent, "https://ellwoodepps.com/hunting/firearms.html?product_sold=3175&limit=100", "firearm"));
+        Set<WebPageEntity> webPageEntities = ImmutableSet.<WebPageEntity>builder()
+                .add(create(parent, "https://ellwoodepps.com/hunting/accessories.html?product_sold=3175&limit=100", "accessories"))
+                .add(create(parent, "https://ellwoodepps.com/hunting/firearms.html?product_sold=3175&limit=100", "firearm"))
+                .build();
 
         return Flowable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseDocument)
+                .flatMapIterable(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

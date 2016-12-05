@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.firearmsoutletcanada;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -14,7 +15,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -31,8 +31,8 @@ class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
         return new WebPageEntity(parent, "", "productList", url, category);
     }
 
-    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -44,26 +44,27 @@ class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create(parent, "http://www.firearmsoutletcanada.com/pistols.html?limit=all&stock_status=64", "firearm"));
-        webPageEntities.add(create(parent, "http://www.firearmsoutletcanada.com/rifles.html?limit=all&stock_status=64", "firearm"));
-        webPageEntities.add(create(parent, "http://www.firearmsoutletcanada.com/shotguns.html?limit=all&stock_status=64", "firearm"));
-        webPageEntities.add(create(parent, "http://www.firearmsoutletcanada.com/ammo.html?limit=all&stock_status=64", "ammo"));
-        webPageEntities.add(create(parent, "http://www.firearmsoutletcanada.com/accessories.html?limit=all&stock_status=64", "misc"));
-        webPageEntities.add(create(parent, "http://www.firearmsoutletcanada.com/reloading.html?limit=all&stock_status=64", "reload"));
-        webPageEntities.add(create(parent, "http://www.firearmsoutletcanada.com/parts.html?limit=all&stock_status=64", "misc"));
-        webPageEntities.add(create(parent, "http://www.firearmsoutletcanada.com/sights-optics.html?limit=all&stock_status=64", "optic"));
-        webPageEntities.add(create(parent, "http://www.firearmsoutletcanada.com/consignment.html?limit=all&stock_status=64", "firearm,optic"));
+        Set<WebPageEntity> webPageEntities = ImmutableSet.<WebPageEntity>builder()
+                .add(create(parent, "http://www.firearmsoutletcanada.com/pistols.html?limit=all&stock_status=64", "firearm"))
+                .add(create(parent, "http://www.firearmsoutletcanada.com/rifles.html?limit=all&stock_status=64", "firearm"))
+                .add(create(parent, "http://www.firearmsoutletcanada.com/shotguns.html?limit=all&stock_status=64", "firearm"))
+                .add(create(parent, "http://www.firearmsoutletcanada.com/ammo.html?limit=all&stock_status=64", "ammo"))
+                .add(create(parent, "http://www.firearmsoutletcanada.com/accessories.html?limit=all&stock_status=64", "misc"))
+                .add(create(parent, "http://www.firearmsoutletcanada.com/reloading.html?limit=all&stock_status=64", "reload"))
+                .add(create(parent, "http://www.firearmsoutletcanada.com/parts.html?limit=all&stock_status=64", "misc"))
+                .add(create(parent, "http://www.firearmsoutletcanada.com/sights-optics.html?limit=all&stock_status=64", "optic"))
+                .add(create(parent, "http://www.firearmsoutletcanada.com/consignment.html?limit=all&stock_status=64", "firearm,optic"))
+                .build();
 
         return Flowable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseDocument)
+                .flatMapIterable(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

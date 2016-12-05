@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.gunshop;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -13,7 +14,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,8 +29,8 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Flowable<WebPageEntity> categoriesDocument(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> categoriesDocument(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -45,11 +45,11 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
-    private Flowable<WebPageEntity> parseSubpages(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseSubpages(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -71,16 +71,16 @@ class GunshopFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
 
         return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
-                .flatMap(this::categoriesDocument)
+                .flatMapIterable(this::categoriesDocument)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
-                .flatMap(this::parseSubpages)
+                .flatMapIterable(this::parseSubpages)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

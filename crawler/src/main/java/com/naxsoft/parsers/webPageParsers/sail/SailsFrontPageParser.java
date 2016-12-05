@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.sail;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -40,8 +40,8 @@ class SailsFrontPageParser extends AbstractWebPageParser {
         return new WebPageEntity(parent, "", "productList", url, category);
     }
 
-    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -53,20 +53,22 @@ class SailsFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/firearms", "firearm"));
-        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/firearm-accessories", "firearm"));
-        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/optics-and-shooting-accessories", "optic"));
-        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/ammunition", "ammo"));
+        Set<WebPageEntity> webPageEntities = ImmutableSet.<WebPageEntity>builder()
+                .add(create(parent, "http://www.sail.ca/en/hunting/firearms", "firearm"))
+                .add(create(parent, "http://www.sail.ca/en/hunting/firearm-accessories", "firearm"))
+                .add(create(parent, "http://www.sail.ca/en/hunting/optics-and-shooting-accessories", "optic"))
+                .add(create(parent, "http://www.sail.ca/en/hunting/ammunition", "ammo"))
+                .build();
+
         return Flowable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseDocument)
+                .flatMapIterable(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

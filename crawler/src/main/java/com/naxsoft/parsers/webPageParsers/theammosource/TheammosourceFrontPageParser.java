@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.theammosource;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -14,7 +15,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -31,8 +31,8 @@ class TheammosourceFrontPageParser extends AbstractWebPageParser {
         return new WebPageEntity(parent, "", "productList", url, category);
     }
 
-    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -44,34 +44,35 @@ class TheammosourceFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=1", "ammo")); // Ammo
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=286", "ammo")); // Ammo
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=2", "firearm")); // FIREARMS
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=166", "firearm")); // FIREARMS
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=520", "firearm")); // FIREARMS
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=340", "misc")); // Misc
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=635", "misc")); // Misc
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=14", "misc")); // Misc
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=207", "misc")); // Misc
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=497", "misc")); // Misc
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=750", "misc")); // Misc
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=373", "misc")); // Misc
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=308", "misc")); // Misc
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=412", "misc")); // Misc
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=15", "reload")); // reload
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=222", "optic")); // optic
-        webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=21", "optic")); // optic
+        Set<WebPageEntity> webPageEntities = ImmutableSet.<WebPageEntity>builder()
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=1", "ammo")) // Ammo
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=286", "ammo")) // Ammo
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=2", "firearm")) // FIREARMS
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=166", "firearm")) // FIREARMS
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=520", "firearm")) // FIREARMS
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=340", "misc")) // Misc
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=635", "misc")) // Misc
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=14", "misc")) // Misc
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=207", "misc")) // Misc
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=497", "misc")) // Misc
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=750", "misc")) // Misc
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=373", "misc")) // Misc
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=308", "misc")) // Misc
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=412", "misc")) // Misc
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=15", "reload")) // reload
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=222", "optic")) // optic
+                .add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=21", "optic")) // optic
+                .build();
 
         return Flowable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseDocument)
+                .flatMapIterable(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

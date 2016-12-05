@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.dantesports;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -13,7 +14,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -27,8 +27,8 @@ class DantesportsFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -40,14 +40,14 @@ class DantesportsFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity webPage) {
         return client.get("https://shop.dantesports.com/set_lang.php?lang=EN", new LinkedList<>(), getCookiesHandler(), false)
                 .flatMap(cookies1 -> client.get(webPage.getUrl(), cookies1, new DocumentCompletionHandler(webPage)))
-                .flatMap(this::parseDocument)
+                .flatMapIterable(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

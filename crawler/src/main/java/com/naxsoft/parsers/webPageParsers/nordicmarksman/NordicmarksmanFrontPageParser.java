@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.nordicmarksman;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -12,7 +13,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,8 +31,8 @@ class NordicmarksmanFrontPageParser extends AbstractWebPageParser {
         return new WebPageEntity(parent, "", "productList", url, category);
     }
 
-    private Flowable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -43,13 +43,13 @@ class NordicmarksmanFrontPageParser extends AbstractWebPageParser {
                     .collect(Collectors.toList());
             result.addAll(webPageEntities);
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         return client.get("http://www.nordicmarksman.com/", new DocumentCompletionHandler(parent))
-                .flatMap(this::parseFrontPage)
+                .flatMapIterable(this::parseFrontPage)
                 .doOnNext(e -> this.parseResultCounter.inc());
 
     }

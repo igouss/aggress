@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.canadaAmmo;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -13,7 +14,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -25,8 +26,8 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Flowable<WebPageEntity> parseCategories(DownloadResult downloadResult) {
-        HashSet<WebPageEntity> result = new HashSet<>();
+    private Set<WebPageEntity> parseCategories(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -38,12 +39,12 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
 
-    private Flowable<WebPageEntity> parseCategoryPages(DownloadResult downloadResult) {
-        HashSet<WebPageEntity> subResult = new HashSet<>();
+    private Set<WebPageEntity> parseCategoryPages(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -52,27 +53,27 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
             if (elements.isEmpty()) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
-                subResult.add(webPageEntity);
+                result.add(webPageEntity);
             } else {
                 int i = Integer.parseInt(elements.first().text()) - 1;
                 int end = Integer.parseInt(elements.last().text());
                 for (; i <= end; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
-                    subResult.add(webPageEntity);
+                    result.add(webPageEntity);
                 }
             }
         }
-        return Flowable.fromIterable(subResult);
+        return result.build();
     }
 
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
-                .flatMap(this::parseCategories)
+                .flatMapIterable(this::parseCategories)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), new DocumentCompletionHandler(webPageEntity1)))
-                .flatMap(this::parseCategoryPages)
+                .flatMapIterable(this::parseCategoryPages)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

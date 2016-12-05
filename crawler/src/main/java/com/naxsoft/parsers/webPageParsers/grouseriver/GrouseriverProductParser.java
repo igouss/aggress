@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.grouseriver;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -11,10 +12,10 @@ import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 class GrouseriverProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GrouseriverProductParser.class);
@@ -23,8 +24,8 @@ class GrouseriverProductParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Flowable<WebPageEntity> parseJson(JsonResult downloadResult) {
-        HashSet<WebPageEntity> result = new HashSet<>();
+    private Set<WebPageEntity> parseJson(JsonResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
         Map parsedJson = downloadResult.getJson();
 
         @SuppressWarnings("unchecked")
@@ -34,13 +35,13 @@ class GrouseriverProductParser extends AbstractWebPageParser {
             WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPageRaw", "http://www.grouseriver.com/" + itemData.get("urlcomponent"), downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         return client.get(parent.getUrl(), new JsonCompletionHandler(parent))
-                .flatMap(this::parseJson)
+                .flatMapIterable(this::parseJson)
                 .flatMap(webPage -> PageDownloader.download(client, webPage, "productPageRaw")
                         .filter(Objects::nonNull))
                 .doOnNext(e -> this.parseResultCounter.inc());

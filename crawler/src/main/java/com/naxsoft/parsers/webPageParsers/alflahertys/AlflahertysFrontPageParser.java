@@ -14,7 +14,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -84,8 +83,8 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Flowable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select("ul.main.menu a");
@@ -104,11 +103,11 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
-    private Flowable<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".paginate a");
@@ -135,15 +134,15 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
-                .flatMap(this::parseFrontPage)
+                .flatMapIterable(this::parseFrontPage)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseProductPage)
+                .flatMapIterable(this::parseProductPage)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

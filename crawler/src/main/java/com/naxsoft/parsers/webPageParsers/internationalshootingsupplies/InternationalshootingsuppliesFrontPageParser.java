@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.internationalshootingsupplies;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -40,8 +40,8 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
         return new WebPageEntity(parent, "", "productList", url, category);
     }
 
-    private Flowable<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -69,23 +69,25 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
                 }
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/ammunition/", "ammo"));
-        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/firearms/", "firearm"));
-        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/hunting-accessories/", "misc"));
-        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/optics/", "optic"));
-        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/reloading-components/", "reload"));
-        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/reloading-equipment/", "reload"));
-        webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/shooting-accessories/", "misc"));
+        Set<WebPageEntity> webPageEntities = ImmutableSet.<WebPageEntity>builder()
+                .add(create(parent, "http://internationalshootingsupplies.com/product-category/ammunition/", "ammo"))
+                .add(create(parent, "http://internationalshootingsupplies.com/product-category/firearms/", "firearm"))
+                .add(create(parent, "http://internationalshootingsupplies.com/product-category/hunting-accessories/", "misc"))
+                .add(create(parent, "http://internationalshootingsupplies.com/product-category/optics/", "optic"))
+                .add(create(parent, "http://internationalshootingsupplies.com/product-category/reloading-components/", "reload"))
+                .add(create(parent, "http://internationalshootingsupplies.com/product-category/reloading-equipment/", "reload"))
+                .add(create(parent, "http://internationalshootingsupplies.com/product-category/shooting-accessories/", "misc"))
+                .build();
+
         return Flowable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseProductPage)
+                .flatMapIterable(this::parseProductPage)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

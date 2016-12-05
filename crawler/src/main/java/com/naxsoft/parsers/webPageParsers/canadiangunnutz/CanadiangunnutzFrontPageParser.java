@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -61,8 +62,8 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         }
     }
 
-    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -86,11 +87,11 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
-    private Flowable<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -108,16 +109,16 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         WebPageEntity webPageEntity = new WebPageEntity(parent, "", "", "http://www.canadiangunnutz.com/forum/forum.php", "");
         return client.get(webPageEntity.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity))
-                .flatMap(this::parseDocument)
+                .flatMapIterable(this::parseDocument)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))
-                .flatMap(this::parseDocument2)
+                .flatMapIterable(this::parseDocument2)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

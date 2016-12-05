@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.Wolverinesupplies;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -14,7 +15,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,8 +28,8 @@ class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Flowable<WebPageEntity> onCompleted(WebPageEntity parent) {
-        Set<WebPageEntity> result = new HashSet<>();
+    private Set<WebPageEntity> onCompleted(WebPageEntity parent) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
         try {
             String productDetailsJson = parent.getContent();
             Matcher itemNumberMatcher = itemNumberPattern.matcher(productDetailsJson);
@@ -49,11 +49,11 @@ class WolverinesuppliesProductListParser extends AbstractWebPageParser {
         } catch (NullPointerException npe) {
             LOGGER.error("NPE = {}", parent, npe);
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
-    private Flowable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -71,15 +71,15 @@ class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Flowable.fromIterable(result);
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl() + "?sortValue=0&Stock=In%20Stock", new DocumentCompletionHandler(webPageEntity))
-                .flatMap(this::parseDocument)
+                .flatMapIterable(this::parseDocument)
                 .flatMap(webPageEntity1 -> PageDownloader.download(client, webPageEntity1, "tmp"))
-                .flatMap(this::onCompleted)
+                .flatMapIterable(this::onCompleted)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

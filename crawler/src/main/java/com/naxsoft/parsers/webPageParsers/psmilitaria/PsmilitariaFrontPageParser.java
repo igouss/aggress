@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.psmilitaria;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -13,8 +14,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -31,8 +30,8 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
         return new WebPageEntity(parent, "", "productList", url, category);
     }
 
-    private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
-        Set<WebPageEntity> result = new HashSet<>(1);
+    private Set<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+        ImmutableSet.Builder<WebPageEntity> result = ImmutableSet.builder();
 
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -43,29 +42,30 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return result;
+        return result.build();
     }
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
         LOGGER.info("Parsing psmilitaria front-page");
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/guns.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/collectmisc.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/marlin.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/savage.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/remington.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/winchester.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/hunting.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/modpistol.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/pistol.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/mosin.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/antiques.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/oldhunt.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/ammo.html", "ammo"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/miscel.html", "misc"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/newitems.html", "firearm,misc"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/tools.html", "reload"));
+        Set<WebPageEntity> webPageEntities = ImmutableSet.<WebPageEntity>builder()
+                .add(create(parent, "http://psmilitaria.50megs.com/guns.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/collectmisc.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/marlin.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/savage.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/remington.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/winchester.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/hunting.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/modpistol.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/pistol.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/mosin.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/antiques.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/oldhunt.html", "firearm"))
+                .add(create(parent, "http://psmilitaria.50megs.com/ammo.html", "ammo"))
+                .add(create(parent, "http://psmilitaria.50megs.com/miscel.html", "misc"))
+                .add(create(parent, "http://psmilitaria.50megs.com/newitems.html", "firearm,misc"))
+                .add(create(parent, "http://psmilitaria.50megs.com/tools.html", "reload"))
+                .build();
         return Flowable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
                 .doOnNext(e -> this.parseResultCounter.inc());

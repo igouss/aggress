@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.marstar;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableSet;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -9,7 +10,7 @@ import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -27,10 +28,11 @@ class MarstarFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=1", "firearm")); // firearms
-        webPageEntities.add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=3", "ammo")); // ammo
-        webPageEntities.add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=81526", "firearm")); // Firearms
+        Set<WebPageEntity> webPageEntities = ImmutableSet.<WebPageEntity>builder()
+                .add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=1", "firearm"))
+                .add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=3", "ammo"))
+                .add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=81526", "firearm"))
+                .build();
 
         return Flowable.fromIterable(webPageEntities)
                 .observeOn(Schedulers.io())
