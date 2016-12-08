@@ -11,10 +11,13 @@ ext {
 }
 
 dependencies {
+    compile project(':common')
+    compile project(':storage')
+
     compile "org.jsoup:jsoup:1.10.1"
 
 //    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.0-RC3'
-    compile 'io.reactivex.rxjava2:rxjava:2.0.1'
+    compile 'io.reactivex.rxjava2:rxjava:2.0.2'
 
     compile "ch.qos.logback:logback-core:1.1.7"
     compile "ch.qos.logback:logback-classic:1.1.7"
@@ -29,16 +32,13 @@ dependencies {
     compile "io.vertx:vertx-core:3.3.3"
     compile 'io.vertx:vertx-shell:3.3.3'
 
-    compile "net.sf.jopt-simple:jopt-simple:5.0.3"
+    compile "net.sf.jopt-simple:jopt-simple:6.0-alpha-1"
 
     compile "net.ltgt.gradle:gradle-apt-plugin:0.6"
 
 
 //    compile "com.github.davidmoten:rxjava-slf4j:0.6.2" // https://github.com/davidmoten/rxjava-slf4j
 //    compile "com.github.davidmoten:rxjava-extras:0.7.9.24" // https://github.com/davidmoten/rxjava-extras
-
-    compile project(':common')
-    compile project(':storage')
 
     compile "javax.validation:validation-api:1.1.0.Final"
     compile "javax.inject:javax.inject:1"
