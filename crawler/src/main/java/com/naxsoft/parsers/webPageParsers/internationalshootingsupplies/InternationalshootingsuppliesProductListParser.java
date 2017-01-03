@@ -48,7 +48,7 @@ class InternationalshootingsuppliesProductListParser extends AbstractWebPagePars
 
                 String url = element.select("> a").attr("abs:href");
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", url, downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                LOGGER.trace("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

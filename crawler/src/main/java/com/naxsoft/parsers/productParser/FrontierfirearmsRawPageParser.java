@@ -61,7 +61,7 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
             }
 
             productName = document.select(".product-name h1").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
             url = webPageEntity.getUrl();

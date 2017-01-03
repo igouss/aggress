@@ -34,7 +34,7 @@ class WestrifleProductListParser extends AbstractWebPageParser {
             Elements elements = document.select(".itemTitle a");
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), "");
-                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                LOGGER.trace("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

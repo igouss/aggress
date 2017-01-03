@@ -68,14 +68,14 @@ class GunshopRawPageParser extends AbstractRawPageParser {
             Elements productNameEl = document.select("h1.entry-title");
             if (!productNameEl.isEmpty()) {
                 productName = productNameEl.first().text();
-                LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+                LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
             } else {
                 LOGGER.warn("Unable to find product name {}", webPageEntity);
                 return result.build();
             }
 
             if (!document.select(".entry-summary .out-of-stock").isEmpty()) {
-                LOGGER.info("Product {} is out of stock. {}", productName, webPageEntity.getUrl());
+                LOGGER.trace("Product {} is out of stock. {}", productName, webPageEntity.getUrl());
                 return result.build();
             }
 

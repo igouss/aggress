@@ -34,7 +34,7 @@ class FishingworldProductListParser extends AbstractWebPageParser {
             Elements elements = document.select("#product-list h2 > a");
             for (Element el : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

@@ -61,7 +61,7 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
             String[] category;
 
             productName = document.select("h1.product-name").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (2 == document.select("div.alert.negative").size()) {
                 return result.build();

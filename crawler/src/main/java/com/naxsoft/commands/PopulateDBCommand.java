@@ -38,7 +38,7 @@ public class PopulateDBCommand implements Command {
                 .all(result -> result != 0L)
                 .blockingGet();
 
-        LOGGER.info("Roots populated: " + rootsPopulated);
+        LOGGER.trace("Roots populated: " + rootsPopulated);
     }
 
     @Override

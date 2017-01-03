@@ -88,7 +88,7 @@ class EllwoodeppsRawProductParser extends AbstractRawPageParser {
             }
 
             productName = document.select(".product-name span").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             url = webPageEntity.getUrl();
             if (!document.select(".old-price").isEmpty()) {

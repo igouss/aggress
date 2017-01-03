@@ -54,9 +54,9 @@ public class WebPageService {
      */
     public Flowable<WebPageEntity> getUnparsedByType(String type) {
         return database.getUnparsedCount(type)
-                .doOnNext(val -> LOGGER.info("Found {} of type {}", val, type))
+                .doOnNext(val -> LOGGER.trace("Found {} of type {}", val, type))
                 .filter(count -> count != 0)
                 .flatMap(count -> database.getUnparsedByType(type, count))
-                .doOnNext(val -> LOGGER.info("Found unparsed {} {} {}", val.getType(), val.getUrl(), val.getCategory()));
+                .doOnNext(val -> LOGGER.trace("Found unparsed {} {} {}", val.getType(), val.getUrl(), val.getCategory()));
     }
 }

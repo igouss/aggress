@@ -64,7 +64,7 @@ class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
                 }
 
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), category);
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

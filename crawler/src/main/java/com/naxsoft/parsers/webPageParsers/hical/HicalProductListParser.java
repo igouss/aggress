@@ -38,7 +38,7 @@ class HicalProductListParser extends AbstractWebPageParser {
                 elements = document.select("#CategoryPagingTop > div > ul > li > a");
                 for (Element el : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("ProductList sub-page {}", webPageEntity.getUrl());
+                    LOGGER.trace("ProductList sub-page {}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }
@@ -46,7 +46,7 @@ class HicalProductListParser extends AbstractWebPageParser {
             elements = document.select("#frmCompare .ProductDetails a");
             for (Element el : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

@@ -29,14 +29,14 @@ class MarstarProductListParser extends AbstractWebPageParser {
     private static WebPageEntity getProductList(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href") + "&displayOutOfStock=no";
         WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", linkUrl, category);
-        LOGGER.info("Found product list page {} url={}", e.text(), linkUrl);
+        LOGGER.trace("Found product list page {} url={}", e.text(), linkUrl);
         return webPageEntity;
     }
 
     private static WebPageEntity getProductPage(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href");
         WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productPage", linkUrl, category);
-        LOGGER.info("Found product {} url={}", e.text(), linkUrl);
+        LOGGER.trace("Found product {} url={}", e.text(), linkUrl);
         return webPageEntity;
     }
 
@@ -45,7 +45,7 @@ class MarstarProductListParser extends AbstractWebPageParser {
 
         Document document = downloadResult.getDocument();
         if (document != null) {
-            LOGGER.info("Parsing {}", document.select("h1").text());
+            LOGGER.trace("Parsing {}", document.select("h1").text());
             Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
             for (Element e : elements) {
                 WebPageEntity webPageEntity = getProductPage(downloadResult.getSourcePage(), e, downloadResult.getSourcePage().getCategory());

@@ -68,7 +68,7 @@ class GrouseriverRawPageParser extends AbstractRawPageParser {
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             productName = document.select("#itemDetailsHeader").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             Elements productImageElement = document.select("div.item-image-gallery li:nth-child(1) img");
             if (!productImageElement.isEmpty()) {

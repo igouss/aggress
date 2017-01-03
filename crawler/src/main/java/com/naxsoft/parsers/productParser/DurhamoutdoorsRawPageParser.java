@@ -75,7 +75,7 @@ class DurhamoutdoorsRawPageParser extends AbstractRawPageParser {
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             productName = document.select(".content .title").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (document.select("#add-to-cart").attr("value").equalsIgnoreCase("Sold Out")) {
                 return result.build();

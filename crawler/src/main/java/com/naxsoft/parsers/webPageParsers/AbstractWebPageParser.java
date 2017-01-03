@@ -37,7 +37,7 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
         messageHandler = event -> webPageParseResult = parse(event.body())
                 .subscribeOn(Schedulers.io())
                 .subscribe(value -> {
-                    LOGGER.info("Publishing to webPageParseResult {}", value);
+                    LOGGER.trace("Publishing to webPageParseResult {}", value);
                     vertx.eventBus().publish("webPageParseResult", value);
                 }, error -> LOGGER.error("Failed to parse {}", event.body().getUrl(), error));
     }
@@ -52,7 +52,7 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
 
             @Override
             public List<Cookie> onCompleted(Response response) throws Exception {
-                LOGGER.info("Completed request to {}", response.getUri().toString());
+                LOGGER.trace("Completed request to {}", response.getUri().toString());
                 return response.getCookies();
             }
         };

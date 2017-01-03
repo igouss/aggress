@@ -38,7 +38,7 @@ class CrafmProductListParser extends AbstractWebPageParser {
             for (Element e : elements) {
                 String linkUrl = e.attr("abs:href");
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", linkUrl, downloadResult.getSourcePage().getCategory());
-                LOGGER.info("ProductPageUrl={}", linkUrl);
+                LOGGER.trace("ProductPageUrl={}", linkUrl);
                 result.add(webPageEntity);
             }
         }

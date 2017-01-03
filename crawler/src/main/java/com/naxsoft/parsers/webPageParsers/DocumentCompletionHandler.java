@@ -24,7 +24,7 @@ public class DocumentCompletionHandler extends AbstractCompletionHandler<Downloa
 
     @Override
     public DownloadResult onCompleted(Response response) throws Exception {
-        LOGGER.info("Completed request to {}", response.getUri().toString());
+        LOGGER.trace("Completed request to {}", response.getUri().toString());
         Document document = Jsoup.parse(response.getResponseBody(), response.getUri().toUrl());
         return new DownloadResult(source, document);
     }

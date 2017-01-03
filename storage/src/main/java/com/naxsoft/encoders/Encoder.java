@@ -4,6 +4,8 @@ package com.naxsoft.encoders;
 import com.google.gson.Gson;
 
 public class Encoder {
+    private static final Gson gson = new Gson();
+
     /**
      * Convert from JSON representation
      *
@@ -11,7 +13,6 @@ public class Encoder {
      * @return ProductEntity object
      */
     static <T> T fromJson(String json, Class<T> clazzOfT) {
-        Gson gson = new Gson();
         return gson.fromJson(json, clazzOfT);
     }
 
@@ -21,7 +22,6 @@ public class Encoder {
      * @return JSON representation
      */
     public static <T> String encode(T entity) {
-        Gson gson = new Gson();
         return gson.toJson(entity);
     }
 }

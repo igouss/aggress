@@ -43,7 +43,7 @@ class WolverinesuppliesProductListParser extends AbstractWebPageParser {
 
             if (0 != sb.length()) {
                 WebPageEntity e = new WebPageEntity(parent, "", "productPage", "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb, parent.getCategory());
-                LOGGER.info("productPage={}", e.getUrl());
+                LOGGER.trace("productPage={}", e.getUrl());
                 result.add(e);
             }
         } catch (NullPointerException npe) {

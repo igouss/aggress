@@ -86,10 +86,10 @@ public class Server {
 
 
         while (true) {
-            LOGGER.info("Waiting for elastic to connect to a node {}:{}...", elasticHost, elasticPort);
+            LOGGER.trace("Waiting for elastic to connect to a node {}:{}...", elasticHost, elasticPort);
             List<DiscoveryNode> discoveryNodes = client.connectedNodes();
             if (0 != discoveryNodes.size()) {
-                LOGGER.info("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
+                LOGGER.trace("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
                     if (a.isEmpty()) {
                         return b;
                     } else {

@@ -65,7 +65,7 @@ class MagnumgunsFrontPageParser extends AbstractWebPageParser {
 
             for (int i = 1; i <= max; i++) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
+                LOGGER.trace("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }
         }

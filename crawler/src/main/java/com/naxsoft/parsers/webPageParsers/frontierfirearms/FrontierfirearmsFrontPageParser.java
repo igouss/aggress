@@ -37,18 +37,18 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         if (document != null) {
             if (document.select("#CategoryPagingBottom > div > a").isEmpty()) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             } else {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
 
                 // select next active
                 Elements select = document.select(".PagingList .ActivePage + li a");
                 if (!select.isEmpty()) {
                     webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", select.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }

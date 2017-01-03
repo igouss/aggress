@@ -82,7 +82,7 @@ class CrafmProductRawParser extends AbstractRawPageParser {
             String[] category;
 
             productName = document.select(".product-essential .product-name").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             url = webPageEntity.getUrl();
             productImage = document.select(".product-image img").attr("src");

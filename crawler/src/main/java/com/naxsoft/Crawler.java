@@ -107,7 +107,7 @@ public class Crawler {
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
-                    LOGGER.info("Stopping crawler..");
+                    LOGGER.trace("Stopping crawler..");
                     metricReporter.stop();
 
                     if (options.has("createESIndex")) {
@@ -141,7 +141,7 @@ public class Crawler {
                     applicationComponent.getElastic().close();
                     applicationComponent.getVertx().close();
                     healthMonitor.stop();
-                    LOGGER.info("Crawler stopped...");
+                    LOGGER.trace("Crawler stopped...");
 
                     ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
                 } catch (Exception e) {

@@ -35,7 +35,7 @@ class LeverarmsFrontPageParser extends AbstractWebPageParser {
 
             for (Element e : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", e.attr("abs:href") + "?limit=all", e.text());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
@@ -51,7 +51,7 @@ class LeverarmsFrontPageParser extends AbstractWebPageParser {
 
             for (Element e : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", e.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

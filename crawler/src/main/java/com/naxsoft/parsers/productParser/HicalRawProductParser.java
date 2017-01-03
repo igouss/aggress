@@ -76,7 +76,7 @@ class HicalRawProductParser extends AbstractRawPageParser {
             String[] category;
 
             productName = document.select("h2[itemprop='name']").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             url = webPageEntity.getUrl();
             regularPrice = document.select("#ProductDetails div.DetailRow.PriceRow > div.Value > em").text();

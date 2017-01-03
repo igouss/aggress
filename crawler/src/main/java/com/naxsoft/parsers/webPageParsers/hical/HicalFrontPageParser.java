@@ -34,7 +34,7 @@ class HicalFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".SideCategoryListFlyout a");
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), element.text());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

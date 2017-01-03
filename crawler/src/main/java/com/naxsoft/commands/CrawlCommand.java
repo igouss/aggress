@@ -52,7 +52,7 @@ public class CrawlCommand implements Command {
         MessageConsumer<WebPageEntity> consumer = vertx.eventBus().consumer("webPageParseResult");
         consumer.handler(message -> {
             WebPageEntity webPageEntity = message.body();
-            LOGGER.info("Message received {} {}", message.address(), webPageEntity);
+            LOGGER.trace("Message received {} {}", message.address(), webPageEntity);
             if (webPageEntity != null) {
                 webPageService.addWebPageEntry(webPageEntity).subscribeOn(Schedulers.io()).subscribe();
             } else {
@@ -71,7 +71,7 @@ public class CrawlCommand implements Command {
                         webPageService.getUnparsedByType("frontPage"),
                         webPageService.getUnparsedByType("productList"),
                         webPageService.getUnparsedByType("productPage")))
-                .doOnNext(val -> LOGGER.info("listFlowable: {}", val))
+                .doOnNext(val -> LOGGER.trace("listFlowable: {}", val))
                 .publish().autoConnect(2, val -> listFlowableDisposable = val);
 
         parentMarkDisposable = listFlowable
@@ -80,14 +80,14 @@ public class CrawlCommand implements Command {
                 })
                 .doOnCancel(() -> LOGGER.warn("parentMarkDisposable: parse cancel called"))
                 .doOnError(throwable -> LOGGER.error("parentMarkDisposable: Error", throwable))
-                .doOnNext(webPageEntity -> LOGGER.info("parentMarkDisposable: Starting parse {}", webPageEntity))
+                .doOnNext(webPageEntity -> LOGGER.trace("parentMarkDisposable: Starting parse {}", webPageEntity))
                 .observeOn(Schedulers.io())
                 .flatMap(webPageService::markParsed)
                 .subscribeOn(Schedulers.io())
                 .subscribe(
-                        val -> LOGGER.info("parentMarkDisposable: Added new page {}", val),
+                        val -> LOGGER.trace("parentMarkDisposable: Added new page {}", val),
                         err -> LOGGER.error("parentMarkDisposable: Crawl error", err),
-                        () -> LOGGER.info("parentMarkDisposable: Crawl command completed"));
+                        () -> LOGGER.trace("parentMarkDisposable: Crawl command completed"));
 
         parserDisposable = listFlowable
                 .onBackpressureBuffer(32, () -> {
@@ -95,7 +95,7 @@ public class CrawlCommand implements Command {
                 })
                 .doOnCancel(() -> LOGGER.warn("parserDisposable: parse cancel called"))
                 .doOnError(throwable -> LOGGER.error("parserDisposable: Error", throwable))
-                .doOnNext(webPageEntity -> LOGGER.info("parserDisposable: Starting parse {}", webPageEntity))
+                .doOnNext(webPageEntity -> LOGGER.trace("parserDisposable: Starting parse {}", webPageEntity))
                 .observeOn(Schedulers.io())
                 .buffer(1, TimeUnit.SECONDS)
                 .onBackpressureBuffer(32, () -> {
@@ -109,17 +109,17 @@ public class CrawlCommand implements Command {
 //                .flatMap(webPageService::addWebPageEntry)
 //                .subscribeOn(Schedulers.io())
                 .subscribe(val -> {
-                    LOGGER.info("parserDisposable: Parsed {}", val);
+                    LOGGER.trace("parserDisposable: Parsed {}", val);
                 }, err -> {
                     LOGGER.error("parserDisposable: Crawl error", err);
                 }, () -> {
-                    LOGGER.info("parserDisposable: Crawl command completed");
+                    LOGGER.trace("parserDisposable: Crawl command completed");
                 });
     }
 
     @Override
     public void tearDown() throws CLIException {
-        LOGGER.info("Shutting down crawl command");
+        LOGGER.trace("Shutting down crawl command");
 
         if (parentMarkDisposable != null && !parentMarkDisposable.isDisposed()) {
             parentMarkDisposable.dispose();

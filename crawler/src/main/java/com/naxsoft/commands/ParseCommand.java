@@ -50,10 +50,15 @@ public class ParseCommand implements Command {
     public void start() throws CLIException {
         MessageConsumer<ProductEntity> consumer = vertx.eventBus().consumer("productParseResult");
         consumer.handler(message -> {
-            LOGGER.info("Message received {} {}", message.address(), message.body());
+            LOGGER.trace("Message received {} {}", message.address(), message.body());
             ProductEntity productEntity = message.body();
             if (productEntity != null) {
-                elastic.index(productEntity, "product", "guns").subscribe();
+                elastic.index(productEntity, "product", "guns")
+                        .subscribe(
+                                rc -> LOGGER.info("Index op={}", rc),
+                                err -> LOGGER.error("Index failed", err),
+                                () -> LOGGER.info("Index complete")
+                        );
             } else {
                 LOGGER.error("Unexpected product", new Exception("NULL ProductEntity"));
             }
@@ -68,19 +73,19 @@ public class ParseCommand implements Command {
                 .observeOn(Schedulers.io())
                 .onBackpressureDrop()
                 .flatMap(i -> webPageService.getUnparsedByType("productPageRaw"))
-                .doOnNext(webPageEntity -> LOGGER.info("productPageRaw: Starting RAW page parsing {}", webPageEntity))
+                .doOnNext(webPageEntity -> LOGGER.trace("productPageRaw: Starting RAW page parsing {}", webPageEntity))
                 .doOnNext(productParserFactory::parse)
                 .subscribe(
-                        val -> LOGGER.info("productIndex: Indexed: {}", val),
+                        val -> LOGGER.trace("productIndex: Indexed: {}", val),
                         err -> LOGGER.error("productIndex: Product indexing failed", err),
-                        () -> LOGGER.info("productIndex: Product indexing complete")
+                        () -> LOGGER.trace("productIndex: Product indexing complete")
                 );
     }
 
 
     @Override
     public void tearDown() throws CLIException {
-        LOGGER.info("Shutting down ParseCommand");
+        LOGGER.trace("Shutting down ParseCommand");
         if (productPageRawDisposable != null && !productPageRawDisposable.isDisposed()) {
             productPageRawDisposable.dispose();
         }

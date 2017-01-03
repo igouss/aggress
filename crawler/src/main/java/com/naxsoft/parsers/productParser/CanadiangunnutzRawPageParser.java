@@ -50,7 +50,7 @@ class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
             if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove") || productName.toLowerCase().contains("delete")) {
                 return result.build();
             }
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             Elements images = document.select(".content blockquote img");
             if (!images.isEmpty() && !images.first().attr("src").contains("images/smilies")) {

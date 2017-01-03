@@ -59,7 +59,7 @@ class TheammosourceRawPageParser extends AbstractRawPageParser {
             String[] category;
 
             productName = document.select("#productListHeading").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (document.select("#productDetailsList > li:nth-child(2)").text().equals("0 Units in Stock")) {
                 return result.build();

@@ -88,7 +88,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
                 return result.build();
             }
 
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             String manufacturer = document.select(".product-details__title .product__manufacturer").text();
             if (!manufacturer.isEmpty()) {

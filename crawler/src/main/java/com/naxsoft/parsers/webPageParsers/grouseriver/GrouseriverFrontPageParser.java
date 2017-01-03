@@ -38,7 +38,7 @@ class GrouseriverFrontPageParser extends AbstractWebPageParser {
                 String category = "Home%2F" + element.attr("href").replaceAll("/", "%2F");
                 String url = "http://www.grouseriver.com/api/items?include=facets&fieldset=search&language=en&country=CA&currency=CAD&pricelevel=5&c=3558148&n=2&category=" + category + "&limit=100&offset=0";
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", url, downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productList={}", webPageEntity.getUrl());
+                LOGGER.trace("productList={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
 

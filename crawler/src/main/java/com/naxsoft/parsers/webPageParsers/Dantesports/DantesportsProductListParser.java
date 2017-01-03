@@ -41,10 +41,10 @@ class DantesportsProductListParser extends AbstractWebPageParser {
                 Matcher matcher = producePagePattern.matcher(onclick);
                 if (matcher.find()) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", "https://shop.dantesports.com/items_detail.php?iid=" + matcher.group(), downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                    LOGGER.trace("productPageUrl={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 } else {
-                    LOGGER.info("Product id not found: {}", document.location());
+                    LOGGER.trace("Product id not found: {}", document.location());
                 }
             }
         }

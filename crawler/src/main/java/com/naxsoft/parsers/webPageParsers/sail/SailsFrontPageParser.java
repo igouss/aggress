@@ -49,7 +49,7 @@ class SailsFrontPageParser extends AbstractWebPageParser {
 
             for (Element el : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", el.attr("abs:href") + "?limit=36", downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

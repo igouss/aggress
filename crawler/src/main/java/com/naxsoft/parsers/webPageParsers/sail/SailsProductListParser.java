@@ -46,14 +46,14 @@ class SailsProductListParser extends AbstractWebPageParser {
                 Elements elements = document.select(".toolbar-bottom .pages a");
                 for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                    LOGGER.trace("productPageUrl={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }
             Elements elements = document.select(".item > a");
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                LOGGER.trace("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

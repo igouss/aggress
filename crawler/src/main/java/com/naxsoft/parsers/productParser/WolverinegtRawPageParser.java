@@ -56,7 +56,7 @@ class WolverinegtRawPageParser extends AbstractRawPageParser {
             String[] category;
 
             productName = document.select(".entry-summary h1").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (!document.select(".stock.out-of-stock").isEmpty()) {
                 return result.build();

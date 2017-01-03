@@ -47,12 +47,12 @@ class FishingworldFrontPageParser extends AbstractWebPageParser {
 
                 for (int i = 1; i <= pages; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "?page=" + i, downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             } else {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

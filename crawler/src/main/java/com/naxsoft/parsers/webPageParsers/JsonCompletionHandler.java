@@ -25,7 +25,7 @@ public class JsonCompletionHandler extends AbstractCompletionHandler<JsonResult>
 
     @Override
     public JsonResult onCompleted(Response response) throws Exception {
-        LOGGER.info("Completed request to {}", response.getUri().toString());
+        LOGGER.trace("Completed request to {}", response.getUri().toString());
         Map json = new Gson().fromJson(response.getResponseBody(), Map.class);
         return new JsonResult(source, json);
     }

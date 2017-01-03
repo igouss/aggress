@@ -79,7 +79,7 @@ class GotendaRawParser extends AbstractRawPageParser {
             }
 
             productName = document.select(".InfoArea h1[itemprop=name]").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             productImage = document.select("#ProductImages img").attr("abs:src");
             regularPrice = parsePrice(webPageEntity, document.select(".price-value").text());

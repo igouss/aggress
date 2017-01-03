@@ -124,7 +124,7 @@ public class WebPageParserFactory {
         String clazzName = clazz.getName();
 
         ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz);
-        LOGGER.info("Adding new {}", logger);
+        LOGGER.trace("Adding new {}", logger);
 
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
@@ -150,7 +150,7 @@ public class WebPageParserFactory {
      */
     public boolean parse(List<WebPageEntity> webPageEntity) {
         for (WebPageEntity entity : webPageEntity) {
-            LOGGER.info("Publishing work {}", entity);
+            LOGGER.trace("Publishing work {}", entity);
             String host = SitesUtil.getHost(entity);
             String mailBox = host + "/" + entity.getType();
             vertx.eventBus().publish(mailBox, entity);

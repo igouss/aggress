@@ -52,10 +52,10 @@ class AmmoSupplyRawPageParser extends AbstractRawPageParser {
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             productName = document.select(".p-name").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (document.select(".ct-counts").text().equals("Out Of Stock")) {
-                LOGGER.info("Ignoring {}", webPageEntity.getUrl());
+                LOGGER.trace("Ignoring {}", webPageEntity.getUrl());
             } else {
                 ProductEntity product;
                 url = webPageEntity.getUrl();

@@ -66,7 +66,7 @@ class QuestarRawPageParser extends AbstractRawPageParser {
             String[] category;
 
             productName = document.select("#main > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td:nth-child(3) > table > tbody > tr:nth-child(1)").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
             url = webPageEntity.getUrl();

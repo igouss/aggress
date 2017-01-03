@@ -34,7 +34,7 @@ class WestcoastHuntingProductListParser extends AbstractWebPageParser {
                 Elements elements = document.select(".product-category > a");
                 for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("Product sub-listing {}", webPageEntity.getUrl());
+                    LOGGER.trace("Product sub-listing {}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
 
@@ -50,7 +50,7 @@ class WestcoastHuntingProductListParser extends AbstractWebPageParser {
                     }
                     for (int i = 2; i < max; i++) {
                         WebPageEntity webPageEntity = new WebPageEntity(sourcePage, "", "productList", sourcePage.getUrl() + "page/" + i + "/", sourcePage.getCategory());
-                        LOGGER.info("Product list subpage {} {}", i, webPageEntity.getUrl());
+                        LOGGER.trace("Product list subpage {} {}", i, webPageEntity.getUrl());
                         result.add(webPageEntity);
                     }
                 }
@@ -59,7 +59,7 @@ class WestcoastHuntingProductListParser extends AbstractWebPageParser {
                 elements = document.select(".product.instock a");
                 for (Element el : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity(sourcePage, "", "productPage", el.attr("abs:href"), sourcePage.getCategory());
-                    LOGGER.info("Product page {}", webPageEntity.getUrl());
+                    LOGGER.trace("Product page {}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
 

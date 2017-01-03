@@ -35,7 +35,7 @@ class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".product-category > a");
             for (Element el : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         } catch (Exception e) {

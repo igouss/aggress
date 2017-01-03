@@ -19,7 +19,6 @@ import com.naxsoft.utils.PropertyNotFoundException;
 import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.schedulers.Schedulers;
 
 import javax.inject.Singleton;
 import java.util.List;
@@ -47,11 +46,10 @@ public class RedisDatabase implements Persistent {
         redisClient.getResources().eventBus().get()
                 .filter(redisEvent -> redisEvent instanceof CommandLatencyEvent)
                 .cast(CommandLatencyEvent.class)
-                .subscribeOn(Schedulers.trampoline())
                 .subscribe(
-                        e -> LOGGER.info(e.getLatencies().toString()),
+                        e -> LOGGER.trace(e.getLatencies().toString()),
                         err -> LOGGER.error("Failed to get command latency", err),
-                        () -> LOGGER.info("Command latency complete")
+                        () -> LOGGER.trace("Command latency complete")
                 );
 //        pubSub = redisClient.connectPubSub();
 //        pool = redisClient.asyncPool();
@@ -60,7 +58,7 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public void close() {
-        LOGGER.info("Shutting down redis connection");
+        LOGGER.trace("Shutting down redis connection");
         redisClient.shutdown();
     }
 
@@ -69,9 +67,9 @@ public class RedisDatabase implements Persistent {
 //        String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
 
-        LOGGER.info("Adding {} to {}", webPageEntity, destination);
+        LOGGER.trace("Adding {} to {}", webPageEntity, destination);
         return Flowable.fromFuture(connection.async().sadd(destination, Encoder.encode(webPageEntity)));
-        //.doOnNext(res -> LOGGER.info("Moved rc={} from {} to {} element {}...", res, source, destination, member.substring(0, 50)));
+        //.doOnNext(res -> LOGGER.trace("Moved rc={} from {} to {} element {}...", res, source, destination, member.substring(0, 50)));
     }
 
     @Override
@@ -112,11 +110,11 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public Flowable<WebPageEntity> getUnparsedByType(String type, Long count) {
-        LOGGER.info("getUnparsedByType {} {}", type, count);
+        LOGGER.trace("getUnparsedByType {} {}", type, count);
         return Flowable.fromFuture(connection.async().spop("WebPageEntity." + type, Math.min(count, BATCH_SIZE)))
                 .flatMap(Flowable::fromIterable)
                 .map(WebPageEntityEncoder::decode)
-                .doOnNext(val -> LOGGER.info("SPOP'ed {} {} {}", val.getType(), val.getUrl(), val.getCategory()));
+                .doOnNext(val -> LOGGER.trace("SPOP'ed {} {} {}", val.getType(), val.getUrl(), val.getCategory()));
     }
 
     @Override

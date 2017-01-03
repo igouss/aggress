@@ -64,7 +64,7 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
             if (productName.toUpperCase().contains("OUT OF STOCK") || productName.contains("Donation to the CSSA") || productName.contains("SOLD")) {
                 return result.build();
             }
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
             url = webPageEntity.getUrl();

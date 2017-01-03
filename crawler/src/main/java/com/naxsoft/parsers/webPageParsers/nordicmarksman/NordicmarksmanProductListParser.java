@@ -31,7 +31,7 @@ class NordicmarksmanProductListParser extends AbstractWebPageParser {
             Elements elements = document.select(".prodlink");
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPageUrl={}, parent={}", webPageEntity.getUrl(), downloadResult.getSourcePage().getUrl());
+                LOGGER.trace("productPageUrl={}, parent={}", webPageEntity.getUrl(), downloadResult.getSourcePage().getUrl());
                 result.add(webPageEntity);
             }
         }

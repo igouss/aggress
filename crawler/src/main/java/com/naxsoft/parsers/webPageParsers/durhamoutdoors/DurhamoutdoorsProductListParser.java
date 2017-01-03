@@ -31,7 +31,7 @@ class DurhamoutdoorsProductListParser extends AbstractWebPageParser {
             Elements elements = document.select("#content-table .details a");
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                LOGGER.trace("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
 
@@ -39,7 +39,7 @@ class DurhamoutdoorsProductListParser extends AbstractWebPageParser {
                 elements = document.select(".paginate.fr.cy a");
                 for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), element.text());
-                    LOGGER.info("productList={}", webPageEntity.getUrl());
+                    LOGGER.trace("productList={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }

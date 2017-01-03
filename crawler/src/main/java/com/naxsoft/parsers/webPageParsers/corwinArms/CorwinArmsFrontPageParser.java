@@ -39,7 +39,7 @@ class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                 String linkUrl = e.attr("abs:href");
 
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", linkUrl, e.text());
-                LOGGER.info("Found productList page {}", linkUrl);
+                LOGGER.trace("Found productList page {}", linkUrl);
                 result.add(webPageEntity);
             }
         }
@@ -57,12 +57,12 @@ class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                 int max = Integer.parseInt(matcher.group(2));
                 for (int i = 1; i <= max; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "?page=" + i, downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             } else {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

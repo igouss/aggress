@@ -32,7 +32,7 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select("ul#menu-main-menu:not(.off-canvas-list) > li > a");
-            LOGGER.info("Parsing for sub-pages + {}", document.location());
+            LOGGER.trace("Parsing for sub-pages + {}", document.location());
 
             for (Element el : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", el.attr("abs:href") + "?count=72", el.text());
@@ -52,14 +52,14 @@ class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select("div.clearfix span.pagination a.nav-page");
             if (elements.isEmpty()) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
+                LOGGER.trace("productList={}, parent={}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             } else {
                 int i = Integer.parseInt(elements.first().text()) - 1;
                 int end = Integer.parseInt(elements.last().text());
                 for (; i <= end; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("productList={}, parent={}", webPageEntity.getUrl(), document.location());
+                    LOGGER.trace("productList={}, parent={}", webPageEntity.getUrl(), document.location());
                     result.add(webPageEntity);
                 }
             }

@@ -29,7 +29,7 @@ public class HealthMonitor implements Runnable {
             } catch (InterruptedException e) {
                 throw new HealthCheckException("HealthMonitor Interrupted", e);
             }
-            LOGGER.info("ALIVE");
+            LOGGER.trace("ALIVE");
         }
     }
 

@@ -49,7 +49,7 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
 
             for (int i = 1; i <= pageTotal; i++) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "&p=" + i, downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

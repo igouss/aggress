@@ -72,7 +72,7 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
             String[] category;
 
             productName = document.select("#maincol h1").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             url = webPageEntity.getUrl();
             String img = document.select("div.field-type-image img").attr("abs:src");

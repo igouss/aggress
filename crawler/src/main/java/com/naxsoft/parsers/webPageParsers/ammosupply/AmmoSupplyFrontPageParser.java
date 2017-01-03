@@ -32,7 +32,7 @@ class AmmoSupplyFrontPageParser extends AbstractWebPageParser {
 
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPage={}", webPageEntity.getUrl());
+                LOGGER.trace("productPage={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

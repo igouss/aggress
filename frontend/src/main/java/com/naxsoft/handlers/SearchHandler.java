@@ -57,7 +57,7 @@ public class SearchHandler {
                 builder.append(searchHits[i].getSourceAsString());
 
             }
-            LOGGER.info("Score = {}", searchHits[i].getScore());
+            LOGGER.trace("Score = {}", searchHits[i].getScore());
         }
 
         builder.append("]");
@@ -102,7 +102,7 @@ public class SearchHandler {
             boolQueryBuilder.filter(QueryBuilders.termQuery("category", category));
         }
 
-        LOGGER.info("{}", boolQueryBuilder);
+        LOGGER.trace("{}", boolQueryBuilder);
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product" + indexSuffix);
         searchRequestBuilder.setQuery(boolQueryBuilder);
@@ -118,7 +118,7 @@ public class SearchHandler {
         String searchKey = getSearchKey(routingContext, "searchKey");
         String categoryKey = getSearchKey(routingContext, "categoryKey");
         int startFrom = getStartFrom(routingContext);
-        LOGGER.info("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
+        LOGGER.trace("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
 
         ListenableActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
         SearchResponse searchResponse = future.actionGet();

@@ -30,22 +30,22 @@ class CabelasProductListParser extends AbstractWebPageParser {
         Document document = downloadResult.getDocument();
         boolean isTerminalCategory = (1 == document.select(".categories .active").size()) || document.select("h1").text().equals("Thanks for visiting Cabelas.ca!");
         if (isTerminalCategory) {
-            LOGGER.info("Terminal category {}", downloadResult.getSourcePage().getUrl());
+            LOGGER.trace("Terminal category {}", downloadResult.getSourcePage().getUrl());
         } else {
-            LOGGER.info("Non-terminal category {}", downloadResult.getSourcePage().getUrl());
+            LOGGER.trace("Non-terminal category {}", downloadResult.getSourcePage().getUrl());
         }
         return isTerminalCategory;
     }
 
     private static WebPageEntity getProductList(WebPageEntity parent, String url, String category) {
         WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", url, category);
-        LOGGER.info("productList={}", webPageEntity.getUrl());
+        LOGGER.trace("productList={}", webPageEntity.getUrl());
         return webPageEntity;
     }
 
     private static WebPageEntity productPage(WebPageEntity parent, String url, String category) {
         WebPageEntity productPage = new WebPageEntity(parent, "", "productPage", url, category);
-        LOGGER.info("productPage={}", url);
+        LOGGER.trace("productPage={}", url);
         return productPage;
     }
 

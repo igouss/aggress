@@ -60,7 +60,7 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                         element = element.select("a.title").first();
                         if (!element.text().toLowerCase().contains("remove")) {
                             WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                            LOGGER.info("productPage={}", webPageEntity.getUrl());
+                            LOGGER.trace("productPage={}", webPageEntity.getUrl());
                             result.add(webPageEntity);
                         }
                     }

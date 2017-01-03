@@ -70,7 +70,7 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
             String[] category;
 
             productName = document.select(".BlockContent > h2").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
             category = getNormalizedCategories(document.select("#ProductBreadcrumb > ul > li:nth-child(2) > a").text());
 
 

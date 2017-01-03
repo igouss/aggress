@@ -62,7 +62,7 @@ class SailsRawPageParser extends AbstractRawPageParser {
             String[] category;
 
             productName = document.select(".product-shop .brand").text() + " " + document.select(".product-shop .product-name span").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
             url = webPageEntity.getUrl();

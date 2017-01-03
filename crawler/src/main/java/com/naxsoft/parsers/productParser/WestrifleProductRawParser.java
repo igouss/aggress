@@ -81,7 +81,7 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
             }
 
             productName = document.select("#productName").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
             url = webPageEntity.getUrl();

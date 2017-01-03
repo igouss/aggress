@@ -76,7 +76,7 @@ class NordicmarksmanRawPageParser extends AbstractRawPageParser {
             }
 
             productName = document.select(".productname").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
             url = webPageEntity.getUrl();

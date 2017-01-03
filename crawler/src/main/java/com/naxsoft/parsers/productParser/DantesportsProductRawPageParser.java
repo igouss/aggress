@@ -95,7 +95,7 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             productName = document.select(".naitem").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (!document.select(".outofstock").isEmpty()) {
                 return result.build();

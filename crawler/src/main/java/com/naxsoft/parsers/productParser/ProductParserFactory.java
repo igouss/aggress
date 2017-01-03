@@ -162,7 +162,7 @@ public class ProductParserFactory {
         String host = SitesUtil.getHost(webPageEntity);
         String type = webPageEntity.getType();
         String mailbox = host + "/" + type;
-        LOGGER.info("Sending to mailbox {} value {}", mailbox, webPageEntity);
+        LOGGER.trace("Sending to mailbox {} value {}", mailbox, webPageEntity);
         vertx.eventBus().publish(mailbox, webPageEntity);
         parseProductResultSensor.mark();
     }

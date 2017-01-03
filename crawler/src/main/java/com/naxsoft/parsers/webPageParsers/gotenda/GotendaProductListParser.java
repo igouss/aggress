@@ -35,12 +35,12 @@ class GotendaProductListParser extends AbstractWebPageParser {
             if (!elements.isEmpty()) {
                 for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                    LOGGER.trace("productPageUrl={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             } else {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                LOGGER.trace("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

@@ -80,7 +80,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 for (String category : categories.keySet()) {
                     if (text.endsWith(category)) {
                         WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), categories.get(category));
-                        LOGGER.info("productList={}", webPageEntity.getUrl());
+                        LOGGER.trace("productList={}", webPageEntity.getUrl());
                         result.add(webPageEntity);
                         break;
                     }
@@ -104,7 +104,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 int pages = (int) Math.ceil((double) total / postsPerPage);
                 for (int i = 1; i <= pages; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("productList={}", webPageEntity.getUrl());
+                    LOGGER.trace("productList={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }

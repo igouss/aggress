@@ -76,7 +76,7 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             productName = document.select("h1").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             productImage = document.select("img[id=mainPic]").attr("abs:src");
             category = getNormalizedCategories(webPageEntity);

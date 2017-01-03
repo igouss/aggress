@@ -47,7 +47,7 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Flowable<WebPageEntity> parse(WebPageEntity parent) {
-        LOGGER.info("Parsing psmilitaria front-page");
+        LOGGER.trace("Parsing psmilitaria front-page");
         Set<WebPageEntity> webPageEntities = ImmutableSet.<WebPageEntity>builder()
                 .add(create(parent, "http://psmilitaria.50megs.com/guns.html", "firearm"))
                 .add(create(parent, "http://psmilitaria.50megs.com/collectmisc.html", "firearm"))

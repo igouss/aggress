@@ -141,7 +141,7 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
             Elements productNameEl = document.select(".product-name h1");
             if (!productNameEl.isEmpty()) {
                 productName = productNameEl.first().text().trim();
-                LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+                LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
             } else {
                 LOGGER.warn("unable to find product name {}", webPageEntity);
                 return result.build();

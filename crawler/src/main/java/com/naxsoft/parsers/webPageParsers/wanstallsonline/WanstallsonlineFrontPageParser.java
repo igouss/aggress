@@ -64,7 +64,7 @@ class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
                     url = document.location() + "index " + i + ".html";
                 }
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", url, downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

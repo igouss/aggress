@@ -56,10 +56,10 @@ public class Elastic implements AutoCloseable, Cloneable {
                     .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(hostname), port));
 
             while (true) {
-                LOGGER.info("Waiting for elastic to connect to a node {}:{}...", hostname, port);
+                LOGGER.trace("Waiting for elastic to connect to a node {}:{}...", hostname, port);
                 List<DiscoveryNode> discoveryNodes = client.connectedNodes();
                 if (0 != discoveryNodes.size()) {
-                    LOGGER.info("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
+                    LOGGER.trace("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
                         if (a.isEmpty()) {
                             return b;
                         } else {
@@ -82,7 +82,7 @@ public class Elastic implements AutoCloseable, Cloneable {
      */
     public void close() {
         if (null != client) {
-            LOGGER.info("Shutting down elastic");
+            LOGGER.trace("Shutting down elastic");
             client.close();
             client = null;
         }
@@ -100,13 +100,13 @@ public class Elastic implements AutoCloseable, Cloneable {
         String resourceName = "/elastic." + indexName + "." + type + ".index.json";
         InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
         try {
-            LOGGER.info("Creating index {} type {} from {}", indexName, type, resourceName);
+            LOGGER.trace("Creating index {} type {} from {}", indexName, type, resourceName);
             if (!indexExists(indexName)) {
                 Settings settings = Settings.builder().loadFromStream(resourceName, resourceAsStream).build();
                 CreateIndexRequest request = new CreateIndexRequest(indexName, settings);
                 return Flowable.fromFuture(client.admin().indices().create(request)).map(AcknowledgedResponse::isAcknowledged);
             } else {
-                LOGGER.info("Index already exists");
+                LOGGER.trace("Index already exists");
 
             }
         } catch (Exception e) {
@@ -138,11 +138,11 @@ public class Elastic implements AutoCloseable, Cloneable {
             XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
             jsonBuilder.startObject();
             IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
-            LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
+            LOGGER.trace("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
             request.setSource(product.getJson());
             request.setOpType(IndexRequest.OpType.INDEX);
             bulkRequestBuilder.add(request);
-            return Flowable.just(bulkRequestBuilder.execute().get()).map(bulkItemResponses -> !bulkItemResponses.hasFailures());
+            return Flowable.fromFuture(bulkRequestBuilder.execute()).map(bulkItemResponses -> !bulkItemResponses.hasFailures());
         } catch (Exception e) {
             LOGGER.error("Failed to index", e);
         }
@@ -163,7 +163,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         try {
             for (ProductEntity product : products) {
                 XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-                LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
+                LOGGER.trace("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
                 jsonBuilder.startObject();
                 jsonBuilder.field("url", product.getUrl());
                 jsonBuilder.field("crawlDate", Date.from(Instant.now()));
@@ -187,7 +187,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                 bulkRequestBuilder.add(request);
             }
             if (bulkRequestBuilder.numberOfActions() > 0) {
-                return Flowable.just(bulkRequestBuilder.execute().get()).map(bulkItemResponses -> !bulkItemResponses.hasFailures());
+                return Flowable.fromFuture(bulkRequestBuilder.execute()).map(bulkItemResponses -> !bulkItemResponses.hasFailures());
             }
         } catch (Exception e) {
             LOGGER.error("Failed to price index", e);

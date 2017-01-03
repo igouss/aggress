@@ -63,7 +63,7 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             productName = document.select("#product > h1").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (document.select("#details div.warning").text().equals("Out of Stock")) {
                 return result.build();

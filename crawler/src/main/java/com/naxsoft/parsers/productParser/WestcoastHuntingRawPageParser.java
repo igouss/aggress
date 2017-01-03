@@ -55,7 +55,7 @@ class WestcoastHuntingRawPageParser extends AbstractRawPageParser {
             String[] category;
 
             productName = document.select(".product_title").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             url = webPageEntity.getUrl();
             productImage = document.select(".images .woocommerce-main-image img").attr("abs:src");

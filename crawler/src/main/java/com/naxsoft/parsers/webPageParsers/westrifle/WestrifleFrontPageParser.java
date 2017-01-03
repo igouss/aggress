@@ -34,7 +34,7 @@ class WestrifleFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".leftBoxContainer .category-top");
             for (Element e : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", e.attr("abs:href"), e.text());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
@@ -54,7 +54,7 @@ class WestrifleFrontPageParser extends AbstractWebPageParser {
 
             for (int i = 1; i <= pageTotal; i++) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "&page=" + i, downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                LOGGER.trace("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

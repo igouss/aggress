@@ -10,6 +10,10 @@ ext {
 }
 
 dependencies {
+    compile project(':crawler')
+    compile project(':common')
+    compile fileTree(dir: "libs", include: "*.jar")
+
     compile "ch.qos.logback:logback-core:1.1.7"
     compile "ch.qos.logback:logback-classic:1.1.7"
 
@@ -18,9 +22,6 @@ dependencies {
     compile "io.vertx:vertx-core:3.3.3"
     compile "io.vertx:vertx-web:3.3.3"
     compile "io.vertx:vertx-web-templ-thymeleaf:3.3.3"
-
-    compile project(':crawler')
-    compile project(':common')
 }
 
 task copyDepsToDocker(type: Copy) {

@@ -69,7 +69,7 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
                     continue;
                 }
                 productName = elText;
-                LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+                LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
                 url = webPageEntity.getUrl();

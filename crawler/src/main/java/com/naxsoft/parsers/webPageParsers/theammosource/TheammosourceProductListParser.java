@@ -35,7 +35,7 @@ class TheammosourceProductListParser extends AbstractWebPageParser {
             if (!elements.isEmpty()) {
                 for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                    LOGGER.trace("productPageUrl={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             } else {
@@ -43,14 +43,14 @@ class TheammosourceProductListParser extends AbstractWebPageParser {
                     elements = document.select("#productsListingListingTopLinks > a");
                     for (Element element : elements) {
                         WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                        LOGGER.info("productPageUrl={}, parseUrl={}", webPageEntity.getUrl());
+                        LOGGER.trace("productPageUrl={}, parseUrl={}", webPageEntity.getUrl());
                         result.add(webPageEntity);
                     }
                 }
                 elements = document.select(".itemTitle a");
                 for (Element element : elements) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                    LOGGER.trace("productPageUrl={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }

@@ -28,6 +28,7 @@ dependencies {
     compile project(":frontend")
     compile project(":webadmin")
     compile project(":storage")
+    compile fileTree(dir: "libs", include: "*.jar")
 }
 
 task wrapper(type: Wrapper) {

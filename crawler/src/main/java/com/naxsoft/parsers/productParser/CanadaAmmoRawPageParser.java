@@ -84,7 +84,7 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
                 return result.build();
             }
             productName = document.select(".product-details__title .product__name").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntityUrl);
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntityUrl);
             attr.put("manufacturer", document.select(".product-details__title .product__manufacturer").text());
             productImage = document.select("img[itemprop=image]").attr("srcset");
             String regularPriceStrike = document.select("div.product-details__main .product__price del").text();

@@ -75,11 +75,11 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             productName = document.select(".product_title").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            LOGGER.trace("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
             if (document.select(".stock.out-of-stock").size() != 0) {
-                LOGGER.info("Product {} out of stock", productName);
+                LOGGER.trace("Product {} out of stock", productName);
                 return result.build();
             }
 

@@ -38,7 +38,7 @@ class WolverinegFrontPageParser extends AbstractWebPageParser {
                 String linkUrl = e.attr("abs:href");
                 if (null != linkUrl && !linkUrl.isEmpty()) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", linkUrl, downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("ProductPageUrl={}", linkUrl);
+                    LOGGER.trace("ProductPageUrl={}", linkUrl);
                     result.add(webPageEntity);
                 }
             }
