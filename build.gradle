@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:3.0.1'
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.5'
     }
 }
 
@@ -12,6 +12,7 @@ plugins {
     id "java"
     id "idea"
     id 'com.gradle.build-scan' version '1.2'
+    id 'com.github.ben-manes.versions' version '0.14.0'
 }
 apply plugin: 'com.bmuschko.docker-remote-api'
 
@@ -31,7 +32,7 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "3.1"
+    gradleVersion = "3.4"
     distributionUrl = "https://services.gradle.org/distributions/gradle-" + gradleVersion + "-all.zip"
 }
 
@@ -50,6 +51,19 @@ allprojects {
     gradle.projectsEvaluated {
         tasks.withType(JavaCompile) {
             options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+}
+
+dependencyUpdates.resolutionStrategy = {
+    componentSelection { rules ->
+        rules.all { ComponentSelection selection ->
+            boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
+                selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+            }
+            if (rejected) {
+                selection.reject('Release candidate')
+            }
         }
     }
 }

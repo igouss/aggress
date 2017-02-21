@@ -1,7 +1,6 @@
 plugins {
     id "java"
     id "idea"
-    id "com.github.ben-manes.versions" version "0.13.0"// gradle dependencyUpdates
 }
 
 ext {
@@ -10,17 +9,17 @@ ext {
 }
 
 dependencies {
-    compile "ch.qos.logback:logback-core:1.1.7"
-    compile "ch.qos.logback:logback-classic:1.1.7"
+    compile "ch.qos.logback:logback-core:1.2.1"
+    compile "ch.qos.logback:logback-classic:1.2.1"
 
     compile "junit:junit:4.12"
 
-    compile 'org.elasticsearch.client:transport:5.0.0'
-    compile 'org.apache.logging.log4j:log4j-to-slf4j:2.7'
+    compile 'org.elasticsearch.client:transport:5.2.1'
+    compile 'org.apache.logging.log4j:log4j-to-slf4j:2.8'
 
     compile "com.vividsolutions:jts:1.13"
 
-    compile "org.thymeleaf:thymeleaf:3.0.2.RELEASE"
+    compile "org.thymeleaf:thymeleaf:3.0.3.RELEASE"
 
     compile "io.vertx:vertx-core:3.3.3"
     compile "io.vertx:vertx-web:3.3.3"

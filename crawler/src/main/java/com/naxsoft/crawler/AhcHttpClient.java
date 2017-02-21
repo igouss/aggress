@@ -116,7 +116,6 @@ public class AhcHttpClient implements HttpClient {
                 .addIOExceptionFilter(new ResumableIOExceptionFilter())
                 .addRequestFilter(throttleRequestFilter)
                 .setUseNativeTransport(useNativeTransport)
-                .setUsePooledMemory(true)
                 .build();
         asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig);
 

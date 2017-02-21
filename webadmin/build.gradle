@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.0.4'
+    ext.kotlin_version = '1.0.6'
 
     repositories {
         mavenCentral()
@@ -12,7 +12,6 @@ buildscript {
 plugins {
     id "java"
     id "idea"
-    id "com.github.ben-manes.versions" version "0.13.0"// gradle dependencyUpdates
 }
 
 apply plugin: 'kotlin'

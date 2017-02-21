@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.crafm;
 
 import com.codahale.metrics.MetricRegistry;
+import com.naxsoft.crawler.DefaultCookie;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -48,7 +49,7 @@ class CrafmFrontPageParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
         List<Cookie> cookies = new ArrayList<>(1);
-        cookies.add(Cookie.newValidCookie("store", "english", false, null, null, Long.MAX_VALUE, false, false));
+        cookies.add(new DefaultCookie("store", "english"));
 
         return client.get("http://www.crafm.com/catalogue/", cookies, new DocumentCompletionHandler(webPage))
                 .flatMap(this::parseDocument)

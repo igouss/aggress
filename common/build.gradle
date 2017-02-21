@@ -2,13 +2,12 @@ plugins {
     id "java"
     id "idea"
     id "net.ltgt.apt" version "0.6"
-    id "com.github.ben-manes.versions" version "0.13.0"// gradle dependencyUpdates
 }
 
 dependencies {
-    compile "ch.qos.logback:logback-core:1.1.7"
-    compile "ch.qos.logback:logback-classic:1.1.7"
-    compile "com.google.code.gson:gson:2.7"
+    compile "ch.qos.logback:logback-core:1.2.1"
+    compile "ch.qos.logback:logback-classic:1.2.1"
+    compile "com.google.code.gson:gson:2.8.0"
     compile "commons-io:commons-io:2.5"
 
 }

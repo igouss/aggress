@@ -1,6 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.sail;
 
 import com.codahale.metrics.MetricRegistry;
+import com.naxsoft.crawler.DefaultCookie;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -28,7 +29,7 @@ class SailsProductListParser extends AbstractWebPageParser {
 
     static {
         cookies = new ArrayList<>(1);
-        cookies.add(Cookie.newValidCookie("store_language", "english", false, null, null, Long.MAX_VALUE, false, false));
+        cookies.add(new DefaultCookie("store_language", "english"));
     }
 
     public SailsProductListParser(MetricRegistry metricRegistry, HttpClient client) {

@@ -19,9 +19,11 @@ import com.naxsoft.utils.PropertyNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 import javax.inject.Singleton;
+import java.util.Objects;
 
 @Singleton
 public class RedisDatabase implements Persistent {
@@ -47,7 +49,7 @@ public class RedisDatabase implements Persistent {
         redisClient.getResources().eventBus().get()
                 .filter(redisEvent -> redisEvent instanceof CommandLatencyEvent)
                 .cast(CommandLatencyEvent.class)
-                .subscribeOn(Schedulers.trampoline())
+                .subscribeOn(Schedulers.computation())
                 .subscribe(
                         e -> LOGGER.info(e.getLatencies().toString()),
                         err -> LOGGER.error("Failed to get command latency", err),
@@ -66,9 +68,9 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public Observable<Long> markWebPageAsParsed(WebPageEntity webPageEntity) {
-        if (webPageEntity == null) {
-            return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
-        }
+//        if (webPageEntity == null) {
+//            return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
+//        }
 
         String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
@@ -102,7 +104,7 @@ public class RedisDatabase implements Persistent {
         return connection.reactive()
                 .smembers("ProductEntity")
                 .map(ProductEntityEncoder::decode)
-                .filter(productEntity -> productEntity != null);
+                .filter(Objects::nonNull);
     }
 
     @Override
@@ -117,7 +119,7 @@ public class RedisDatabase implements Persistent {
                 .spop("WebPageEntity." + type, Math.min(count, BATCH_SIZE))
                 .map(WebPageEntityEncoder::decode)
                 .doOnNext(val -> LOGGER.info("SPOP'ed {} {} {}", val.getType(), val.getUrl(), val.getCategory()))
-                .filter(entry -> entry != null);
+                .filter(Objects::nonNull);
     }
 
     @Override
