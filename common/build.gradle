@@ -1,13 +1,13 @@
 plugins {
-    id "java"
+    id "java-library"
     id "idea"
     id "net.ltgt.apt" version "0.6"
 }
 
 dependencies {
-    compile "ch.qos.logback:logback-core:1.2.3"
-    compile "ch.qos.logback:logback-classic:1.2.3"
-    compile "com.google.code.gson:gson:2.8.0"
-    compile "commons-io:commons-io:2.5"
+    implementation  "ch.qos.logback:logback-core:1.2.3"
+    implementation  "ch.qos.logback:logback-classic:1.2.3"
+    implementation  "com.google.code.gson:gson:2.8.0"
+    implementation  "commons-io:commons-io:2.5"
 
 }

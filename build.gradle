@@ -24,11 +24,11 @@ buildScan {
 }
 
 dependencies {
-    compile project(":common")
-    compile project(":crawler")
-    compile project(":frontend")
-    compile project(":webadmin")
-    compile project(":storage")
+    implementation project(":common")
+    implementation project(":crawler")
+    implementation project(":frontend")
+    implementation project(":webadmin")
+    implementation project(":storage")
 }
 
 task wrapper(type: Wrapper) {
