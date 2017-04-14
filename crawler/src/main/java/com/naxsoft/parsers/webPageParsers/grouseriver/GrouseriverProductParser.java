@@ -23,7 +23,7 @@ public class GrouseriverProductParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-
+    @SuppressWarnings("unchecked")
     public Observable<WebPageEntity> parseJson(JsonResult downloadResult) {
         HashSet<WebPageEntity> result = new HashSet<>();
         Map parsedJson = downloadResult.getJson();
