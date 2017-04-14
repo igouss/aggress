@@ -4,6 +4,9 @@ plugins {
     id "net.ltgt.apt" version "0.6"
 }
 
+/*
+https://docs.gradle.org/current/userguide/java_library_plugin.html
+*/
 dependencies {
     implementation  "ch.qos.logback:logback-core:1.2.3"
     implementation  "ch.qos.logback:logback-classic:1.2.3"

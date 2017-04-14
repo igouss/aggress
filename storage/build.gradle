@@ -9,6 +9,9 @@ ext {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+/*
+https://docs.gradle.org/current/userguide/java_library_plugin.html
+*/
 dependencies {
     implementation project(':common')
     implementation  "com.google.code.gson:gson:2.8.0"

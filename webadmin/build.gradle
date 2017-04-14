@@ -25,8 +25,8 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "io.vertx:vertx-core:3.4.1"
-    implementation "io.vertx:vertx-web:3.4.1"
-    implementation "io.vertx:vertx-web-templ-thymeleaf:3.4.1"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "io.vertx:vertx-core:3.4.1"
+    compile "io.vertx:vertx-web:3.4.1"
+    compile "io.vertx:vertx-web-templ-thymeleaf:3.4.1"
 }

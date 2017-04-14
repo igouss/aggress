@@ -24,8 +24,8 @@ public class AppProperties {
         try {
             LOGGER.debug("Loading config.properties");
             InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream(configFileName);
-            if (resourceAsStream.available() <= 0) {
-                LOGGER.error("Config file is empty {}", configLocation);
+            if (resourceAsStream == null || resourceAsStream.available() <= 0) {
+                LOGGER.error("Config file {} at {} is empty", configFileName, configLocation);
             } else {
                 PROPERTIES.load(resourceAsStream);
                 /* TODO: mask password */
