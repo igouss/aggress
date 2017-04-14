@@ -17,6 +17,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +100,7 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @return Observable that either completes or errors.
      */
     public Observable<Boolean> createIndex(String indexName, String type) {
-        return Observable.fromEmitter(emitter -> {
+        return Observable.create(emitter -> {
             String resourceName = "/elastic." + indexName + "." + type + ".index.json";
             InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
             try {
@@ -158,7 +159,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                 jsonBuilder.startObject();
                 IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
                 LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
-                request.setSource(product.getJson());
+                request.setSource(product.getJson(), XContentType.JSON);
                 request.setOpType(IndexRequest.OpType.INDEX);
                 bulkRequestBuilder.add(request);
             }
@@ -167,7 +168,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         }
 
 
-        return Observable.fromEmitter(emitter -> {
+        return Observable.create(emitter -> {
             try {
                 esConcurrency.acquire();
                 bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {
@@ -234,7 +235,7 @@ public class Elastic implements AutoCloseable, Cloneable {
             LOGGER.error("Failed to generate bulk add operation", e);
         }
 
-        return Observable.fromEmitter(emitter -> {
+        return Observable.create(emitter -> {
             try {
                 esConcurrency.acquire();
                 bulkRequestBuilder.execute(new ActionListener<BulkResponse>() {

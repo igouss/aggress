@@ -57,7 +57,7 @@ public class WebPageParserFactory {
 
         MessageConsumer<WebPageEntity> consumer = vertx.eventBus().consumer("webPageParseResult");
 
-        parseResult = Observable.fromEmitter(asyncEmitter -> {
+        parseResult = Observable.create(asyncEmitter -> {
             consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
             consumer.endHandler(v -> asyncEmitter.onCompleted());
         }, Emitter.BackpressureMode.BUFFER);
@@ -118,7 +118,7 @@ public class WebPageParserFactory {
         Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
         Set<Class<? extends AbstractWebPageParser>> classes = reflections.getSubTypesOf(AbstractWebPageParser.class);
 
-        Observable.fromEmitter((Action1<Emitter<Class>>) asyncEmitter -> {
+        Observable.create(asyncEmitter -> {
             classes.stream().filter(clazz -> !Modifier.isAbstract(clazz.getModifiers())).forEach(clazz -> {
                 try {
                     createLogger(clazz);

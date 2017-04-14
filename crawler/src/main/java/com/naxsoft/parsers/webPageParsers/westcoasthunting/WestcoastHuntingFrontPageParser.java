@@ -29,7 +29,7 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        return Observable.fromEmitter(emitter -> {
+        return Observable.create(emitter -> {
             try {
                 Document document = downloadResult.getDocument();
                 Elements elements = document.select(".product-category > a");

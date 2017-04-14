@@ -22,7 +22,7 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
     }
 
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        return Observable.fromEmitter(emitter -> {
+        return Observable.create(emitter -> {
             try {
                 Document document = downloadResult.getDocument();
                 if (document != null) {

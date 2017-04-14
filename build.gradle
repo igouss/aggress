@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:3.0.5'
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.6'
     }
 }
 
@@ -32,7 +32,7 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "3.4"
+    gradleVersion = "3.5"
     distributionUrl = "https://services.gradle.org/distributions/gradle-" + gradleVersion + "-all.zip"
 }
 
@@ -52,6 +52,9 @@ allprojects {
         tasks.withType(JavaCompile) {
             options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
         }
+    }
+    tasks.withType(JavaCompile) {
+        options.incremental = true
     }
 }
 
@@ -112,5 +115,14 @@ task buildDockerImages() {
     group = "Publishing"
 }
 buildDockerImages.dependsOn tasks.buildDockerS6Overlay, tasks.buildDockerJava, tasks.buildDockerRedis, tasks.buildDockerElasticsearch, tasks.buildDockerCrawler, tasks.buildDockerFrontend
+
+def gitVersion() {
+    if (!System.getenv('CI_BUILD')) {
+        // don't care
+        return 1
+    }
+    def cmd = 'git rev-list HEAD --first-parent --count'
+    cmd.execute().text.trim().toInteger()
+}
 
 defaultTasks = ["clean", "build"]
