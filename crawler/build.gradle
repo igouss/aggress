@@ -1,7 +1,6 @@
 plugins {
     id "java"
     id "idea"
-    id "maven-publish"
     id "net.ltgt.apt" version "0.6"
 }
 
@@ -16,38 +15,38 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    implementation "org.jsoup:jsoup:1.10.2"
+    compile "org.jsoup:jsoup:1.10.2"
 
 //    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.0-RC3'
-    implementation "io.reactivex:rxjava:1.2.9"
+    compile "io.reactivex:rxjava:1.2.9"
 
-    implementation "ch.qos.logback:logback-core:1.2.3"
-    implementation "ch.qos.logback:logback-classic:1.2.3"
+    compile "ch.qos.logback:logback-core:1.2.3"
+    compile "ch.qos.logback:logback-classic:1.2.3"
 
-    implementation "org.reflections:reflections:0.9.11"
-    implementation "io.dropwizard.metrics:metrics-core:3.2.2"
-    implementation "org.apache.commons:commons-collections4:4.1"
-    implementation "com.google.code.gson:gson:2.8.0"
+    compile "org.reflections:reflections:0.9.11"
+    compile "io.dropwizard.metrics:metrics-core:3.2.2"
+    compile "org.apache.commons:commons-collections4:4.1"
+    compile "com.google.code.gson:gson:2.8.0"
 
-    implementation "org.asynchttpclient:async-http-client:2.0.31"
-    implementation "junit:junit:4.12"
-    implementation "io.vertx:vertx-core:3.4.1"
+    compile "org.asynchttpclient:async-http-client:2.0.31"
+    compile "junit:junit:4.12"
+    compile "io.vertx:vertx-core:3.4.1"
 
-    implementation "net.sf.jopt-simple:jopt-simple:5.0.3"
+    compile "net.sf.jopt-simple:jopt-simple:5.0.3"
 
-    implementation "net.ltgt.gradle:gradle-apt-plugin:0.6"
+    compile "net.ltgt.gradle:gradle-apt-plugin:0.6"
 
 
 //    compile "com.github.davidmoten:rxjava-slf4j:0.6.2" // https://github.com/davidmoten/rxjava-slf4j
 //    compile "com.github.davidmoten:rxjava-extras:0.7.9.24" // https://github.com/davidmoten/rxjava-extras
 
-    implementation project(':common')
-    implementation project(':storage')
+    compile project(':common')
+    compile project(':storage')
 
-    implementation "javax.validation:validation-api:1.1.0.Final"
-    implementation "javax.inject:javax.inject:1"
+    compile "javax.validation:validation-api:1.1.0.Final"
+    compile "javax.inject:javax.inject:1"
 
-    compileOnly  "com.google.dagger:dagger:2.10"
+    compile  "com.google.dagger:dagger:2.10"
     apt "com.google.dagger:dagger-compiler:2.10"
 
     compile fileTree(dir: "libs", include: "*.jar")
