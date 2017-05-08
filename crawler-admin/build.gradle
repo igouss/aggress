@@ -1,11 +1,11 @@
-plugins {
-    id "java"
-    id "idea"
-}
-
-ext {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+buildscript {
+    ext.kotlin_version = kotlinVersion
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
 }
 
 dependencies {
@@ -20,6 +20,7 @@ dependencies {
 
     compile project(':crawler')
     compile project(':common')
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 
 task copyDepsToDocker(type: Copy) {
@@ -46,4 +47,7 @@ task copyBaseDir(type: Copy) {
 task dockerPublish() {
     description = "Copy app and all dependencies to docker/crawler-admin"
     dependsOn copyDepsToDocker, copyAppToDocker, copyBaseDir
+}
+repositories {
+    mavenCentral()
 }

@@ -2,7 +2,7 @@ package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
-import org.asynchttpclient.Response;
+import okhttp3.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -24,8 +24,8 @@ public class DocumentCompletionHandler extends AbstractCompletionHandler<Downloa
 
     @Override
     public DownloadResult onCompleted(Response response) throws Exception {
-        LOGGER.info("Completed request to {}", response.getUri().toString());
-        Document document = Jsoup.parse(response.getResponseBody(), response.getUri().toUrl());
+        LOGGER.info("Completed request to {}", response.request().url().toString());
+        Document document = Jsoup.parse(response.body().string(), response.request().url().toString());
         return new DownloadResult(source, document);
     }
 }

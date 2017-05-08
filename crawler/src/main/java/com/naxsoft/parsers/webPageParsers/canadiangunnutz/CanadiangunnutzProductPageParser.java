@@ -7,7 +7,7 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import org.asynchttpclient.cookie.Cookie;
+import okhttp3.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;

@@ -3,8 +3,7 @@ package com.naxsoft.parsers.webPageParsers;
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
-import org.asynchttpclient.Response;
-import org.asynchttpclient.cookie.Cookie;
+import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -12,6 +11,7 @@ import rx.schedulers.Schedulers;
 
 import java.util.Collections;
 import java.util.List;
+import okhttp3.Cookie;
 
 /**
  * Copyright NAXSoft 2015
@@ -46,10 +46,10 @@ public class PageDownloader {
             public WebPageEntity onCompleted(Response response) throws Exception {
 //                LOGGER.info("Completed request to {} {}", parentPage.getType(), response.getUri().toString());
                 WebPageEntity result = null;
-                if (200 == response.getStatusCode()) {
-                    result = new WebPageEntity(parentPage, response.getResponseBody(), pageType, response.getUri().toUrl(), parentPage.getCategory());
+                if (200 == response.code()) {
+                    result = new WebPageEntity(parentPage, response.body().string(), pageType, response.request().url().toString(), parentPage.getCategory());
                 } else {
-                    LOGGER.error("Bad HTTP code={} page={}", response.getStatusCode(), response.getUri());
+                    LOGGER.error("Bad HTTP code={} page={}", response.code(), response.request().url().toString());
                 }
                 return result;
             }

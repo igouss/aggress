@@ -1,13 +1,12 @@
 package com.naxsoft.parsers.webPageParsers.crafm;
 
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.DefaultCookie;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import org.asynchttpclient.cookie.Cookie;
+import okhttp3.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -49,7 +48,9 @@ class CrafmProductListParser extends AbstractWebPageParser {
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         List<Cookie> cookies = new ArrayList<>(1);
-        cookies.add(new DefaultCookie("store", "english"));
+        Cookie.Builder builder = new Cookie.Builder();
+        builder.name("store").value("english").domain("crafm.com");
+        cookies.add(builder.build());
 
         return client.get(parent.getUrl(), cookies, new DocumentCompletionHandler(parent))
                 .flatMap(this::parseDocument)

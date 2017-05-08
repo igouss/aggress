@@ -1,24 +1,16 @@
 buildscript {
-    ext.kotlin_version = '1.1.1'
+    ext.kotlin_version = kotlinVersion
 
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
-plugins {
-    id "java"
-    id "idea"
-}
-
-apply plugin: 'kotlin'
-
 group 'com.naxsoft'
 version '1.0-SNAPSHOT'
-
 
 repositories {
     mavenCentral()
@@ -29,4 +21,5 @@ dependencies {
     compile "io.vertx:vertx-core:3.4.1"
     compile "io.vertx:vertx-web:3.4.1"
     compile "io.vertx:vertx-web-templ-thymeleaf:3.4.1"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }

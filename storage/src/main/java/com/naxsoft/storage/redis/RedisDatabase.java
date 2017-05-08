@@ -32,8 +32,6 @@ public class RedisDatabase implements Persistent {
 
     private final ClientResources res;
     private final RedisClient redisClient;
-    //    private StatefulRedisPubSubConnection<String, String> pubSub;
-//    private RedisConnectionPool<RedisAsyncCommands<String, String>> pool;
     private final StatefulRedisConnection<String, String> connection;
 
     public RedisDatabase() throws PropertyNotFoundException {
@@ -46,17 +44,6 @@ public class RedisDatabase implements Persistent {
                 .commandLatencyCollectorOptions(DefaultCommandLatencyCollectorOptions.create())
                 .build();
         redisClient = RedisClient.create(res, RedisURI.Builder.redis(host, port).build());
-        redisClient.getResources().eventBus().get()
-                .filter(redisEvent -> redisEvent instanceof CommandLatencyEvent)
-                .cast(CommandLatencyEvent.class)
-                .subscribeOn(Schedulers.computation())
-                .subscribe(
-                        e -> LOGGER.info(e.getLatencies().toString()),
-                        err -> LOGGER.error("Failed to get command latency", err),
-                        () -> LOGGER.info("Command latency complete")
-                );
-//        pubSub = redisClient.connectPubSub();
-//        pool = redisClient.asyncPool();
         connection = redisClient.connect();
     }
 
@@ -68,9 +55,9 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public Observable<Long> markWebPageAsParsed(WebPageEntity webPageEntity) {
-//        if (webPageEntity == null) {
-//            return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
-//        }
+        if (webPageEntity == null) {
+            return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
+        }
 
         String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";

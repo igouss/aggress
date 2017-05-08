@@ -3,7 +3,7 @@ package com.naxsoft.parsers.webPageParsers;
 import com.google.gson.Gson;
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.entity.WebPageEntity;
-import org.asynchttpclient.Response;
+import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +25,8 @@ public class JsonCompletionHandler extends AbstractCompletionHandler<JsonResult>
 
     @Override
     public JsonResult onCompleted(Response response) throws Exception {
-        LOGGER.info("Completed request to {}", response.getUri().toString());
-        Map json = new Gson().fromJson(response.getResponseBody(), Map.class);
+        LOGGER.info("Completed request to {}", response.request().url().toString());
+        Map json = new Gson().fromJson(response.body().string(), Map.class);
         return new JsonResult(source, json);
     }
 }

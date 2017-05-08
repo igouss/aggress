@@ -1,13 +1,12 @@
 package com.naxsoft.parsers.webPageParsers.internationalshootingsupplies;
 
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.DefaultCookie;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import org.asynchttpclient.cookie.Cookie;
+import okhttp3.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -29,7 +28,9 @@ class InternationalshootingsuppliesProductListParser extends AbstractWebPagePars
 
     static {
         cookies = new ArrayList<>(1);
-        cookies.add(new DefaultCookie("store_language", "english"));
+        Cookie.Builder builder = new Cookie.Builder();
+        builder.name("store").value("english").domain("internationalshootingsupplies.com");
+        cookies.add(builder.build());
     }
 
     public InternationalshootingsuppliesProductListParser(MetricRegistry metricRegistry, HttpClient client) {

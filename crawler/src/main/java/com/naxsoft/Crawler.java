@@ -34,20 +34,6 @@ public class Crawler {
         System.exit(0);
     }
 
-    private static OptionSet parseCommandLineArguments(String[] args) {
-        OptionParser parser = new OptionParser();
-        parser.accepts("help");
-        parser.accepts("populate");
-        parser.accepts("clean");
-        parser.accepts("crawl");
-        parser.accepts("parse");
-        parser.accepts("createESIndex");
-        parser.accepts("createESMappings");
-        parser.accepts("server");
-
-        return parser.parse(args);
-    }
-
     private static void showHelp() {
         out.println("com.naxsoft.Crawler [-createESIndex] [-clean] [-populate] [-crawl] [-parse]");
     }
@@ -69,7 +55,7 @@ public class Crawler {
 
 
         try {
-            final OptionSet options = parseCommandLineArguments(args);
+            final OptionSet options = CommandLineParserKt.parse(args);
             if (!options.hasOptions() || options.has("help")) {
                 showHelp();
                 return;

@@ -1,12 +1,16 @@
-plugins {
-    id "java-library"
-    id "idea"
-    id "net.ltgt.apt" version "0.6"
+buildscript {
+    ext.kotlin_version = kotlinVersion
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
 }
 
-ext {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+plugins {
+    id "java-library"
+    id "net.ltgt.apt" version "0.6"
 }
 
 /*
@@ -17,17 +21,22 @@ dependencies {
     implementation  "com.google.code.gson:gson:2.8.0"
 
     implementation "javax.inject:javax.inject:1"
-    implementation "io.reactivex:rxjava:1.2.9"
+    implementation "io.reactivex:rxjava:$rxjavaVersion"
 
     implementation "ch.qos.logback:logback-core:1.2.3"
     implementation "ch.qos.logback:logback-classic:1.2.3"
     implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.8.2'
 
-    api "biz.paluch.redis:lettuce:4.3.1.Final"
+    api "biz.paluch.redis:lettuce:4.3.2.Final"
 
     implementation "commons-io:commons-io:2.5"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    implementation 'org.elasticsearch.client:transport:5.3.0'
+    implementation "org.elasticsearch.client:transport:$elasticTransportVersion"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
+}
+
+repositories {
+    mavenCentral()
 }

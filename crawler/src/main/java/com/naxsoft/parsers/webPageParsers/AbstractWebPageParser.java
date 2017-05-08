@@ -5,15 +5,18 @@ import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
-import org.asynchttpclient.cookie.Cookie;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
-import org.asynchttpclient.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Subscription;
 
+import okhttp3.*;
+
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,8 +53,9 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
 
             @Override
             public List<Cookie> onCompleted(Response response) throws Exception {
-                LOGGER.info("Completed request to {}", response.getUri().toString());
-                return response.getCookies();
+                LOGGER.info("Completed request to {}", response.request().url().toString());
+                return Collections.emptyList();
+                // return response.getCookies();
             }
         };
     }

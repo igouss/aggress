@@ -1,8 +1,9 @@
 package com.naxsoft.crawler;
 
 
-import org.asynchttpclient.cookie.Cookie;
 import rx.Observable;
+
+import okhttp3.Cookie;
 
 import java.util.Collection;
 import java.util.Map;
@@ -56,18 +57,6 @@ public interface HttpClient extends AutoCloseable {
      * @return a Future of type R
      */
     <R> Observable<R> post(String url, String content, AbstractCompletionHandler<R> handler);
-
-    /**
-     * Perform an HTTP POST request
-     *
-     * @param <R>     result of an asynchronous computation.
-     * @param url     Page address
-     * @param content Content to send in a POST request
-     * @param cookies Request cookies
-     * @param handler Completion handler
-     * @return a Future of type R
-     */
-    <R> Observable<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP POST request
