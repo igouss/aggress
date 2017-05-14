@@ -1,0 +1,34 @@
+{
+  "properties": {
+    "url": {
+      "type": "text",
+      "index": false
+    },
+    "modificationDate": {
+      "type": "date",
+      "index": false
+    },
+    "productName": {
+      "type": "text",
+      "boost": 2.0
+    },
+    "category": {
+      "type": "keyword"
+    },
+    "productImage": {
+      "type": "keyword",
+      "index": false
+    },
+    "regularPrice": {
+      "type": "double",
+      "index": false
+    },
+    "specialPrice": {
+      "type": "double",
+      "index": false
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}
