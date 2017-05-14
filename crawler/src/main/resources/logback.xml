@@ -20,7 +20,7 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_DIR:-logs}/app-%d{yyyy-MM-dd}.%i.out.gz</fileNamePattern>
+            <fileNamePattern>${LOGS_DIR:-logs}/app-%d{yyyy-MM-dd}.out.gz</fileNamePattern>
             <maxHistory>12</maxHistory>
             <totalSizeCap>100MB</totalSizeCap>
         </rollingPolicy>
@@ -33,7 +33,7 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_DIR:-logs}/elastic-%d{yyyy-MM-dd}.%i.out.gz</fileNamePattern>
+            <fileNamePattern>${LOGS_DIR:-logs}/elastic-%d{yyyy-MM-dd}.out.gz</fileNamePattern>
             <maxHistory>12</maxHistory>
             <totalSizeCap>100MB</totalSizeCap>
         </rollingPolicy>
@@ -48,7 +48,7 @@
             <level>WARN</level>
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_DIR:-logs}/error-%d{yyyy-MM-dd}.%i.out.gz</fileNamePattern>
+            <fileNamePattern>${LOGS_DIR:-logs}/error-%d{yyyy-MM-dd}.out.gz</fileNamePattern>
             <maxHistory>12</maxHistory>
             <totalSizeCap>100MB</totalSizeCap>
         </rollingPolicy>
@@ -63,7 +63,7 @@
             <level>INFO</level>
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_DIR:-logs}/metrics-%d{yyyy-MM-dd}.%i.out.gz</fileNamePattern>
+            <fileNamePattern>${LOGS_DIR:-logs}/metrics-%d{yyyy-MM-dd}.out.gz</fileNamePattern>
             <maxHistory>12</maxHistory>
             <totalSizeCap>100MB</totalSizeCap>
         </rollingPolicy>
