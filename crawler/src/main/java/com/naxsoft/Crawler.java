@@ -3,9 +3,9 @@ package com.naxsoft;
 import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
+import com.naxsoft.commands.*;
 import com.naxsoft.scheduler.Scheduler;
 import com.naxsoft.utils.HealthMonitor;
-import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,11 @@ import static java.lang.System.setProperty;
 public class Crawler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
     private static final Logger METRIC_LOGGER = LoggerFactory.getLogger("metrics");
+    private CreateESIndexCommand createESIndexCommand = null;
+    private CleanDBCommand cleanDbCommand = null;
+    private PopulateDBCommand populateDBCommand = null;
+    private CrawlCommand crawlCommand = null;
+    private ParseCommand parseCommand = null;
 
     /**
      * Crawler application.
@@ -62,27 +67,32 @@ public class Crawler {
             }
 
             if (options.has("createESIndex")) {
-                applicationComponent.getCreateESIndexCommand().start();
+                createESIndexCommand = applicationComponent.getCreateESIndexCommand();
+                createESIndexCommand.start();
             }
 
 //            scheduler = applicationComponent.getScheduler();
 //            scheduler.add(() -> {
 
             if (options.has("clean")) {
-                applicationComponent.getCleanDbCommand().start();
+                cleanDbCommand = applicationComponent.getCleanDbCommand();
+                cleanDbCommand.start();
 
             }
 
             if (options.has("populate")) {
-                applicationComponent.getPopulateDBCommand().start();
+                populateDBCommand = applicationComponent.getPopulateDBCommand();
+                populateDBCommand.start();
             }
 
             if (options.has("crawl")) {
-                applicationComponent.getCrawlCommand().start();
+                crawlCommand = applicationComponent.getCrawlCommand();
+                crawlCommand.start();
             }
 
             if (options.has("parse")) {
-                applicationComponent.getParseCommand().start();
+                parseCommand = applicationComponent.getParseCommand();
+                parseCommand.start();
             }
 //            }, 0, 1, TimeUnit.MINUTES);
 
@@ -95,32 +105,29 @@ public class Crawler {
                         scheduler.stop();
                     }
 
-                    if (options.has("createESIndex")) {
-                        applicationComponent.getCreateESIndexCommand().tearDown();
+                    if (createESIndexCommand != null) {
+                        createESIndexCommand.tearDown();
                     }
 
 //            scheduler = applicationComponent.getScheduler();
 //            scheduler.add(() -> {
 
-                    if (options.has("clean")) {
-                        applicationComponent.getCleanDbCommand().tearDown();
+                    if (cleanDbCommand != null) {
+                        cleanDbCommand.tearDown();
 
                     }
 
-                    if (options.has("populate")) {
-                        applicationComponent.getPopulateDBCommand().tearDown();
+                    if (populateDBCommand != null) {
+                        populateDBCommand.tearDown();
                     }
 
-                    if (options.has("crawl")) {
-                        applicationComponent.getCrawlCommand().tearDown();
+                    if (crawlCommand != null) {
+                        crawlCommand.tearDown();
                     }
 
-                    if (options.has("parse")) {
-                        applicationComponent.getParseCommand().tearDown();
+                    if (parseCommand != null) {
+                        parseCommand.tearDown();
                     }
-
-                    applicationComponent.getWebPageParserFactory().close();
-                    applicationComponent.getProductParserFactory().close();
 
                     applicationComponent.getDatabase().close();
                     applicationComponent.getHttpClient().close();
