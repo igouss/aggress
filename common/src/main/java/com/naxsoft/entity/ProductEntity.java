@@ -4,7 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Map;
 
@@ -19,10 +20,11 @@ public class ProductEntity {
     private final String specialPrice;
     private final String productImage;
     private final String description;
-    private final Timestamp modificationDate;
+    private final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
     private final Map<String, String> attr;
     private final String[] category;
     private final String json;
+    private final Instant modificationDate;
 
     /**
      * @param productName
@@ -51,7 +53,7 @@ public class ProductEntity {
         this.productName = productName;
         this.category = category;
         this.url = url;
-        this.modificationDate = new Timestamp(System.currentTimeMillis());
+        this.modificationDate = Instant.now();
         this.regularPrice = regularPrice;
         this.specialPrice = specialPrice;
         this.productImage = productImage;
@@ -78,7 +80,7 @@ public class ProductEntity {
             jsonObject.addProperty("description", description);
         }
 
-        jsonObject.addProperty("modificationDate", modificationDate.toString());
+        jsonObject.addProperty("modificationDate", dateTimeFormatter.format(modificationDate));
 
         attr.forEach(jsonObject::addProperty);
 
