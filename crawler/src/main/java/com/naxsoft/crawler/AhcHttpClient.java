@@ -1,26 +1,27 @@
 package com.naxsoft.crawler;
 
-import okhttp3.*;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import io.netty.handler.ssl.SslContext;
+import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Emitter;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpCookie;
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright NAXSoft 2015
@@ -38,16 +39,54 @@ public class AhcHttpClient implements HttpClient {
     private final Histogram httpLatencySensor;
     private final OkHttpClient client;
     private final CookieManager cookieManager;
-    public AhcHttpClient(MetricRegistry metricRegistry, SslContext sslContext) {
+
+    public AhcHttpClient(MetricRegistry metricRegistry) throws NoSuchAlgorithmException, KeyManagementException {
         httpRequestsSensor = metricRegistry.meter("http.requests");
         httpResponseSizeSensor = metricRegistry.histogram("http.responseSize");
         httpLatencySensor = metricRegistry.histogram("http.latency");
+
+
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+
+                    @Override
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+                    }
+
+                    @Override
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+                    }
+
+                    @Override
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[0];
+                    }
+                }
+        };
+        // Install the all-trusting trust manager
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        // Install all-trusting host name verifier
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, sslSession) -> true);
+
 
         // TODO: http://stackoverflow.com/questions/25461792/persistent-cookie-store-using-okhttp-2-on-android/25462286#25462286
         cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         client = new OkHttpClient.Builder()
                 .cookieJar(new JavaNetCookieJar(cookieManager))
+                .sslSocketFactory(sc.getSocketFactory(), (X509TrustManager) trustAllCerts[0])
+                .hostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String s, SSLSession sslSession) {
+                        return true;
+                    }
+                })
                 .build();
     }
 

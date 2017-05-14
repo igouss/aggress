@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
-import javax.net.ssl.SSLException;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -30,8 +29,8 @@ public class HttpClientModule {
         try {
             SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
             SslContext sslContext = sslContextBuilder.build();
-            httpClient = new AhcHttpClient(registry, sslContext);
-        } catch (SSLException e) {
+            httpClient = new AhcHttpClient(registry);
+        } catch (Exception e) {
             LOGGER.error("Failed to initialize HttpClientModule", e);
             throw new RuntimeException("Failed to initialize HttpClientModule", e);
 
