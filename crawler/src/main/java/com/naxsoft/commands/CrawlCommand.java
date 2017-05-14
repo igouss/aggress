@@ -47,12 +47,13 @@ public class CrawlCommand implements Command {
                         webPageService.getUnparsedByType("frontPage"),
                         webPageService.getUnparsedByType("productList"),
                         webPageService.getUnparsedByType("productPage")))
+                .doOnError(err -> LOGGER.error("Failed", err))
                 .retry()
                 .publish()
                 .autoConnect(2);
 
         webPageParseSubscription = webPageEntriesStream
-                .doOnNext(webPageEntity -> LOGGER.trace("Starting parse {}", webPageEntity))
+                .doOnNext(webPageEntity -> LOGGER.info("Starting parse {}", webPageEntity))
                 .flatMap(webPageParserFactory::parse)
                 .flatMap(webPageService::addWebPageEntry)
                 .subscribe(
@@ -64,7 +65,7 @@ public class CrawlCommand implements Command {
                 );
 
         parentMarkSubscription = webPageEntriesStream
-                .doOnNext(webPageEntity -> LOGGER.trace("Starting to mark as parsed {}", webPageEntity))
+                .doOnNext(webPageEntity -> LOGGER.info("Starting to mark as parsed {}", webPageEntity))
                 .flatMap(webPageService::markParsed)
                 .subscribe(
                         rc -> {
@@ -86,5 +87,6 @@ public class CrawlCommand implements Command {
         if (parentMarkSubscription != null) {
             parentMarkSubscription.unsubscribe();
         }
+        webPageParserFactory.close();
     }
 }
