@@ -96,5 +96,6 @@ public class ParseCommand implements Command {
         if (priceIndexSubscription != null) {
             priceIndexSubscription.unsubscribe();
         }
+        productParserFactory.close();
     }
 }
