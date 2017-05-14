@@ -6,11 +6,15 @@ import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.settings.Settings;
@@ -28,6 +32,7 @@ import javax.inject.Singleton;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -55,7 +60,7 @@ public class Elastic implements AutoCloseable, Cloneable {
      */
     public void connect(String hostname, int port) throws UnknownHostException {
         if (null == client) {
-            Settings settings = Settings.builder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
+            Settings settings = Settings.builder().put("cluster.name", "elasticsearch").put("client.transport.sniff", false).build();
             client = new PreBuiltTransportClient(settings)
                     .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(hostname), port));
 
@@ -101,37 +106,50 @@ public class Elastic implements AutoCloseable, Cloneable {
      */
     public Observable<Boolean> createIndex(String indexName, String type) {
         return Observable.create(emitter -> {
-            String resourceName = "/elastic." + indexName + "." + type + ".index.json";
-            InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
+            String indexFile = "/elastic." + indexName + "." + type + ".index.json";
+            InputStream indexResource = this.getClass().getResourceAsStream(indexFile);
+            String mappingFile = "/elastic." + indexName + "." + type + ".mapping.json";
+            InputStream mappingStream = this.getClass().getResourceAsStream(mappingFile);
+
             try {
-                LOGGER.info("Creating index {} type {} from {}", indexName, type, resourceName);
-                if (!indexExists(indexName)) {
-                    Settings settings = Settings.builder().loadFromStream(resourceName, resourceAsStream).build();
-                    CreateIndexRequest request = new CreateIndexRequest(indexName, settings);
+                LOGGER.info("Creating index {} type {} from {}", indexName, type, indexFile);
+                Settings settings = Settings.builder().loadFromStream(indexFile, indexResource).build();
 
-                    client.admin().indices().create(request, new ActionListener<CreateIndexResponse>() {
-                        @Override
-                        public void onResponse(CreateIndexResponse createIndexResponse) {
-                            //                            LOGGER.info("Index created {}", createIndexResponse.isAcknowledged());
-                            emitter.onNext(createIndexResponse.isAcknowledged());
-                            emitter.onCompleted();
-                        }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            LOGGER.error("Failed to create index", e);
-                            emitter.onError(e);
-                        }
-                    });
-                } else {
-                    LOGGER.info("Index already exists");
-                    emitter.onCompleted();
+                if (indexExists(indexName)) {
+                    DeleteIndexResponse deleteIndexResponse = client.admin().indices().delete(Requests.deleteIndexRequest(indexName)).actionGet();
+                    if (deleteIndexResponse.isAcknowledged()) {
+                        LOGGER.info("Index deleted");
+                    } else {
+                        LOGGER.error("Index deleted failed");
+                    }
                 }
+
+                CreateIndexRequest request = Requests.createIndexRequest(indexName);
+                request.settings(settings);
+
+                CreateIndexResponse createIndexResponse = client.admin().indices().create(request).actionGet();
+                if (createIndexResponse.isShardsAcked()) {
+                    LOGGER.info("Index created {}");
+
+                    PutMappingRequest putMappingRequest = Requests.putMappingRequest(indexName);
+                    putMappingRequest.source(IOUtils.toString(mappingStream, Charset.forName("UTF8")), XContentType.JSON);
+                    putMappingRequest.type("guns");
+                    PutMappingResponse putMappingResponse = client.admin().indices().putMapping(putMappingRequest).actionGet();
+                    if (putMappingResponse.isAcknowledged()) {
+                        LOGGER.info("Mapping created");
+                    } else {
+                        LOGGER.error("Mapping failed");
+                    }
+                } else {
+                    LOGGER.error("Failed to create index");
+                }
+                emitter.onCompleted();
             } catch (Exception e) {
                 LOGGER.error("Failed to create index", e);
                 emitter.onError(e);
             } finally {
-                IOUtils.closeQuietly(resourceAsStream);
+                IOUtils.closeQuietly(indexResource);
+                IOUtils.closeQuietly(mappingStream);
             }
         }, Emitter.BackpressureMode.LATEST);
     }
