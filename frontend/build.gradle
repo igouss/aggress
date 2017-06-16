@@ -25,8 +25,8 @@ dependencies {
 
     compile "org.thymeleaf:thymeleaf:3.0.6.RELEASE"
 
-    compile "io.vertx:vertx-core:3.4.1"
-    compile "io.vertx:vertx-web:3.4.1"
+    compile "io.vertx:vertx-core:$vertx"
+    compile "io.vertx:vertx-web:$vertx"
 
     compile project(':common')
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"

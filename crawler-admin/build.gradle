@@ -14,9 +14,9 @@ dependencies {
 
     compile "junit:junit:4.12"
 
-    compile "io.vertx:vertx-core:3.4.1"
-    compile "io.vertx:vertx-web:3.4.1"
-    compile "io.vertx:vertx-web-templ-thymeleaf:3.4.1"
+    compile "io.vertx:vertx-core:$vertx"
+    compile "io.vertx:vertx-web:$vertx"
+    compile "io.vertx:vertx-web-templ-thymeleaf:$vertx"
 
     compile project(':crawler')
     compile project(':common')

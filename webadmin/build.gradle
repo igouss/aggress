@@ -18,8 +18,8 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "io.vertx:vertx-core:3.4.1"
-    compile "io.vertx:vertx-web:3.4.1"
-    compile "io.vertx:vertx-web-templ-thymeleaf:3.4.1"
+    compile "io.vertx:vertx-core:$vertx"
+    compile "io.vertx:vertx-web:$vertx"
+    compile "io.vertx:vertx-web-templ-thymeleaf:$vertx"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }

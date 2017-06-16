@@ -18,7 +18,7 @@ https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
     implementation project(':common')
-    implementation  "com.google.code.gson:gson:2.8.0"
+    implementation  "com.google.code.gson:gson:$gson"
 
     implementation "javax.inject:javax.inject:1"
     implementation "io.reactivex:rxjava:$rxjavaVersion"

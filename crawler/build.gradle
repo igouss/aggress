@@ -23,7 +23,7 @@ tasks.withType(JavaCompile) {
 https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
-    compile "org.jsoup:jsoup:1.10.2"
+    compile "org.jsoup:jsoup:$jsoup"
 
 //    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.0-RC3'
     compile "io.reactivex:rxjava:$rxjavaVersion"
@@ -34,17 +34,18 @@ dependencies {
     compile "org.reflections:reflections:0.9.11"
     compile "io.dropwizard.metrics:metrics-core:3.2.2"
     compile "org.apache.commons:commons-collections4:4.1"
-    compile "com.google.code.gson:gson:2.8.0"
+    compile "com.google.code.gson:gson:$gson"
 
     compile "com.squareup.okhttp3:okhttp:3.8.0"
     compile "com.squareup.okhttp3:okhttp-urlconnection:3.8.0"
 
     compile "junit:junit:4.12"
-    compile "io.vertx:vertx-core:3.4.1"
+    compile "io.vertx:vertx-core:$vertx"
 
     compile "net.sf.jopt-simple:jopt-simple:5.0.3"
 
     compile "net.ltgt.gradle:gradle-apt-plugin:0.6"
+    compile "com.github.vladimir-bukhtoyarov:bucket4j-core:2.1.0"
 
 
 //    compile "com.github.davidmoten:rxjava-slf4j:0.6.2" // https://github.com/davidmoten/rxjava-slf4j
@@ -56,8 +57,8 @@ dependencies {
     compile "javax.validation:validation-api:1.1.0.Final"
     compile "javax.inject:javax.inject:1"
 
-    compile  "com.google.dagger:dagger:2.10"
-    apt "com.google.dagger:dagger-compiler:2.10"
+    compile  "com.google.dagger:dagger:$dagger"
+    apt "com.google.dagger:dagger-compiler:$dagger"
 
     compile fileTree(dir: "libs", include: "*.jar")
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
