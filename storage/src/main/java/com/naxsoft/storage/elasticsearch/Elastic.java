@@ -1,6 +1,7 @@
 package com.naxsoft.storage.elasticsearch;
 
 import com.naxsoft.entity.ProductEntity;
+import com.naxsoft.utils.JsonEncoder;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.ActionListener;
@@ -177,7 +178,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                 jsonBuilder.startObject();
                 IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
                 LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
-                request.setSource(product.getJson(), XContentType.JSON);
+                request.setSource(JsonEncoder.toJson(product), XContentType.JSON);
                 request.setOpType(IndexRequest.OpType.INDEX);
                 bulkRequestBuilder.add(request);
             }
