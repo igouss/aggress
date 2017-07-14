@@ -27,7 +27,7 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:1.2.3"
     implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.8.2'
 
-    api "biz.paluch.redis:lettuce:4.3.2.Final"
+    api "biz.paluch.redis:lettuce:$lettuceVersion"
 
     implementation "commons-io:commons-io:2.5"
 

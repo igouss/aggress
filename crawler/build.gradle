@@ -32,17 +32,17 @@ dependencies {
     compile "ch.qos.logback:logback-classic:1.2.3"
 
     compile "org.reflections:reflections:0.9.11"
-    compile "io.dropwizard.metrics:metrics-core:3.2.2"
+    compile "io.dropwizard.metrics:metrics-core:$metricsVersion"
     compile "org.apache.commons:commons-collections4:4.1"
     compile "com.google.code.gson:gson:$gson"
 
-    compile "com.squareup.okhttp3:okhttp:3.8.0"
-    compile "com.squareup.okhttp3:okhttp-urlconnection:3.8.0"
+    compile "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    compile "com.squareup.okhttp3:okhttp-urlconnection:$okHttpVersion"
 
     compile "junit:junit:4.12"
     compile "io.vertx:vertx-core:$vertx"
 
-    compile "net.sf.jopt-simple:jopt-simple:5.0.3"
+    compile "net.sf.jopt-simple:jopt-simple:$joptVersion"
 
     compile "net.ltgt.gradle:gradle-apt-plugin:0.6"
     compile "com.github.vladimir-bukhtoyarov:bucket4j-core:2.1.0"
