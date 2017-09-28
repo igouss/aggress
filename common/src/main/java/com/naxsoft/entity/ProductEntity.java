@@ -13,17 +13,14 @@ import java.util.Map;
  *
  */
 public class ProductEntity {
-    private final static Gson gson = new Gson();
     private final String productName;
     private final String url;
     private final String regularPrice;
     private final String specialPrice;
     private final String productImage;
     private final String description;
-    private final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
     private final Map<String, String> attr;
     private final String[] category;
-    private final String json;
     private final Instant modificationDate;
 
     /**
@@ -60,50 +57,7 @@ public class ProductEntity {
         this.description = description;
         this.attr = attr;
 
-        JsonObject jsonObject = new JsonObject();
-        if (productName != null && !productName.isEmpty()) {
-            jsonObject.addProperty("productName", productName);
-        }
-        if (url != null && !url.isEmpty()) {
-            jsonObject.addProperty("url", url);
-        }
-        if (regularPrice != null && !regularPrice.isEmpty()) {
-            jsonObject.addProperty("regularPrice", regularPrice);
-        }
-        if (specialPrice != null && !specialPrice.isEmpty()) {
-            jsonObject.addProperty("specialPrice", specialPrice);
-        }
-        if (productImage != null && !productImage.isEmpty()) {
-            jsonObject.addProperty("productImage", productImage);
-        }
-        if (description != null && !description.isEmpty()) {
-            jsonObject.addProperty("description", description);
-        }
 
-        jsonObject.addProperty("modificationDate", dateTimeFormatter.format(modificationDate));
-
-        attr.forEach(jsonObject::addProperty);
-
-        if (category != null && category.length > 0) {
-            JsonArray categoryArray = new JsonArray();
-            for (String cat : category) {
-                categoryArray.add(cat);
-            }
-
-            if (categoryArray.size() != 0) {
-                jsonObject.add("category", categoryArray);
-            }
-        }
-        json = gson.toJson(jsonObject);
-    }
-
-    /**
-     * Get JSON representation
-     *
-     * @return json encoded product entity
-     */
-    public String getJson() {
-        return json;
     }
 
     public String getUrl() {
@@ -122,6 +76,26 @@ public class ProductEntity {
         return productName;
     }
 
+    public String getProductImage() {
+        return productImage;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Map<String, String> getAttr() {
+        return attr;
+    }
+
+    public String[] getCategory() {
+        return category;
+    }
+
+    public Instant getModificationDate() {
+        return modificationDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -129,13 +103,12 @@ public class ProductEntity {
 
         ProductEntity that = (ProductEntity) o;
 
-        return getJson().equals(that.getJson()) && url.equals(that.url);
+        return productName.equals(that.productName) && url.equals(that.url);
     }
-
 
     @Override
     public int hashCode() {
-        int result = getJson().hashCode();
+        int result = productName.hashCode();
         result = 31 * result + url.hashCode();
         return result;
     }
