@@ -38,6 +38,7 @@ public class HealthMonitor implements Runnable {
     }
 
     private class HealthCheckException extends RuntimeException {
+        private static final long serialVersionUID = 1;
         HealthCheckException(String message, Throwable cause) {
             super(message, cause);
         }

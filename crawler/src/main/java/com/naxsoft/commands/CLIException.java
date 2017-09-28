@@ -4,7 +4,7 @@ package com.naxsoft.commands;
  * Copyright NAXSoft 2015
  */
 class CLIException extends RuntimeException {
-
+    private static final long serialVersionUID = 1;
     /**
      * Creates a new instance of {@link CLIException}.
      *
