@@ -40,6 +40,8 @@ public class AhcHttpClient implements HttpClient {
     private final OkHttpClient client;
     private final CookieManager cookieManager;
 
+//    private Map<String, Bucket> domainRateLimiter = new HashMap<>();
+
     public AhcHttpClient(MetricRegistry metricRegistry) throws NoSuchAlgorithmException, KeyManagementException {
         httpRequestsSensor = metricRegistry.meter("http.requests");
         httpResponseSizeSensor = metricRegistry.histogram("http.responseSize");
@@ -88,6 +90,7 @@ public class AhcHttpClient implements HttpClient {
                     }
                 })
                 .build();
+        client.dispatcher().setMaxRequestsPerHost(1);
     }
 
     /**
@@ -133,30 +136,47 @@ public class AhcHttpClient implements HttpClient {
         LOGGER.trace("Starting async http GET request url = {}", url);
         httpRequestsSensor.mark();
 
-        for (Cookie cookie : cookies) {
-            cookieManager.getCookieStore().add(URI.create(url), new HttpCookie(cookie.name(), cookie.value()));
-        }
+        URI uri = URI.create(url);
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        return Observable.create(subscriber -> {
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    subscriber.onError(e);
-                }
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    try {
-                        subscriber.onNext(handler.onCompleted(response));
-                        subscriber.onCompleted();
-                    } catch (Exception e) {
+//        String host = uri.getHost();
+//        if (!domainRateLimiter.containsKey(host)) {
+//            // define the limit 100 times per 1 minute
+//            Bandwidth limit = Bandwidth.simple(100, Duration.ofMinutes(1));
+//            // construct the bucket
+//            Bucket bucket = Bucket4j.builder().addLimit(limit).build();
+//            domainRateLimiter.put(host, bucket);
+//        }
+
+        try {
+//            domainRateLimiter.get(host).consume(1, BlockingStrategy.PARKING);
+            for (Cookie cookie : cookies) {
+                cookieManager.getCookieStore().add(uri, new HttpCookie(cookie.name(), cookie.value()));
+            }
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+            return Observable.create(subscriber -> {
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
                         subscriber.onError(e);
                     }
-                }
-            });
-        }, Emitter.BackpressureMode.BUFFER);
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        try {
+                            subscriber.onNext(handler.onCompleted(response));
+                            subscriber.onCompleted();
+                        } catch (Exception e) {
+                            subscriber.onError(e);
+                        }
+                    }
+                });
+            }, Emitter.BackpressureMode.BUFFER);
+        } catch (Exception e) {
+            return Observable.error(e);
+        }
     }
 
 
@@ -174,27 +194,44 @@ public class AhcHttpClient implements HttpClient {
         LOGGER.debug("Starting async http POST request url = {}", url);
         httpRequestsSensor.mark();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .post(RequestBody.create(MediaType.parse("text/html; charset=utf-8"), content))
-                .build();
-        return Observable.create(subscriber -> {
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    subscriber.onError(e);
-                }
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    try {
-                        subscriber.onNext(handler.onCompleted(response));
-                        subscriber.onCompleted();
-                    } catch (Exception e) {
+//        URI uri = URI.create(url);
+//        String host = uri.getHost();
+//        if (!domainRateLimiter.containsKey(host)) {
+//            // define the limit 100 times per 1 minute
+//            Bandwidth limit = Bandwidth.simple(100, Duration.ofMinutes(1));
+//            // construct the bucket
+//            Bucket bucket = Bucket4j.builder().addLimit(limit).build();
+//            domainRateLimiter.put(host, bucket);
+//        }
+        try {
+//            domainRateLimiter.get(host).consume(1, BlockingStrategy.PARKING);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(RequestBody.create(MediaType.parse("text/html; charset=utf-8"), content))
+                    .build();
+            return Observable.create(subscriber -> {
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
                         subscriber.onError(e);
                     }
-                }
-            });
-        }, Emitter.BackpressureMode.BUFFER);
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        try {
+                            subscriber.onNext(handler.onCompleted(response));
+                            subscriber.onCompleted();
+                        } catch (Exception e) {
+                            subscriber.onError(e);
+                        }
+                    }
+                });
+            }, Emitter.BackpressureMode.BUFFER);
+        } catch (Exception e) {
+            return Observable.error(e);
+        }
+
     }
 
     /**
@@ -211,35 +248,53 @@ public class AhcHttpClient implements HttpClient {
     public <R> Observable<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         httpRequestsSensor.mark();
-        for (Cookie cookie : cookies) {
-            cookieManager.getCookieStore().add(URI.create(url), new HttpCookie(cookie.name(), cookie.value()));
-        }
 
-        FormBody.Builder builder = new FormBody.Builder();
-        for (String para : formParameters.keySet()) {
-            builder.add(para, formParameters.get(para));
-        }
-        Request request = new Request.Builder()
-                .url(url)
-                .post(builder.build())
-                .build();
-        return Observable.create(subscriber -> {
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    subscriber.onError(e);
-                }
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    try {
-                        subscriber.onNext(handler.onCompleted(response));
-                        subscriber.onCompleted();
-                    } catch (Exception e) {
+
+//        URI uri = URI.create(url);
+//        String host = uri.getHost();
+//        if (!domainRateLimiter.containsKey(host)) {
+//            // define the limit 100 times per 1 minute
+//            Bandwidth limit = Bandwidth.simple(100, Duration.ofMinutes(1));
+//            // construct the bucket
+//            Bucket bucket = Bucket4j.builder().addLimit(limit).build();
+//            domainRateLimiter.put(host, bucket);
+//        }
+        try {
+//            domainRateLimiter.get(host).consume(1, BlockingStrategy.PARKING);
+
+            for (Cookie cookie : cookies) {
+                cookieManager.getCookieStore().add(URI.create(url), new HttpCookie(cookie.name(), cookie.value()));
+            }
+
+            FormBody.Builder builder = new FormBody.Builder();
+            for (String para : formParameters.keySet()) {
+                builder.add(para, formParameters.get(para));
+            }
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(builder.build())
+                    .build();
+            return Observable.create(subscriber -> {
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
                         subscriber.onError(e);
                     }
-                }
-            });
-        }, Emitter.BackpressureMode.BUFFER);
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        try {
+                            subscriber.onNext(handler.onCompleted(response));
+                            subscriber.onCompleted();
+                        } catch (Exception e) {
+                            subscriber.onError(e);
+                        }
+                    }
+                });
+            }, Emitter.BackpressureMode.BUFFER);
+        } catch (Exception e) {
+            return Observable.error(e);
+        }
     }
 
     /**

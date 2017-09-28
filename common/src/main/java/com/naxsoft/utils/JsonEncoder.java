@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 public class JsonEncoder {
     private final static Gson gson = new Gson();
     private final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
+
     /**
      * Get JSON representation
      *
