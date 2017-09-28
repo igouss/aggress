@@ -1,16 +1,10 @@
 package com.naxsoft.entity;
 
-import org.apache.commons.io.IOUtils;
+import com.naxsoft.utils.Compressor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Base64;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * Web page that can either be leaf (with produce data) or be used to find subpages
@@ -45,61 +39,12 @@ public class WebPageEntity {
 
     public WebPageEntity(WebPageEntity parent, String content, String type, String url, String category) {
         this.parent = parent;
-        this.content = compress(removeNonASCII(content));
+        this.content = Compressor.INSTANCE.compress(removeNonASCII(content));
         this.type = type;
         this.url = url;
         this.category = category;
     }
 
-    /**
-     * ZIP the string and return Base64 representation
-     *
-     * @param text Value to compress
-     * @return Compressed Value
-     */
-    private static String compress(String text) {
-        if (text.isEmpty()) {
-            return text;
-        }
-
-        ByteArrayOutputStream rstBao = new ByteArrayOutputStream();
-        GZIPOutputStream zos;
-        try {
-            zos = new GZIPOutputStream(rstBao);
-            zos.write(text.getBytes());
-            IOUtils.closeQuietly(zos);
-
-            byte[] bytes = rstBao.toByteArray();
-            // In my solr project, I use org.apache.solr.co mmon.util.Base64.
-            // return = org.apache.solr.common.util.Base64.byteArrayToBase64(bytes, 0,
-            // bytes.length);
-            return Base64.getEncoder().encodeToString(bytes);
-        } catch (IOException e) {
-            LOGGER.error("Failed to compress", e);
-        }
-        return "";
-    }
-
-    /**
-     * Unzip a BASE64 string
-     *
-     * @param zippedBase64Str value to decompress
-     * @return Decompresed value
-     * @throws IOException in case of decompression error
-     */
-    private static String decompress(String zippedBase64Str) throws IOException {
-        if (zippedBase64Str.isEmpty()) {
-            return zippedBase64Str;
-        }
-        byte[] bytes = Base64.getDecoder().decode(zippedBase64Str);
-        GZIPInputStream zi = null;
-        try {
-            zi = new GZIPInputStream(new ByteArrayInputStream(bytes));
-            return IOUtils.toString(zi, Charset.forName("UTF-8"));
-        } finally {
-            IOUtils.closeQuietly(zi);
-        }
-    }
 
     /**
      * Remove all non-ascii values from text
@@ -119,7 +64,7 @@ public class WebPageEntity {
 
         if (null != this.content) {
             try {
-                result = decompress(this.content);
+                result = Compressor.INSTANCE.decompress(this.content);
             } catch (IOException e) {
                 LOGGER.error("Failed to decompress", e);
             }
