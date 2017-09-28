@@ -9,18 +9,18 @@ buildscript {
 }
 
 dependencies {
-    compile "ch.qos.logback:logback-core:1.2.3"
-    compile "ch.qos.logback:logback-classic:1.2.3"
+    compile "ch.qos.logback:logback-core:$logbackVersion"
+    compile "ch.qos.logback:logback-classic:$logbackVersion"
 
-    compile "junit:junit:4.12"
+    compile "junit:junit:$junitVersion"
 
-    compile "io.vertx:vertx-core:$vertx"
-    compile "io.vertx:vertx-web:$vertx"
-    compile "io.vertx:vertx-web-templ-thymeleaf:$vertx"
+    compile "io.vertx:vertx-core:$vertxVersion"
+    compile "io.vertx:vertx-web:$vertxVersion"
+    compile "io.vertx:vertx-web-templ-thymeleaf:$vertxVersion"
 
     compile project(':crawler')
     compile project(':common')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
 }
 
 task copyDepsToDocker(type: Copy) {

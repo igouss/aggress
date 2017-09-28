@@ -18,20 +18,20 @@ https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
     implementation project(':common')
-    implementation  "com.google.code.gson:gson:$gson"
+    implementation  "com.google.code.gson:gson:$gsonVersion"
 
-    implementation "javax.inject:javax.inject:1"
+    implementation "javax.inject:javax.inject:$javaxInjectVersion"
     implementation "io.reactivex:rxjava:$rxjavaVersion"
 
-    implementation "ch.qos.logback:logback-core:1.2.3"
-    implementation "ch.qos.logback:logback-classic:1.2.3"
-    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.8.2'
+    implementation "ch.qos.logback:logback-core:$logbackVersion"
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
+    implementation "org.apache.logging.log4j:log4j-to-slf4j:$slf4jVersion"
 
-    api "biz.paluch.redis:lettuce:4.3.2.Final"
+    api "biz.paluch.redis:lettuce:$lettuceVersion"
 
-    implementation "commons-io:commons-io:2.5"
+    implementation "commons-io:commons-io:$commonsIoVersion"
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile "junit:junit:$junitVersion"
 
     implementation("org.elasticsearch.client:transport:$elasticTransportVersion") {
         exclude group: 'org.elasticsearch.plugin', module: 'transport-netty3-client'

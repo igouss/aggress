@@ -10,26 +10,26 @@ buildscript {
 
 
 dependencies {
-    compile "ch.qos.logback:logback-core:1.2.3"
-    compile "ch.qos.logback:logback-classic:1.2.3"
+    compile "ch.qos.logback:logback-core:$logbackVersion"
+    compile "ch.qos.logback:logback-classic:$logbackVersion"
 
-    compile "junit:junit:4.12"
+    compile "junit:junit:$junitVersion"
 
     compile("org.elasticsearch.client:transport:$elasticTransportVersion") {
         exclude group: 'org.elasticsearch.plugin', module: 'transport-netty3-client'
     }
 
-    compile 'org.apache.logging.log4j:log4j-to-slf4j:2.8.2'
+    compile "org.apache.logging.log4j:log4j-to-slf4j:$slf4jVersion"
 
-    compile "com.vividsolutions:jts:1.13"
+    compile "com.vividsolutions:jts:$jtsVersion"
 
-    compile "org.thymeleaf:thymeleaf:3.0.6.RELEASE"
+    compile "org.thymeleaf:thymeleaf:$thymeleafVersion"
 
-    compile "io.vertx:vertx-core:$vertx"
-    compile "io.vertx:vertx-web:$vertx"
+    compile "io.vertx:vertx-core:$vertxVersion"
+    compile "io.vertx:vertx-web:$vertxVersion"
 
     compile project(':common')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
 }
 
 task copyDepsToDocker(type: Copy) {

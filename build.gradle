@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.bmuschko:gradle-docker-plugin:$gradledockerplugin"
+        classpath "com.bmuschko:gradle-docker-plugin:$gradleDockerPluginVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
@@ -13,7 +13,7 @@ buildscript {
 plugins {
     id "java"
     id "idea"
-    id 'com.gradle.build-scan' version '1.8'
+    id 'com.gradle.build-scan' version '1.9'
     id 'com.github.ben-manes.versions' version '0.15.0'
 }
 apply plugin: 'com.bmuschko.docker-remote-api'
