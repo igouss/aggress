@@ -3,7 +3,7 @@ package com.naxsoft.handlers;
 import com.naxsoft.utils.ElasticEscape;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
-import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -90,7 +90,7 @@ public class SearchHandler {
      * @param startFrom
      * @return
      */
-    private ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
+    private ActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         MultiMatchQueryBuilder searchQuery = QueryBuilders.multiMatchQuery(searchKey, "productName^4", "description^2", "_all");
@@ -120,7 +120,7 @@ public class SearchHandler {
         int startFrom = getStartFrom(routingContext);
         LOGGER.info("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
 
-        ListenableActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
+        ActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
         SearchResponse searchResponse = future.actionGet();
         String result = searchResultToJson(searchResponse);
 

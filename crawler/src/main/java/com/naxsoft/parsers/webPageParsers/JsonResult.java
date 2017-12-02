@@ -2,6 +2,7 @@ package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.entity.WebPageEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -9,13 +10,13 @@ import java.util.Map;
  */
 public class JsonResult {
     private final WebPageEntity sourcePage;
-    private final Map json;
+    private final Map<String, List<Map<String, String>>> json;
 
     /**
      * @param sourcePage Page that was requested
      * @param json       Parsed HTML Page
      */
-    JsonResult(WebPageEntity sourcePage, Map json) {
+    JsonResult(WebPageEntity sourcePage, Map<String, List<Map<String, String>>> json) {
         this.sourcePage = sourcePage;
         this.json = json;
     }
@@ -34,7 +35,7 @@ public class JsonResult {
      *
      * @return Parsed result
      */
-    public Map getJson() {
+    public Map<String, List<Map<String, String>>> getJson() {
         return json;
     }
 }

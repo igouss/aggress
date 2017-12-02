@@ -26,8 +26,8 @@ public class GrouseriverProductParser extends AbstractWebPageParser {
     @SuppressWarnings("unchecked")
     public Observable<WebPageEntity> parseJson(JsonResult downloadResult) {
         HashSet<WebPageEntity> result = new HashSet<>();
-        Map parsedJson = downloadResult.getJson();
-        List<Map<String, String>> items = (List<Map<String, String>>) parsedJson.get("items");
+        Map<String, List<Map<String, String>>> parsedJson = downloadResult.getJson();
+        List<Map<String, String>> items = parsedJson.get("items");
         for (Map<String, String> itemData : items) {
             LOGGER.info("Processing: " + itemData.get("displayname"));
             WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPageRaw", "http://www.grouseriver.com/" + itemData.get("urlcomponent"), downloadResult.getSourcePage().getCategory());

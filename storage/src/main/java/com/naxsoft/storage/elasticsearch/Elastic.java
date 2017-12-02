@@ -19,7 +19,7 @@ import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -30,6 +30,7 @@ import rx.Emitter;
 import rx.Observable;
 
 import javax.inject.Singleton;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -63,7 +64,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         if (null == client) {
             Settings settings = Settings.builder().put("cluster.name", "elasticsearch").put("client.transport.sniff", false).build();
             client = new PreBuiltTransportClient(settings)
-                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(hostname), port));
+                    .addTransportAddress(new TransportAddress(InetAddress.getByName(hostname), port));
 
             while (true) {
                 LOGGER.info("Waiting for elastic to connect to a node {}:{}...", hostname, port);
@@ -149,8 +150,12 @@ public class Elastic implements AutoCloseable, Cloneable {
                 LOGGER.error("Failed to create index", e);
                 emitter.onError(e);
             } finally {
-                IOUtils.closeQuietly(indexResource);
-                IOUtils.closeQuietly(mappingStream);
+                try {
+                    indexResource.close();
+                    mappingStream.close();
+                } catch (IOException e) {
+                    LOGGER.error("Failed to close resources", e);
+                }
             }
         }, Emitter.BackpressureMode.LATEST);
     }
@@ -196,7 +201,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                         if (bulkItemResponses.hasFailures()) {
                             LOGGER.error("Failed to index products:{}", bulkItemResponses.buildFailureMessage());
                         } else {
-                            LOGGER.info("Successfully indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
+                            LOGGER.info("Successfully indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getIngestTookInMillis());
                         }
                         emitter.onNext(!bulkItemResponses.hasFailures());
                         emitter.onCompleted();
@@ -263,7 +268,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                         if (bulkItemResponses.hasFailures()) {
                             LOGGER.error("Failed to price index products:{}", bulkItemResponses.buildFailureMessage());
                         } else {
-                            LOGGER.info("Successfully price indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getTookInMillis());
+                            LOGGER.info("Successfully price indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getIngestTookInMillis());
                         }
                         emitter.onNext(!bulkItemResponses.hasFailures());
                         emitter.onCompleted();

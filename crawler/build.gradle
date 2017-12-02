@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-    id "net.ltgt.apt" version "0.6"
+    id "net.ltgt.apt" version "0.10"
 }
 
 configurations {
@@ -39,7 +39,7 @@ dependencies {
     compile "com.squareup.okhttp3:okhttp:$okhttpVersion"
     compile "com.squareup.okhttp3:okhttp-urlconnection:$okhttpVersion"
 
-    compile "junit:junit:$junitVersion"
+    testCompile "junit:junit:$junitVersion"
     compile "io.vertx:vertx-core:$vertxVersion"
 
     compile "net.sf.jopt-simple:jopt-simple:$joptVersion"

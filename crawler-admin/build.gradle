@@ -12,7 +12,7 @@ dependencies {
     compile "ch.qos.logback:logback-core:$logbackVersion"
     compile "ch.qos.logback:logback-classic:$logbackVersion"
 
-    compile "junit:junit:$junitVersion"
+    testCompile "junit:junit:$junitVersion"
 
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
