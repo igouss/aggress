@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 class WholesalesportsProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WholesalesportsProductPageParser.class);
 
@@ -36,5 +33,4 @@ class WholesalesportsProductPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "wholesalesports.com";
     }
-
 }

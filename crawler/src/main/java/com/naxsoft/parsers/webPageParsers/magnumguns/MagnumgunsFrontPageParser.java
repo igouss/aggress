@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class MagnumgunsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MagnumgunsFrontPageParser.class);
 
@@ -90,5 +87,4 @@ class MagnumgunsFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "magnumguns.ca";
     }
-
 }

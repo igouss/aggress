@@ -16,9 +16,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WholesalesportsProductRawPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
@@ -27,10 +24,6 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
@@ -46,9 +39,7 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
-
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
-
 
             ProductEntity product;
             String productName = null;
@@ -94,10 +85,6 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (null != category) {

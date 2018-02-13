@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 class GunshopProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopProductParser.class);
 
@@ -36,6 +33,4 @@ class GunshopProductParser extends AbstractWebPageParser {
     public String getSite() {
         return "gun-shop.ca";
     }
-
-
 }

@@ -19,9 +19,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import okhttp3.Cookie;
-/**
- * Copyright NAXSoft 2015
- */
+
 class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(InternationalshootingsuppliesFrontPageParser.class);
     private static final Collection<Cookie> cookies;
@@ -99,6 +97,4 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
     public String getSite() {
         return "internationalshootingsupplies.com";
     }
-
-
 }

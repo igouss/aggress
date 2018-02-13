@@ -4,8 +4,6 @@ import rx.exceptions.OnErrorNotImplementedException;
 import rx.functions.Action1;
 
 /**
- * Copyright NAXSoft 2015
- * <p>
  * Helper gunctions for RxJava
  */
 class Rx {

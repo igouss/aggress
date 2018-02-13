@@ -17,9 +17,6 @@ import rx.schedulers.Schedulers;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FirearmsoutletcanadaFrontPageParser.class);
 
@@ -76,5 +73,4 @@ class FirearmsoutletcanadaFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "firearmsoutletcanada.com";
     }
-
 }

@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class AlflahertysProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysProductListParser.class);
 
@@ -26,10 +23,6 @@ class AlflahertysProductListParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    /**
-     * @param downloadResult
-     * @return
-     */
     private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 

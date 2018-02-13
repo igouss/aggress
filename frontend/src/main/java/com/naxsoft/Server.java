@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Copyright NAXSoft 2015.
  * HTTP frontend to search engine
  */
 public class Server {

@@ -12,29 +12,11 @@ import java.io.IOException;
 public class WebPageEntity {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageEntity.class);
 
-    /**
-     *
-     */
     private String url;
-
-    /**
-     *
-     */
     private String type;
-
-    /**
-     *
-     */
     private String content;
-
-    /**
-     *
-     */
     private String category;
 
-    /*
-
-     */
     private transient WebPageEntity parent;
 
     public WebPageEntity(WebPageEntity parent, String content, String type, String url, String category) {

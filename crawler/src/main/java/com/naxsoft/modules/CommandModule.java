@@ -13,9 +13,6 @@ import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 
 
-/**
- * Copyright NAXSoft 2015
- */
 @Module
 public class CommandModule {
     @Provides

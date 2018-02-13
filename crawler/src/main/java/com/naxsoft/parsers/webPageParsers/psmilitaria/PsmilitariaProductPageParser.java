@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 class PsmilitariaProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaProductPageParser.class);
 
@@ -36,6 +33,4 @@ class PsmilitariaProductPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "psmilitaria.50megs.com";
     }
-
-
 }

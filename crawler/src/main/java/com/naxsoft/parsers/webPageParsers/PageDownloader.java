@@ -13,9 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import okhttp3.Cookie;
 
-/**
- * Copyright NAXSoft 2015
- */
 public class PageDownloader {
     /**
      * Download page from the url.

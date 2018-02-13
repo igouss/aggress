@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class WestrifleProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductListParser.class);
 
@@ -58,5 +55,4 @@ class WestrifleProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "westrifle.com";
     }
-
 }

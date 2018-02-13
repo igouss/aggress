@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Set;
 import okhttp3.*;
 
-/**
- * Copyright NAXSoft 2015
- */
 class CrafmFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmFrontPageParser.class);
 
@@ -66,5 +63,4 @@ class CrafmFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "crafm.com";
     }
-
 }

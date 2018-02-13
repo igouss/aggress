@@ -14,9 +14,6 @@ import io.vertx.core.Vertx;
 
 import javax.inject.Singleton;
 
-/**
- * Copyright NAXSoft 2015
- */
 @Singleton
 @Component(modules = {
         RedisModule.class

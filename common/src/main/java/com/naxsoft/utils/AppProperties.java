@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.Properties;
 
 /**
- * Copyright NAXSoft 2015
  * User configurable application configuration state
  */
 public class AppProperties {

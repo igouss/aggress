@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class TheammosourceRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceRawPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
@@ -26,10 +23,6 @@ class TheammosourceRawPageParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
@@ -65,7 +58,6 @@ class TheammosourceRawPageParser extends AbstractRawPageParser {
                 return Observable.empty();
             }
 
-
             url = webPageEntity.getUrl();
             productImage = document.select("#productMainImage img").attr("abs:src");
             description = document.select("#productDescription").text();
@@ -87,10 +79,6 @@ class TheammosourceRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (null != category) {

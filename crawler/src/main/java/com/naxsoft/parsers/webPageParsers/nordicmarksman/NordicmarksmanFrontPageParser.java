@@ -17,9 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- *
- */
 public class NordicmarksmanFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(NordicmarksmanFrontPageParser.class);
 
@@ -63,5 +60,4 @@ public class NordicmarksmanFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "nordicmarksman.com";
     }
-
 }

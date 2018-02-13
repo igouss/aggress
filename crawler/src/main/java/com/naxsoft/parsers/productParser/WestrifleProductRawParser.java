@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class WestrifleProductRawParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductRawParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
@@ -66,7 +63,6 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
-
             ProductEntity product;
             String productName = null;
             String url = null;
@@ -84,7 +80,6 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
             productName = document.select("#productName").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-
             url = webPageEntity.getUrl();
             productImage = document.select("#productMainImage a > img").attr("abs:src");
             description = document.select("#productDescription").text();
@@ -100,10 +95,6 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         if (mapping.containsKey(webPageEntity.getCategory())) {
             return mapping.get(webPageEntity.getCategory()).split(",");

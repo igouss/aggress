@@ -63,5 +63,4 @@ public class DurhamoutdoorsProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "durhamoutdoors.ca";
     }
-
 }

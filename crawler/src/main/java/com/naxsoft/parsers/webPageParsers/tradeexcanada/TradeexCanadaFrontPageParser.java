@@ -17,9 +17,6 @@ import rx.schedulers.Schedulers;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaFrontPageParser.class);
 
@@ -92,5 +89,4 @@ class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "tradeexcanada.com";
     }
-
 }

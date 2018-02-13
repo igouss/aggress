@@ -18,9 +18,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class SailsRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SailsRawPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
@@ -29,10 +26,6 @@ class SailsRawPageParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
@@ -64,9 +57,7 @@ class SailsRawPageParser extends AbstractRawPageParser {
             productName = document.select(".product-shop .brand").text() + " " + document.select(".product-shop .product-name span").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-
             url = webPageEntity.getUrl();
-
 
             productImage = document.select(".product-image-gallery > img#image-main").attr("abs:src");
             description = document.select(".product-shop .short-description").text() + " " + document.select("div[data-component=product-description-region]").text();
@@ -96,10 +87,6 @@ class SailsRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (null != category) {

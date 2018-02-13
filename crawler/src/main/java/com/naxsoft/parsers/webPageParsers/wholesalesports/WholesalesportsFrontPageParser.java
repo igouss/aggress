@@ -17,9 +17,6 @@ import rx.schedulers.Schedulers;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class WholesalesportsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WholesalesportsFrontPageParser.class);
 
@@ -88,6 +85,5 @@ class WholesalesportsFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "wholesalesports.com";
     }
-
 }
 

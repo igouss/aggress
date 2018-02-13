@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class IrungunsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(IrungunsFrontPageParser.class);
 
@@ -59,5 +56,4 @@ class IrungunsFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "irunguns.us";
     }
-
 }

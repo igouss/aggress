@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesFrontPageParser.class);
 
@@ -86,5 +83,4 @@ class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "ctcsupplies.ca";
     }
-
 }

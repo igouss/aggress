@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class DantesportsProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsProductRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
@@ -84,11 +81,6 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     * @throws Exception
-     */
     @Override
     public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
@@ -131,10 +123,6 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {

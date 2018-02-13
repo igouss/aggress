@@ -18,9 +18,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class FishingworldFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingworldFrontPageParser.class);
     private static final Pattern maxPagesPattern = Pattern.compile("(\\d+) of (\\d+)");
@@ -87,6 +84,4 @@ class FishingworldFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "fishingworld.ca";
     }
-
-
 }

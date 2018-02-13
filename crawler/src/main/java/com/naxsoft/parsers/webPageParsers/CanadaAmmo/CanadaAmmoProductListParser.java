@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class CanadaAmmoProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoProductListParser.class);
 
@@ -57,5 +54,4 @@ class CanadaAmmoProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "canadaammo.com";
     }
-
 }

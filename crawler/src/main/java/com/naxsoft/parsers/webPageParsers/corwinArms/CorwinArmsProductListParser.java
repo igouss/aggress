@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class CorwinArmsProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsProductListParser.class);
 
@@ -57,7 +54,5 @@ class CorwinArmsProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "corwin-arms.com";
     }
-
-
 }
 

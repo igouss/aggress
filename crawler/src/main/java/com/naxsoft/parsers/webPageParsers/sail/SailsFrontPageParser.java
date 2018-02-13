@@ -20,9 +20,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class SailsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SailsFrontPageParser.class);
     private static final Collection<Cookie> cookies;
@@ -81,5 +78,4 @@ class SailsFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "sail.ca";
     }
-
 }

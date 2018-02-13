@@ -18,9 +18,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Copyright NAXSoft 2015
- */
 class TradeexCanadaProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaProductListParser.class);
 

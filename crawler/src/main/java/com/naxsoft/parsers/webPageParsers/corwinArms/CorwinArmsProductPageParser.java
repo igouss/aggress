@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 class CorwinArmsProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsProductPageParser.class);
 
@@ -36,6 +33,5 @@ class CorwinArmsProductPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "corwin-arms.com";
     }
-
 }
 

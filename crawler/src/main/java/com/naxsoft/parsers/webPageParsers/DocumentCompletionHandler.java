@@ -8,9 +8,6 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Copyright NAXSoft 2015
- */
 public class DocumentCompletionHandler extends AbstractCompletionHandler<DownloadResult> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentCompletionHandler.class);
     private final WebPageEntity source;

@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class QuestarProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuestarProductListParser.class);
 
@@ -57,5 +54,4 @@ class QuestarProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "shopquestar.com";
     }
-
 }

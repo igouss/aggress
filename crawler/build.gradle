@@ -9,15 +9,16 @@ buildscript {
 }
 
 plugins {
-    id "net.ltgt.apt" version "0.10"
+    id "net.ltgt.apt" version "0.14"
+    id "net.ltgt.apt-idea" version "0.14"
 }
 
 configurations {
     apt
 }
-tasks.withType(JavaCompile) {
-    options.annotationProcessorPath = configurations.apt
-}
+//tasks.withType(JavaCompile) {
+//    options.annotationProcessorPath = configurations.apt
+//}
 
 /*
 https://docs.gradle.org/current/userguide/java_library_plugin.html
@@ -126,3 +127,4 @@ task dockerPublish() {
 repositories {
     mavenCentral()
 }
+

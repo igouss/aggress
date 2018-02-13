@@ -9,8 +9,6 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Copyright NAXSoft 2015
- * <p>
  * HttpClient interface, in case we need to replace actual implementation for mocking purposes.
  */
 public interface HttpClient extends AutoCloseable {

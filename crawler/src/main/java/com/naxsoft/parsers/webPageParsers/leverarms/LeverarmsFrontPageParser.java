@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class LeverarmsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsFrontPageParser.class);
 
@@ -77,5 +74,4 @@ class LeverarmsFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "leverarms.com";
     }
-
 }

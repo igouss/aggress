@@ -7,9 +7,6 @@ import io.vertx.core.Vertx;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 
-/**
- * Copyright Naxsoft 2016.
- */
 @Module
 public class VertxModule {
     @Provides

@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 class HicalProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(HicalProductPageParser.class);
 
@@ -36,6 +33,4 @@ class HicalProductPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "hical.ca";
     }
-
-
 }

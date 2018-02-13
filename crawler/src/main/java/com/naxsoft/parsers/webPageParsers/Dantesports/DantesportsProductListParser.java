@@ -18,9 +18,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class DantesportsProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsProductListParser.class);
     private static final Pattern producePagePattern = Pattern.compile("\\d+");
@@ -67,6 +64,4 @@ class DantesportsProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "dantesports.com";
     }
-
-
 }

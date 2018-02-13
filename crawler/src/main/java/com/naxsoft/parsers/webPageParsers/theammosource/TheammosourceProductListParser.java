@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class TheammosourceProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceProductListParser.class);
 
@@ -74,5 +71,4 @@ class TheammosourceProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "theammosource.com";
     }
-
 }

@@ -17,9 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
-/**
- * Copyright NAXSoft 2015
- */
 public class SearchHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchHandler.class);
     private static final String[] includeFields = new String[]{
@@ -32,17 +29,10 @@ public class SearchHandler {
     };
     private final TransportClient client;
 
-    /**
-     * @param client
-     */
     public SearchHandler(TransportClient client) {
         this.client = client;
     }
 
-    /**
-     * @param searchResponse
-     * @return
-     */
     private static String searchResultToJson(SearchResponse searchResponse) {
         LOGGER.debug(searchResponse.toString());
         SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -84,12 +74,6 @@ public class SearchHandler {
         return sw.toString();
     }
 
-    /**
-     * @param searchKey
-     * @param category
-     * @param startFrom
-     * @return
-     */
     private ActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 

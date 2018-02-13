@@ -14,9 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Copyright NAXSoft 2015
- */
 class SailsProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SailsProductPageParser.class);
     private static final List<Cookie> cookies;
@@ -31,7 +28,6 @@ class SailsProductPageParser extends AbstractWebPageParser {
     public SailsProductPageParser(MetricRegistry metricRegistry, HttpClient client) {
         super(metricRegistry, client);
     }
-
 
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity webPage) {
@@ -50,5 +46,4 @@ class SailsProductPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "sail.ca";
     }
-
 }

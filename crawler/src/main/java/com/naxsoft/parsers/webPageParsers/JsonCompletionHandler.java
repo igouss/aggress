@@ -11,9 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyright NAXSoft 2015
- */
 public class JsonCompletionHandler extends AbstractCompletionHandler<JsonResult> {
     private static final Logger LOGGER = LoggerFactory.getLogger(com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler.class);
     private final WebPageEntity source;

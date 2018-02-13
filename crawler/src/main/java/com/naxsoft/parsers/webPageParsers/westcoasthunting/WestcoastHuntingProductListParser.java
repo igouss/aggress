@@ -87,5 +87,4 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "westcoasthunting.ca";
     }
-
 }

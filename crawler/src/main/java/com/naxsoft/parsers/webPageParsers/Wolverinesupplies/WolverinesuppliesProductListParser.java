@@ -92,5 +92,4 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "wolverinesupplies.com";
     }
-
 }

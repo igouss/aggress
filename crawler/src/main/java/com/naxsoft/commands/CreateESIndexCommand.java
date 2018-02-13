@@ -8,8 +8,6 @@ import javax.inject.Inject;
 import java.util.concurrent.Semaphore;
 
 /**
- * Copyright NAXSoft 2015
- * <p>
  * Create Elasticsearch index
  */
 public class CreateESIndexCommand implements Command {

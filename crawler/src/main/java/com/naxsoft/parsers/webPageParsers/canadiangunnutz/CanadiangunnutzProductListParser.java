@@ -17,9 +17,6 @@ import rx.Observable;
 import okhttp3.*;
 import java.util.*;
 
-/**
- * Copyright NAXSoft 2015
- */
 class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductListParser.class);
     private final List<Cookie> cookies;
@@ -84,6 +81,4 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "canadiangunnutz.com";
     }
-
-
 }

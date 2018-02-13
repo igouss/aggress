@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class HicalProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(HicalProductListParser.class);
 
@@ -69,6 +66,4 @@ class HicalProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "hical.ca";
     }
-
-
 }

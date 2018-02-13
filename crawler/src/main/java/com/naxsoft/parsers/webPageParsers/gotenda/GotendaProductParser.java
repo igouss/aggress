@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 class GotendaProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotendaProductParser.class);
 
@@ -36,6 +33,4 @@ class GotendaProductParser extends AbstractWebPageParser {
     public String getSite() {
         return "gotenda.com";
     }
-
-
 }

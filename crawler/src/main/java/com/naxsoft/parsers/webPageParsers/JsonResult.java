@@ -5,9 +5,6 @@ import com.naxsoft.entity.WebPageEntity;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyright NAXSoft 2015
- */
 public class JsonResult {
     private final WebPageEntity sourcePage;
     private final Map<String, List<Map<String, String>>> json;

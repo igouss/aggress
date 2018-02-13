@@ -12,8 +12,6 @@ import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Copyright NAXSoft 2015
- * <p>
  * Crawl pages from initial data-set walking breath first. For each page generate one or more sub-pages to parse.
  * Stop at leafs.
  * Process the stream of unparsed webpages. Processed web pages are saved into the
@@ -38,7 +36,6 @@ public class CrawlCommand implements Command {
     @Override
     public void setUp() throws CLIException {
     }
-
 
     @Override
     public void start() throws CLIException {

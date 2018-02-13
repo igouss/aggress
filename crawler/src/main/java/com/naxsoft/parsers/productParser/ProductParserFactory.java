@@ -28,9 +28,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 public class ProductParserFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductParserFactory.class);
 

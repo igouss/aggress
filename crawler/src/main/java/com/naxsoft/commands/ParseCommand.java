@@ -15,8 +15,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Copyright NAXSoft 2015
- * <p>
  * Parse raw web pages entries, generate JSON representation and sent it to Elasticsearch
  */
 public class ParseCommand implements Command {
@@ -49,7 +47,6 @@ public class ParseCommand implements Command {
 
     @Override
     public void setUp() throws CLIException {
-
     }
 
     @Override

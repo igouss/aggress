@@ -39,10 +39,6 @@ public class DurhamoutdoorsRawPageParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
@@ -53,11 +49,6 @@ public class DurhamoutdoorsRawPageParser extends AbstractRawPageParser {
         }
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     * @throws Exception
-     */
     @Override
     public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
@@ -96,10 +87,6 @@ public class DurhamoutdoorsRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {

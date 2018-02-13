@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class ProphetriverProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProphetriverProductListParser.class);
 
@@ -57,5 +54,4 @@ class ProphetriverProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "prophetriver.com";
     }
-
 }

@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class MagnumgunsRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LeverarmsRawPageParser.class);
 
@@ -39,10 +36,6 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
@@ -68,10 +61,7 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
             Map<String, String> attr = new HashMap<>();
             String[] category = null;
 
-
             url = webPageEntity.getUrl();
-
-
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             productName = document.select(".product_title").text();
@@ -83,11 +73,8 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
                 return Observable.empty();
             }
 
-
             productImage = document.select(".wp-post-image").attr("abs:src");
-
             regularPrice = document.select("meta[itemprop=price]").attr("content");
-
             description = document.select("div[itemprop=description]").text();
             category = getNormalizedCategories(webPageEntity);
 
@@ -100,10 +87,6 @@ class MagnumgunsRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         for (String categoryName : mapping.keySet()) {
             if (webPageEntity.getCategory().contains(categoryName)) {

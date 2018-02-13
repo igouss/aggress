@@ -30,9 +30,6 @@ import java.lang.reflect.Modifier;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
-/**
- * Copyright NAXSoft 2015
- */
 public class WebPageParserFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageParserFactory.class);
 
@@ -141,8 +138,6 @@ public class WebPageParserFactory {
             });
             asyncEmitter.onCompleted();
         }, Emitter.BackpressureMode.BUFFER).subscribeOn(Schedulers.immediate()).subscribe();
-
-
     }
 
     private void createLogger(Class<? extends AbstractWebPageParser> clazz) {

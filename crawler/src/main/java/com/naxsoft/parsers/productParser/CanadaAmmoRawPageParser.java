@@ -16,9 +16,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
@@ -38,10 +35,6 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = priceMatcher.matcher(price);
         if (matcher.find()) {
@@ -116,10 +109,6 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {

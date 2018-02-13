@@ -19,9 +19,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WanstallsonlineFrontPageParser.class);
     private static final Pattern pageNumPattern = Pattern.compile("\\d+");
@@ -97,6 +94,5 @@ class WanstallsonlineFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "wanstallsonline.com";
     }
-
 }
 

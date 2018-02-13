@@ -43,7 +43,6 @@ public class GunhubFrontPageParser extends AbstractWebPageParser {
         return Observable.from(result);
     }
 
-
     @Override
     public Observable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
@@ -68,6 +67,4 @@ public class GunhubFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "gunhub.ca";
     }
-
-
 }

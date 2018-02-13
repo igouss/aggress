@@ -33,6 +33,4 @@ public class GunhubProductPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "gunhub.ca";
     }
-
-
 }

@@ -18,9 +18,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class AlflahertysRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
     private static final Pattern priceParser = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
@@ -155,10 +152,6 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory().toUpperCase();
         String s = mapping.get(category);

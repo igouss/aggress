@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class EllwoodeppsProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsProductListParser.class);
 
@@ -63,5 +60,4 @@ class EllwoodeppsProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "ellwoodepps.com";
     }
-
 }

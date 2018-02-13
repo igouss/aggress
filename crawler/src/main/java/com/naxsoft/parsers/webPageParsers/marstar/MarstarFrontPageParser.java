@@ -11,9 +11,6 @@ import rx.schedulers.Schedulers;
 
 import java.util.HashSet;
 
-/**
- * Copyright NAXSoft 2015
- */
 class MarstarFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarFrontPageParser.class);
 
@@ -46,6 +43,5 @@ class MarstarFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "marstar.ca";
     }
-
 }
 

@@ -17,9 +17,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaRawProductPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
@@ -28,10 +25,6 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
@@ -66,7 +59,6 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
             }
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-
             url = webPageEntity.getUrl();
 
             productImage = document.select(".main-product-image img").attr("abs:src");
@@ -91,10 +83,6 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (null != category) {

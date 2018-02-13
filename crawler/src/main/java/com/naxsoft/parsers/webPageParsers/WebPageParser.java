@@ -3,9 +3,6 @@ package com.naxsoft.parsers.webPageParsers;
 import com.naxsoft.entity.WebPageEntity;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 public interface WebPageParser {
     /**
      * Parse given webPage and return all child pages

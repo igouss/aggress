@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class GunshopProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GunshopProductListParser.class);
 
@@ -60,6 +57,4 @@ class GunshopProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "gun-shop.ca";
     }
-
-
 }

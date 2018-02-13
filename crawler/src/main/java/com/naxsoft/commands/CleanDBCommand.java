@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 import rx.schedulers.Schedulers;
 
 /**
- * Copyright NAXSoft 2015
- * <p>
  * Delete all the rows from previous crawling
  */
 public class CleanDBCommand implements Command {

@@ -1,8 +1,5 @@
 package com.naxsoft.commands;
 
-/**
- * Copyright NAXSoft 2015
- */
 interface Command {
 
     /**

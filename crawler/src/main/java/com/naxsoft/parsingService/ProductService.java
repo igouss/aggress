@@ -6,23 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- *
- */
 public class ProductService {
     private final static Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
     private final Persistent database;
 
-    /**
-     * @param database
-     */
     public ProductService(Persistent database) {
         this.database = database;
     }
 
-    /**
-     * @param products Save
-     */
     public Observable<Long> save(ProductEntity products) {
         return database.addProductPageEntry(products);
     }

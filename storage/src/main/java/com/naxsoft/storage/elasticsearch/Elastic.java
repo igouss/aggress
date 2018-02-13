@@ -115,7 +115,7 @@ public class Elastic implements AutoCloseable, Cloneable {
 
             try {
                 LOGGER.info("Creating index {} type {} from {}", indexName, type, indexFile);
-                Settings settings = Settings.builder().loadFromStream(indexFile, indexResource).build();
+                Settings settings = Settings.builder().loadFromStream(indexFile, indexResource, true).build();
 
                 if (indexExists(indexName)) {
                     DeleteIndexResponse deleteIndexResponse = client.admin().indices().delete(Requests.deleteIndexRequest(indexName)).actionGet();
@@ -130,7 +130,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                 request.settings(settings);
 
                 CreateIndexResponse createIndexResponse = client.admin().indices().create(request).actionGet();
-                if (createIndexResponse.isShardsAcked()) {
+                if (createIndexResponse.isShardsAcknowledged()) {
                     LOGGER.info("Index created {}");
 
                     PutMappingRequest putMappingRequest = Requests.putMappingRequest(indexName);

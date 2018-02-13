@@ -12,9 +12,6 @@ import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.net.UnknownHostException;
 
-/**
- * Copyright NAXSoft 2015
- */
 @Module
 public class ElasticModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticModule.class);

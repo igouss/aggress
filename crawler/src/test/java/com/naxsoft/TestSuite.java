@@ -20,9 +20,6 @@ import java.util.Set;
 
 import static java.lang.System.out;
 
-/**
- * Copyright NAXSoft 2015
- */
 public class TestSuite {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestSuite.class);
 

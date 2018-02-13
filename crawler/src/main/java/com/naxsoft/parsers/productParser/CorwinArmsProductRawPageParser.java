@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsProductRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
@@ -40,10 +37,6 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
 
         Matcher matcher = pricePattern.matcher(price);

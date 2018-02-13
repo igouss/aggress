@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 class CtcsuppliesProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CtcsuppliesProductPageParser.class);
 
@@ -36,5 +33,4 @@ class CtcsuppliesProductPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "ctcsupplies.ca";
     }
-
 }

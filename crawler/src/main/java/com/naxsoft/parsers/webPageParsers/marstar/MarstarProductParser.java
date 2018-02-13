@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 class MarstarProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarProductParser.class);
 
@@ -36,5 +33,4 @@ class MarstarProductParser extends AbstractWebPageParser {
     public String getSite() {
         return "marstar.ca";
     }
-
 }

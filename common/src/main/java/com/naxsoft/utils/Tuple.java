@@ -1,8 +1,5 @@
 package com.naxsoft.utils;
 
-/**
- *
- */
 public class Tuple<V1, V2> {
     private final V1 v1;
     private final V2 v2;

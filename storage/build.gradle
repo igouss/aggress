@@ -10,7 +10,7 @@ buildscript {
 
 plugins {
     id "java-library"
-    id "net.ltgt.apt" version "0.13"
+    id "net.ltgt.apt" version "0.14"
 }
 
 /*

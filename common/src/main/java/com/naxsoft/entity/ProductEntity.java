@@ -4,9 +4,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 
-/**
- *
- */
 public class ProductEntity {
     private final String productName;
     private final String url;
@@ -18,29 +15,10 @@ public class ProductEntity {
     private final String[] category;
     private final Instant modificationDate;
 
-    /**
-     * @param productName
-     * @param url
-     * @param regularPrice
-     * @param specialPrice
-     * @param productImage
-     * @param description
-     * @param categories
-     */
     public ProductEntity(String productName, String url, String regularPrice, String specialPrice, String productImage, String description, String... categories) {
         this(productName, url, regularPrice, specialPrice, productImage, description, Collections.emptyMap(), categories);
     }
 
-    /**
-     * @param productName
-     * @param url
-     * @param regularPrice
-     * @param specialPrice
-     * @param productImage
-     * @param description
-     * @param attr
-     * @param category
-     */
     public ProductEntity(String productName, String url, String regularPrice, String specialPrice, String productImage, String description, Map<String, String> attr, String... category) {
         this.productName = productName;
         this.category = category;

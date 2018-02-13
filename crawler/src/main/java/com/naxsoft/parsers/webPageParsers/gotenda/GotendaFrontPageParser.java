@@ -18,9 +18,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Copyright NAXSoft 2015
- */
 class GotendaFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotendaFrontPageParser.class);
 
@@ -80,6 +77,4 @@ class GotendaFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "gotenda.com";
     }
-
-
 }

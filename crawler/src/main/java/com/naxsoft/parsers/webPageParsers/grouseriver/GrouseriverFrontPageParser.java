@@ -69,6 +69,4 @@ public class GrouseriverFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "grouseriver.com";
     }
-
-
 }

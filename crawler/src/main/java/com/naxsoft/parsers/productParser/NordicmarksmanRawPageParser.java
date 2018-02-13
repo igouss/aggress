@@ -40,10 +40,6 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
@@ -78,7 +74,6 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
             productName = document.select(".productname").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-
             url = webPageEntity.getUrl();
             productImage = document.select("img[name='altimage']").attr("abs:src");
             description = document.select(".producttabcontent").text();
@@ -104,10 +99,6 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param category
-     * @return
-     */
     private String[] getNormalizedCategories(String category) {
         if (mapping.containsKey(category)) {
             return mapping.get(category).split(",");

@@ -54,6 +54,4 @@ public class NordicmarksmanProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "nordicmarksman.com";
     }
-
-
 }

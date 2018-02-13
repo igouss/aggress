@@ -15,9 +15,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-/**
- * Copyright NAXSoft 2015
- */
 class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzRawPageParser.class);
 
@@ -96,10 +93,6 @@ class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (category != null) {

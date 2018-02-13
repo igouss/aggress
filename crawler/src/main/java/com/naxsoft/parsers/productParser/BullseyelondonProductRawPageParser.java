@@ -44,10 +44,6 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
         super(metricRegistry);
     }
 
-    /**
-     * @param document
-     * @return
-     */
     private static String getFreeShipping(Document document) {
         if (!document.select(".freeShip").isEmpty()) {
             String raw = document.select(".freeShip").first().text();
@@ -58,10 +54,6 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
         }
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = priceMatcher.matcher(price);
         String result;
@@ -78,10 +70,6 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
         return result;
     }
 
-    /**
-     * @param document
-     * @return
-     */
     private static String getRegularPrice(WebPageEntity webPageEntity, Document document) {
         String raw = document.select(".regular-price").text().trim();
         if (raw.isEmpty()) {
@@ -90,10 +78,6 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
         return parsePrice(webPageEntity, raw);
     }
 
-    /**
-     * @param document
-     * @return
-     */
     private static String getSpecialPrice(WebPageEntity webPageEntity, Document document) {
         String raw = document.select(".special-price .price").text().trim();
         String price = "";
@@ -103,10 +87,6 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
         return price;
     }
 
-    /**
-     * @param document
-     * @return
-     */
     private static String getUnitsAvailable(Document document) {
         Elements priceBox = document.select(".price-box");
         String result = "";
@@ -175,10 +155,6 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {

@@ -12,8 +12,6 @@ import rx.schedulers.Schedulers;
 import javax.inject.Inject;
 
 /**
- * Copyright NAXSoft 2015
- * <p>
  * Add initial dataset to the database.
  * The crawling is basically breath first search from that dataset
  */

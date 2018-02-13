@@ -33,6 +33,4 @@ public class WolverinegProductPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "wolverinegt.ca";
     }
-
-
 }

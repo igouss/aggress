@@ -135,10 +135,6 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         if (mapping.containsKey(webPageEntity.getCategory().toLowerCase())) {
             return mapping.get(webPageEntity.getCategory().toLowerCase()).split(",");
@@ -157,9 +153,6 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         return "productPageRaw";
     }
 
-    /**
-     *
-     */
     class RawProduct {
         Attributes[] Attributes;
         String ItemNumber;
@@ -178,9 +171,6 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         }
     }
 
-    /**
-     *
-     */
     class Attributes {
         String SearchType;
         String AttributeName;

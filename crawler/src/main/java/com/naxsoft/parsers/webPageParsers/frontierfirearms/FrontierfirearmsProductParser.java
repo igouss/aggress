@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 class FrontierfirearmsProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsProductParser.class);
 
@@ -36,6 +33,4 @@ class FrontierfirearmsProductParser extends AbstractWebPageParser {
     public String getSite() {
         return "frontierfirearms.ca";
     }
-
-
 }

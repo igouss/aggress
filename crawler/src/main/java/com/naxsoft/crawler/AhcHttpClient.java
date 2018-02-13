@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Copyright NAXSoft 2015
- * <p>
  * HTTP client. Can sent GET and POST requests
  */
 public class AhcHttpClient implements HttpClient {

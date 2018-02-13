@@ -16,9 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-/**
- * Copyright NAXSoft 2015
- */
 class HicalRawProductParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(HicalRawProductParser.class);
 
@@ -47,10 +44,6 @@ class HicalRawProductParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
@@ -102,10 +95,6 @@ class HicalRawProductParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String s = mapping.get(webPageEntity.getCategory());
         if (null != s) {

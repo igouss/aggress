@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-/**
- * Copyright NAXSoft 2015
- */
 class EllwoodeppsProductParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsProductParser.class);
 
@@ -36,6 +33,4 @@ class EllwoodeppsProductParser extends AbstractWebPageParser {
     public String getSite() {
         return "ellwoodepps.com";
     }
-
-
 }

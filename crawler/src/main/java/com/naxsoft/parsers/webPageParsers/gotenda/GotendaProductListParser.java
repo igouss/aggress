@@ -16,9 +16,6 @@ import rx.Observable;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
 class GotendaProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotendaProductListParser.class);
 
@@ -63,6 +60,4 @@ class GotendaProductListParser extends AbstractWebPageParser {
     public String getSite() {
         return "gotenda.com";
     }
-
-
 }

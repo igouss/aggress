@@ -17,9 +17,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
 class FishingWorldRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(FishingWorldRawPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
@@ -28,10 +25,6 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
         super(metricRegistry);
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
@@ -93,10 +86,6 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
                 .doOnNext(e -> parseResultCounter.inc());
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (null != category) {
@@ -115,5 +104,4 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
     String getParserType() {
         return "productPageRaw";
     }
-
 }
