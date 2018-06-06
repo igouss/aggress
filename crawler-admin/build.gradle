@@ -20,7 +20,7 @@ dependencies {
 
     compile project(':crawler')
     compile project(':common')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 }
 
 task copyDepsToDocker(type: Copy) {

@@ -18,7 +18,7 @@ fun main(args: Array<String>): Unit {
     router.route("/img/*").handler(StaticHandler.create("basedir/thymeleaf/img"))
     router.route("/js/*").handler(StaticHandler.create("basedir/thymeleaf/js"))
     router.route("/").handler { ctx ->
-        templateEngine.render(ctx, "templates/index.html", { res ->
+        templateEngine.render(ctx, "templates", "index.html", { res ->
             if (res.succeeded()) {
                 ctx.response().end(res.result())
             } else {

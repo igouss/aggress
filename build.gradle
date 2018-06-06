@@ -13,7 +13,7 @@ buildscript {
 plugins {
     id "java"
     id "idea"
-    id 'com.gradle.build-scan' version '1.12'
+    id 'com.gradle.build-scan' version '1.13.4'
     id 'com.github.ben-manes.versions' version '0.17.0'
 }
 apply plugin: 'com.bmuschko.docker-remote-api'
@@ -32,12 +32,7 @@ dependencies {
     compile project(":frontend")
     compile project(":webadmin")
     compile project(":storage")
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = "4.5.1"
-    distributionUrl = "https://services.gradle.org/distributions/gradle-" + gradleVersion + "-all.zip"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
 allprojects {

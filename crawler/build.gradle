@@ -9,16 +9,9 @@ buildscript {
 }
 
 plugins {
-    id "net.ltgt.apt" version "0.14"
-    id "net.ltgt.apt-idea" version "0.14"
+    id 'java'
+    id 'net.ltgt.apt-idea' version "0.15"
 }
-
-configurations {
-    apt
-}
-//tasks.withType(JavaCompile) {
-//    options.annotationProcessorPath = configurations.apt
-//}
 
 /*
 https://docs.gradle.org/current/userguide/java_library_plugin.html
@@ -58,14 +51,10 @@ dependencies {
     compile "javax.inject:javax.inject:$javaxInjectVersion"
 
     compile  "com.google.dagger:dagger:$daggerVersion"
-    apt "com.google.dagger:dagger-compiler:$daggerVersion"
+    annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
 
     compile fileTree(dir: "libs", include: "*.jar")
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
-}
-
-compileJava {
-    options.annotationProcessorPath = configurations.apt
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 }
 
 javadoc {
@@ -122,7 +111,6 @@ task dockerPublish() {
     description = "Copy app and all dependencies to docker/crawler"
     dependsOn copyDepsToDocker, copyAppToDocker, copyCetrificatesToDocker
 }
-
 
 repositories {
     mavenCentral()

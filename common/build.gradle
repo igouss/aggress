@@ -9,7 +9,7 @@ buildscript {
 }
 plugins {
     id "java-library"
-    id "net.ltgt.apt" version "0.14"
+    id "net.ltgt.apt" version "0.15"
 }
 
 /*
@@ -20,7 +20,7 @@ dependencies {
     implementation  "ch.qos.logback:logback-classic:$logbackVersion"
     implementation  "com.google.code.gson:gson:$gsonVersion"
     implementation  "commons-io:commons-io:$commonsIoVersion"
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 
 }
 repositories {

@@ -21,7 +21,11 @@ public class WebPageEntity {
 
     public WebPageEntity(WebPageEntity parent, String content, String type, String url, String category) {
         this.parent = parent;
-        this.content = Compressor.INSTANCE.compress(removeNonASCII(content));
+        try {
+            this.content = Compressor.compress(removeNonASCII(content));
+        } catch (IOException e) {
+            this.content = removeNonASCII(content);
+        }
         this.type = type;
         this.url = url;
         this.category = category;
@@ -46,7 +50,7 @@ public class WebPageEntity {
 
         if (null != this.content) {
             try {
-                result = Compressor.INSTANCE.decompress(this.content);
+                result = Compressor.decompress(this.content);
             } catch (IOException e) {
                 LOGGER.error("Failed to decompress", e);
             }
