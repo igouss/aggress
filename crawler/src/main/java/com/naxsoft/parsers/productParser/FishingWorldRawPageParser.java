@@ -7,13 +7,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +35,7 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             ProductEntity product;
@@ -59,7 +55,7 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (document.select("#details div.warning").text().equals("Out of Stock")) {
-                return Observable.empty();
+                return result;
             }
 
             productImage = document.select(".product-image").attr("abs:src");
@@ -82,8 +78,7 @@ class FishingWorldRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return result;
     }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {

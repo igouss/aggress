@@ -7,11 +7,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,7 +51,7 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -68,7 +68,7 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
             String[] category = null;
 
             if (document.select(".optionstyle").text().contains("This item is currently out of stock.")) {
-                return Observable.empty();
+                return result;
             }
 
             productName = document.select(".productname").text();
@@ -95,8 +95,7 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return result;
     }
 
     private String[] getNormalizedCategories(String category) {

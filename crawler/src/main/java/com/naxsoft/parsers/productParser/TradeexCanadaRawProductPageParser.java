@@ -8,12 +8,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +32,7 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -55,7 +51,7 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
 
             productName = document.select("h1.title").text();
             if (productName.toUpperCase().contains("OUT OF STOCK") || productName.contains("Donation to the CSSA") || productName.contains("SOLD")) {
-                return Observable.empty();
+                return result;
             }
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
@@ -79,8 +75,7 @@ class TradeexCanadaRawProductPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return result;
     }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {

@@ -7,6 +7,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 import rx.Subscription;
 
 abstract class AbstractRawPageParser extends AbstractVerticle implements ProductParser {
@@ -33,7 +34,9 @@ abstract class AbstractRawPageParser extends AbstractVerticle implements Product
     @Override
     public void start() throws Exception {
         vertx.eventBus().consumer(getSite() + "/" + getParserType(), (Message<WebPageEntity> event) -> {
-            productParseResult = parse(event.body()).subscribe(message -> vertx.eventBus().publish("productParseResult", message), err -> LOGGER.error("Failed to parse", err));
+            productParseResult = Observable.from(parse(event.body()))
+                    .subscribe(message -> vertx.eventBus().publish("productParseResult", message),
+                            err -> LOGGER.error("Failed to parse", err));
         });
     }
 

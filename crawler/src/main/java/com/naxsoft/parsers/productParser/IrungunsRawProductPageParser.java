@@ -9,12 +9,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,7 +51,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -73,12 +69,12 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             if (!document.select(".saleImage").isEmpty()) {
-                return Observable.empty();
+                return result;
             }
 
             productName = document.select("div.innercontentDiv > div > div > h2").text();
             if (productName.isEmpty()) {
-                return Observable.empty();
+                return result;
             }
 
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
@@ -120,8 +116,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return result;
     }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity, String category) {

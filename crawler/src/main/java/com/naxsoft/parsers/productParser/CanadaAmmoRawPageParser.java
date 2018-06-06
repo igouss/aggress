@@ -9,7 +9,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import java.text.NumberFormat;
 import java.util.*;
@@ -50,7 +49,7 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Set<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -72,9 +71,9 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
             url = webPageEntityUrl;
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntityUrl);
             if (document.select(".product-details__add").isEmpty()) {
-                return Observable.empty();
+                return result;
             } else if (document.select(".product-details__warranty-text").text().contains("sold out")) {
-                return Observable.empty();
+                return result;
             }
             productName = document.select(".product-details__title .product__name").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntityUrl);
@@ -105,8 +104,7 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return result;
     }
 
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
