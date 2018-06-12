@@ -1,23 +1,16 @@
 package com.naxsoft;
 
 import ch.qos.logback.classic.LoggerContext;
-import com.codahale.metrics.ScheduledReporter;
-import com.codahale.metrics.Slf4jReporter;
 import com.naxsoft.commands.*;
-import com.naxsoft.scheduler.Scheduler;
-import com.naxsoft.utils.HealthMonitor;
 import joptsimple.OptionSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
 import static java.lang.System.setProperty;
 
 public class Crawler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
-    private static final Logger METRIC_LOGGER = LoggerFactory.getLogger("metrics");
     private CreateESIndexCommand createESIndexCommand = null;
     private CleanDBCommand cleanDbCommand = null;
     private PopulateDBCommand populateDBCommand = null;
@@ -44,20 +37,8 @@ public class Crawler {
     }
 
     private void start(String[] args) {
-        HealthMonitor healthMonitor = new HealthMonitor();
-        healthMonitor.start();
         DaggerApplicationComponent.Builder applicationBuilder = DaggerApplicationComponent.builder();
         ApplicationComponent applicationComponent = applicationBuilder.build();
-
-        final ScheduledReporter metricReporter = Slf4jReporter.forRegistry(applicationComponent.getMetricRegistry())
-                .outputTo(METRIC_LOGGER)
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS)
-                .build();
-        metricReporter.start(30, TimeUnit.SECONDS);
-
-        Scheduler scheduler = null;
-
 
         try {
             final OptionSet options = CommandLineParserKt.parse(args);
@@ -100,10 +81,6 @@ public class Crawler {
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
                     LOGGER.info("Stopping crawler..");
-                    metricReporter.stop();
-                    if (scheduler != null) {
-                        scheduler.stop();
-                    }
 
                     if (createESIndexCommand != null) {
                         createESIndexCommand.tearDown();
@@ -132,8 +109,6 @@ public class Crawler {
                     applicationComponent.getDatabase().close();
                     applicationComponent.getHttpClient().close();
                     applicationComponent.getElastic().close();
-                    applicationComponent.getVertx().close();
-                    healthMonitor.stop();
                     LOGGER.info("Crawler stopped...");
 
                     ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();

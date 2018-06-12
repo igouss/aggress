@@ -1,6 +1,5 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.storage.elasticsearch.Elastic;
@@ -12,7 +11,6 @@ import rx.Subscription;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Parse raw web pages entries, generate JSON representation and sent it to Elasticsearch
@@ -30,9 +28,9 @@ public class ParseCommand implements Command {
         VALID_CATEGORIES.add("misc");
     }
 
-    private WebPageService webPageService = null;
-    private Elastic elastic = null;
-    private ProductParserFactory productParserFactory = null;
+    private WebPageService webPageService;
+    private Elastic elastic;
+    private ProductParserFactory productParserFactory;
     private Subscription productIndexSubscription;
     private Subscription priceIndexSubscription;
 
@@ -51,37 +49,14 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<ProductEntity> productPages = Observable.interval(5, TimeUnit.SECONDS)
-                .flatMap(i -> webPageService.getUnparsedByType("productPageRaw"))
+
+        Observable.from(webPageService.getUnparsedByType("productPageRaw"))
                 .doOnNext(webPageEntity -> LOGGER.info("Starting RAW page parsing {}", webPageEntity))
-                .flatMap(productParserFactory::parse)
+                .map(productParserFactory::parse)
                 .doOnNext(productEntity -> LOGGER.info("Parsed page {}", productEntity))
                 .publish()
                 .autoConnect(2);
 
-        productIndexSubscription = productPages
-                .doOnNext(productEntity -> LOGGER.info("Starting product indexing {}", productEntity))
-                .buffer(16)
-                .flatMap(product -> elastic.index(product, "product", "guns"))
-                .subscribe(
-                        val -> {
-                            LOGGER.info("Indexed: {}", val);
-                        },
-                        err -> LOGGER.error("Product indexing failed", err),
-                        () -> LOGGER.info("Product indexing completed")
-                );
-
-        priceIndexSubscription = productPages
-                .doOnNext(productEntity -> LOGGER.info("Starting price indexing {}", productEntity))
-                .buffer(16)
-                .flatMap(product -> elastic.price_index(product, "product", "prices"))
-                .subscribe(
-                        val -> {
-                            LOGGER.info("Price indexed: {}", val);
-                        },
-                        err -> LOGGER.error("Price indexing failed", err),
-                        () -> LOGGER.info("Price indexing completed")
-                );
     }
 
 
@@ -93,6 +68,5 @@ public class ParseCommand implements Command {
         if (priceIndexSubscription != null) {
             priceIndexSubscription.unsubscribe();
         }
-        productParserFactory.close();
     }
 }

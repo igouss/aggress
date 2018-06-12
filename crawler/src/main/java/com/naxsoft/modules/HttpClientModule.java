@@ -1,8 +1,7 @@
 package com.naxsoft.modules;
 
-import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.AhcHttpClient;
-import com.naxsoft.crawler.HttpClient;
+import com.naxsoft.http.AhcHttpClient;
+import com.naxsoft.http.HttpClient;
 import dagger.Module;
 import dagger.Provides;
 import io.netty.handler.ssl.SslContext;
@@ -20,13 +19,13 @@ public class HttpClientModule {
     @Provides
     @Singleton
     @NotNull
-    static HttpClient provideHttpClient(MetricRegistry registry) {
+    static HttpClient provideHttpClient() {
         HttpClient httpClient;
 
         try {
             SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
             SslContext sslContext = sslContextBuilder.build();
-            httpClient = new AhcHttpClient(registry);
+            httpClient = new AhcHttpClient();
         } catch (Exception e) {
             LOGGER.error("Failed to initialize HttpClientModule", e);
             throw new RuntimeException("Failed to initialize HttpClientModule", e);

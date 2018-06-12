@@ -3,7 +3,7 @@ package com.naxsoft
 import joptsimple.OptionParser
 import joptsimple.OptionSet
 
-fun parse(args: Array<String>) : OptionSet {
+fun parse(args: Array<String>): OptionSet {
     val parser = OptionParser()
     parser.accepts("help")
     parser.accepts("populate")

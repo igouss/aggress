@@ -32,6 +32,8 @@ dependencies {
     compile project(":frontend")
     compile project(":webadmin")
     compile project(":storage")
+    compile project(":parsers")
+    compile project(":http")
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 

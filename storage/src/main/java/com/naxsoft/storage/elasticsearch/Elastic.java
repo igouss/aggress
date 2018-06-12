@@ -106,58 +106,56 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @param type      ES index type
      * @return Observable that either completes or errors.
      */
-    public Observable<Boolean> createIndex(String indexName, String type) {
-        return Observable.create(emitter -> {
-            String indexFile = "/elastic." + indexName + "." + type + ".index.json";
-            InputStream indexResource = this.getClass().getResourceAsStream(indexFile);
-            String mappingFile = "/elastic." + indexName + "." + type + ".mapping.json";
-            InputStream mappingStream = this.getClass().getResourceAsStream(mappingFile);
+    public Boolean createIndex(String indexName, String type) {
+        String indexFile = "/elastic." + indexName + "." + type + ".index.json";
+        InputStream indexResource = this.getClass().getResourceAsStream(indexFile);
+        String mappingFile = "/elastic." + indexName + "." + type + ".mapping.json";
+        InputStream mappingStream = this.getClass().getResourceAsStream(mappingFile);
 
-            try {
-                LOGGER.info("Creating index {} type {} from {}", indexName, type, indexFile);
-                Settings settings = Settings.builder().loadFromStream(indexFile, indexResource, true).build();
+        try {
+            LOGGER.info("Creating index {} type {} from {}", indexName, type, indexFile);
+            Settings settings = Settings.builder().loadFromStream(indexFile, indexResource, true).build();
 
-                if (indexExists(indexName)) {
-                    DeleteIndexResponse deleteIndexResponse = client.admin().indices().delete(Requests.deleteIndexRequest(indexName)).actionGet();
-                    if (deleteIndexResponse.isAcknowledged()) {
-                        LOGGER.info("Index deleted");
-                    } else {
-                        LOGGER.error("Index deleted failed");
-                    }
-                }
-
-                CreateIndexRequest request = Requests.createIndexRequest(indexName);
-                request.settings(settings);
-
-                CreateIndexResponse createIndexResponse = client.admin().indices().create(request).actionGet();
-                if (createIndexResponse.isShardsAcknowledged()) {
-                    LOGGER.info("Index created {}");
-
-                    PutMappingRequest putMappingRequest = Requests.putMappingRequest(indexName);
-                    putMappingRequest.source(IOUtils.toString(mappingStream, Charset.forName("UTF8")), XContentType.JSON);
-                    putMappingRequest.type("guns");
-                    PutMappingResponse putMappingResponse = client.admin().indices().putMapping(putMappingRequest).actionGet();
-                    if (putMappingResponse.isAcknowledged()) {
-                        LOGGER.info("Mapping created");
-                    } else {
-                        LOGGER.error("Mapping failed");
-                    }
+            if (indexExists(indexName)) {
+                DeleteIndexResponse deleteIndexResponse = client.admin().indices().delete(Requests.deleteIndexRequest(indexName)).actionGet();
+                if (deleteIndexResponse.isAcknowledged()) {
+                    LOGGER.info("Index deleted");
                 } else {
-                    LOGGER.error("Failed to create index");
-                }
-                emitter.onCompleted();
-            } catch (Exception e) {
-                LOGGER.error("Failed to create index", e);
-                emitter.onError(e);
-            } finally {
-                try {
-                    indexResource.close();
-                    mappingStream.close();
-                } catch (IOException e) {
-                    LOGGER.error("Failed to close resources", e);
+                    LOGGER.error("Index deleted failed");
                 }
             }
-        }, Emitter.BackpressureMode.LATEST);
+
+            CreateIndexRequest request = Requests.createIndexRequest(indexName);
+            request.settings(settings);
+
+            CreateIndexResponse createIndexResponse = client.admin().indices().create(request).actionGet();
+            if (createIndexResponse.isShardsAcknowledged()) {
+                LOGGER.info("Index created {}");
+
+                PutMappingRequest putMappingRequest = Requests.putMappingRequest(indexName);
+                putMappingRequest.source(IOUtils.toString(mappingStream, Charset.forName("UTF8")), XContentType.JSON);
+                putMappingRequest.type("guns");
+                PutMappingResponse putMappingResponse = client.admin().indices().putMapping(putMappingRequest).actionGet();
+                if (putMappingResponse.isAcknowledged()) {
+                    LOGGER.info("Mapping created");
+                } else {
+                    LOGGER.error("Mapping failed");
+                }
+            } else {
+                LOGGER.error("Failed to create index");
+            }
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("Failed to create index", e);
+            return false;
+        } finally {
+            try {
+                indexResource.close();
+                mappingStream.close();
+            } catch (IOException e) {
+                LOGGER.error("Failed to close resources", e);
+            }
+        }
     }
 
     private boolean indexExists(String indexName) throws InterruptedException, java.util.concurrent.ExecutionException {

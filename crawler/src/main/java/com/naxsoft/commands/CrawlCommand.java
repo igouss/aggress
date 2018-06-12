@@ -9,7 +9,8 @@ import rx.Observable;
 import rx.Subscription;
 
 import javax.inject.Inject;
-import java.util.concurrent.TimeUnit;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Crawl pages from initial data-set walking breath first. For each page generate one or more sub-pages to parse.
@@ -23,14 +24,12 @@ public class CrawlCommand implements Command {
     private final WebPageService webPageService;
     private final WebPageParserFactory webPageParserFactory;
     private Subscription webPageParseSubscription;
-    private Subscription parentMarkSubscription;
 
     @Inject
     public CrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
         this.webPageService = webPageService;
         this.webPageParserFactory = webPageParserFactory;
         webPageParseSubscription = null;
-        parentMarkSubscription = null;
     }
 
     @Override
@@ -39,41 +38,25 @@ public class CrawlCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<WebPageEntity> webPageEntriesStream = Observable.interval(5, 5, TimeUnit.SECONDS).flatMap(i ->
-                Observable.mergeDelayError(
-                        webPageService.getUnparsedByType("frontPage"),
-                        webPageService.getUnparsedByType("productList"),
-                        webPageService.getUnparsedByType("productPage")))
-                .doOnError(err -> LOGGER.error("Failed", err))
-                .retry()
-                .publish()
-                .autoConnect(2);
+        Set<WebPageEntity> pagesToParse = new HashSet<>();
+        pagesToParse.addAll(webPageService.getUnparsedByType("frontPage"));
+        pagesToParse.addAll(webPageService.getUnparsedByType("productList"));
+        pagesToParse.addAll(webPageService.getUnparsedByType("productPage"));
 
-        webPageParseSubscription = webPageEntriesStream
+        webPageParseSubscription = Observable.from(pagesToParse)
                 .doOnNext(webPageEntity -> LOGGER.info("Starting parse {}", webPageEntity))
-                .flatMap(webPageParserFactory::parse)
-                .flatMap(webPageService::addWebPageEntry)
+                .map(webPageParserFactory::parse)
+                .flatMap(Observable::from)
+                .map(page -> {
+                    webPageService.markParsed(page);
+                    webPageService.addWebPageEntry(page);
+                    return true;
+                })
                 .subscribe(
-                        rc -> {
-                            LOGGER.trace("Added WebPageEntry, parent marked as parsed: {} results added to DB", rc);
-                        },
+                        rc -> LOGGER.trace("Added WebPageEntry, parent marked as parsed: {} results added to DB"),
                         err -> LOGGER.error("Failed", err),
                         () -> LOGGER.info("Crawl completed")
                 );
-
-        parentMarkSubscription = webPageEntriesStream
-                .doOnNext(webPageEntity -> LOGGER.info("Starting to mark as parsed {}", webPageEntity))
-                .flatMap(webPageService::markParsed)
-                .subscribe(
-                        rc -> {
-                            LOGGER.trace("Marked as parsed {}", rc);
-                        },
-                        err -> {
-                            LOGGER.error("Maked as parsed failed", err);
-                        },
-                        () -> {
-                            LOGGER.info("Marked as parsed completed");
-                        });
     }
 
     @Override
@@ -81,9 +64,5 @@ public class CrawlCommand implements Command {
         if (webPageParseSubscription != null) {
             webPageParseSubscription.unsubscribe();
         }
-        if (parentMarkSubscription != null) {
-            parentMarkSubscription.unsubscribe();
-        }
-        webPageParserFactory.close();
     }
 }

@@ -4,7 +4,6 @@ package com.naxsoft.storage.redis;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
-import com.lambdaworks.redis.event.metrics.CommandLatencyEvent;
 import com.lambdaworks.redis.metrics.DefaultCommandLatencyCollectorOptions;
 import com.lambdaworks.redis.resource.ClientResources;
 import com.lambdaworks.redis.resource.DefaultClientResources;
@@ -18,12 +17,11 @@ import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.Scheduler;
-import rx.schedulers.Schedulers;
 
 import javax.inject.Singleton;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Singleton
 public class RedisDatabase implements Persistent {
@@ -54,63 +52,63 @@ public class RedisDatabase implements Persistent {
     }
 
     @Override
-    public Observable<Long> markWebPageAsParsed(WebPageEntity webPageEntity) {
-        if (webPageEntity == null) {
-            return Observable.error(new Exception("Trying to mark null WebPageEntity as parsed"));
-        }
-
+    public Long markWebPageAsParsed(WebPageEntity webPageEntity) {
         String source = "WebPageEntity." + webPageEntity.getType();
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
         String member = Encoder.encode(webPageEntity);
-        return connection.reactive().sadd(destination, member);
+        return connection.sync().sadd(destination, member);
         //.doOnNext(res -> LOGGER.info("Moved rc={} from {} to {} element {}...", res, source, destination, member.substring(0, 50)));
     }
 
     @Override
-    public Observable<Integer> markAllProductPagesAsIndexed() {
+    public Integer markAllProductPagesAsIndexed() {
         return null;
     }
 
     @Override
-    public Observable<Long> addProductPageEntry(ProductEntity productEntity) {
+    public Long addProductPageEntry(ProductEntity productEntity) {
         String key = "ProductEntity";
         String member = Encoder.encode(productEntity);
-        return connection.reactive().sadd(key, member);
+        return connection.sync().sadd(key, member);
     }
 
     @Override
-    public Observable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
+    public Long addWebPageEntry(WebPageEntity webPageEntity) {
         String key = "WebPageEntity" + "." + webPageEntity.getType();
         String member = Encoder.encode(webPageEntity);
         LOGGER.trace("adding key {} val {}", key, webPageEntity.getUrl());
-        return connection.reactive().sadd(key, member);
+        return connection.sync().sadd(key, member);
     }
 
     @Override
-    public Observable<ProductEntity> getProducts() {
-        return connection.reactive()
-                .smembers("ProductEntity")
-                .map(ProductEntityEncoder::decode)
-                .filter(Objects::nonNull);
+    public List<ProductEntity> getProducts() {
+        Set<String> productEntity = connection.sync()
+                .smembers("ProductEntity");
+        List<ProductEntity> result = new ArrayList<>();
+        for (String s : productEntity) {
+            result.add(ProductEntityEncoder.decode(s));
+        }
+        return result;
     }
 
     @Override
-    public Observable<Long> getUnparsedCount(String type) {
-        return connection.reactive().scard("WebPageEntity." + type);
+    public Long getUnparsedCount(String type) {
+        return connection.sync().scard("WebPageEntity." + type);
     }
 
     @Override
-    public Observable<WebPageEntity> getUnparsedByType(String type, Long count) {
-        LOGGER.info("getUnparsedByType {} {}", type, count);
-        return connection.reactive()
-                .spop("WebPageEntity." + type, Math.min(count, BATCH_SIZE))
-                .map(WebPageEntityEncoder::decode)
-                .doOnNext(val -> LOGGER.info("SPOP'ed {} {} {}", val.getType(), val.getUrl(), val.getCategory()))
-                .filter(Objects::nonNull);
+    public List<WebPageEntity> getUnparsedByType(String type) {
+        LOGGER.info("getUnparsedByType {}", type);
+        List<WebPageEntity> result = new ArrayList<>();
+        Set<String> spop = connection.sync().spop("WebPageEntity." + type, BATCH_SIZE);
+        for (String page : spop) {
+            result.add(WebPageEntityEncoder.decode(page));
+        }
+        return result;
     }
 
     @Override
-    public Observable<String> cleanUp(String[] tables) {
-        return connection.reactive().flushall();
+    public String cleanUp(String[] tables) {
+        return connection.sync().flushall();
     }
 }

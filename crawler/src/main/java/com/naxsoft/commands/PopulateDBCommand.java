@@ -26,7 +26,7 @@ public class PopulateDBCommand implements Command {
     }
 
     @Override
-    public void setUp() throws io.vertx.core.cli.CLIException {
+    public void setUp() {
     }
 
     @Override
@@ -36,7 +36,7 @@ public class PopulateDBCommand implements Command {
         roots.observeOn(Schedulers.immediate())
                 .subscribeOn(Schedulers.immediate())
                 .map(entry -> new WebPageEntity(null, "", "frontPage", entry, ""))
-                .flatMap(webPageService::addWebPageEntry)
+                .map(webPageService::addWebPageEntry)
                 .all(result -> result != 0L)
                 .subscribe(
                         result -> LOGGER.trace("Roots populated: {}", result)

@@ -4,7 +4,8 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.storage.Persistent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+
+import java.util.List;
 
 public class WebPageService {
     private final static Logger LOGGER = LoggerFactory.getLogger(WebPageService.class);
@@ -24,7 +25,7 @@ public class WebPageService {
      * @param webPageEntity WebPage to persist
      * @return true if successfully persisted, false otherwise
      */
-    public Observable<Long> addWebPageEntry(WebPageEntity webPageEntity) {
+    public Long addWebPageEntry(WebPageEntity webPageEntity) {
         return database.addWebPageEntry(webPageEntity);
     }
 
@@ -34,7 +35,7 @@ public class WebPageService {
      * @param webPageEntity Page to update
      * @return The number of entities updated.
      */
-    public Observable<Long> markParsed(WebPageEntity webPageEntity) {
+    public Long markParsed(WebPageEntity webPageEntity) {
         return database.markWebPageAsParsed(webPageEntity);
     }
 
@@ -47,10 +48,7 @@ public class WebPageService {
      * @return Stream of unparsed pages of specefied type
      * @see <a href="http://blog.danlew.net/2016/01/25/rxjavas-repeatwhen-and-retrywhen-explained/">RxJava's repeatWhen and retryWhen, explained</a>
      */
-    public Observable<WebPageEntity> getUnparsedByType(String type) {
-        return database.getUnparsedCount(type)
-                .filter(count -> count != 0)
-                .doOnNext(val -> LOGGER.info("Found {} of type {}", val, type))
-                .flatMap(count -> database.getUnparsedByType(type, count));
+    public List<WebPageEntity> getUnparsedByType(String type) {
+        return database.getUnparsedByType(type);
     }
 }

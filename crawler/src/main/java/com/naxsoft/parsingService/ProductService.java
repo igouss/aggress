@@ -4,7 +4,8 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.storage.Persistent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+
+import java.util.List;
 
 public class ProductService {
     private final static Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
@@ -14,7 +15,7 @@ public class ProductService {
         this.database = database;
     }
 
-    public Observable<Long> save(ProductEntity products) {
+    public Long save(ProductEntity products) {
         return database.addProductPageEntry(products);
     }
 
@@ -23,7 +24,7 @@ public class ProductService {
      *
      * @return Stream of unindexed products
      */
-    public Observable<ProductEntity> getProducts() {
+    public List<ProductEntity> getProducts() {
         return database.getProducts();
     }
 
@@ -31,9 +32,6 @@ public class ProductService {
      * Mark all products as indexed
      */
     public void markAllAsIndexed() {
-        database.markAllProductPagesAsIndexed().subscribe(
-                value -> LOGGER.trace("The number of entities affected: {}", value),
-                err -> LOGGER.error("Failed to mark as indexed", err),
-                () -> LOGGER.info("markAllProductPagesAsIndexed complete"));
+        database.markAllProductPagesAsIndexed();
     }
 }

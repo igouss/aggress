@@ -34,8 +34,6 @@ dependencies {
     compile "com.squareup.okhttp3:okhttp-urlconnection:$okhttpVersion"
 
     testCompile "junit:junit:$junitVersion"
-    compile "io.vertx:vertx-core:$vertxVersion"
-
     compile "net.sf.jopt-simple:jopt-simple:$joptVersion"
 
     compile "net.ltgt.gradle:gradle-apt-plugin:$gradleAptPluginVersion"
@@ -47,6 +45,8 @@ dependencies {
 
     compile project(':common')
     compile project(':storage')
+    compile project(':http')
+    compile project(':parsers')
     compile "javax.validation:validation-api:$validationApiVersion"
     compile "javax.inject:javax.inject:$javaxInjectVersion"
 

@@ -6,4 +6,6 @@ include 'frontend'
 include 'webadmin'
 include 'storage'
 include 'crawler-admin'
+include 'parsers'
+include 'http'
 
