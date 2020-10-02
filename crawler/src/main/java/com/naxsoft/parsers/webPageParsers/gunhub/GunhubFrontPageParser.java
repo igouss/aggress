@@ -1,7 +1,8 @@
 package com.naxsoft.parsers.webPageParsers.gunhub;
 
+import java.util.HashSet;
+import java.util.Set;
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -11,11 +12,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class GunhubFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GunhubFrontPageParser.class);
@@ -24,28 +20,28 @@ public class GunhubFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", url, category);
+    private static WebPageEntity create(WebPageEntity parent, URL url, String category) {
+        return new WebPageEntity(parent, "productList", url, category);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".product-name a");
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "productPage", element.attr("abs:href"),
+                        downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPage={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
-
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Iterable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create(parent, "http://www.gunhub.ca/apps/webstore/products/category/1479959", "firearm"));
         webPageEntities.add(create(parent, "http://www.gunhub.ca/apps/webstore/products/category/1479930", "firearm"));
@@ -68,6 +64,5 @@ public class GunhubFrontPageParser extends AbstractWebPageParser {
     public String getSite() {
         return "gunhub.ca";
     }
-
 
 }

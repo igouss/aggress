@@ -1,17 +1,14 @@
 package com.naxsoft.parsers.productParser;
 
-import com.codahale.metrics.MetricRegistry;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import com.google.gson.Gson;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
@@ -42,7 +39,6 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         mapping.put("commemorative", "firearm");
         mapping.put("antique handguns", "firearm");
 
-
         mapping.put("hunting scopes", "optic");
         mapping.put("tactical scopes-sights", "optic");
         mapping.put("rimfire scopes", "optic");
@@ -56,7 +52,6 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         mapping.put("mounting", "optic");
         mapping.put("scope rings", "optic");
         mapping.put("scope bases", "optic");
-
 
         mapping.put("muzzleloading", "ammo");
         mapping.put("air gun pellets", "ammo");
@@ -83,12 +78,8 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         mapping.put("rifle accessories", "misc");
     }
 
-    public WolverinesuppliesProductRawPageParser(MetricRegistry metricRegistry) {
-        super(metricRegistry);
-    }
-
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Iterable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -98,7 +89,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
             for (RawProduct rp : rawProducts) {
                 ProductEntity product;
                 String productName = null;
-                String url = null;
+                URL url = null;
                 String regularPrice = null;
                 String specialPrice = null;
                 String productImage = null;
@@ -124,27 +115,21 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
                             rp.Attributes[j].AttributeValue);
                 }
 
-
                 product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
                 result.add(product);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return result;
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         if (mapping.containsKey(webPageEntity.getCategory().toLowerCase())) {
             return mapping.get(webPageEntity.getCategory().toLowerCase()).split(",");
         }
         LOGGER.warn("Unknown category: {}", webPageEntity.getCategory());
-        return new String[]{"misc"};
+        return new String[] { "misc" };
     }
 
     @Override
@@ -155,6 +140,18 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
     @Override
     String getParserType() {
         return "productPageRaw";
+    }
+
+    /**
+     *
+     */
+    static class Attributes {
+        String SearchType;
+        String AttributeName;
+        String AttributeValue;
+
+        Attributes() {
+        }
     }
 
     /**
@@ -175,18 +172,6 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         String Title;
 
         RawProduct() {
-        }
-    }
-
-    /**
-     *
-     */
-    class Attributes {
-        String SearchType;
-        String AttributeName;
-        String AttributeValue;
-
-        Attributes() {
         }
     }
 }

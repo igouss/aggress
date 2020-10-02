@@ -1,7 +1,10 @@
 package com.naxsoft.parsers.webPageParsers.prophetriver;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -10,12 +13,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Copyright NAXSoft 2015
@@ -27,11 +24,11 @@ class ProphetriverFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", url, category);
+    private static WebPageEntity create(WebPageEntity parent, URL url, String category) {
+        return new WebPageEntity(parent, "productList", url, category);
     }
 
-    private Observable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -42,11 +39,11 @@ class ProphetriverFrontPageParser extends AbstractWebPageParser {
                     .collect(Collectors.toList());
             result.addAll(webPageEntities);
         }
-        return Observable.from(result);
+        return result;
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Iterable<WebPageEntity> parse(WebPageEntity parent) {
         return client.get("http://store.prophetriver.com/categories/", new DocumentCompletionHandler(parent))
                 .flatMap(this::parseFrontPage)
                 .doOnNext(e -> this.parseResultCounter.inc());

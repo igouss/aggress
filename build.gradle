@@ -2,38 +2,22 @@ buildscript {
     repositories {
         jcenter()
     }
-
-    dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:3.0.6'
-    }
 }
 
 plugins {
     id "java"
     id "idea"
-    id 'com.gradle.build-scan' version '1.2'
-    id 'com.github.ben-manes.versions' version '0.14.0'
-}
-apply plugin: 'com.bmuschko.docker-remote-api'
-
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-
-buildScan {
-    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
-    licenseAgree = 'yes'
+    id 'com.github.ben-manes.versions' version '0.33.0'
 }
 
 dependencies {
-    compile project(":common")
-    compile project(":crawler")
-    compile project(":frontend")
-    compile project(":webadmin")
-    compile project(":storage")
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = "3.5"
-    distributionUrl = "https://services.gradle.org/distributions/gradle-" + gradleVersion + "-all.zip"
+    implementation(
+            project(":common"),
+            project(":crawler"),
+            project(":frontend"),
+            project(":webadmin"),
+            project(":storage"),
+    )
 }
 
 allprojects {
@@ -42,7 +26,7 @@ allprojects {
     repositories {
         mavenCentral()
         maven {
-            url "http://jcenter.bintray.com"
+            url "https://jcenter.bintray.com"
         }
         maven {
             url "https://plugins.gradle.org/m2/"
@@ -56,73 +40,11 @@ allprojects {
     tasks.withType(JavaCompile) {
         options.incremental = true
     }
-}
 
-dependencyUpdates.resolutionStrategy = {
-    componentSelection { rules ->
-        rules.all { ComponentSelection selection ->
-            boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
-                selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
-            }
-            if (rejected) {
-                selection.reject('Release candidate')
-            }
-        }
+    ext {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
-}
-
-evaluationDependsOnChildren()
-docker {
-    url = "unix:///var/run/docker.sock"
-}
-
-task buildDockerS6Overlay(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/s6-overlay/")
-}
-
-task buildDockerJava(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/java-8/")
-}
-buildDockerJava.dependsOn tasks.buildDockerS6Overlay
-
-task buildDockerRedis(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/redis/")
-}
-
-task buildDockerElasticsearch(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/elasticsearch/")
-}
-
-task buildDockerCrawler(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/crawler/")
-    dependsOn(":crawler:dockerPublish")
-}
-buildDockerCrawler.dependsOn tasks.buildDockerJava
-
-task buildDockerFrontend(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/frontend/")
-    dependsOn(":frontend:dockerPublish")
-}
-buildDockerFrontend.dependsOn tasks.buildDockerJava
-
-task buildDockerImages() {
-    group = "Publishing"
-}
-buildDockerImages.dependsOn tasks.buildDockerS6Overlay, tasks.buildDockerJava, tasks.buildDockerRedis, tasks.buildDockerElasticsearch, tasks.buildDockerCrawler, tasks.buildDockerFrontend
-
-def gitVersion() {
-    if (!System.getenv('CI_BUILD')) {
-        // don't care
-        return 1
-    }
-    def cmd = 'git rev-list HEAD --first-parent --count'
-    cmd.execute().text.trim().toInteger()
 }
 
 defaultTasks = ["clean", "build"]

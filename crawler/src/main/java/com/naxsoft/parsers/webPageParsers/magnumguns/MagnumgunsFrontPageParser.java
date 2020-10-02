@@ -1,7 +1,8 @@
 package com.naxsoft.parsers.webPageParsers.magnumguns;
 
+import java.util.HashSet;
+import java.util.Set;
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -11,10 +12,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -26,26 +23,26 @@ class MagnumgunsFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", url, category);
+    private static WebPageEntity create(WebPageEntity parent, URL url, String category) {
+        return new WebPageEntity(parent, "productList", url, category);
     }
 
-    private Observable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".product-category > a");
             for (Element e : elements) {
-                String url = e.attr("abs:href");
+                URL url = e.attr("abs:href");
                 WebPageEntity webPageEntity = create(downloadResult.getSourcePage(), url, e.text());
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
-    private Observable<WebPageEntity> parseSubPages(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseSubPages(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -64,16 +61,17 @@ class MagnumgunsFrontPageParser extends AbstractWebPageParser {
             }
 
             for (int i = 1; i <= max; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl() + "/page/" + i + "/", downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "productList", downloadResult.getSourcePage().getUrl() + "/page/" + i + "/",
+                        downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Iterable<WebPageEntity> parse(WebPageEntity parent) {
         return client.get("http://www.magnumguns.ca/shop/", new DocumentCompletionHandler(parent))
                 .flatMap(this::parseFrontPage)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))

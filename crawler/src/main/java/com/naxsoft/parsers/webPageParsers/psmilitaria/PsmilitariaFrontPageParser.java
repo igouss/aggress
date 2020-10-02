@@ -1,7 +1,10 @@
 package com.naxsoft.parsers.webPageParsers.psmilitaria;
 
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
@@ -10,12 +13,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -27,8 +24,8 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", url, category);
+    private static WebPageEntity create(WebPageEntity parent, URL url, String category) {
+        return new WebPageEntity(parent, "productList", url, category);
     }
 
     private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
@@ -38,7 +35,7 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
         if (document != null) {
             Elements elements = document.select("table > tbody > tr > th > a");
             for (Element e : elements) {
-                String url = e.attr("abs:href");
+                URL url = e.attr("abs:href");
                 WebPageEntity webPageEntity = create(downloadResult.getSourcePage(), url, e.text());
                 result.add(webPageEntity);
             }
@@ -47,7 +44,7 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Iterable<WebPageEntity> parse(WebPageEntity parent) {
         LOGGER.info("Parsing psmilitaria front-page");
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/guns.html", "firearm"));

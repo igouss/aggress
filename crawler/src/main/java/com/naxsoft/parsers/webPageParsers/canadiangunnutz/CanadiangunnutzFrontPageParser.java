@@ -1,24 +1,26 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
 import com.naxsoft.parsers.webPageParsers.DownloadResult;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import org.asynchttpclient.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
@@ -61,7 +63,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         }
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -78,7 +80,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
                 for (String category : categories.keySet()) {
                     if (text.endsWith(category)) {
-                        WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), categories.get(category));
+                        WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "productList", element.attr("abs:href"), categories.get(category));
                         LOGGER.info("productList={}", webPageEntity.getUrl());
                         result.add(webPageEntity);
                         break;
@@ -86,10 +88,10 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
-    private Observable<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -102,18 +104,19 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 int total = Integer.parseInt(matcher.group(3));
                 int pages = (int) Math.ceil((double) total / postsPerPage);
                 for (int i = 1; i <= pages; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "productList", document.location() + "/page" + i,
+                            downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "", "http://www.canadiangunnutz.com/forum/forum.php", "");
+    public Iterable<WebPageEntity> parse(WebPageEntity parent) {
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", http://www.canadiangunnutz.com/forum/forum.php", "");
         return client.get(webPageEntity.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))

@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.entity.WebPageEntity;
-import rx.Observable;
 
 /**
  * Copyright NAXSoft 2015
@@ -13,5 +12,5 @@ public interface WebPageParser {
      * @param webPage Page to parse
      * @return All sub-pages
      */
-    Observable<WebPageEntity> parse(WebPageEntity webPage);
+    Iterable<WebPageEntity> parse(WebPageEntity webPage) throws Exception;
 }

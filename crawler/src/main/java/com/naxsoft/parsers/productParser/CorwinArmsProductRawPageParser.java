@@ -1,19 +1,16 @@
 package com.naxsoft.parsers.productParser;
 
-import com.codahale.metrics.MetricRegistry;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
@@ -36,14 +33,6 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
         mapping.put("Optics", "optic");
     }
 
-    public CorwinArmsProductRawPageParser(MetricRegistry metricRegistry) {
-        super(metricRegistry);
-    }
-
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
 
         Matcher matcher = pricePattern.matcher(price);
@@ -56,14 +45,14 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Iterable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             ProductEntity product;
             String productName = null;
-            String url = null;
+            URL url = null;
             String regularPrice = null;
             String specialPrice = null;
             String productImage = null;
@@ -89,20 +78,15 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return result;
     }
 
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         if (mapping.containsKey(webPageEntity.getCategory())) {
             return mapping.get(webPageEntity.getCategory()).split(",");
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
-        return new String[]{"misc"};
+        return new String[] { "misc" };
     }
 
     @Override

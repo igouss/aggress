@@ -1,6 +1,13 @@
 package com.naxsoft.parsers.productParser;
 
-import com.codahale.metrics.MetricRegistry;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
@@ -9,11 +16,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
@@ -22,31 +24,18 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarRawProductPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("((\\d+(\\.|,))+\\d\\d)+");
 
-    public MarstarRawProductPageParser(MetricRegistry metricRegistry) {
-        super(metricRegistry);
-    }
-
-    /**
-     * @param webPageEntity
-     * @return
-     */
     private static String[] getNormalizedCategories(WebPageEntity webPageEntity) {
         String category = webPageEntity.getCategory();
         if (null != category) {
             return category.split(",");
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
-        return new String[]{"misc"};
+        return new String[] { "misc" };
     }
 
-    /**
-     * @param price
-     * @return
-     */
     private static ArrayList<String> parsePrice(String price) {
         ArrayList<String> result = new ArrayList<>();
         Matcher matcher = pricePattern.matcher(price);
-
 
         while (matcher.find()) {
             result.add(matcher.group(1).replace(",", ""));
@@ -55,13 +44,13 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Iterable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
             ProductEntity product;
             String productName = null;
-            String url = null;
+            URL url = null;
             String regularPrice = null;
             String specialPrice = null;
             String productImage = null;
@@ -69,9 +58,7 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
             Map<String, String> attr = new HashMap<>();
             String[] category = null;
 
-
             url = webPageEntity.getUrl();
-
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
@@ -82,7 +69,7 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
             category = getNormalizedCategories(webPageEntity);
             ArrayList<String> price = parsePrice(document.select(".priceAvail").text());
             if (price.isEmpty()) {
-                return Observable.empty();
+                return Set.of();
             } else if (1 == price.size()) {
                 regularPrice = price.get(0);
             } else {
@@ -109,8 +96,7 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return result;
     }
 
     @Override

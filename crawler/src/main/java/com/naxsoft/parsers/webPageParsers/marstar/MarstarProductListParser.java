@@ -1,7 +1,8 @@
 package com.naxsoft.parsers.webPageParsers.marstar;
 
+import java.util.HashSet;
+import java.util.Set;
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -11,10 +12,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -28,19 +25,19 @@ class MarstarProductListParser extends AbstractWebPageParser {
 
     private static WebPageEntity getProductList(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href") + "&displayOutOfStock=no";
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", linkUrl, category);
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "productList", linkUrl, category);
         LOGGER.info("Found product list page {} url={}", e.text(), linkUrl);
         return webPageEntity;
     }
 
     private static WebPageEntity getProductPage(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href");
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productPage", linkUrl, category);
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "productPage", linkUrl, category);
         LOGGER.info("Found product {} url={}", e.text(), linkUrl);
         return webPageEntity;
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -62,11 +59,11 @@ class MarstarProductListParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Iterable<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

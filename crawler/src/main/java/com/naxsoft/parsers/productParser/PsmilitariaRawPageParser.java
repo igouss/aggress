@@ -1,6 +1,10 @@
 package com.naxsoft.parsers.productParser;
 
-import com.codahale.metrics.MetricRegistry;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.Jsoup;
@@ -9,13 +13,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
@@ -24,14 +21,6 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaRawPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$\\s?((\\d+|,)+\\s?\\.\\d+)");
 
-    public PsmilitariaRawPageParser(MetricRegistry metricRegistry) {
-        super(metricRegistry);
-    }
-
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
@@ -43,7 +32,7 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Iterable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -55,7 +44,7 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
 
                 ProductEntity product;
                 String productName = null;
-                String url = null;
+                URL url = null;
                 String regularPrice = null;
                 String specialPrice = null;
                 String productImage = null;
@@ -70,7 +59,6 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
                 }
                 productName = elText;
                 LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
-
 
                 url = webPageEntity.getUrl();
                 Element img = el.previousElementSibling().select("img").first();
@@ -90,8 +78,7 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return result;
     }
 
     @Override

@@ -1,47 +1,37 @@
 package com.naxsoft.parsers.webPageParsers.internationalshootingsupplies;
 
-import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.DefaultCookie;
-import com.naxsoft.crawler.HttpClient;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
-import com.naxsoft.parsers.webPageParsers.DownloadResult;
-import org.asynchttpclient.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
  */
 class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(InternationalshootingsuppliesFrontPageParser.class);
-    private static final Collection<Cookie> cookies;
+    private static final Collection<Cookie> cookies = new ArrayList<>(1);
 
     static {
-        cookies = new ArrayList<>(1);
         cookies.add(new DefaultCookie("store_language", "english"));
     }
 
-    public InternationalshootingsuppliesFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
+    private static WebPageEntity create(WebPageEntity parent, URL url, String category) {
+        return new WebPageEntity(parent, "productList", url, category);
     }
 
-    private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", url, category);
-    }
-
-    private Observable<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseProductPage(WebPageEntity webPageEntity) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -59,22 +49,24 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
                 }
             }
             if (max == 0) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "productList", downloadResult.getSourcePage().getUrl(),
+                        downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             } else {
                 for (int i = 1; i <= max; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl() + "page/" + i + "/", downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "productList", downloadResult.getSourcePage().getUrl() + "page/" + i + "/",
+                            downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                     result.add(webPageEntity);
                 }
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Iterable<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/ammunition/", "ammo"));
         webPageEntities.add(create(parent, "http://internationalshootingsupplies.com/product-category/firearms/", "firearm"));

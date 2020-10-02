@@ -1,20 +1,17 @@
 package com.naxsoft.parsers.webPageParsers.alflahertys;
 
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
-import com.naxsoft.parsers.webPageParsers.DownloadResult;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -26,9 +23,9 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseFrontPage(WebPageEntity webPageEntity) throws Exception {
         Set<WebPageEntity> result = new HashSet<>(1);
-        Document document = downloadResult.getDocument();
+        Document document = Jsoup.parse(webPageEntity.getUrl(), 1000);
         if (document != null) {
             Elements elements = document.select("ul.main.menu a");
 
@@ -39,7 +36,6 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
             validCategories.add("SHOTGUNS");
             validCategories.add("BLACK POWDER");
             validCategories.add("AIRGUNS");
-
 
             validCategories.add("HANDGUN AMMUNITION");
             validCategories.add("BULK RIFLE AMMO");
@@ -105,17 +101,17 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
                     LOGGER.info("Ignoring category: " + e.text() + " " + e.attr("abs:href"));
                     continue;
                 }
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", e.attr("abs:href"), e.text());
+
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
-                result.add(webPageEntity);
+                result.add(new WebPageEntity(webPageEntity.getParent(), "productList", e.attr("abs:href"), e.text()));
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
-    private Observable<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseProductPage(WebPageEntity webPageEntity) throws Exception {
         Set<WebPageEntity> result = new HashSet<>(1);
-        Document document = downloadResult.getDocument();
+        Document document = Jsoup.parse(webPageEntity.getUrl(), 1000);
         if (document != null) {
             Elements elements = document.select(".paginate a");
             int max = 0;
@@ -130,27 +126,28 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
                 }
             }
             if (max == 0) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
-                result.add(webPageEntity);
+                result.add(new WebPageEntity(webPageEntity.getParent(), "productList", webPageEntity.getUrl(), webPageEntity.getCategory()));
             } else {
                 for (int i = 1; i <= max; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl() + "?page=" + i, downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
-                    result.add(webPageEntity);
+                    result.add(new WebPageEntity(
+                            webPageEntity.getParent(),
+                            "productList",
+                            new URL(webPageEntity.getUrl().getQuery() + "?page=" + i),
+                            webPageEntity.getCategory()));
                 }
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
-                .flatMap(this::parseFrontPage)
-                .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(this::parseProductPage)
-                .doOnNext(e -> this.parseResultCounter.inc());
+    public Iterable<WebPageEntity> parse(WebPageEntity webPageEntity) throws Exception {
+        return switch (webPageEntity.getType()) {
+            case "frontPage" -> parseFrontPage(webPageEntity);
+            case "productPage" -> parseProductPage(webPageEntity);
+            default -> Set.of();
+        };
     }
 
     @Override

@@ -1,6 +1,11 @@
 package com.naxsoft.parsers.productParser;
 
-import com.codahale.metrics.MetricRegistry;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
@@ -9,14 +14,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Copyright NAXSoft 2015
@@ -38,20 +35,12 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
         mapping.put("Parts & Gear", "firearm,misc");
     }
 
-    public IrungunsRawProductPageParser(MetricRegistry metricRegistry) {
-        super(metricRegistry);
-    }
-
-    /**
-     * @param price
-     * @return
-     */
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
         Matcher matcher = pricePattern.matcher(price);
         if (matcher.find()) {
             try {
                 return matcher.group(1).replace(",", "");
-//                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
+                //                return NumberFormat.getInstance(Locale.US).parse(matcher.group(1)).toString();
             } catch (Exception ignored) {
                 return Double.valueOf(matcher.group(1)).toString();
             }
@@ -62,13 +51,13 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Iterable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
             ProductEntity product;
             String productName = null;
-            String url = null;
+            URL url = null;
             String regularPrice = null;
             String specialPrice = null;
             String productImage = null;
@@ -80,12 +69,12 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             if (!document.select(".saleImage").isEmpty()) {
-                return Observable.empty();
+                return Set.of();
             }
 
             productName = document.select("div.innercontentDiv > div > div > h2").text();
             if (productName.isEmpty()) {
-                return Observable.empty();
+                return Set.of();
             }
 
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
@@ -127,8 +116,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
-                .doOnNext(e -> parseResultCounter.inc());
+        return result;
     }
 
     /**
@@ -141,7 +129,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
             return mapping.get(category).split(",");
         }
         LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
-        return new String[]{"misc"};
+        return new String[] { "misc" };
     }
 
     @Override
@@ -153,6 +141,5 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
     String getParserType() {
         return "productPageRaw";
     }
-
 
 }

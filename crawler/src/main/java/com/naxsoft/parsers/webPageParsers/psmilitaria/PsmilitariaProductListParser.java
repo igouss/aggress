@@ -1,12 +1,10 @@
 package com.naxsoft.parsers.webPageParsers.psmilitaria;
 
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 /**
  * Copyright NAXSoft 2015
@@ -18,9 +16,8 @@ class PsmilitariaProductListParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Iterable<WebPageEntity> parse(WebPageEntity parent) {
         WebPageEntity webPageEntity = new WebPageEntity(parent, parent.getContent(), "productPage", parent.getUrl(), parent.getCategory());
         return Observable.just(webPageEntity)
                 .doOnNext(e -> this.parseResultCounter.inc());

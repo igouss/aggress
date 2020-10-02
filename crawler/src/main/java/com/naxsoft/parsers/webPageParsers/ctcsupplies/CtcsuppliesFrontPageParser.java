@@ -1,7 +1,8 @@
 package com.naxsoft.parsers.webPageParsers.ctcsupplies;
 
+import java.util.HashSet;
+import java.util.Set;
 import com.codahale.metrics.MetricRegistry;
-import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -11,10 +12,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Copyright NAXSoft 2015
@@ -26,7 +23,7 @@ class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> parseCategories(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseCategories(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -34,15 +31,15 @@ class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
         if (document != null) {
             Elements elements = document.select("nav:nth-child(2) > ul a");
             for (Element e : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", e.attr("abs:href"), e.text());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "productList", e.attr("abs:href"), e.text());
                 LOGGER.info("productList = {}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
-    private Observable<WebPageEntity> parseCategoryPages(DownloadResult downloadResult) {
+    private Iterable<WebPageEntity> parseCategoryPages(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -60,16 +57,17 @@ class CtcsuppliesFrontPageParser extends AbstractWebPageParser {
                 }
             }
             for (int i = 1; i <= max; i++) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl() + "?page=" + i, downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "productList", downloadResult.getSourcePage().getUrl() + "?page=" + i,
+                        downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return result;
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Iterable<WebPageEntity> parse(WebPageEntity parent) {
         return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
                 .flatMap(this::parseCategories)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
