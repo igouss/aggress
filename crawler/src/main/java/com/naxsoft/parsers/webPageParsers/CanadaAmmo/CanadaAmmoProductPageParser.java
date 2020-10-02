@@ -1,6 +1,5 @@
 package com.naxsoft.parsers.webPageParsers.canadaAmmo;
 
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import org.slf4j.Logger;
@@ -11,10 +10,6 @@ import org.slf4j.LoggerFactory;
  */
 class CanadaAmmoProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoProductPageParser.class);
-
-    public CanadaAmmoProductPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     @Override
     public Iterable<WebPageEntity> parse(WebPageEntity webPage) {

@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -19,10 +18,6 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
     private static final Pattern itemNumberPattern = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"");
     private static final Pattern categoryPattern = Pattern.compile("\'\\d+\'");
-
-    public WolverinesuppliesProductListParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     private Iterable<WebPageEntity> onCompleted(WebPageEntity parent) {
         Set<WebPageEntity> result = new HashSet<>();

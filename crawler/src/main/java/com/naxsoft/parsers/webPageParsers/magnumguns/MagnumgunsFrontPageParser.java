@@ -1,8 +1,8 @@
 package com.naxsoft.parsers.webPageParsers.magnumguns;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -18,10 +18,6 @@ import org.slf4j.LoggerFactory;
  */
 class MagnumgunsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MagnumgunsFrontPageParser.class);
-
-    public MagnumgunsFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     private static WebPageEntity create(WebPageEntity parent, URL url, String category) {
         return new WebPageEntity(parent, "productList", url, category);

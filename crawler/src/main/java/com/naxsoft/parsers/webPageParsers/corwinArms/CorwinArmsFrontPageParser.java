@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -21,10 +20,6 @@ import org.slf4j.LoggerFactory;
 class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsFrontPageParser.class);
     private static final Pattern pagerPattern = Pattern.compile("(\\d+) of (\\d+)");
-
-    private CorwinArmsFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     private Iterable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);

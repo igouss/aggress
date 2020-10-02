@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -19,10 +18,6 @@ import org.slf4j.LoggerFactory;
  */
 class ProphetriverFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProphetriverFrontPageParser.class);
-
-    public ProphetriverFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     private static WebPageEntity create(WebPageEntity parent, URL url, String category) {
         return new WebPageEntity(parent, "productList", url, category);

@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -28,8 +27,7 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductListParser.class);
     private final List<Cookie> cookies;
 
-    private CanadiangunnutzProductListParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
+    private CanadiangunnutzProductListParser() {
         Map<String, String> formParameters = new HashMap<>();
         try {
             formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));

@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.canadaAmmo;
 
 import java.util.HashSet;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -17,10 +16,6 @@ import org.slf4j.LoggerFactory;
  */
 class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoFrontPageParser.class);
-
-    public CanadaAmmoFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     private Iterable<WebPageEntity> parseCategories(DownloadResult downloadResult) {
         HashSet<WebPageEntity> result = new HashSet<>();

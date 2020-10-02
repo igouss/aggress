@@ -1,6 +1,5 @@
 package com.naxsoft.parsers.webPageParsers.westcoasthunting;
 
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -13,10 +12,6 @@ import org.slf4j.LoggerFactory;
 
 public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestcoastHuntingProductListParser.class);
-
-    public WestcoastHuntingProductListParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     private Iterable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         return Observable.create(emitter -> {

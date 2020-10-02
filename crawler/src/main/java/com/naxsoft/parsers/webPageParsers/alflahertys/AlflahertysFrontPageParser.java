@@ -3,7 +3,6 @@ package com.naxsoft.parsers.webPageParsers.alflahertys;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import org.jsoup.Jsoup;
@@ -18,10 +17,6 @@ import org.slf4j.LoggerFactory;
  */
 class AlflahertysFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysFrontPageParser.class);
-
-    public AlflahertysFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     private Iterable<WebPageEntity> parseFrontPage(WebPageEntity webPageEntity) throws Exception {
         Set<WebPageEntity> result = new HashSet<>(1);

@@ -2,7 +2,6 @@ package com.naxsoft.parsers.webPageParsers.marstar;
 
 import java.util.HashSet;
 import java.util.Set;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -18,10 +17,6 @@ import org.slf4j.LoggerFactory;
  */
 class MarstarProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarProductListParser.class);
-
-    public MarstarProductListParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     private static WebPageEntity getProductList(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href") + "&displayOutOfStock=no";

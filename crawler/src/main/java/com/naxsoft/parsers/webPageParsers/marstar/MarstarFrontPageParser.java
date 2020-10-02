@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.marstar;
 
 import java.util.HashSet;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import org.slf4j.Logger;
@@ -12,10 +11,6 @@ import org.slf4j.LoggerFactory;
  */
 class MarstarFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarstarFrontPageParser.class);
-
-    public MarstarFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     private static WebPageEntity create(WebPageEntity parent, URL url, String category) {
         return new WebPageEntity(parent, "productList", url, category);

@@ -2,7 +2,6 @@ package com.naxsoft.parsers.webPageParsers.theammosource;
 
 import java.util.HashSet;
 import java.util.Set;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -18,10 +17,6 @@ import org.slf4j.LoggerFactory;
  */
 class TheammosourceFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheammosourceFrontPageParser.class);
-
-    public TheammosourceFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-    }
 
     private static WebPageEntity create(WebPageEntity parent, URL url, String category) {
         return new WebPageEntity(parent, "productList", url, category);

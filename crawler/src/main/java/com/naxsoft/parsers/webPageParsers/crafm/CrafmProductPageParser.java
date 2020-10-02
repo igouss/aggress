@@ -1,9 +1,7 @@
 package com.naxsoft.parsers.webPageParsers.crafm;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import io.netty.handler.codec.http.cookie.Cookie;
@@ -16,13 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 class CrafmProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmProductPageParser.class);
-    private final List<Cookie> cookies;
-
-    private CrafmProductPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
-        cookies = new ArrayList<>(1);
-        cookies.add(new DefaultCookie("store", "english"));
-    }
+    private final List<Cookie> cookies = List.of(new DefaultCookie("store", "english"));
 
     @Override
     public Iterable<WebPageEntity> parse(WebPageEntity webPage) {

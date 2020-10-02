@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.DocumentCompletionHandler;
@@ -27,10 +26,6 @@ class SailsFrontPageParser extends AbstractWebPageParser {
     static {
         cookies = new ArrayList<>(1);
         cookies.add(new DefaultCookie("store_language", "english"));
-    }
-
-    public SailsFrontPageParser(MetricRegistry metricRegistry, HttpClient client) {
-        super(metricRegistry, client);
     }
 
     private static WebPageEntity create(WebPageEntity parent, URL url, String category) {
