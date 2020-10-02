@@ -116,7 +116,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public Iterable<WebPageEntity> parse(WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", http://www.canadiangunnutz.com/forum/forum.php", "");
+        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "http://www.canadiangunnutz.com/forum/forum.php", "");
         return client.get(webPageEntity.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))

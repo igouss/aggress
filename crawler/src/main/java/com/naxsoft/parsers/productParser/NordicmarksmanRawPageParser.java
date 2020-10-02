@@ -49,7 +49,7 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getUrl(), 1000);
 
             ProductEntity product;
             String productName = null;

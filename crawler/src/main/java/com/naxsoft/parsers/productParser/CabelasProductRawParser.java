@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,7 +58,7 @@ class CabelasProductRawParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getUrl(), 1000);
 
             ProductEntity product;
             String productName = null;

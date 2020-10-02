@@ -60,7 +60,7 @@ class MarstarRawProductPageParser extends AbstractRawPageParser {
 
             url = webPageEntity.getUrl();
 
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getUrl(), 1000);
 
             productName = document.select("h1").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());

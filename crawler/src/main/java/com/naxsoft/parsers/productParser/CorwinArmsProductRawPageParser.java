@@ -48,11 +48,10 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
     public Iterable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getUrl(), 100);
 
             ProductEntity product;
             String productName = null;
-            URL url = null;
             String regularPrice = null;
             String specialPrice = null;
             String productImage = null;
@@ -63,7 +62,6 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
             productName = document.select("#maincol h1").text();
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
-            url = webPageEntity.getUrl();
             String img = document.select("div.field-type-image img").attr("abs:src");
             if (img.isEmpty()) {
                 img = document.select("div.field-name-field-product-mag-image > div > div > img").attr("abs:src");
@@ -73,7 +71,7 @@ class CorwinArmsProductRawPageParser extends AbstractRawPageParser {
             description = document.select("div.field-type-text-with-summary > div > div").text().replace("\u0160", "\n");
             category = getNormalizedCategories(webPageEntity);
 
-            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+            product = new ProductEntity(productName, webPageEntity.getUrl(), regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);

@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,7 +37,7 @@ class FirearmsoutletcanadaRawPageParser extends AbstractRawPageParser {
     public Iterable<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getUrl(), 1000);
 
             ProductEntity product;
             String productName = null;

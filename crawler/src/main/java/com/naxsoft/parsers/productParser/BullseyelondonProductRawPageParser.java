@@ -112,7 +112,7 @@ class BullseyelondonProductRawPageParser extends AbstractRawPageParser implement
             Map<String, String> attr = new HashMap<>();
             String[] category = null;
 
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getUrl(), 100);
             Elements productNameEl = document.select(".product-name h1");
             if (!productNameEl.isEmpty()) {
                 productName = productNameEl.first().text().trim();

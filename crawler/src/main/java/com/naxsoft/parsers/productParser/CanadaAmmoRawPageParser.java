@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,13 +66,13 @@ class CanadaAmmoRawPageParser extends AbstractRawPageParser implements ProductPa
             Map<String, String> attr = new HashMap<>();
             String[] category = null;
 
-            String webPageEntityUrl = webPageEntity.getUrl();
-            if (webPageEntityUrl.contains("&zenid=")) {
-                int zenIndex = webPageEntityUrl.indexOf("&zenid=");
-                webPageEntityUrl = webPageEntityUrl.substring(0, zenIndex);
+            URL webPageEntityUrl = webPageEntity.getUrl();
+            if (webPageEntityUrl.toString().contains("&zenid=")) {
+                int zenIndex = webPageEntityUrl.toString().indexOf("&zenid=");
+                webPageEntityUrl = new URL(webPageEntityUrl.toString().substring(0, zenIndex));
             }
             url = webPageEntityUrl;
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntityUrl);
+            Document document = Jsoup.parse(webPageEntityUrl, 100);
             if (document.select(".product-details__add").isEmpty()) {
                 return Set.of();
             } else if (document.select(".product-details__warranty-text").text().contains("sold out")) {

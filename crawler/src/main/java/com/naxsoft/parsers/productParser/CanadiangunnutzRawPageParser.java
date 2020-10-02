@@ -1,5 +1,6 @@
 package com.naxsoft.parsers.productParser;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,7 +35,7 @@ class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
             String[] category = null;
 
             url = webPageEntity.getUrl();
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getUrl(), 1000);
             productName = document.select("div.postdetails h2").text();
             if (productName.isEmpty()) {
                 productName = document.select("div.postbody h2.title").text();

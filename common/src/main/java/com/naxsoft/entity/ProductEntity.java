@@ -1,12 +1,12 @@
 package com.naxsoft.entity;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
+import java.net.URL;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  *
@@ -14,7 +14,7 @@ import java.util.Map;
 public class ProductEntity {
     private final static Gson gson = new Gson();
     private final String productName;
-    private final String url;
+    private final URL url;
     private final String regularPrice;
     private final String specialPrice;
     private final String productImage;
@@ -33,7 +33,7 @@ public class ProductEntity {
      * @param description
      * @param categories
      */
-    public ProductEntity(String productName, String url, String regularPrice, String specialPrice, String productImage, String description, String... categories) {
+    public ProductEntity(String productName, URL url, String regularPrice, String specialPrice, String productImage, String description, String... categories) {
         this(productName, url, regularPrice, specialPrice, productImage, description, Collections.emptyMap(), categories);
     }
 
@@ -47,7 +47,8 @@ public class ProductEntity {
      * @param attr
      * @param category
      */
-    public ProductEntity(String productName, String url, String regularPrice, String specialPrice, String productImage, String description, Map<String, String> attr, String... category) {
+    public ProductEntity(String productName, URL url, String regularPrice, String specialPrice, String productImage, String description, Map<String, String> attr,
+            String... category) {
         this.productName = productName;
         this.category = category;
         this.url = url;
@@ -62,8 +63,8 @@ public class ProductEntity {
         if (productName != null && !productName.isEmpty()) {
             jsonObject.addProperty("productName", productName);
         }
-        if (url != null && !url.isEmpty()) {
-            jsonObject.addProperty("url", url);
+        if (url != null) {
+            jsonObject.addProperty("url", url.toString());
         }
         if (regularPrice != null && !regularPrice.isEmpty()) {
             jsonObject.addProperty("regularPrice", regularPrice);
@@ -104,7 +105,7 @@ public class ProductEntity {
         return json;
     }
 
-    public String getUrl() {
+    public URL getUrl() {
         return url;
     }
 
@@ -122,14 +123,15 @@ public class ProductEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         ProductEntity that = (ProductEntity) o;
 
         return getJson().equals(that.getJson()) && url.equals(that.url);
     }
-
 
     @Override
     public int hashCode() {

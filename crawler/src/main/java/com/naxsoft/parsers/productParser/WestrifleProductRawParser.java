@@ -1,8 +1,10 @@
 package com.naxsoft.parsers.productParser;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.naxsoft.entity.ProductEntity;
@@ -53,7 +55,7 @@ class WestrifleProductRawParser extends AbstractRawPageParser {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
-            Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
+            Document document = Jsoup.parse(webPageEntity.getUrl(), 1000);
 
             ProductEntity product;
             String productName = null;
