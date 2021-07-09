@@ -12,10 +12,10 @@ plugins {
 https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
-    implementation  "ch.qos.logback:logback-core:$logbackVersion"
-    implementation  "ch.qos.logback:logback-classic:$logbackVersion"
-    implementation  "com.google.code.gson:gson:$gsonVersion"
-    implementation  "commons-io:commons-io:$commonsIoVersion"
+    implementation("org.slf4j:slf4j-api:1.7.25")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("commons-io:commons-io:$commonsIoVersion")
 
 }
 repositories {

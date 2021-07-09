@@ -13,21 +13,19 @@ plugins {
 https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
-    implementation project(':common')
+    api project(':common')
+
+    api "javax.inject:javax.inject:$javaxInjectVersion"
+    api "io.reactivex:rxjava:$rxjavaVersion"
+
     implementation  "com.google.code.gson:gson:$gsonVersion"
-
-    implementation "javax.inject:javax.inject:$javaxInjectVersion"
-    implementation "io.reactivex:rxjava:$rxjavaVersion"
-
-    implementation "ch.qos.logback:logback-core:$logbackVersion"
     implementation "ch.qos.logback:logback-classic:$logbackVersion"
     implementation 'org.slf4j:slf4j-api:1.7.31'
-
-    api "biz.paluch.redis:lettuce:$lettuceVersion"
-
+    implementation "biz.paluch.redis:lettuce:$lettuceVersion"
     implementation "commons-io:commons-io:$commonsIoVersion"
-
-    testImplementation "junit:junit:$junitVersion"
+    implementation("io.netty:netty-common:4.1.24.Final")
+    implementation("commons-codec:commons-codec:1.10")
+    implementation("org.elasticsearch:elasticsearch:6.2.4")
 
     implementation("org.elasticsearch.client:transport:$elasticTransportVersion") {
         exclude group: 'org.elasticsearch.plugin', module: 'transport-netty3-client'
