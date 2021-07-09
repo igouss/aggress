@@ -5,18 +5,19 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.*;
 
+@Slf4j
+@RequiredArgsConstructor
 class InternationalshootingsuppliesProductListParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(InternationalshootingsuppliesProductListParser.class);
     private static final Collection<Cookie> cookies;
 
     static {
@@ -26,9 +27,7 @@ class InternationalshootingsuppliesProductListParser extends AbstractWebPagePars
         cookies.add(builder.build());
     }
 
-    public InternationalshootingsuppliesProductListParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
@@ -43,7 +42,7 @@ class InternationalshootingsuppliesProductListParser extends AbstractWebPagePars
 
                 String url = element.select("> a").attr("abs:href");
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", url, downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
+                log.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

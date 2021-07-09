@@ -5,40 +5,41 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.utils.AppProperties;
-import com.naxsoft.utils.PropertyNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+@Slf4j
+@RequiredArgsConstructor
 class CanadiangunnutzProductListParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductListParser.class);
+    private final HttpClient client;
     private final List<Cookie> cookies = new ArrayList<>();
 
-    private CanadiangunnutzProductListParser(HttpClient client) {
-        super(client);
-        Map<String, String> formParameters = new HashMap<>();
-        try {
-            formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
-            formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
-            formParameters.put("vb_login_password_hint", "Password");
-            formParameters.put("s", "");
-            formParameters.put("securitytoken", "guest");
-            formParameters.put("do", "login");
-            formParameters.put("vb_login_md5password", "");
-            formParameters.put("vb_login_md5password_utf", "");
-            cookies.addAll(client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).get());
-        } catch (PropertyNotFoundException | InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-    }
+//    private CanadiangunnutzProductListParser(HttpClient client) {
+//        Map<String, String> formParameters = new HashMap<>();
+//        try {
+//            formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
+//            formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
+//            formParameters.put("vb_login_password_hint", "Password");
+//            formParameters.put("s", "");
+//            formParameters.put("securitytoken", "guest");
+//            formParameters.put("do", "login");
+//            formParameters.put("vb_login_md5password", "");
+//            formParameters.put("vb_login_md5password_utf", "");
+//            cookies.addAll(client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).get());
+//        } catch (PropertyNotFoundException | InterruptedException | ExecutionException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
@@ -47,7 +48,7 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
         if (document != null) {
             Elements elements = document.select("#threads .threadtitle");
             if (elements.isEmpty()) {
-                LOGGER.error("No results on page");
+                log.error("No results on page");
             }
             for (Element element : elements) {
                 Elements select = element.select(".prefix");
@@ -56,7 +57,7 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                         element = element.select("a.title").first();
                         if (!element.text().toLowerCase().contains("remove")) {
                             WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                            LOGGER.info("productPage={}", webPageEntity.getUrl());
+                            log.info("productPage={}", webPageEntity.getUrl());
                             result.add(webPageEntity);
                         }
                     }

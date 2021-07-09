@@ -5,23 +5,21 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
+@RequiredArgsConstructor
 public class GrouseriverFrontPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GrouseriverFrontPageParser.class);
-
-    public GrouseriverFrontPageParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
         return new WebPageEntity(parent, "", "productList", url, category);
@@ -37,7 +35,7 @@ public class GrouseriverFrontPageParser extends AbstractWebPageParser {
                 String category = "Home%2F" + element.attr("href").replaceAll("/", "%2F");
                 String url = "http://www.grouseriver.com/api/items?include=facets&fieldset=search&language=en&country=CA&currency=CAD&pricelevel=5&c=3558148&n=2&category=" + category + "&limit=100&offset=0";
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", url, downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productList={}", webPageEntity.getUrl());
+                log.info("productList={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
 

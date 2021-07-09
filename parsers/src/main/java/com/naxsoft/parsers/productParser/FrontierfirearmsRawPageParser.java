@@ -2,10 +2,9 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,8 +13,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsRawPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
 
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
@@ -23,7 +22,7 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
+            log.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -49,7 +48,7 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
             }
 
             productName = document.select(".product-name h1").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            log.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
             url = webPageEntity.getUrl();
@@ -71,7 +70,7 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
             product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
-            LOGGER.error("Failed to parse: {}", webPageEntity, e);
+            log.error("Failed to parse: {}", webPageEntity, e);
         }
         return result;
     }
@@ -81,7 +80,7 @@ class FrontierfirearmsRawPageParser extends AbstractRawPageParser {
         if (null != category) {
             return category.split(",");
         }
-        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        log.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
 

@@ -7,9 +7,9 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 <head>
     <meta charset="utf-8">
     <title>Toolbar Configuration &mdash; CKEditor Sample</title>
-    <meta name="ckeditor-sample-name" content="Toolbar Configurations">
-    <meta name="ckeditor-sample-group" content="Advanced Samples">
-    <meta name="ckeditor-sample-description" content="Configuring CKEditor to display full or custom toolbar layout.">
+    <meta content="Toolbar Configurations" name="ckeditor-sample-name">
+    <meta content="Advanced Samples" name="ckeditor-sample-group">
+    <meta content="Configuring CKEditor to display full or custom toolbar layout." name="ckeditor-sample-description">
     <script src="../../../ckeditor.js"></script>
     <link href="../../../samples/old/sample.css" rel="stylesheet">
 </head>
@@ -83,7 +83,7 @@ CKEDITOR.replace( <em>'textarea_id'</em>, {
     <h2 class="samples">Current toolbar configuration</h2>
     <p>Below you can see editor with current toolbar definition.</p>
     <textarea cols="80" id="editorCurrent" name="editorCurrent" rows="10">&lt;p&gt;This is some &lt;strong&gt;sample text&lt;/strong&gt;. You are using &lt;a href="http://ckeditor.com/"&gt;CKEditor&lt;/a&gt;.&lt;/p&gt;</textarea>
-    <pre id="editorCurrentCfg" class="samples"></pre>
+    <pre class="samples" id="editorCurrentCfg"></pre>
 </div>
 
 <div id="fullToolbar">
@@ -94,7 +94,7 @@ CKEDITOR.replace( <em>'textarea_id'</em>, {
         Just leave <code>toolbar</code> and <code>toolbarGroups</code> with the default, <code>null</code> values.
     </p>
     <textarea cols="80" id="editorFull" name="editorFull" rows="10">&lt;p&gt;This is some &lt;strong&gt;sample text&lt;/strong&gt;. You are using &lt;a href="http://ckeditor.com/"&gt;CKEditor&lt;/a&gt;.&lt;/p&gt;</textarea>
-    <pre id="editorFullCfg" class="samples"></pre>
+    <pre class="samples" id="editorFullCfg"></pre>
 </div>
 
 <script>
@@ -224,6 +224,7 @@ CKEDITOR.replace( <em>'textarea_id'</em>, {
 	}
 
 })();
+
 
 </script>
 

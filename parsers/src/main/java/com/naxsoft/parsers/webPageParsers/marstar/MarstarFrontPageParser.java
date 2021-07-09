@@ -1,22 +1,17 @@
 package com.naxsoft.parsers.webPageParsers.marstar;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
 
+@Slf4j
+@RequiredArgsConstructor
 class MarstarFrontPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarstarFrontPageParser.class);
-
-    public MarstarFrontPageParser(HttpClient client) {
-        super(client);
-    }
-
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
         return new WebPageEntity(parent, "", "productList", url, category);
     }

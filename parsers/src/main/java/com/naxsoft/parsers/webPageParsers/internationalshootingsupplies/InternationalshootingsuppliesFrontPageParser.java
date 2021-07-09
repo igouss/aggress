@@ -5,19 +5,19 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.*;
 
-
+@Slf4j
+@RequiredArgsConstructor
 class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(InternationalshootingsuppliesFrontPageParser.class);
     private static final Collection<Cookie> cookies;
 
     static {
@@ -27,9 +27,7 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
         cookies.add(builder.build());
     }
 
-    public InternationalshootingsuppliesFrontPageParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
         return new WebPageEntity(parent, "", "productList", url, category);
@@ -54,12 +52,12 @@ class InternationalshootingsuppliesFrontPageParser extends AbstractWebPageParser
             }
             if (max == 0) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
+                log.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             } else {
                 for (int i = 1; i <= max; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl() + "page/" + i + "/", downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
+                    log.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                     result.add(webPageEntity);
                 }
             }

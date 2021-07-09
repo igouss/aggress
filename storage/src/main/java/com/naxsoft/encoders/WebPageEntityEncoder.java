@@ -1,15 +1,14 @@
 package com.naxsoft.encoders;
 
 import com.naxsoft.entity.WebPageEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  *
  */
+@Slf4j
 public class WebPageEntityEncoder extends Encoder {
-    private final static Logger LOGGER = LoggerFactory.getLogger(WebPageEntityEncoder.class);
-
     /**
      * Deserialize WebPageEntity from json into Java object
      *
@@ -20,7 +19,7 @@ public class WebPageEntityEncoder extends Encoder {
         try {
             return fromJson(value, WebPageEntity.class);
         } catch (RuntimeException e) {
-            LOGGER.error("Failed to parse" + value);
+            log.error("Failed to parse" + value);
             return null;
         }
     }

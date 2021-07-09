@@ -2,10 +2,9 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,8 +13,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 class DantesportsProductRawPageParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsProductRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
     private static final Pattern pricePattern = Pattern.compile("(\\d+|,+)+\\.\\d\\d");
 
@@ -25,10 +24,7 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
         mapping.put("Restricted", "firearm");
         mapping.put("Air Rifles", "firearm");
 
-        mapping.put("Shotguns", "firearm");
-        mapping.put("Rifles", "firearm");
         mapping.put("Prohibited", "firearm");
-        mapping.put("Restricted", "firearm");
 
         mapping.put("CVA", "firearm");
         mapping.put("Thompson/Center", "firearm");
@@ -94,7 +90,7 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             productName = document.select(".naitem").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            log.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (!document.select(".outofstock").isEmpty()) {
                 return result;
@@ -112,7 +108,7 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
             product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
-            LOGGER.error("Failed to parse: {}", webPageEntity, e);
+            log.error("Failed to parse: {}", webPageEntity, e);
         }
         return result;
     }
@@ -122,7 +118,7 @@ class DantesportsProductRawPageParser extends AbstractRawPageParser {
         if (null != s) {
             return s.split(",");
         }
-        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        log.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
 
     }

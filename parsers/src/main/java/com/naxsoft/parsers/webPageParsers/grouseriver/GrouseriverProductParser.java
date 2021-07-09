@@ -6,27 +6,23 @@ import com.naxsoft.http.JsonCompletionHandler;
 import com.naxsoft.http.JsonResult;
 import com.naxsoft.http.PageDownloader;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
 
 import java.util.*;
 
-
+@Slf4j
+@RequiredArgsConstructor
 public class GrouseriverProductParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GrouseriverProductParser.class);
+    private final HttpClient client;
 
-    public GrouseriverProductParser(HttpClient client) {
-        super(client);
-    }
-
-    @SuppressWarnings("unchecked")
     public Set<WebPageEntity> parseJson(JsonResult downloadResult) {
         HashSet<WebPageEntity> result = new HashSet<>();
         Map<String, List<Map<String, String>>> parsedJson = downloadResult.getJson();
         List<Map<String, String>> items = parsedJson.get("items");
         for (Map<String, String> itemData : items) {
-            LOGGER.info("Processing: " + itemData.get("displayname"));
+            log.info("Processing: " + itemData.get("displayname"));
             WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPageRaw", "http://www.grouseriver.com/" + itemData.get("urlcomponent"), downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }

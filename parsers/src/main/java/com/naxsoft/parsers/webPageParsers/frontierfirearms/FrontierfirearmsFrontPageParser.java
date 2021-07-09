@@ -5,22 +5,20 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
+@RequiredArgsConstructor
 class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FrontierfirearmsFrontPageParser.class);
-
-    public FrontierfirearmsFrontPageParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
         return new WebPageEntity(parent, "", "productList", url, category);
@@ -33,18 +31,18 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         if (document != null) {
             if (document.select("#CategoryPagingBottom > div > a").isEmpty()) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                log.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             } else {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                log.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
 
                 // select next active
                 Elements select = document.select(".PagingList .ActivePage + li a");
                 if (!select.isEmpty()) {
                     webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", select.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    log.info("Product page listing={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }
@@ -64,7 +62,7 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
                 .flatMap(Observable::from)
                 .filter(downloadResult -> {
                     if (downloadResult == null) {
-                        LOGGER.error("Failed to get download results");
+                        log.error("Failed to get download results");
                         return false;
                     }
                     return true;

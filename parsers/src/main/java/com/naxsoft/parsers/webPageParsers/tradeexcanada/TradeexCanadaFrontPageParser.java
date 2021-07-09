@@ -5,23 +5,21 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
+@RequiredArgsConstructor
 class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaFrontPageParser.class);
-
-    public TradeexCanadaFrontPageParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private static WebPageEntity create(WebPageEntity parent, String url) {
         return new WebPageEntity(parent, "", "productList", url, "N/A");
@@ -60,7 +58,7 @@ class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
                 }
 
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), category);
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                log.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

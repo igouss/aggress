@@ -2,6 +2,7 @@ package com.naxsoft.storage.elasticsearch;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.utils.JsonEncoder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.ActionListener;
@@ -24,12 +25,9 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Emitter;
 import rx.Observable;
 
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -42,13 +40,9 @@ import java.util.Random;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-/**
- *
- */
-@Singleton
+@Slf4j
 public class Elastic implements AutoCloseable, Cloneable {
     private static final int BATCH_SIZE = 32;
-    private static final Logger LOGGER = LoggerFactory.getLogger("elastic");
     private final static Semaphore esConcurrency = new Semaphore(4);
     private final Random rnd = new Random(System.currentTimeMillis());
     private TransportClient client = null;
@@ -67,10 +61,10 @@ public class Elastic implements AutoCloseable, Cloneable {
                     .addTransportAddress(new TransportAddress(InetAddress.getByName(hostname), port));
 
             while (true) {
-                LOGGER.info("Waiting for elastic to connect to a node {}:{}...", hostname, port);
+                log.info("Waiting for elastic to connect to a node {}:{}...", hostname, port);
                 List<DiscoveryNode> discoveryNodes = client.connectedNodes();
                 if (0 != discoveryNodes.size()) {
-                    LOGGER.info("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
+                    log.info("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
                         if (a.isEmpty()) {
                             return b;
                         } else {
@@ -82,7 +76,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                 try {
                     Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
                 } catch (InterruptedException e) {
-                    LOGGER.error("Thread sleep failed", e);
+                    log.error("Thread sleep failed", e);
                 }
             }
         }
@@ -113,15 +107,15 @@ public class Elastic implements AutoCloseable, Cloneable {
         InputStream mappingStream = this.getClass().getResourceAsStream(mappingFile);
 
         try {
-            LOGGER.info("Creating index {} type {} from {}", indexName, type, indexFile);
+            log.info("Creating index {} type {} from {}", indexName, type, indexFile);
             Settings settings = Settings.builder().loadFromStream(indexFile, indexResource, true).build();
 
             if (indexExists(indexName)) {
                 DeleteIndexResponse deleteIndexResponse = client.admin().indices().delete(Requests.deleteIndexRequest(indexName)).actionGet();
                 if (deleteIndexResponse.isAcknowledged()) {
-                    LOGGER.info("Index deleted");
+                    log.info("Index deleted");
                 } else {
-                    LOGGER.error("Index deleted failed");
+                    log.error("Index deleted failed");
                 }
             }
 
@@ -130,30 +124,30 @@ public class Elastic implements AutoCloseable, Cloneable {
 
             CreateIndexResponse createIndexResponse = client.admin().indices().create(request).actionGet();
             if (createIndexResponse.isShardsAcknowledged()) {
-                LOGGER.info("Index created {}");
+                log.info("Index created {}");
 
                 PutMappingRequest putMappingRequest = Requests.putMappingRequest(indexName);
                 putMappingRequest.source(IOUtils.toString(mappingStream, Charset.forName("UTF8")), XContentType.JSON);
                 putMappingRequest.type("guns");
                 PutMappingResponse putMappingResponse = client.admin().indices().putMapping(putMappingRequest).actionGet();
                 if (putMappingResponse.isAcknowledged()) {
-                    LOGGER.info("Mapping created");
+                    log.info("Mapping created");
                 } else {
-                    LOGGER.error("Mapping failed");
+                    log.error("Mapping failed");
                 }
             } else {
-                LOGGER.error("Failed to create index");
+                log.error("Failed to create index");
             }
             return true;
         } catch (Exception e) {
-            LOGGER.error("Failed to create index", e);
+            log.error("Failed to create index", e);
             return false;
         } finally {
             try {
                 indexResource.close();
                 mappingStream.close();
             } catch (IOException e) {
-                LOGGER.error("Failed to close resources", e);
+                log.error("Failed to close resources", e);
             }
         }
     }
@@ -172,7 +166,7 @@ public class Elastic implements AutoCloseable, Cloneable {
      * @return Results of bulk insertion
      */
     public Observable<Boolean> index(List<ProductEntity> products, String indexName, String type) {
-//        LOGGER.info("Preparing for indexing {} elements", product);
+//        log.info("Preparing for indexing {} elements", product);
         BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
 
         try {
@@ -180,13 +174,13 @@ public class Elastic implements AutoCloseable, Cloneable {
                 XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
                 jsonBuilder.startObject();
                 IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
-                LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
+                log.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
                 request.setSource(JsonEncoder.toJson(product), XContentType.JSON);
                 request.setOpType(IndexRequest.OpType.INDEX);
                 bulkRequestBuilder.add(request);
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to generate bulk add operation", e);
+            log.error("Failed to generate bulk add operation", e);
         }
 
 
@@ -197,9 +191,9 @@ public class Elastic implements AutoCloseable, Cloneable {
                     @Override
                     public void onResponse(BulkResponse bulkItemResponses) {
                         if (bulkItemResponses.hasFailures()) {
-                            LOGGER.error("Failed to index products:{}", bulkItemResponses.buildFailureMessage());
+                            log.error("Failed to index products:{}", bulkItemResponses.buildFailureMessage());
                         } else {
-                            LOGGER.info("Successfully indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getIngestTookInMillis());
+                            log.info("Successfully indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getIngestTookInMillis());
                         }
                         emitter.onNext(!bulkItemResponses.hasFailures());
                         emitter.onCompleted();
@@ -230,7 +224,7 @@ public class Elastic implements AutoCloseable, Cloneable {
         try {
             for (ProductEntity product : products) {
                 XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-                LOGGER.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
+                log.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
                 jsonBuilder.startObject();
                 jsonBuilder.field("url", product.getUrl());
                 jsonBuilder.field("crawlDate", Date.from(Instant.now()));
@@ -241,7 +235,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                     price = product.getRegularPrice();
                 }
                 if (price.equals("N/A")) {
-                    LOGGER.warn("Unable to find price");
+                    log.warn("Unable to find price");
                     continue;
                 }
                 jsonBuilder.field("price", Double.valueOf(price));
@@ -254,7 +248,7 @@ public class Elastic implements AutoCloseable, Cloneable {
                 bulkRequestBuilder.add(request);
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to generate bulk add operation", e);
+            log.error("Failed to generate bulk add operation", e);
         }
 
         return Observable.create(emitter -> {
@@ -264,9 +258,9 @@ public class Elastic implements AutoCloseable, Cloneable {
                     @Override
                     public void onResponse(BulkResponse bulkItemResponses) {
                         if (bulkItemResponses.hasFailures()) {
-                            LOGGER.error("Failed to price index products:{}", bulkItemResponses.buildFailureMessage());
+                            log.error("Failed to price index products:{}", bulkItemResponses.buildFailureMessage());
                         } else {
-                            LOGGER.info("Successfully price indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getIngestTookInMillis());
+                            log.info("Successfully price indexed {} in {}ms", bulkItemResponses.getItems().length, bulkItemResponses.getIngestTookInMillis());
                         }
                         emitter.onNext(!bulkItemResponses.hasFailures());
                         emitter.onCompleted();

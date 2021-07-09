@@ -1,23 +1,18 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.parsers.productParser.ProductParserFactory;
 import com.naxsoft.parsingService.WebPageService;
-import com.naxsoft.storage.elasticsearch.Elastic;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.Subscription;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Parse raw web pages entries, generate JSON representation and sent it to Elasticsearch
  */
+@Slf4j
+@RequiredArgsConstructor
 public class ParseCommand implements Command {
-    private final static Logger LOGGER = LoggerFactory.getLogger(ParseCommand.class);
-
     private final static Set<String> VALID_CATEGORIES = new HashSet<>();
 
     static {
@@ -28,20 +23,8 @@ public class ParseCommand implements Command {
         VALID_CATEGORIES.add("misc");
     }
 
-    private WebPageService webPageService;
-    private Elastic elastic;
-    private ProductParserFactory productParserFactory;
-    private Subscription productIndexSubscription;
-    private Subscription priceIndexSubscription;
+    private final WebPageService webPageService;
 
-    @Inject
-    public ParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
-        this.webPageService = webPageService;
-        this.productParserFactory = productParserFactory;
-        this.elastic = elastic;
-        priceIndexSubscription = null;
-        productIndexSubscription = null;
-    }
 
     @Override
     public void setUp() throws CLIException {
@@ -50,23 +33,17 @@ public class ParseCommand implements Command {
     @Override
     public void start() throws CLIException {
 
-        Observable.from(webPageService.getUnparsedByType("productPageRaw"))
-                .doOnNext(webPageEntity -> LOGGER.info("Starting RAW page parsing {}", webPageEntity))
-                .map(productParserFactory::parse)
-                .doOnNext(productEntity -> LOGGER.info("Parsed page {}", productEntity))
-                .publish()
-                .autoConnect(2);
+//        Observable.from(webPageService.getUnparsedByType("productPageRaw"))
+//                .doOnNext(webPageEntity -> log.info("Starting RAW page parsing {}", webPageEntity))
+//                .map(productParserFactory::parse)
+//                .doOnNext(productEntity -> log.info("Parsed page {}", productEntity))
+//                .publish()
+//                .autoConnect(2);
 
     }
 
 
     @Override
     public void tearDown() throws CLIException {
-        if (productIndexSubscription != null) {
-            productIndexSubscription.unsubscribe();
-        }
-        if (priceIndexSubscription != null) {
-            priceIndexSubscription.unsubscribe();
-        }
     }
 }

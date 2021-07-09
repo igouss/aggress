@@ -5,24 +5,21 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import com.naxsoft.utils.AppProperties;
-import com.naxsoft.utils.PropertyNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
+@RequiredArgsConstructor
 class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzFrontPageParser.class);
-
     private static final Map<String, String> categories = new HashMap<>();
     private static final Pattern threadsPattern = Pattern.compile("Threads (\\d+) to (\\d+) of (\\d+)");
 
@@ -38,25 +35,25 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         categories.put("Factory Ammo and Reloading Equipment", "reload,ammo");
     }
 
+    private final HttpClient client;
     private List<Cookie> cookies = null;
 
-    private CanadiangunnutzFrontPageParser(HttpClient client) {
-        super(client);
-        Map<String, String> formParameters = new HashMap<>();
-        try {
-            formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
-            formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
-            formParameters.put("vb_login_password_hint", "Password");
-            formParameters.put("s", "");
-            formParameters.put("securitytoken", "guest");
-            formParameters.put("do", "login");
-            formParameters.put("vb_login_md5password", "");
-            formParameters.put("vb_login_md5password_utf", "");
-            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).get();
-        } catch (PropertyNotFoundException | InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-    }
+//    private CanadiangunnutzFrontPageParser(HttpClient client) {
+//        Map<String, String> formParameters = new HashMap<>();
+//        try {
+//            formParameters.put("vb_login_username", AppProperties.getProperty("canadiangunnutzLogin"));
+//            formParameters.put("vb_login_password", AppProperties.getProperty("canadiangunnutzPassword"));
+//            formParameters.put("vb_login_password_hint", "Password");
+//            formParameters.put("s", "");
+//            formParameters.put("securitytoken", "guest");
+//            formParameters.put("do", "login");
+//            formParameters.put("vb_login_md5password", "");
+//            formParameters.put("vb_login_md5password_utf", "");
+//            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).get();
+//        } catch (PropertyNotFoundException | InterruptedException | ExecutionException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
@@ -65,7 +62,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
         if (document != null) {
             Elements elements = document.select("h2.forumtitle > a");
             if (elements.isEmpty()) {
-                LOGGER.error("No results on page");
+                log.error("No results on page");
             }
 
             for (Element element : elements) {
@@ -76,7 +73,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 for (String category : categories.keySet()) {
                     if (text.endsWith(category)) {
                         WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), categories.get(category));
-                        LOGGER.info("productList={}", webPageEntity.getUrl());
+                        log.info("productList={}", webPageEntity.getUrl());
                         result.add(webPageEntity);
                         break;
                     }
@@ -100,7 +97,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 int pages = (int) Math.ceil((double) total / postsPerPage);
                 for (int i = 1; i <= pages; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("productList={}", webPageEntity.getUrl());
+                    log.info("productList={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }

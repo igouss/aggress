@@ -5,23 +5,21 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
+@RequiredArgsConstructor
 public class GunhubFrontPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GunhubFrontPageParser.class);
-
-    public GunhubFrontPageParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
         return new WebPageEntity(parent, "", "productList", url, category);
@@ -35,7 +33,7 @@ public class GunhubFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".product-name a");
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("productPage={}", webPageEntity.getUrl());
+                log.info("productPage={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

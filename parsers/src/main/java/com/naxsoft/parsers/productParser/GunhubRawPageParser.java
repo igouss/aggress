@@ -2,19 +2,18 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class GunhubRawPageParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GunhubRawPageParser.class);
     private static final Map<String, String> mapping = new HashMap<>();
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
 
@@ -32,7 +31,7 @@ public class GunhubRawPageParser extends AbstractRawPageParser {
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {
-            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
+            log.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -55,7 +54,7 @@ public class GunhubRawPageParser extends AbstractRawPageParser {
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             productName = document.select(".product-info-container h2").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            log.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (document.select(".banner").text().contains("SOLD OUT")) {
                 return result;
@@ -74,7 +73,7 @@ public class GunhubRawPageParser extends AbstractRawPageParser {
             product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
-            LOGGER.error("Failed to parse: {}", webPageEntity, e);
+            log.error("Failed to parse: {}", webPageEntity, e);
         }
         return result;
     }
@@ -84,7 +83,7 @@ public class GunhubRawPageParser extends AbstractRawPageParser {
         if (null != s) {
             return s.split(",");
         }
-        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        log.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
 

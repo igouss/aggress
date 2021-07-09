@@ -5,35 +5,33 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
+@RequiredArgsConstructor
 class MarstarProductListParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarstarProductListParser.class);
-
-    public MarstarProductListParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private static WebPageEntity getProductList(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href") + "&displayOutOfStock=no";
         WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", linkUrl, category);
-        LOGGER.info("Found product list page {} url={}", e.text(), linkUrl);
+        log.info("Found product list page {} url={}", e.text(), linkUrl);
         return webPageEntity;
     }
 
     private static WebPageEntity getProductPage(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href");
         WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productPage", linkUrl, category);
-        LOGGER.info("Found product {} url={}", e.text(), linkUrl);
+        log.info("Found product {} url={}", e.text(), linkUrl);
         return webPageEntity;
     }
 
@@ -42,7 +40,7 @@ class MarstarProductListParser extends AbstractWebPageParser {
 
         Document document = downloadResult.getDocument();
         if (document != null) {
-            LOGGER.info("Parsing {}", document.select("h1").text());
+            log.info("Parsing {}", document.select("h1").text());
             Elements elements = document.select("#main-content > div > table > tbody > tr > td > a:nth-child(3)");
             for (Element e : elements) {
                 WebPageEntity webPageEntity = getProductPage(downloadResult.getSourcePage(), e, downloadResult.getSourcePage().getCategory());

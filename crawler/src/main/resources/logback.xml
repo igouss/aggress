@@ -6,7 +6,7 @@
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
@@ -17,7 +17,7 @@
         <file>${LOG_DIR:-logs}/app.log</file>
         <append>true</append>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOGS_DIR:-logs}/app-%d{yyyy-MM-dd}.out.gz</fileNamePattern>
@@ -30,7 +30,7 @@
         <file>${LOG_DIR:-logs}/elastic.log</file>
         <append>true</append>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOGS_DIR:-logs}/elastic-%d{yyyy-MM-dd}.out.gz</fileNamePattern>
@@ -42,7 +42,7 @@
         <file>${LOG_DIR:-logs}/error.log</file>
         <append>true</append>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>WARN</level>
@@ -88,30 +88,30 @@
         <file>${LOG_DIR:-logs}/HealthCheck.log</file>
         <append>false</append>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
 
-    <logger name="org.hibernate" level="INFO"/>
-    <logger name="org.elasticsearch" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
-    <logger name="org.hibernate.SQL" level="INFO"/>
-    <logger name="com.zaxxer.hikari" level="INFO"/>
-    <logger name="com.ning.http.client" level="INFO"/>
-    <logger name="com.lambdaworks.redis" level="INFO"/>
-    <logger name="org.asynchttpclient" level="INFO"/>
+    <log name="org.hibernate" level="INFO"/>
+    <log name="org.elasticsearch" level="INFO"/>
+    <log name="io.netty" level="INFO"/>
+    <log name="org.hibernate.SQL" level="INFO"/>
+    <log name="com.zaxxer.hikari" level="INFO"/>
+    <log name="com.ning.http.client" level="INFO"/>
+    <log name="com.lambdaworks.redis" level="INFO"/>
+    <log name="org.asynchttpclient" level="INFO"/>
 
     <!-- Set additivity="false" to avoid polluting root appender -->
-    <logger name="HealthCheck" level="ALL" additivity="false">
+    <log name="HealthCheck" level="ALL" additivity="false">
         <appender-ref ref="HEALTHCHECK-LOG"/>
-    </logger>
-    <logger name="metrics" level="ALL" additivity="false">
+    </log>
+    <log name="metrics" level="ALL" additivity="false">
         <appender-ref ref="METRICS-LOG-ASYNC"/>
-    </logger>
-    <logger name="elastic" level="ALL" additivity="true">
+    </log>
+    <log name="elastic" level="ALL" additivity="true">
         <appender-ref ref="ELASTIC-LOG-ASYNC"/>
-    </logger>
+    </log>
 
     <root level="ALL">
         <appender-ref ref="STDOUT"/>

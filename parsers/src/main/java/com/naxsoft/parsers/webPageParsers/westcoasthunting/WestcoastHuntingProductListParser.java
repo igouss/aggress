@@ -5,23 +5,21 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
+@RequiredArgsConstructor
 public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WestcoastHuntingProductListParser.class);
-
-    public WestcoastHuntingProductListParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>();
@@ -33,7 +31,7 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
             Elements elements = document.select(".product-category > a");
             for (Element element : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product sub-listing {}", webPageEntity.getUrl());
+                log.info("Product sub-listing {}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
 
@@ -49,7 +47,7 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
                 }
                 for (int i = 2; i < max; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity(sourcePage, "", "productList", sourcePage.getUrl() + "page/" + i + "/", sourcePage.getCategory());
-                    LOGGER.info("Product list subpage {} {}", i, webPageEntity.getUrl());
+                    log.info("Product list subpage {} {}", i, webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }
@@ -58,7 +56,7 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
             elements = document.select(".product.instock a");
             for (Element el : elements) {
                 WebPageEntity webPageEntity = new WebPageEntity(sourcePage, "", "productPage", el.attr("abs:href"), sourcePage.getCategory());
-                LOGGER.info("Product page {}", webPageEntity.getUrl());
+                log.info("Product page {}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

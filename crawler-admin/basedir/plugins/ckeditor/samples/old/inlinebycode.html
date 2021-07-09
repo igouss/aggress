@@ -18,6 +18,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 		}
 
 
+
     </style>
 </head>
 <body>
@@ -44,7 +45,7 @@ var editor = CKEDITOR.inline( document.getElementById( 'editable' ) );
         attribute of the <code>&lt;div&gt;</code> element to be converted into an inline instance.
     </p>
 </div>
-<div id="editable" contenteditable="true">
+<div contenteditable="true" id="editable">
     <h1><img alt="Saturn V carrying Apollo 11" class="right" src="assets/sample.jpg"/> Apollo 11</h1>
 
     <p><b>Apollo 11</b> was the spaceflight that landed the first humans, Americans <a
@@ -141,6 +142,7 @@ var editor = CKEDITOR.inline( document.getElementById( 'editable' ) );
 		CKEDITOR.disableAutoInline = true;
 
 		var editor = CKEDITOR.inline( 'editable' );
+
 
 </script>
 <div id="footer">

@@ -11,11 +11,11 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
     <script src="../../../samples/old/sample.js"></script>
     <script src="assets/outputforflash/swfobject.js"></script>
     <link href="../../../samples/old/sample.css" rel="stylesheet">
-    <meta name="ckeditor-sample-required-plugins" content="sourcearea">
-    <meta name="ckeditor-sample-name" content="Output for Flash">
-    <meta name="ckeditor-sample-group" content="Advanced Samples">
-    <meta name="ckeditor-sample-description"
-          content="Configuring CKEditor to produce HTML code that can be used with Adobe Flash.">
+    <meta content="sourcearea" name="ckeditor-sample-required-plugins">
+    <meta content="Output for Flash" name="ckeditor-sample-name">
+    <meta content="Advanced Samples" name="ckeditor-sample-group">
+    <meta content="Configuring CKEditor to produce HTML code that can be used with Adobe Flash."
+          name="ckeditor-sample-description">
     <style>
 
 		.alert
@@ -26,6 +26,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 			display: block;
 			margin-bottom: 20px;
 		}
+
 
 
     </style>
@@ -264,9 +265,10 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 					});
 
 
+
             </script>
             <p>
-                <input type="button" value="Send to Flash" onclick="sendToFlash();">
+                <input onclick="sendToFlash();" type="button" value="Send to Flash">
             </p>
         </td>
         <td style="vertical-align: top; padding-left: 20px">

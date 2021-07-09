@@ -2,12 +2,11 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,8 +15,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 class PsmilitariaRawPageParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaRawPageParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$\\s?((\\d+|,)+\\s?\\.\\d+)");
 
     private static String parsePrice(WebPageEntity webPageEntity, String price) {
@@ -25,7 +24,7 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
         if (matcher.find()) {
             return matcher.group(1).replace(",", "").replace(" ", "");
         } else {
-            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
+            log.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return "";
         }
     }
@@ -57,7 +56,7 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
                     continue;
                 }
                 productName = elText;
-                LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+                log.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
 
                 url = webPageEntity.getUrl();
@@ -76,7 +75,7 @@ class PsmilitariaRawPageParser extends AbstractRawPageParser {
                 result.add(product);
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to parse: {}", webPageEntity, e);
+            log.error("Failed to parse: {}", webPageEntity, e);
         }
         return result;
     }

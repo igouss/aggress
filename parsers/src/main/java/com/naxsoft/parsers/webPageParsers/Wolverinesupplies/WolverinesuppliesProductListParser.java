@@ -6,11 +6,11 @@ import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.http.PageDownloader;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
@@ -19,14 +19,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
+@RequiredArgsConstructor
 public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
     private static final Pattern itemNumberPattern = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"");
     private static final Pattern categoryPattern = Pattern.compile("\'\\d+\'");
 
-    public WolverinesuppliesProductListParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private Set<WebPageEntity> onCompleted(WebPageEntity parent) {
         Set<WebPageEntity> result = new HashSet<>();
@@ -43,11 +42,11 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
 
             if (0 != sb.length()) {
                 WebPageEntity e = new WebPageEntity(parent, "", "productPage", "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb, parent.getCategory());
-                LOGGER.info("productPage={}", e.getUrl());
+                log.info("productPage={}", e.getUrl());
                 result.add(e);
             }
         } catch (NullPointerException npe) {
-            LOGGER.error("NPE = {}", parent, npe);
+            log.error("NPE = {}", parent, npe);
         }
         return result;
     }

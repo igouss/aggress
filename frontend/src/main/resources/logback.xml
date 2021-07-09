@@ -7,14 +7,14 @@
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
         </encoder>
     </appender>
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>app.log</file>
         <append>false</append>
         <encoder>
-            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+            <pattern>%date %level [%thread] %log{10} [%file:%line] %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -23,12 +23,12 @@
     </appender>
 
 
-    <logger name="org.hibernate" level="INFO"/>
-    <logger name="org.elasticsearch" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
-    <logger name="org.hibernate.SQL" level="INFO"/>
-    <logger name="com.zaxxer.hikari" level="INFO"/>
-    <logger name="com.ning.http.client" level="INFO"/>
+    <log name="org.hibernate" level="INFO"/>
+    <log name="org.elasticsearch" level="INFO"/>
+    <log name="io.netty" level="INFO"/>
+    <log name="org.hibernate.SQL" level="INFO"/>
+    <log name="com.zaxxer.hikari" level="INFO"/>
+    <log name="com.ning.http.client" level="INFO"/>
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="ASYNC-FILE"/>

@@ -2,19 +2,20 @@ package com.naxsoft;
 
 import com.naxsoft.commands.*;
 import joptsimple.OptionSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import static java.lang.System.out;
 import static java.lang.System.setProperty;
 
+@Slf4j
+@RequiredArgsConstructor
 public class Crawler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
-    private CreateESIndexCommand createESIndexCommand = null;
-    private CleanDBCommand cleanDbCommand = null;
-    private PopulateDBCommand populateDBCommand = null;
-    private CrawlCommand crawlCommand = null;
-    private ParseCommand parseCommand = null;
+    private final CreateESIndexCommand createESIndexCommand;
+    private final CleanDBCommand cleanDbCommand;
+    private final PopulateDBCommand populateDBCommand;
+    private final CrawlCommand crawlCommand;
+    private final ParseCommand parseCommand;
 
     /**
      * Crawler application.
@@ -26,8 +27,8 @@ public class Crawler {
         setProperty("jsse.enableSNIExtension", "false");
         setProperty("jdk.tls.trustNameService", "true");
 
-        Crawler aggress = new Crawler();
-        aggress.start(args);
+//        Crawler aggress = new Crawler();
+//        aggress.start(args);
         System.exit(0);
     }
 
@@ -36,50 +37,46 @@ public class Crawler {
     }
 
     private void start(String[] args) {
-        DaggerApplicationComponent.Builder applicationBuilder = DaggerApplicationComponent.builder();
-        ApplicationComponent applicationComponent = applicationBuilder.build();
-
-        try {
             final OptionSet options = CommandLineParser.parse(args);
             if (!options.hasOptions() || options.has("help")) {
                 showHelp();
                 return;
             }
 
-            if (options.has("createESIndex")) {
-                createESIndexCommand = applicationComponent.getCreateESIndexCommand();
-                createESIndexCommand.start();
-            }
-
-//            scheduler = applicationComponent.getScheduler();
-//            scheduler.add(() -> {
-
-            if (options.has("clean")) {
-                cleanDbCommand = applicationComponent.getCleanDbCommand();
-                cleanDbCommand.start();
-
-            }
-
-            if (options.has("populate")) {
-                populateDBCommand = applicationComponent.getPopulateDBCommand();
-                populateDBCommand.start();
-            }
-
-            if (options.has("crawl")) {
-                crawlCommand = applicationComponent.getCrawlCommand();
-                crawlCommand.start();
-            }
-
-            if (options.has("parse")) {
-                parseCommand = applicationComponent.getParseCommand();
-                parseCommand.start();
-            }
+//            if (options.has("createESIndex")) {
+//                createESIndexCommand = applicationComponent.getCreateESIndexCommand();
+//                createESIndexCommand.start();
+//            }
+//
+////            scheduler = applicationComponent.getScheduler();
+////            scheduler.add(() -> {
+//
+//            if (options.has("clean")) {
+//                cleanDbCommand = applicationComponent.getCleanDbCommand();
+//                cleanDbCommand.start();
+//
+//            }
+//
+//            if (options.has("populate")) {
+//                populateDBCommand = applicationComponent.getPopulateDBCommand();
+//                populateDBCommand.start();
+//            }
+//
+//            if (options.has("crawl")) {
+//                crawlCommand = applicationComponent.getCrawlCommand();
+//                crawlCommand.start();
+//            }
+//
+//            if (options.has("parse")) {
+//                parseCommand = applicationComponent.getParseCommand();
+//                parseCommand.start();
+//            }
 //            }, 0, 1, TimeUnit.MINUTES);
 
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
-                    LOGGER.info("Stopping crawler..");
+                    log.info("Stopping crawler..");
 
                     if (createESIndexCommand != null) {
                         createESIndexCommand.tearDown();
@@ -105,18 +102,13 @@ public class Crawler {
                         parseCommand.tearDown();
                     }
 
-                    applicationComponent.getDatabase().close();
-                    applicationComponent.getHttpClient().close();
-                    applicationComponent.getElastic().close();
-                    LOGGER.info("Crawler stopped...");
+//                    applicationComponent.getDatabase().close();
+//                    applicationComponent.getHttpClient().close();
+//                    applicationComponent.getElastic().close();
+                    log.info("Crawler stopped...");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }, "Shutdown Hook"));
-
-            System.in.read();
-        } catch (Exception e) {
-            LOGGER.error("Application failure", e);
-        }
     }
 }

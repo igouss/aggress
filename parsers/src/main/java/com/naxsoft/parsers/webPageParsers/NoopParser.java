@@ -1,24 +1,19 @@
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.HttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
+@RequiredArgsConstructor
 class NoopParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NoopParser.class);
-
-    public NoopParser(HttpClient client) {
-        super(client);
-    }
-
     @Override
     public List<WebPageEntity> parse(WebPageEntity webPage) {
         List<WebPageEntity> result = new ArrayList<>(0);
-        LOGGER.error("Using NOOP parser for: " + webPage);
+        log.error("Using NOOP parser for: " + webPage);
         return result;
     }
 

@@ -20,6 +20,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 		}
 
 
+
     </style>
     <script>
 
@@ -33,6 +34,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 		function setValue() {
 			$( '#editor1' ).val( $( 'input#val' ).val() );
 		}
+
 
 
     </script>
@@ -69,7 +71,7 @@ $( document ).ready( function() {
 
     <h2 class="samples">Inline Example</h2>
 
-    <div id="editable" contenteditable="true">
+    <div contenteditable="true" id="editable">
         <p><img alt="Saturn V carrying Apollo 11" class="right" src="assets/sample.jpg"/><b>Apollo 11</b> was the
             spaceflight that landed the first humans, Americans <a href="http://en.wikipedia.org/wiki/Neil_Armstrong"
                                                                    title="Neil Armstrong">Neil Armstrong</a> and <a
@@ -105,7 +107,7 @@ $( document ).ready( function() {
     <p style="overflow: hidden">
         <input style="float: left" type="submit" value="Submit">
         <span style="float: right">
-				<input type="text" id="val" value="I'm using jQuery val()!" size="30">
+				<input id="val" size="30" type="text" value="I'm using jQuery val()!">
 				<input onclick="setValue();" type="button" value="Set value">
 			</span>
     </p>

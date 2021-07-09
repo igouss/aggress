@@ -18,7 +18,7 @@ dependencies {
     api "javax.inject:javax.inject:$javaxInjectVersion"
     api "io.reactivex:rxjava:$rxjavaVersion"
 
-    implementation  "com.google.code.gson:gson:$gsonVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
     implementation "ch.qos.logback:logback-classic:$logbackVersion"
     implementation 'org.slf4j:slf4j-api:1.7.31'
     implementation "biz.paluch.redis:lettuce:$lettuceVersion"
@@ -30,6 +30,11 @@ dependencies {
     implementation("org.elasticsearch.client:transport:$elasticTransportVersion") {
         exclude group: 'org.elasticsearch.plugin', module: 'transport-netty3-client'
     }
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 }
 
 repositories {

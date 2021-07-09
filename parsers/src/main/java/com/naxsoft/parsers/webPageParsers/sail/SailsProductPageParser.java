@@ -4,17 +4,18 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.http.PageDownloader;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.Cookie;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
+@RequiredArgsConstructor
 class SailsProductPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SailsProductPageParser.class);
     private static final List<Cookie> cookies;
 
     static {
@@ -24,13 +25,11 @@ class SailsProductPageParser extends AbstractWebPageParser {
         cookies.add(builder.build());
     }
 
-    public SailsProductPageParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity webPage) {
-        LOGGER.trace("Processing productPage {}", webPage.getUrl());
+        log.trace("Processing productPage {}", webPage.getUrl());
         return Observable.from(PageDownloader.download(client, cookies, webPage, "productPageRaw"))
                 .filter(Objects::nonNull)
                 .toList().toBlocking().single();

@@ -4,26 +4,19 @@ package com.naxsoft.commands;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.utils.SitesUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
 import rx.schedulers.Schedulers;
-
-import javax.inject.Inject;
 
 /**
  * Add initial dataset to the database.
  * The crawling is basically breath first search from that dataset
  */
+@Slf4j
+@RequiredArgsConstructor
 public class PopulateDBCommand implements Command {
-    private final static Logger LOGGER = LoggerFactory.getLogger(PopulateDBCommand.class);
-
     private final WebPageService webPageService;
-
-    @Inject
-    public PopulateDBCommand(WebPageService webPageService) {
-        this.webPageService = webPageService;
-    }
 
     @Override
     public void setUp() {
@@ -39,9 +32,9 @@ public class PopulateDBCommand implements Command {
                 .map(webPageService::addWebPageEntry)
                 .all(result -> result != 0L)
                 .subscribe(
-                        result -> LOGGER.trace("Roots populated: {}", result)
-                        , err -> LOGGER.error("Failed to populate roots", err)
-                        , () -> LOGGER.info("Root population complete")
+                        result -> log.trace("Roots populated: {}", result)
+                        , err -> log.error("Failed to populate roots", err)
+                        , () -> log.info("Root population complete")
                 );
     }
 

@@ -1,13 +1,12 @@
 package com.naxsoft;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.experimental.ParallelComputer;
 import org.junit.experimental.max.MaxCore;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.Modifier;
@@ -18,9 +17,8 @@ import java.util.Set;
 
 import static java.lang.System.out;
 
+@Slf4j
 public class TestSuite {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestSuite.class);
-
     public static void main(String[] args) {
         Path maxCorePath = Paths.get("", "maxCore").toAbsolutePath();
         File file = maxCorePath.toFile();
@@ -43,7 +41,7 @@ public class TestSuite {
             Request request = Request.classes(computer, included.toArray(clazz));
             maxCore.run(request, core);
         } catch (Exception e) {
-            LOGGER.error("Failed run the test", e);
+            log.error("Failed run the test", e);
         }
 
     }
@@ -57,11 +55,11 @@ public class TestSuite {
 //        for (Class<? extends AbstractTest> clazz : classes) {
 //            if (!Modifier.isAbstract(clazz.getModifiers())) {
 //                try {
-//                    logger.info("Instantiating {}", clazz.getName());
+//                    log.info("Instantiating {}", clazz.getName());
 //                    Result result = core.run(computer,clazz);
 //                    System.out.println(result.wasSuccessful());
 //                } catch (Exception e) {
-//                    logger.error("Failed to instantiate test {}", clazz, e);
+//                    log.error("Failed to instantiate test {}", clazz, e);
 //                }
 //            }
 //        }

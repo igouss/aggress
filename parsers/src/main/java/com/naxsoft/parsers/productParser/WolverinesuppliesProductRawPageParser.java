@@ -3,17 +3,16 @@ package com.naxsoft.parsers.productParser;
 import com.google.gson.Gson;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+@Slf4j
 class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductRawPageParser.class);
     private static final Map<String, String> mapping = new ListOrderedMap<>();
 
     static {
@@ -101,7 +100,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
                 Map<String, String> attr = new HashMap<>();
                 String[] category = null;
 
-                LOGGER.trace("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
+                log.trace("Parsing {}, page={}", rp.Title, webPageEntity.getUrl());
 
                 url = "https://www.wolverinesupplies.com/ProductDetail/" + rp.ItemNumber;
 
@@ -124,7 +123,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
                 result.add(product);
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to parse: {}", webPageEntity, e);
+            log.error("Failed to parse: {}", webPageEntity, e);
         }
         return result;
     }
@@ -133,7 +132,7 @@ class WolverinesuppliesProductRawPageParser extends AbstractRawPageParser {
         if (mapping.containsKey(webPageEntity.getCategory().toLowerCase())) {
             return mapping.get(webPageEntity.getCategory().toLowerCase()).split(",");
         }
-        LOGGER.warn("Unknown category: {}", webPageEntity.getCategory());
+        log.warn("Unknown category: {}", webPageEntity.getCategory());
         return new String[]{"misc"};
     }
 

@@ -5,23 +5,21 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
+@RequiredArgsConstructor
 class IrungunsFrontPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IrungunsFrontPageParser.class);
-
-    public IrungunsFrontPageParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
@@ -33,7 +31,7 @@ class IrungunsFrontPageParser extends AbstractWebPageParser {
             for (Element e : elements) {
                 String linkUrl = e.attr("abs:href");
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", linkUrl, "");
-                LOGGER.info("ProductPageUrl={}", linkUrl);
+                log.info("ProductPageUrl={}", linkUrl);
                 result.add(webPageEntity);
             }
         }

@@ -5,11 +5,11 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
@@ -18,13 +18,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
+@RequiredArgsConstructor
 class CorwinArmsFrontPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsFrontPageParser.class);
     private static final Pattern pagerPattern = Pattern.compile("(\\d+) of (\\d+)");
-
-    private CorwinArmsFrontPageParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private Set<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
@@ -36,7 +34,7 @@ class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                 String linkUrl = e.attr("abs:href");
 
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", linkUrl, e.text());
-                LOGGER.info("Found productList page {}", linkUrl);
+                log.info("Found productList page {}", linkUrl);
                 result.add(webPageEntity);
             }
         }
@@ -54,12 +52,12 @@ class CorwinArmsFrontPageParser extends AbstractWebPageParser {
                 int max = Integer.parseInt(matcher.group(2));
                 for (int i = 1; i <= max; i++) {
                     WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "?page=" + i, downloadResult.getSourcePage().getCategory());
-                    LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                    log.info("Product page listing={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             } else {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location(), downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                log.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

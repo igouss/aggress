@@ -4,23 +4,21 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.http.PageDownloader;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
+@RequiredArgsConstructor
 class TradeexCanadaProductPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TradeexCanadaProductPageParser.class);
-
-    public TradeexCanadaProductPageParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity webPage) {
-        LOGGER.trace("Processing productPage {}", webPage.getUrl());
+        log.trace("Processing productPage {}", webPage.getUrl());
         if (webPage.getUrl().contains("out-stock") || webPage.getUrl().contains("-sold")) {
             return new ArrayList<>(0);
         } else {
@@ -29,7 +27,7 @@ class TradeexCanadaProductPageParser extends AbstractWebPageParser {
                         if (null != data) {
                             return true;
                         } else {
-                            LOGGER.error("failed to download web page {}", webPage.getUrl());
+                            log.error("failed to download web page {}", webPage.getUrl());
                             return false;
                         }
                     }).toList().toBlocking().single();

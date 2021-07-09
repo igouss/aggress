@@ -1,8 +1,7 @@
 package com.naxsoft.http;
 
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -24,9 +23,8 @@ import java.util.concurrent.CompletableFuture;
 /**
  * HTTP client. Can sent GET and POST requests
  */
+@Slf4j
 public class AhcHttpClient implements HttpClient {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AhcHttpClient.class);
 
 //    private final static int MAX_CONNECTIONS = 5;
 
@@ -116,7 +114,7 @@ public class AhcHttpClient implements HttpClient {
      */
     @Override
     public <R> CompletableFuture<R> get(String url, Collection<Cookie> cookies, boolean followRedirect, AbstractCompletionHandler<R> handler) {
-        LOGGER.trace("Starting async http GET request url = {}", url);
+        log.trace("Starting async http GET request url = {}", url);
 
         URI uri = URI.create(url);
 
@@ -165,7 +163,7 @@ public class AhcHttpClient implements HttpClient {
      */
     @Override
     public <R> CompletableFuture<R> post(String url, String content, AbstractCompletionHandler<R> handler) {
-        LOGGER.debug("Starting async http POST request url = {}", url);
+        log.debug("Starting async http POST request url = {}", url);
 
 //        URI uri = URI.create(url);
 //        String host = uri.getHost();
@@ -213,7 +211,7 @@ public class AhcHttpClient implements HttpClient {
      */
     @Override
     public <R> CompletableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
-        LOGGER.debug("Starting async http POST request url = {}", url);
+        log.debug("Starting async http POST request url = {}", url);
 
 
 //        URI uri = URI.create(url);

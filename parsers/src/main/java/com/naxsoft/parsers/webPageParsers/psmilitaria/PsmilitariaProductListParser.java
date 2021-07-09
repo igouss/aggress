@@ -3,19 +3,16 @@ package com.naxsoft.parsers.webPageParsers.psmilitaria;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
 
 import java.util.List;
 
+@Slf4j
+@RequiredArgsConstructor
 class PsmilitariaProductListParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PsmilitariaProductListParser.class);
-
-    public PsmilitariaProductListParser(HttpClient client) {
-        super(client);
-    }
-
+    private final HttpClient client;
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity parent) {

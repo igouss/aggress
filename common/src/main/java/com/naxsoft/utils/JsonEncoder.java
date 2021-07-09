@@ -37,8 +37,6 @@ public class JsonEncoder {
             jsonObject.addProperty("description", productEntity.getDescription());
         }
 
-        jsonObject.addProperty("modificationDate", dateTimeFormatter.format(productEntity.getModificationDate()));
-
         productEntity.getAttr().forEach(jsonObject::addProperty);
 
         if (productEntity.getCategory() != null && productEntity.getCategory().length > 0) {

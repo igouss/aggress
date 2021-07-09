@@ -5,9 +5,9 @@ import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.HashSet;
@@ -16,13 +16,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
+@RequiredArgsConstructor
 class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsFrontPageParser.class);
     private static final Pattern productTotalPattern = Pattern.compile("of\\s(\\d+)");
-
-    public EllwoodeppsFrontPageParser(HttpClient client) {
-        super(client);
-    }
+    private final HttpClient client;
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
         return new WebPageEntity(parent, "", "productList", url, category);
@@ -36,7 +34,7 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
             String elements = document.select("#adj-nav-container > div.category-products > div.toolbar  div.amount-container > p").text();
             Matcher matcher = productTotalPattern.matcher(elements);
             if (!matcher.find()) {
-                LOGGER.error("Unable to parse total pages");
+                log.error("Unable to parse total pages");
                 return result;
             }
 
@@ -45,7 +43,7 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
 
             for (int i = 1; i <= pageTotal; i++) {
                 WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "&p=" + i, downloadResult.getSourcePage().getCategory());
-                LOGGER.info("Product page listing={}", webPageEntity.getUrl());
+                log.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }

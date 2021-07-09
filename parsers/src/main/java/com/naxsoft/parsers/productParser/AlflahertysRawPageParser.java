@@ -3,18 +3,17 @@ package com.naxsoft.parsers.productParser;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 class AlflahertysRawPageParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AlflahertysRawPageParser.class);
     private static final Pattern priceParser = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
     private static final Map<String, String> mapping = new HashMap<>();
 
@@ -88,7 +87,7 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
+            log.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -108,7 +107,7 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
 
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
             productName = document.select(".product_name").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            log.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (!document.select(".product_section .sold_out").text().equals("Sold Out")) {
                 ProductEntity product;
@@ -137,7 +136,7 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
                 result.add(product);
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to parse: {}", webPageEntity, e);
+            log.error("Failed to parse: {}", webPageEntity, e);
         }
         return result;
     }
@@ -148,7 +147,7 @@ class AlflahertysRawPageParser extends AbstractRawPageParser {
         if (null != s) {
             return s.split(",");
         }
-        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        log.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
 

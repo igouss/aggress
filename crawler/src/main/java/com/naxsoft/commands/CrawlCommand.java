@@ -3,12 +3,10 @@ package com.naxsoft.commands;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.parsingService.WebPageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
-import rx.Subscription;
 
-import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,19 +16,12 @@ import java.util.Set;
  * Process the stream of unparsed webpages. Processed web pages are saved into the
  * database and the page is marked as parsed
  */
+@Slf4j
+@RequiredArgsConstructor
 public class CrawlCommand implements Command {
-    private final static Logger LOGGER = LoggerFactory.getLogger(CrawlCommand.class);
 
     private final WebPageService webPageService;
     private final WebPageParserFactory webPageParserFactory;
-    private Subscription webPageParseSubscription;
-
-    @Inject
-    public CrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
-        this.webPageService = webPageService;
-        this.webPageParserFactory = webPageParserFactory;
-        webPageParseSubscription = null;
-    }
 
     @Override
     public void setUp() throws CLIException {
@@ -43,8 +34,8 @@ public class CrawlCommand implements Command {
         pagesToParse.addAll(webPageService.getUnparsedByType("productList"));
         pagesToParse.addAll(webPageService.getUnparsedByType("productPage"));
 
-        webPageParseSubscription = Observable.from(pagesToParse)
-                .doOnNext(webPageEntity -> LOGGER.info("Starting parse {}", webPageEntity))
+        Observable.from(pagesToParse)
+                .doOnNext(webPageEntity -> log.info("Starting parse {}", webPageEntity))
                 .map(webPageParserFactory::parse)
                 .flatMap(Observable::from)
                 .map(page -> {
@@ -53,16 +44,14 @@ public class CrawlCommand implements Command {
                     return true;
                 })
                 .subscribe(
-                        rc -> LOGGER.trace("Added WebPageEntry, parent marked as parsed: {} results added to DB"),
-                        err -> LOGGER.error("Failed", err),
-                        () -> LOGGER.info("Crawl completed")
+                        rc -> log.trace("Added WebPageEntry, parent marked as parsed: results added to DB"),
+                        err -> log.error("Failed", err),
+                        () -> log.info("Crawl completed")
                 );
     }
 
     @Override
     public void tearDown() throws CLIException {
-        if (webPageParseSubscription != null) {
-            webPageParseSubscription.unsubscribe();
-        }
+
     }
 }

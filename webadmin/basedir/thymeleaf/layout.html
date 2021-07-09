@@ -6,20 +6,20 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <title>AdminLTE 2 | Starter</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.6 -->
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- Ionicons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
     <!-- Theme style -->
-    <link rel="stylesheet" href="css/AdminLTE/AdminLTE.min.css">
-    <link rel="icon" type="image/x-icon" href="img/favicon.ico"/>
-    <link rel="stylesheet" href="css/AdminLTE/skins/skin-blue.min.css">
+    <link href="css/AdminLTE/AdminLTE.min.css" rel="stylesheet">
+    <link href="img/favicon.ico" rel="icon" type="image/x-icon"/>
+    <link href="css/AdminLTE/skins/skin-blue.min.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -55,7 +55,7 @@ desired effect
     <header class="main-header">
 
         <!-- Logo -->
-        <a href="index2.html" class="logo">
+        <a class="logo" href="index2.html">
             <!-- mini logo for sidebar mini 50x50 pixels -->
             <span class="logo-mini"><b>A</b>LT</span>
             <!-- logo for regular state and mobile devices -->
@@ -65,7 +65,7 @@ desired effect
         <!-- Header Navbar -->
         <nav class="navbar navbar-static-top" role="navigation">
             <!-- Sidebar toggle button-->
-            <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+            <a class="sidebar-toggle" data-toggle="offcanvas" href="#" role="button">
                 <span class="sr-only">Toggle navigation</span>
             </a>
             <!-- Navbar Right Menu -->
@@ -74,7 +74,7 @@ desired effect
                     <!-- Messages: style can be found in dropdown.less-->
                     <li class="dropdown messages-menu">
                         <!-- Menu toggle button -->
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             <i class="fa fa-envelope-o"></i>
                             <span class="label label-success">4</span>
                         </a>
@@ -87,8 +87,8 @@ desired effect
                                         <a href="#">
                                             <div class="pull-left">
                                                 <!-- User Image -->
-                                                <img src="img/AdminLTE/user2-160x160.jpg" class="img-circle"
-                                                     alt="User Image">
+                                                <img alt="User Image" class="img-circle"
+                                                     src="img/AdminLTE/user2-160x160.jpg">
                                             </div>
                                             <!-- Message title and timestamp -->
                                             <h4>
@@ -111,7 +111,7 @@ desired effect
                     <!-- Notifications Menu -->
                     <li class="dropdown notifications-menu">
                         <!-- Menu toggle button -->
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             <i class="fa fa-bell-o"></i>
                             <span class="label label-warning">10</span>
                         </a>
@@ -134,7 +134,7 @@ desired effect
                     <!-- Tasks Menu -->
                     <li class="dropdown tasks-menu">
                         <!-- Menu Toggle Button -->
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             <i class="fa fa-flag-o"></i>
                             <span class="label label-danger">9</span>
                         </a>
@@ -153,9 +153,10 @@ desired effect
                                             <!-- The progress bar -->
                                             <div class="progress xs">
                                                 <!-- Change the css width attribute to simulate progress -->
-                                                <div class="progress-bar progress-bar-aqua" style="width: 20%"
-                                                     role="progressbar" aria-valuenow="20" aria-valuemin="0"
-                                                     aria-valuemax="100">
+                                                <div aria-valuemax="100" aria-valuemin="0"
+                                                     aria-valuenow="20" class="progress-bar progress-bar-aqua"
+                                                     role="progressbar"
+                                                     style="width: 20%">
                                                     <span class="sr-only">20% Complete</span>
                                                 </div>
                                             </div>
@@ -172,16 +173,16 @@ desired effect
                     <!-- User Account Menu -->
                     <li class="dropdown user user-menu">
                         <!-- Menu Toggle Button -->
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             <!-- The user image in the navbar-->
-                            <img src="img/AdminLTE/user2-160x160.jpg" class="user-image" alt="User Image">
+                            <img alt="User Image" class="user-image" src="img/AdminLTE/user2-160x160.jpg">
                             <!-- hidden-xs hides the username on small devices so only the image appears. -->
                             <span class="hidden-xs">Alexander Pierce</span>
                         </a>
                         <ul class="dropdown-menu">
                             <!-- The user image in the menu -->
                             <li class="user-header">
-                                <img src="img/AdminLTE/user2-160x160.jpg" class="img-circle" alt="User Image">
+                                <img alt="User Image" class="img-circle" src="img/AdminLTE/user2-160x160.jpg">
 
                                 <p>
                                     Alexander Pierce - Web Developer
@@ -206,17 +207,17 @@ desired effect
                             <!-- Menu Footer-->
                             <li class="user-footer">
                                 <div class="pull-left">
-                                    <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                    <a class="btn btn-default btn-flat" href="#">Profile</a>
                                 </div>
                                 <div class="pull-right">
-                                    <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                                    <a class="btn btn-default btn-flat" href="#">Sign out</a>
                                 </div>
                             </li>
                         </ul>
                     </li>
                     <!-- Control Sidebar Toggle Button -->
                     <li>
-                        <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                        <a data-toggle="control-sidebar" href="#"><i class="fa fa-gears"></i></a>
                     </li>
                 </ul>
             </div>
@@ -231,7 +232,7 @@ desired effect
             <!-- Sidebar user panel (optional) -->
             <div class="user-panel">
                 <div class="pull-left image">
-                    <img src="img/AdminLTE/user2-160x160.jpg" class="img-circle" alt="User Image">
+                    <img alt="User Image" class="img-circle" src="img/AdminLTE/user2-160x160.jpg">
                 </div>
                 <div class="pull-left info">
                     <p>Alexander Pierce</p>
@@ -241,11 +242,11 @@ desired effect
             </div>
 
             <!-- search form (Optional) -->
-            <form action="#" method="get" class="sidebar-form">
+            <form action="#" class="sidebar-form" method="get">
                 <div class="input-group">
-                    <input type="text" name="q" class="form-control" placeholder="Search...">
+                    <input class="form-control" name="q" placeholder="Search..." type="text">
                     <span class="input-group-btn">
-                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+                <button class="btn btn-flat" id="search-btn" name="search" type="submit"><i class="fa fa-search"></i>
                 </button>
               </span>
                 </div>
@@ -313,8 +314,8 @@ desired effect
     <aside class="control-sidebar control-sidebar-dark">
         <!-- Create the tabs -->
         <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
-            <li class="active"><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>
-            <li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-gears"></i></a></li>
+            <li class="active"><a data-toggle="tab" href="#control-sidebar-home-tab"><i class="fa fa-home"></i></a></li>
+            <li><a data-toggle="tab" href="#control-sidebar-settings-tab"><i class="fa fa-gears"></i></a></li>
         </ul>
         <!-- Tab panes -->
         <div class="tab-content">
@@ -368,7 +369,7 @@ desired effect
                     <div class="form-group">
                         <label class="control-sidebar-subheading">
                             Report panel usage
-                            <input type="checkbox" class="pull-right" checked>
+                            <input checked class="pull-right" type="checkbox">
                         </label>
 
                         <p>
@@ -397,7 +398,7 @@ desired effect
 <!-- AdminLTE App -->
 <script src="js/AdminLTE/app.min.js"></script>
 <!--/* Hook-up event handlers */-->
-<script src="js/require.js" data-main="js/application.js"></script>
+<script data-main="js/application.js" src="js/require.js"></script>
 
 <!-- Optionally, you can add Slimscroll and FastClick plugins.
      Both of these plugins are recommended to enhance the

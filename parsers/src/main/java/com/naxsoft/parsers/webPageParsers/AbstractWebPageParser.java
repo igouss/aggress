@@ -1,34 +1,26 @@
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.http.AbstractCompletionHandler;
-import com.naxsoft.http.HttpClient;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.Cookie;
 import okhttp3.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
+@RequiredArgsConstructor
 public abstract class AbstractWebPageParser implements WebPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWebPageParser.class);
-    protected final HttpClient client;
-
-    public AbstractWebPageParser(HttpClient client) {
-        this.client = client;
-    }
-
     /**
      * @return HTTP cookie handler
      */
     protected static AbstractCompletionHandler<List<Cookie>> getCookiesHandler() {
         /*Return all the cookies contained in HTTP server response*/
         return new AbstractCompletionHandler<List<Cookie>>() {
-            private final Logger LOGGER = LoggerFactory.getLogger("com.naxsoft.parsers.webPageParsers.CookieCompletionHandler");
-
             @Override
             public List<Cookie> onCompleted(Response response) {
-                LOGGER.info("Completed request to {}", response.request().url().toString());
+                log.info("Completed request to {}", response.request().url().toString());
                 return Collections.emptyList();
                 // return response.getCookies();
             }

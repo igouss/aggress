@@ -2,15 +2,14 @@ package com.naxsoft.commands;
 
 
 import com.naxsoft.storage.Persistent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * Delete all the rows from previous crawling
  */
+@Slf4j
 public class CleanDBCommand implements Command {
-    private final static Logger LOGGER = LoggerFactory.getLogger(CleanDBCommand.class);
-
     /**
      * Tables to purge
      */

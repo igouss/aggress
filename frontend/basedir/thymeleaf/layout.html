@@ -4,10 +4,10 @@
 <head>
     <title>com.naxsoft.Aggress</title>
     <meta charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="stylesheet" href="css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="css/application.css"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="css/application.css" rel="stylesheet"/>
     <!--/*
     not sure of this really makes page look better
     <link rel="stylesheet" href="css/bootstrap-theme.min.css" />
@@ -21,7 +21,7 @@
               integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous"/>
     */-->
     <!--/* <link rel="stylesheet" type="text/css" href="css/application.css"/> */-->
-    <link rel="icon" type="image/x-icon" href="img/favicon.ico"/>
+    <link href="img/favicon.ico" rel="icon" type="image/x-icon"/>
 </head>
 
 
@@ -37,17 +37,17 @@
             <!--/* TODO use form when JS is disabled? */-->
             <div class="form-group">
                 <div class="input-group">
-                    <input id="searchInput" type="search" class="form-control" placeholder="Search for..."/>
-                        <span class="input-group-btn">
+                    <input class="form-control" id="searchInput" placeholder="Search for..." type="search"/>
+                    <span class="input-group-btn">
                             <button class="btn btn-default" id="searchBtn" type="button">Go!</button>
                         </span>
                 </div>
             </div>
             <div>
                 <fieldset>
-                    <label for="category" class="sr-only">Select category</label>
+                    <label class="sr-only" for="category">Select category</label>
                     <select class="form-control" id="category">
-                        <option value="all" selected="selected">All Categories</option>
+                        <option selected="selected" value="all">All Categories</option>
                         <option value="firearm">Firearms</option>
                         <option value="optic">Optics</option>
                         <option value="ammo">Ammo</option>
@@ -72,7 +72,7 @@
 </div>
 
 <!--/* Hook-up event handlers */-->
-<script src="js/require.js" data-main="js/application.js"></script>
+<script data-main="js/application.js" src="js/require.js"></script>
 
 <!--/* Navigation template */-->
 <script id="navTemplate" type="text/x-tmpl-mustache">
@@ -86,6 +86,7 @@
                 </li>
             </ul>
         </nav>
+
 
 </script>
 
@@ -109,6 +110,7 @@
             </p>
           </div>
         </div>
+
 </script>
 </body>
 </html>

@@ -7,7 +7,7 @@ volumes:
 services:
   frontend:
     labels:
-        com.naxsoft.frontend.description: "Web interface"
+      com.naxsoft.frontend.description: "Web interface"
     container_name: frontend
     build: frontend
     ports:
@@ -22,7 +22,7 @@ services:
 
   crawler:
     labels:
-        com.naxsoft.crawler.description: "Web crawler and indexer"
+      com.naxsoft.crawler.description: "Web crawler and indexer"
     container_name: crawler
     build: crawler
     ports:
@@ -39,18 +39,18 @@ services:
 
   elasticsearch:
     labels:
-        com.naxsoft.elasticsearch.description: "Search engine"
+      com.naxsoft.elasticsearch.description: "Search engine"
     container_name: elasticsearch
     build: elasticsearch
     env_file:
       - common.env
     expose:
-     - "9200"
-     - "9300"
+      - "9200"
+      - "9300"
 
   redis:
     labels:
-        com.naxsoft.redis.description: "Data storage server"
+      com.naxsoft.redis.description: "Data storage server"
     container_name: redis
     command: redis-server --appendonly yes
     build: redis

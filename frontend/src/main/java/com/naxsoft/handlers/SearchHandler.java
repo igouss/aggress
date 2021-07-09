@@ -3,6 +3,7 @@ package com.naxsoft.handlers;
 import com.naxsoft.utils.ElasticEscape;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -12,13 +13,11 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
+@Slf4j
 public class SearchHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchHandler.class);
     private static final String[] includeFields = new String[]{
             "url",
             "productImage",
@@ -34,7 +33,7 @@ public class SearchHandler {
     }
 
     private static String searchResultToJson(SearchResponse searchResponse) {
-        LOGGER.debug(searchResponse.toString());
+        log.debug(searchResponse.toString());
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         StringBuilder builder = new StringBuilder();
         int length = searchHits.length;
@@ -47,7 +46,7 @@ public class SearchHandler {
                 builder.append(searchHits[i].getSourceAsString());
 
             }
-            LOGGER.info("Score = {}", searchHits[i].getScore());
+            log.info("Score = {}", searchHits[i].getScore());
         }
 
         builder.append("]");
@@ -69,7 +68,7 @@ public class SearchHandler {
         try {
             ElasticEscape.escape(param, sw);
         } catch (Exception e) {
-            LOGGER.error("Failed to escape param {}", param);
+            log.error("Failed to escape param {}", param);
         }
         return sw.toString();
     }
@@ -86,7 +85,7 @@ public class SearchHandler {
             boolQueryBuilder.filter(QueryBuilders.termQuery("category", category));
         }
 
-        LOGGER.info("{}", boolQueryBuilder);
+        log.info("{}", boolQueryBuilder);
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product" + indexSuffix);
         searchRequestBuilder.setQuery(boolQueryBuilder);
@@ -102,7 +101,7 @@ public class SearchHandler {
         String searchKey = getSearchKey(routingContext, "searchKey");
         String categoryKey = getSearchKey(routingContext, "categoryKey");
         int startFrom = getStartFrom(routingContext);
-        LOGGER.info("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
+        log.info("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
 
         ActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
         SearchResponse searchResponse = future.actionGet();

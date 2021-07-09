@@ -8,13 +8,12 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
@@ -28,9 +27,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * HTTP frontend to search engine
  */
+@Slf4j
 public class Server {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
-
     /**
      * Start server app
      *
@@ -77,7 +75,7 @@ public class Server {
      */
     private static TransportClient getTransportClient() throws UnknownHostException, PropertyNotFoundException {
         String elasticHost = AppProperties.getProperty("elasticHost");
-        int elasticPort = Integer.valueOf(AppProperties.getProperty("elasticPort"));
+        int elasticPort = Integer.parseInt(AppProperties.getProperty("elasticPort"));
 
         Settings settings = Settings.builder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         TransportClient client = new PreBuiltTransportClient(settings)
@@ -85,10 +83,10 @@ public class Server {
 
 
         while (true) {
-            LOGGER.info("Waiting for elastic to connect to a node {}:{}...", elasticHost, elasticPort);
+            log.info("Waiting for elastic to connect to a node {}:{}...", elasticHost, elasticPort);
             List<DiscoveryNode> discoveryNodes = client.connectedNodes();
             if (0 != discoveryNodes.size()) {
-                LOGGER.info("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
+                log.info("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
                     if (a.isEmpty()) {
                         return b;
                     } else {
@@ -100,7 +98,7 @@ public class Server {
             try {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
             } catch (InterruptedException e) {
-                LOGGER.error("Thread sleep failed", e);
+                log.error("Thread sleep failed", e);
             }
         }
         return client;

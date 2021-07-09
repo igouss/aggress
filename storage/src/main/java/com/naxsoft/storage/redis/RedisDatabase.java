@@ -15,17 +15,16 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.storage.Persistent;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Singleton
 public class RedisDatabase implements Persistent {
-    private final static Logger LOGGER = LoggerFactory.getLogger(RedisDatabase.class);
     private static final int BATCH_SIZE = 20;
 
     private final ClientResources res;
@@ -57,7 +56,7 @@ public class RedisDatabase implements Persistent {
         String destination = "WebPageEntity." + webPageEntity.getType() + ".parsed";
         String member = Encoder.encode(webPageEntity);
         return connection.sync().sadd(destination, member);
-        //.doOnNext(res -> LOGGER.info("Moved rc={} from {} to {} element {}...", res, source, destination, member.substring(0, 50)));
+        //.doOnNext(res -> log.info("Moved rc={} from {} to {} element {}...", res, source, destination, member.substring(0, 50)));
     }
 
     @Override
@@ -76,7 +75,7 @@ public class RedisDatabase implements Persistent {
     public Long addWebPageEntry(WebPageEntity webPageEntity) {
         String key = "WebPageEntity" + "." + webPageEntity.getType();
         String member = Encoder.encode(webPageEntity);
-        LOGGER.trace("adding key {} val {}", key, webPageEntity.getUrl());
+        log.trace("adding key {} val {}", key, webPageEntity.getUrl());
         return connection.sync().sadd(key, member);
     }
 
@@ -98,7 +97,7 @@ public class RedisDatabase implements Persistent {
 
     @Override
     public List<WebPageEntity> getUnparsedByType(String type) {
-        LOGGER.info("getUnparsedByType {}", type);
+        log.info("getUnparsedByType {}", type);
         List<WebPageEntity> result = new ArrayList<>();
         Set<String> spop = connection.sync().spop("WebPageEntity." + type, BATCH_SIZE);
         for (String page : spop) {

@@ -1,23 +1,16 @@
 package com.naxsoft.commands;
 
 import com.naxsoft.storage.elasticsearch.Elastic;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Create Elasticsearch index
  */
+@Slf4j
+@RequiredArgsConstructor
 public class CreateESIndexCommand implements Command {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateESIndexCommand.class);
-
-    private Elastic elastic = null;
-
-    @Inject
-    public CreateESIndexCommand(Elastic elastic) {
-        this.elastic = elastic;
-    }
+    private final Elastic elastic;
 
     @Override
     public void setUp() throws CLIException {

@@ -2,10 +2,9 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,8 +13,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 class ProphetriverPawPageParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WestrifleProductRawParser.class);
     private static final Pattern pricePattern = Pattern.compile("\\$((\\d+|,)+\\.\\d+)");
     private static final Map<String, String> mapping = new HashMap<>();
 
@@ -36,7 +35,7 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
         if (matcher.find()) {
             return matcher.group(1).replace(",", "");
         } else {
-            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
+            log.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -49,17 +48,17 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
 
             ProductEntity product;
-            String productName = null;
-            String url = null;
-            String regularPrice = null;
+            String productName;
+            String url;
+            String regularPrice;
             String specialPrice = null;
             String productImage = null;
-            String description = null;
+            String description;
             Map<String, String> attr = new HashMap<>();
-            String[] category = null;
+            String[] category;
 
             productName = document.select(".BlockContent > h2").text();
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            log.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
             category = getNormalizedCategories(document.select("#ProductBreadcrumb > ul > li:nth-child(2) > a").text());
 
 
@@ -77,7 +76,7 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
             product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
-            LOGGER.error("Failed to parse: {}", webPageEntity, e);
+            log.error("Failed to parse: {}", webPageEntity, e);
         }
         return result;
     }
@@ -86,7 +85,7 @@ class ProphetriverPawPageParser extends AbstractRawPageParser {
         if (mapping.containsKey(category)) {
             return mapping.get(category).split(",");
         }
-        LOGGER.warn("Unknown category: {}", category);
+        log.warn("Unknown category: {}", category);
         return new String[]{"misc"};
     }
 

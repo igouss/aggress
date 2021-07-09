@@ -1,84 +1,29 @@
 package com.naxsoft.entity;
 
-import com.naxsoft.utils.Compressor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Web page that can either be leaf (with produce data) or be used to find subpages
  */
+@Value
+@Slf4j
 public class WebPageEntity {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebPageEntity.class);
+    WebPageEntity parent;
+    String content;
+    String type;
+    String url;
+    String category;
 
-    private final WebPageEntity parent;
-    private final String content;
-    private final String type;
-    private final String url;
-    private final String category;
-
-    public WebPageEntity(WebPageEntity parent, String content, String type, String url, String category) {
-        this.parent = parent;
-        this.content = removeNonASCII(content);
-        this.type = type;
-        this.url = url;
-        this.category = category;
-    }
-
-
-    /**
-     * Remove all non-ascii values from text
-     *
-     * @param text Value to sanitize
-     * @return String with only ascii values present.
-     */
-    private static String removeNonASCII(String text) {
-        return text.replaceAll("[^\\x00-\\x7F]", "");
-    }
-
-    /**
-     * Get pages's HTML
-     */
-    public String getContent() {
-        String result = "";
-
-        if (null != this.content) {
-            try {
-                result = Compressor.decompress(this.content);
-            } catch (IOException e) {
-                LOGGER.error("Failed to decompress", e);
-            }
-        }
-        return result;
-    }
-
-    public String getType() {
-        return this.type;
-    }
-
-    public String getUrl() {
-        return this.url;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (null == o || getClass() != o.getClass()) return false;
-
-        WebPageEntity that = (WebPageEntity) o;
-
-        return type.equals(that.type) && url.equals(that.url);
-
-    }
-
-    public WebPageEntity getParent() {
-        return parent;
-    }
+//    /**
+//     * Remove all non-ascii values from text
+//     *
+//     * @param text Value to sanitize
+//     * @return String with only ascii values present.
+//     */
+//    private static String removeNonASCII(String text) {
+//        return text.replaceAll("[^\\x00-\\x7F]", "");
+//    }
 
     public String getHost() {
         String host = "noopWebPageParser";
@@ -160,22 +105,5 @@ public class WebPageEntity {
             host = "durhamoutdoors.ca";
         }
         return host;
-    }
-
-
-    @Override
-    public int hashCode() {
-        int result = type.hashCode();
-        result = 31 * result + url.hashCode();
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "WebPageEntity{" +
-                "type='" + type + '\'' +
-                ", url='" + url + '\'' +
-                ", category='" + category + '\'' +
-                '}';
     }
 }

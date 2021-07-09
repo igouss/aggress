@@ -1,37 +1,18 @@
 package com.naxsoft.http;
 
 import com.naxsoft.entity.WebPageEntity;
+import lombok.Value;
 import org.jsoup.nodes.Document;
 
+@Value
 public class DownloadResult {
-    private final WebPageEntity sourcePage;
-
-    private final Document document;
-
-    /**
-     * @param sourcePage Page that was requested
-     * @param document   Parsed HTML Page
-     */
-    public DownloadResult(WebPageEntity sourcePage, Document document) {
-        this.sourcePage = sourcePage;
-        this.document = document;
-    }
-
     /**
      * Requested page
-     *
-     * @return Requested page
      */
-    public WebPageEntity getSourcePage() {
-        return sourcePage;
-    }
 
+    WebPageEntity sourcePage;
     /**
      * Parsed result
-     *
-     * @return Parsed result
      */
-    public Document getDocument() {
-        return document;
-    }
+    Document document;
 }

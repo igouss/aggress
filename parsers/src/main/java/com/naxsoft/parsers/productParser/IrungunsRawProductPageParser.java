@@ -3,19 +3,17 @@ package com.naxsoft.parsers.productParser;
 import com.google.common.base.CaseFormat;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 class IrungunsRawProductPageParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IrungunsRawProductPageParser.class);
-
     private static final Map<String, String> mapping = new HashMap<>();
     private static final Pattern pricePattern = Pattern.compile("((\\d+|,)+\\.\\d+)");
 
@@ -40,7 +38,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
                 return Double.valueOf(matcher.group(1)).toString();
             }
         } else {
-            LOGGER.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
+            log.error("failed to parse price {}, page {}", price, webPageEntity.getUrl());
             return price;
         }
     }
@@ -72,7 +70,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
                 return result;
             }
 
-            LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
+            log.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             String manufacturer = document.select(".product-details__title .product__manufacturer").text();
             if (!manufacturer.isEmpty()) {
@@ -103,13 +101,13 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
                 }
             }
             if (category == null) {
-                LOGGER.warn("Category not found");
+                log.warn("Category not found");
             }
 
             product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
-            LOGGER.error("Failed to parse: {}", webPageEntity, e);
+            log.error("Failed to parse: {}", webPageEntity, e);
         }
         return result;
     }
@@ -118,7 +116,7 @@ class IrungunsRawProductPageParser extends AbstractRawPageParser {
         if (mapping.containsKey(category)) {
             return mapping.get(category).split(",");
         }
-        LOGGER.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
+        log.warn("Unknown category: {} url {}", webPageEntity.getCategory(), webPageEntity.getUrl());
         return new String[]{"misc"};
     }
 

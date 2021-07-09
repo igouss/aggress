@@ -8,11 +8,11 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
     <meta charset="utf-8">
     <title>Using API to Customize Dialog Windows &mdash; CKEditor Sample</title>
     <script src="../../../ckeditor.js"></script>
-    <link rel="stylesheet" href="../../../samples/old/sample.css">
-    <meta name="ckeditor-sample-name" content="Using the JavaScript API to customize dialog windows">
-    <meta name="ckeditor-sample-group" content="Advanced Samples">
-    <meta name="ckeditor-sample-description"
-          content="Using the dialog windows API to customize dialog windows without changing the original editor code.">
+    <link href="../../../samples/old/sample.css" rel="stylesheet">
+    <meta content="Using the JavaScript API to customize dialog windows" name="ckeditor-sample-name">
+    <meta content="Advanced Samples" name="ckeditor-sample-group">
+    <meta content="Using the dialog windows API to customize dialog windows without changing the original editor code."
+          name="ckeditor-sample-description">
     <style>
 
 		.cke_button__mybutton_icon
@@ -24,6 +24,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 		{
 			display: inline !important;
 		}
+
 
 
     </style>
@@ -133,6 +134,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 		};
 
 
+
     </script>
 </head>
 <body>
@@ -155,7 +157,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
     </p>
 </div>
 <p>A custom dialog is added to the editors using the <code>pluginsLoaded</code> event, from an external <a
-        target="_blank" href="assets/my_dialog.js">dialog definition file</a>:</p>
+        href="assets/my_dialog.js" target="_blank">dialog definition file</a>:</p>
 <ol>
     <li><strong>Creating a custom dialog window</strong> &ndash; "My Dialog" dialog window opened with the "My Dialog"
         toolbar button.
@@ -167,6 +169,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 <script>
 		// Replace the <textarea id="editor1"> with an CKEditor instance.
 		CKEDITOR.replace( 'editor1', config );
+
 
 </script>
 <p>The below editor modify the dialog definition of the above added dialog using the <code>dialogDefinition</code>
@@ -190,6 +193,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 
 		// Replace the <textarea id="editor1"> with an CKEditor instance.
 		CKEDITOR.replace( 'editor2', config );
+
 
 
 </script>

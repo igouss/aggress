@@ -2,19 +2,17 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 class NoopParser extends AbstractRawPageParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NoopParser.class);
-
     @Override
     public Set<ProductEntity> parse(WebPageEntity webPage) {
         Set<ProductEntity> result = new HashSet<>(0);
-        LOGGER.warn("Why are we here?! page = " + webPage);
+        log.warn("Why are we here?! page = " + webPage);
         return result;
     }
 
