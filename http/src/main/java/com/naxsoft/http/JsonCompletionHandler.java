@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.naxsoft.entity.WebPageEntity;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,12 @@ public class JsonCompletionHandler extends AbstractCompletionHandler<JsonResult>
     public JsonResult onCompleted(Response response) {
         LOGGER.info("Completed request to {}", response.request().url().toString());
 
-        Map<String, List<Map<String, String>>> r = new Gson().fromJson(new BufferedReader(new InputStreamReader(response.body().byteStream())), TYPE_TOKEN.getType());
-        return new JsonResult(source, r);
+        ResponseBody responseBody = response.body();
+        if (responseBody != null) {
+            Map<String, List<Map<String, String>>> r = new Gson().fromJson(new BufferedReader(new InputStreamReader(responseBody.byteStream())), TYPE_TOKEN.getType());
+            return new JsonResult(source, r);
+        } else {
+            throw new RuntimeException("Failed to parse empty response");
+        }
     }
 }

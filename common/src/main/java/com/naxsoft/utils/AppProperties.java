@@ -44,7 +44,9 @@ public class AppProperties {
             try {
                 LOGGER.debug("Loading " + deploymentConfigFile);
                 InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream(deploymentConfigFile);
-                if (resourceAsStream.available() <= 0) {
+                if (resourceAsStream == null) {
+                    throw new RuntimeException("Failed to load deploymentConfigFile");
+                } else if (resourceAsStream.available() <= 0) {
                     LOGGER.debug("config is missing or empty does not exist {}", deploymentConfigFileLocation);
                 } else {
                     PROPERTIES.load(resourceAsStream);

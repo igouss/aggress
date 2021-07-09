@@ -5,7 +5,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -50,7 +50,7 @@ public class Compressor {
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
                 GZIPInputStream zi = new GZIPInputStream(byteArrayInputStream);
         ) {
-            return IOUtils.toString(zi, Charset.forName("UTF-8"));
+            return IOUtils.toString(zi, StandardCharsets.UTF_8);
         }
     }
 }

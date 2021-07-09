@@ -2,13 +2,10 @@ package com.naxsoft.parsingService;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.storage.Persistent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class ProductService {
-    private final static Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
     private final Persistent database;
 
     public ProductService(Persistent database) {

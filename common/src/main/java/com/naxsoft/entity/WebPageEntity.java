@@ -12,19 +12,15 @@ import java.io.IOException;
 public class WebPageEntity {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageEntity.class);
 
-    private transient WebPageEntity parent;
-    private String content;
-    private String type;
-    private String url;
-    private String category;
+    private final WebPageEntity parent;
+    private final String content;
+    private final String type;
+    private final String url;
+    private final String category;
 
     public WebPageEntity(WebPageEntity parent, String content, String type, String url, String category) {
         this.parent = parent;
-        try {
-            this.content = Compressor.compress(removeNonASCII(content));
-        } catch (IOException e) {
-            this.content = removeNonASCII(content);
-        }
+        this.content = removeNonASCII(content);
         this.type = type;
         this.url = url;
         this.category = category;
@@ -100,8 +96,6 @@ public class WebPageEntity {
             host = "corwin-arms.com";
         } else if (url.contains("crafm.com")) {
             host = "crafm.com";
-        } else if (url.contains("ctcsupplies.ca")) {
-            host = "ctcsupplies.ca";
         } else if (url.contains("ctcsupplies.ca")) {
             host = "ctcsupplies.ca";
         } else if (url.contains("dantesports.com")) {

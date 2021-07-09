@@ -5,13 +5,11 @@ import org.junit.experimental.max.MaxCore;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
-import org.junit.runner.Result;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,7 +21,7 @@ import static java.lang.System.out;
 public class TestSuite {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestSuite.class);
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Path maxCorePath = Paths.get("", "maxCore").toAbsolutePath();
         File file = maxCorePath.toFile();
         MaxCore maxCore = MaxCore.storedLocally(file);
