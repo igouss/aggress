@@ -13,27 +13,19 @@ import com.naxsoft.encoders.WebPageEntityEncoder;
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.storage.Persistent;
-import com.naxsoft.utils.AppProperties;
-import com.naxsoft.utils.PropertyNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Slf4j
-@Singleton
 public class RedisDatabase implements Persistent {
     private static final int BATCH_SIZE = 20;
 
     private final ClientResources res;
     private final RedisClient redisClient;
     private final StatefulRedisConnection<String, String> connection;
-
-    public RedisDatabase() throws PropertyNotFoundException {
-        this(AppProperties.getProperty("redisHost"), Integer.parseInt(AppProperties.getProperty("redisPort")));
-    }
 
     private RedisDatabase(String host, int port) {
         res = DefaultClientResources
