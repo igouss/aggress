@@ -1,6 +1,5 @@
 package com.naxsoft;
 
-import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.commands.*;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.modules.*;
@@ -17,7 +16,6 @@ import javax.inject.Singleton;
         RedisModule.class
         , HttpClientModule.class
         , ElasticModule.class
-        , MetricsRegistryModule.class
         , WebPageServiceModule.class
         , ProductServiceModule.class
         , WebPageParserFactoryModule.class
@@ -36,8 +34,6 @@ public interface ApplicationComponent {
     WebPageParserFactory getWebPageParserFactory();
 
     ProductParserFactory getProductParserFactory();
-
-    MetricRegistry getMetricRegistry();
 
     CleanDBCommand getCleanDbCommand();
 

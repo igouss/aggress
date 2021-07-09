@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 
-@Module(includes = {MetricsRegistryModule.class})
+@Module()
 public class HttpClientModule {
     private final static Logger LOGGER = LoggerFactory.getLogger(HttpClientModule.class);
 

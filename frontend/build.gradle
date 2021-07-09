@@ -1,61 +1,30 @@
 buildscript {
-    ext.kotlin_version = kotlinVersion
     repositories {
         mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
 
 dependencies {
-    compile "ch.qos.logback:logback-core:$logbackVersion"
-    compile "ch.qos.logback:logback-classic:$logbackVersion"
+    implementation "ch.qos.logback:logback-core:$logbackVersion"
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
 
-    testCompile "junit:junit:$junitVersion"
+    testImplementation "junit:junit:$junitVersion"
 
-    compile("org.elasticsearch.client:transport:$elasticTransportVersion") {
+    implementation("org.elasticsearch.client:transport:$elasticTransportVersion") {
         exclude group: 'org.elasticsearch.plugin', module: 'transport-netty3-client'
     }
 
-    compile "org.apache.logging.log4j:log4j-to-slf4j:$slf4jVersion"
+    implementation 'org.slf4j:slf4j-api:1.7.31'
 
-    compile "com.vividsolutions:jts:$jtsVersion"
+    implementation "com.vividsolutions:jts:$jtsVersion"
 
-    compile "org.thymeleaf:thymeleaf:$thymeleafVersion"
+    implementation "org.thymeleaf:thymeleaf:$thymeleafVersion"
 
-    compile "io.vertx:vertx-core:$vertxVersion"
-    compile "io.vertx:vertx-web:$vertxVersion"
+    implementation "io.vertx:vertx-core:$vertxVersion"
+    implementation "io.vertx:vertx-web:$vertxVersion"
 
-    compile project(':common')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-}
-
-task copyDepsToDocker(type: Copy) {
-    description = "Copy all dependencies to docker/frontend"
-    from configurations.compile
-    into "../docker/frontend/deps"
-}
-
-task copyAppToDocker(type: Copy) {
-    description = "Copy app to docker/frontend"
-    dependsOn jar
-    from("$buildDir/libs") {
-        include "frontend*.jar"
-    }
-    into("../docker/frontend/app")
-}
-
-task copyBaseDir(type: Copy) {
-    description = "Copy basedir to docker/frontend/basedir"
-    from "basedir"
-    into "../docker/frontend/basedir"
-}
-
-task dockerPublish() {
-    description = "Copy app and all dependencies to docker/frontend"
-    dependsOn copyDepsToDocker, copyAppToDocker, copyBaseDir
+    implementation project(':common')
 }
 
 repositories {

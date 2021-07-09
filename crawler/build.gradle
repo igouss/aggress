@@ -1,60 +1,37 @@
 buildscript {
-    ext.kotlin_version = kotlinVersion
     repositories {
         mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
 plugins {
     id 'java'
     id 'net.ltgt.apt-idea' version "0.15"
+//    id 'com.autonomousapps.dependency-analysis' version "0.74.0"
 }
 
 /*
 https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
-    compile "org.jsoup:jsoup:$jsoupVersion"
+    testImplementation "junit:junit:$junitVersion"
+    implementation "net.sf.jopt-simple:jopt-simple:$joptVersion"
+    implementation 'org.slf4j:slf4j-api:1.7.31'
+    testImplementation "org.reflections:reflections:$reflectionsVersion"
 
-//    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.0-RC3'
-    compile "io.reactivex:rxjava:$rxjavaVersion"
+//
+//    compile "net.ltgt.gradle:gradle-apt-plugin:$gradleAptPluginVersion"
+//    compile "com.github.vladimir-bukhtoyarov:bucket4j-core:$bucket4jVersion"
 
-    compile "ch.qos.logback:logback-core:$logbackVersion"
-    compile "ch.qos.logback:logback-classic:$logbackVersion"
-
-    compile "org.reflections:reflections:$reflectionsVersion"
-    compile "io.dropwizard.metrics:metrics-core:$metricsVersion"
-    compile "org.apache.commons:commons-collections4:$commonsCollections4Version"
-    compile "com.google.code.gson:gson:$gsonVersion"
-
-    compile "com.squareup.okhttp3:okhttp:$okhttpVersion"
-    compile "com.squareup.okhttp3:okhttp-urlconnection:$okhttpVersion"
-
-    testCompile "junit:junit:$junitVersion"
-    compile "net.sf.jopt-simple:jopt-simple:$joptVersion"
-
-    compile "net.ltgt.gradle:gradle-apt-plugin:$gradleAptPluginVersion"
-    compile "com.github.vladimir-bukhtoyarov:bucket4j-core:$bucket4jVersion"
-
-
-//    compile "com.github.davidmoten:rxjava-slf4j:0.6.2" // https://github.com/davidmoten/rxjava-slf4j
-//    compile "com.github.davidmoten:rxjava-extras:0.7.9.24" // https://github.com/davidmoten/rxjava-extras
-
-    compile project(':common')
-    compile project(':storage')
-    compile project(':http')
-    compile project(':parsers')
-    compile "javax.validation:validation-api:$validationApiVersion"
-    compile "javax.inject:javax.inject:$javaxInjectVersion"
-
-    compile  "com.google.dagger:dagger:$daggerVersion"
+    implementation project(':common')
+    implementation project(':storage')
+    implementation project(':http')
+    implementation project(':parsers')
+    implementation "javax.validation:validation-api:$validationApiVersion"
+//    compile "javax.inject:javax.inject:$javaxInjectVersion"
+//
+    implementation  "com.google.dagger:dagger:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
-
-    compile fileTree(dir: "libs", include: "*.jar")
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 }
 
 javadoc {
@@ -74,43 +51,6 @@ test {
 //    useTestNG()
 }
 
-task integrationTest(type: Test) {
-    dependsOn test
-    include "**/IntegrationTest*.*"
-}
-
-
-test.onlyIf {
-    description = "gradle -Dcrawler.test=true"
-    System.properties["crawler.test"] == "true"
-}
-
-task copyDepsToDocker(type: Copy) {
-    description = "Copy all dependencies to docker/crawler"
-    from configurations.compile
-    into "../docker/crawler/deps"
-}
-
-
-task copyAppToDocker(type: Copy) {
-    description = "Copy app to docker/crawler"
-    dependsOn jar
-    from("$buildDir/libs") {
-        include "crawler*.jar"
-    }
-    into("../docker/crawler/app")
-}
-
-task copyCetrificatesToDocker(type: Copy) {
-    description = "Copy app to docker/crawler"
-    from("src/main/resources/startssl-java-master")
-    into("../docker/crawler/cert")
-}
-
-task dockerPublish() {
-    description = "Copy app and all dependencies to docker/crawler"
-    dependsOn copyDepsToDocker, copyAppToDocker, copyCetrificatesToDocker
-}
 
 repositories {
     mavenCentral()

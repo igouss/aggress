@@ -1,10 +1,6 @@
 buildscript {
-    ext.kotlin_version = kotlinVersion
     repositories {
         mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
@@ -25,19 +21,17 @@ dependencies {
 
     implementation "ch.qos.logback:logback-core:$logbackVersion"
     implementation "ch.qos.logback:logback-classic:$logbackVersion"
-    implementation "org.apache.logging.log4j:log4j-to-slf4j:$slf4jVersion"
+    implementation 'org.slf4j:slf4j-api:1.7.31'
 
     api "biz.paluch.redis:lettuce:$lettuceVersion"
 
     implementation "commons-io:commons-io:$commonsIoVersion"
 
-    testCompile "junit:junit:$junitVersion"
+    testImplementation "junit:junit:$junitVersion"
 
     implementation("org.elasticsearch.client:transport:$elasticTransportVersion") {
         exclude group: 'org.elasticsearch.plugin', module: 'transport-netty3-client'
     }
-
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 }
 
 repositories {

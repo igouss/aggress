@@ -1,20 +1,18 @@
 package com.naxsoft.http;
 
 import com.naxsoft.entity.WebPageEntity;
-import org.jetbrains.annotations.Nullable;
 import org.jsoup.nodes.Document;
 
 public class DownloadResult {
     private final WebPageEntity sourcePage;
 
-    @Nullable
     private final Document document;
 
     /**
      * @param sourcePage Page that was requested
      * @param document   Parsed HTML Page
      */
-    public DownloadResult(WebPageEntity sourcePage, @Nullable Document document) {
+    public DownloadResult(WebPageEntity sourcePage, Document document) {
         this.sourcePage = sourcePage;
         this.document = document;
     }
@@ -33,7 +31,6 @@ public class DownloadResult {
      *
      * @return Parsed result
      */
-    @Nullable
     public Document getDocument() {
         return document;
     }

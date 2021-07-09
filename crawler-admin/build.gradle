@@ -1,53 +1,23 @@
 buildscript {
-    ext.kotlin_version = kotlinVersion
     repositories {
         mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
 dependencies {
-    compile "ch.qos.logback:logback-core:$logbackVersion"
-    compile "ch.qos.logback:logback-classic:$logbackVersion"
+    implementation "ch.qos.logback:logback-core:$logbackVersion"
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
 
-    testCompile "junit:junit:$junitVersion"
+    testImplementation "junit:junit:$junitVersion"
 
-    compile "io.vertx:vertx-core:$vertxVersion"
-    compile "io.vertx:vertx-web:$vertxVersion"
-    compile "io.vertx:vertx-web-templ-thymeleaf:$vertxVersion"
+    implementation "io.vertx:vertx-core:$vertxVersion"
+    implementation "io.vertx:vertx-web:$vertxVersion"
+    implementation "io.vertx:vertx-web-templ-thymeleaf:$vertxVersion"
 
-    compile project(':crawler')
-    compile project(':common')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    implementation project(':crawler')
+    implementation project(':common')
 }
 
-task copyDepsToDocker(type: Copy) {
-    description = "Copy all dependencies to docker/crawler-admin"
-    from configurations.compile
-    into "../docker/crawler-admin/deps"
-}
-
-task copyAppToDocker(type: Copy) {
-    description = "Copy app to docker/crawler-admin"
-    dependsOn jar
-    from("$buildDir/libs") {
-        include "crawler-admin*.jar"
-    }
-    into("../docker/crawler-admin/app")
-}
-
-task copyBaseDir(type: Copy) {
-    description = "Copy basedir to docker/crawler-admin/basedir"
-    from "basedir"
-    into "../docker/crawler-admin/basedir"
-}
-
-task dockerPublish() {
-    description = "Copy app and all dependencies to docker/crawler-admin"
-    dependsOn copyDepsToDocker, copyAppToDocker, copyBaseDir
-}
 repositories {
     mavenCentral()
 }

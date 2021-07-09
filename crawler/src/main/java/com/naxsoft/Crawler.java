@@ -1,6 +1,5 @@
 package com.naxsoft;
 
-import ch.qos.logback.classic.LoggerContext;
 import com.naxsoft.commands.*;
 import joptsimple.OptionSet;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ public class Crawler {
         ApplicationComponent applicationComponent = applicationBuilder.build();
 
         try {
-            final OptionSet options = CommandLineParserKt.parse(args);
+            final OptionSet options = CommandLineParser.parse(args);
             if (!options.hasOptions() || options.has("help")) {
                 showHelp();
                 return;
@@ -110,8 +109,6 @@ public class Crawler {
                     applicationComponent.getHttpClient().close();
                     applicationComponent.getElastic().close();
                     LOGGER.info("Crawler stopped...");
-
-                    ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
