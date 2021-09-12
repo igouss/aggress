@@ -1,38 +1,10 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
-
 dependencies {
-    implementation "ch.qos.logback:logback-core:$logbackVersion"
-    implementation "ch.qos.logback:logback-classic:$logbackVersion"
+    implementation(libs.bundles.logging)
+    implementation(libs.bundles.vertxWeb)
+    implementation(libs.elasticsearchClientTransport)
+    implementation(libs.jts)
+    implementation(project(':common'))
+    implementation(project(':crawler'))
 
-    testImplementation "junit:junit:$junitVersion"
-
-    implementation("org.elasticsearch.client:transport:$elasticTransportVersion") {
-        exclude group: 'org.elasticsearch.plugin', module: 'transport-netty3-client'
-    }
-
-    implementation 'org.slf4j:slf4j-api:1.7.31'
-
-    implementation "com.vividsolutions:jts:$jtsVersion"
-
-    implementation "org.thymeleaf:thymeleaf:$thymeleafVersion"
-
-    implementation "io.vertx:vertx-core:$vertxVersion"
-    implementation "io.vertx:vertx-web:$vertxVersion"
-
-    implementation project(':common')
-
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-
-    testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
-}
-
-repositories {
-    mavenCentral()
+    testImplementation(libs.bundles.testing)
 }

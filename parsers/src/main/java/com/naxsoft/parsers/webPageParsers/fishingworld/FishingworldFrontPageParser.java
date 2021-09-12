@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.fishingworld;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -9,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -65,12 +63,14 @@ class FishingworldFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/65-accessories", "misc"));
         webPageEntities.add(create(parent, "https://fishingworld.ca/hunting/205-pellet-gun", "firearm"));
 
-        return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from)
-                .toList().toBlocking().single();
+        return null;
+
+//        return Observable.from(webPageEntities)
+//                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+//                .flatMap(Observable::from)
+//                .map(this::parseDocument)
+//                .flatMap(Observable::from)
+//                .toList().toBlocking().single();
     }
 
     @Override

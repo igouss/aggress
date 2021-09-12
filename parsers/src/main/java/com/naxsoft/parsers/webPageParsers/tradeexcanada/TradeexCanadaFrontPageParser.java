@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.tradeexcanada;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -10,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -67,14 +65,15 @@ class TradeexCanadaFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create(parent, "https://www.tradeexcanada.com/products_list"));
-
-        return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from).toList().toBlocking().single();
+//        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
+//        webPageEntities.add(create(parent, "https://www.tradeexcanada.com/products_list"));
+//
+//        return Observable.from(webPageEntities)
+//                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+//                .flatMap(Observable::from)
+//                .map(this::parseDocument)
+//                .flatMap(Observable::from).toList().toBlocking().single();
+        return null;
     }
 
     @Override

@@ -1,17 +1,15 @@
 package com.naxsoft.utils;
 
 import com.naxsoft.AbstractTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class TestAppProperties extends AbstractTest {
     @Test
     public void canReadProperties() {
-        try {
-            Assert.assertTrue(!AppProperties.getProperty("canadiangunnutzLogin").isEmpty());
-        } catch (PropertyNotFoundException e) {
-            e.printStackTrace();
-            Assert.fail("Unexpected exception");
-        }
+        String canadiangunnutzLogin = assertDoesNotThrow(() -> AppProperties.getProperty("canadiangunnutzLogin"));
+        assertFalse(canadiangunnutzLogin.isEmpty());
     }
 }

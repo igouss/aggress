@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.ammosupply;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -10,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -39,11 +37,12 @@ public class AmmoSupplyFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "frontPage", "https://www.ammosupply.ca/shop//", "ammo");
-        return Observable.from(client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .map(this::parseDocument)
-                .flatMap(Observable::from)
-                .toList().toBlocking().single();
+//        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "frontPage", "https://www.ammosupply.ca/shop//", "ammo");
+//        return Observable.from(client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+//                .map(this::parseDocument)
+//                .flatMap(Observable::from)
+//                .toList().toBlocking().single();
+        return null;
     }
 
     @Override

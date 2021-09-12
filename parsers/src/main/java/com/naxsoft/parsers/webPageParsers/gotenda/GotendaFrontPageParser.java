@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.gotenda;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -10,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -58,14 +56,15 @@ class GotendaFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity parent) {
-        return Observable.from(client.get(parent.getUrl(), new DocumentCompletionHandler(parent)))
-                .map(this::parseFrontPage)
-                .flatMap(Observable::from)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseSubPages)
-                .flatMap(Observable::from)
-                .toList().toBlocking().single();
+//        return Observable.from(client.get(parent.getUrl(), new DocumentCompletionHandler(parent)))
+//                .map(this::parseFrontPage)
+//                .flatMap(Observable::from)
+//                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+//                .flatMap(Observable::from)
+//                .map(this::parseSubPages)
+//                .flatMap(Observable::from)
+//                .toList().toBlocking().single();
+        return null;
     }
 
     @Override

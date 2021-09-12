@@ -1,23 +1,8 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
 dependencies {
-    implementation "ch.qos.logback:logback-core:$logbackVersion"
-    implementation "ch.qos.logback:logback-classic:$logbackVersion"
+    implementation(libs.bundles.logging)
+    implementation(libs.bundles.vertxWeb)
+    implementation(project(':common'))
+    implementation(project(':crawler'))
 
-    testImplementation "junit:junit:$junitVersion"
-
-    implementation "io.vertx:vertx-core:$vertxVersion"
-    implementation "io.vertx:vertx-web:$vertxVersion"
-    implementation "io.vertx:vertx-web-templ-thymeleaf:$vertxVersion"
-
-    implementation project(':crawler')
-    implementation project(':common')
-}
-
-repositories {
-    mavenCentral()
+    testImplementation(libs.bundles.testing)
 }

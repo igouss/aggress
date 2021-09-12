@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.frontierfirearms;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -9,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -57,18 +55,19 @@ class FrontierfirearmsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://frontierfirearms.ca/ammunition-reloading.html", "ammo"));
         webPageEntities.add(create(parent, "http://frontierfirearms.ca/shooting-accessories.html", "misc"));
         webPageEntities.add(create(parent, "http://frontierfirearms.ca/optics.html", "optic"));
-        return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .filter(downloadResult -> {
-                    if (downloadResult == null) {
-                        log.error("Failed to get download results");
-                        return false;
-                    }
-                    return true;
-                })
-                .map(this::parseDocument)
-                .flatMap(Observable::from).toList().toBlocking().single();
+//        return Observable.from(webPageEntities)
+//                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+//                .flatMap(Observable::from)
+//                .filter(downloadResult -> {
+//                    if (downloadResult == null) {
+//                        log.error("Failed to get download results");
+//                        return false;
+//                    }
+//                    return true;
+//                })
+//                .map(this::parseDocument)
+//                .flatMap(Observable::from).toList().toBlocking().single();
+        return null;
     }
 
     @Override

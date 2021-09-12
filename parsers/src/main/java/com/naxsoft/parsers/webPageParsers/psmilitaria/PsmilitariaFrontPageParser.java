@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import rx.Observable;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -42,26 +41,27 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity parent) {
-        log.info("Parsing psmilitaria front-page");
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/guns.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/collectmisc.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/marlin.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/savage.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/remington.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/winchester.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/hunting.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/modpistol.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/pistol.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/mosin.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/antiques.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/oldhunt.html", "firearm"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/ammo.html", "ammo"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/miscel.html", "misc"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/newitems.html", "firearm,misc"));
-        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/tools.html", "reload"));
-        return Observable.from(webPageEntities)
-                .toList().toBlocking().single();
+//        log.info("Parsing psmilitaria front-page");
+//        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/guns.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/collectmisc.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/marlin.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/savage.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/remington.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/winchester.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/hunting.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/modpistol.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/pistol.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/mosin.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/antiques.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/oldhunt.html", "firearm"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/ammo.html", "ammo"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/miscel.html", "misc"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/newitems.html", "firearm,misc"));
+//        webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/tools.html", "reload"));
+//        return Observable.from(webPageEntities)
+//                .toList().toBlocking().single();
+        return null;
     }
 
     @Override

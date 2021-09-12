@@ -5,11 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.naxsoft.entity.ProductEntity;
 
-import java.time.format.DateTimeFormatter;
-
 public class JsonEncoder {
     private final static Gson gson = new Gson();
-    private final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
 
     /**
      * Get JSON representation

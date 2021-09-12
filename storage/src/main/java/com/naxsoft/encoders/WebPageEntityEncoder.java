@@ -3,10 +3,6 @@ package com.naxsoft.encoders;
 import com.naxsoft.entity.WebPageEntity;
 import lombok.extern.slf4j.Slf4j;
 
-
-/**
- *
- */
 @Slf4j
 public class WebPageEntityEncoder extends Encoder {
     /**

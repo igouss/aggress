@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.sail;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -11,7 +10,6 @@ import okhttp3.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import rx.Observable;
 
 import java.util.*;
 
@@ -51,16 +49,17 @@ class SailsFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity parent) {
-        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
-        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/firearms", "firearm"));
-        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/firearm-accessories", "firearm"));
-        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/optics-and-shooting-accessories", "optic"));
-        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/ammunition", "ammo"));
-        return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from).toList().toBlocking().single();
+//        HashSet<WebPageEntity> webPageEntities = new HashSet<>();
+//        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/firearms", "firearm"));
+//        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/firearm-accessories", "firearm"));
+//        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/optics-and-shooting-accessories", "optic"));
+//        webPageEntities.add(create(parent, "http://www.sail.ca/en/hunting/ammunition", "ammo"));
+//        return Observable.from(webPageEntities)
+//                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+//                .flatMap(Observable::from)
+//                .map(this::parseDocument)
+//                .flatMap(Observable::from).toList().toBlocking().single();
+        return null;
     }
 
     @Override

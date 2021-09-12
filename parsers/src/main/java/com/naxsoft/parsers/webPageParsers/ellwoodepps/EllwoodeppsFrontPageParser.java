@@ -1,14 +1,12 @@
 package com.naxsoft.parsers.webPageParsers.ellwoodepps;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -56,12 +54,13 @@ class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "https://ellwoodepps.com/hunting/accessories.html?product_sold=3175&limit=100", "accessories"));
         webPageEntities.add(create(parent, "https://ellwoodepps.com/hunting/firearms.html?product_sold=3175&limit=100", "firearm"));
 
-        return Observable.from(webPageEntities)
-                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from)
-                .toList().toBlocking().single();
+        return null;
+//        return Observable.from(webPageEntities)
+//                .map(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+//                .flatMap(Observable::from)
+//                .map(this::parseDocument)
+//                .flatMap(Observable::from)
+//                .toList().toBlocking().single();
     }
 
     @Override

@@ -2,12 +2,10 @@ package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.http.HttpClient;
-import com.naxsoft.http.PageDownloader;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Cookie;
-import rx.Observable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +36,10 @@ class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     @Override
     public List<WebPageEntity> parse(WebPageEntity webPage) {
         log.trace("Processing productPage {}", webPage.getUrl());
-        return Observable.from(PageDownloader.download(client, cookies, webPage, "productPageRaw"))
-                .toList().toBlocking().single();
+
+        return null;
+//        return Observable.from(PageDownloader.download(client, cookies, webPage, "productPageRaw"))
+//                .toList().toBlocking().single();
     }
 
     @Override

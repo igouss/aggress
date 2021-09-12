@@ -1,7 +1,6 @@
 package com.naxsoft.commands;
 
 interface Command {
-
     /**
      * Set up the command execution environment.
      */

@@ -2,15 +2,15 @@ package com.naxsoft.parsers.webPageParsers.grouseriver;
 
 import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.http.HttpClient;
-import com.naxsoft.http.JsonCompletionHandler;
 import com.naxsoft.http.JsonResult;
-import com.naxsoft.http.PageDownloader;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import rx.Observable;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,13 +31,14 @@ public class GrouseriverProductParser extends AbstractWebPageParser {
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        return Observable.from(client.get(webPageEntity.getUrl(), new JsonCompletionHandler(webPageEntity)))
-                .map(this::parseJson)
-                .flatMap(Observable::from)
-                .map(webPage -> PageDownloader.download(client, webPage, "productPageRaw"))
-                .filter(Objects::nonNull)
-                .flatMap(Observable::from)
-                .toList().toBlocking().single();
+//        return Observable.from(client.get(webPageEntity.getUrl(), new JsonCompletionHandler(webPageEntity)))
+//                .map(this::parseJson)
+//                .flatMap(Observable::from)
+//                .map(webPage -> PageDownloader.download(client, webPage, "productPageRaw"))
+//                .filter(Objects::nonNull)
+//                .flatMap(Observable::from)
+//                .toList().toBlocking().single();
+        return null;
     }
 
     @Override

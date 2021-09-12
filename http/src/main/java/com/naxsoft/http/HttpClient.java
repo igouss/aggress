@@ -49,7 +49,7 @@ public interface HttpClient extends AutoCloseable {
      * Perform an HTTP POST request
      *
      * @param url            Page address
-     * @param formParameters HTTP Form paramaters
+     * @param formParameters HTTP Form parameters
      * @param cookies        Request cookies
      */
     <R> CompletableFuture<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);

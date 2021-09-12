@@ -1,27 +1,9 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
 plugins {
-    id "java-library"
-    id "net.ltgt.apt" version "0.15"
+    id 'java-library'
 }
 
-/*
-https://docs.gradle.org/current/userguide/java_library_plugin.html
-*/
 dependencies {
-    implementation("org.slf4j:slf4j-api:1.7.25")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("com.google.code.gson:gson:$gsonVersion")
-    implementation("commons-io:commons-io:$commonsIoVersion")
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-
-    testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
-}
-repositories {
-    mavenCentral()
+    implementation(libs.bundles.logging)
+    implementation(libs.commonsIo)
+    implementation(libs.gson)
 }

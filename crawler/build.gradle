@@ -1,43 +1,21 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
 plugins {
     id 'java'
-    id 'net.ltgt.apt-idea' version "0.15"
-//    id 'com.autonomousapps.dependency-analysis' version "0.74.0"
 }
 
 /*
 https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
-    testImplementation "junit:junit:$junitVersion"
-    implementation "net.sf.jopt-simple:jopt-simple:$joptVersion"
-    implementation 'org.slf4j:slf4j-api:1.7.31'
-    testImplementation "org.reflections:reflections:$reflectionsVersion"
+    implementation(libs.bundles.logging)
+    implementation(libs.joptSimple)
+    implementation(libs.validationApi)
+    implementation(project(':common'))
+    implementation(project(':http'))
+    implementation(project(':parsers'))
+    implementation(project(':storage'))
 
-//
-//    compile "net.ltgt.gradle:gradle-apt-plugin:$gradleAptPluginVersion"
-//    compile "com.github.vladimir-bukhtoyarov:bucket4j-core:$bucket4jVersion"
-
-    implementation project(':common')
-    implementation project(':storage')
-    implementation project(':http')
-    implementation project(':parsers')
-    implementation "javax.validation:validation-api:$validationApiVersion"
-//    compile "javax.inject:javax.inject:$javaxInjectVersion"
-//
-    implementation "com.google.dagger:dagger:$daggerVersion"
-    annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
-
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-
-    testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testImplementation(libs.bundles.testing)
+    testImplementation(libs.reflections)
 }
 
 javadoc {
@@ -47,18 +25,13 @@ javadoc {
 }
 
 test {
-    testLogging.showStandardStreams = true;
-    testLogging.showStackTraces = true;
-    testLogging.showCauses = true;
-    testLogging.showExceptions = true;
+    testLogging.showStandardStreams = true
+    testLogging.showStackTraces = true
+    testLogging.showCauses = true
+    testLogging.showExceptions = true
     maxParallelForks = 5
     forkEvery = 50
     include "**/Test*.*"
 //    useTestNG()
-}
-
-
-repositories {
-    mavenCentral()
 }
 

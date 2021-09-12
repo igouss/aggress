@@ -1,16 +1,8 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
 plugins {
     id "java"
     id "idea"
-    id 'com.github.ben-manes.versions' version '0.17.0'
     id 'com.autonomousapps.dependency-analysis' version '0.74.0'
 }
-
 
 dependencies {
     implementation project(":common")
@@ -25,15 +17,7 @@ dependencies {
 allprojects {
     group "com.naxsoft"
     version "1.0-SNAPSHOT"
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://jcenter.bintray.com"
-        }
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
+
     gradle.projectsEvaluated {
         tasks.withType(JavaCompile) {
             options.compilerArgs << "-Xlint:all"
@@ -43,14 +27,24 @@ allprojects {
         options.incremental = true
     }
     apply plugin: 'java'
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-
     apply plugin: 'idea'
 
-}
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    repositories {
+        mavenCentral()
+    }
 
-repositories {
-    mavenCentral()
+    dependencies {
+        compileOnly libs.lombok
+        annotationProcessor libs.lombok
+        testCompileOnly libs.lombok
+        testAnnotationProcessor libs.lombok
+    }
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
 }
-

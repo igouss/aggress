@@ -23,10 +23,8 @@
     </appender>
 
 
-    <log name="org.hibernate" level="INFO"/>
     <log name="org.elasticsearch" level="INFO"/>
     <log name="io.netty" level="INFO"/>
-    <log name="org.hibernate.SQL" level="INFO"/>
     <log name="com.zaxxer.hikari" level="INFO"/>
     <log name="com.ning.http.client" level="INFO"/>
     <root level="DEBUG">

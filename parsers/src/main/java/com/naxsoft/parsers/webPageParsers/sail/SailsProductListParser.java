@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.sail;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -11,7 +10,6 @@ import okhttp3.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import rx.Observable;
 
 import java.util.*;
 
@@ -56,9 +54,10 @@ class SailsProductListParser extends AbstractWebPageParser {
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        return Observable.from(client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
-                .map(this::parseDocument)
-                .flatMap(Observable::from).toList().toBlocking().single();
+//        return Observable.from(client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
+//                .map(this::parseDocument)
+//                .flatMap(Observable::from).toList().toBlocking().single();
+        return null;
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import rx.Observable;
 
 import java.util.List;
 
@@ -16,9 +15,10 @@ class PsmilitariaProductListParser extends AbstractWebPageParser {
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, parent.getContent(), "productPage", parent.getUrl(), parent.getCategory());
-        return Observable.just(webPageEntity)
-                .toList().toBlocking().single();
+//        WebPageEntity webPageEntity = new WebPageEntity(parent, parent.getContent(), "productPage", parent.getUrl(), parent.getCategory());
+//        return Observable.just(webPageEntity)
+//                .toList().toBlocking().single();
+        return null;
     }
 
     @Override

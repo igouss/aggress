@@ -1,42 +1,17 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
 plugins {
     id "java-library"
-    id "net.ltgt.apt" version "0.15"
 }
 
-/*
-https://docs.gradle.org/current/userguide/java_library_plugin.html
-*/
 dependencies {
     api project(':common')
+    api libs.javaxInject
 
-    api "javax.inject:javax.inject:$javaxInjectVersion"
-    api "io.reactivex:rxjava:$rxjavaVersion"
-
-    implementation "com.google.code.gson:gson:$gsonVersion"
-    implementation "ch.qos.logback:logback-classic:$logbackVersion"
-    implementation 'org.slf4j:slf4j-api:1.7.31'
-    implementation "biz.paluch.redis:lettuce:$lettuceVersion"
-    implementation "commons-io:commons-io:$commonsIoVersion"
-    implementation("io.netty:netty-common:4.1.24.Final")
-    implementation("commons-codec:commons-codec:1.10")
-    implementation("org.elasticsearch:elasticsearch:6.2.4")
-
-    implementation("org.elasticsearch.client:transport:$elasticTransportVersion") {
-        exclude group: 'org.elasticsearch.plugin', module: 'transport-netty3-client'
-    }
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-
-    testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    implementation(libs.bundles.elasticsearch)
+    implementation(libs.bundles.logging)
+    implementation(libs.commonsCodec)
+    implementation(libs.commonsIo)
+    implementation(libs.gson)
+    implementation(libs.lettuce)
+    implementation(libs.nettyCommon)
 }
 
-repositories {
-    mavenCentral()
-}

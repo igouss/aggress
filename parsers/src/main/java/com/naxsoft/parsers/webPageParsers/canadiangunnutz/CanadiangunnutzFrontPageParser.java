@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.canadiangunnutz;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -11,7 +10,6 @@ import okhttp3.Cookie;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import rx.Observable;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -36,7 +34,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
     }
 
     private final HttpClient client;
-    private List<Cookie> cookies = null;
+    private final List<Cookie> cookies = null;
 
 //    private CanadiangunnutzFrontPageParser(HttpClient client) {
 //        Map<String, String> formParameters = new HashMap<>();
@@ -107,15 +105,16 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
 
     @Override
     public List<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        WebPageEntity page = new WebPageEntity(webPageEntity, "", "", "http://www.canadiangunnutz.com/forum/forum.php", "");
-        return Observable.from(client.get(page.getUrl(), cookies, new DocumentCompletionHandler(page)))
-                .map(this::parseDocument)
-                .flatMap(Observable::from)
-                .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument2)
-                .flatMap(Observable::from)
-                .toList().toBlocking().single();
+        return null;
+//        WebPageEntity page = new WebPageEntity(webPageEntity, "", "", "http://www.canadiangunnutz.com/forum/forum.php", "");
+//        return Observable.from(client.get(page.getUrl(), cookies, new DocumentCompletionHandler(page)))
+//                .map(this::parseDocument)
+//                .flatMap(Observable::from)
+//                .map(webPageEntity1 -> client.get(webPageEntity1.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))
+//                .flatMap(Observable::from)
+//                .map(this::parseDocument2)
+//                .flatMap(Observable::from)
+//                .toList().toBlocking().single();
     }
 
     @Override

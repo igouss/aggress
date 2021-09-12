@@ -4,7 +4,6 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -23,8 +22,9 @@ class MarstarFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=3", "ammo")); // ammo
         webPageEntities.add(create(parent, "http://www.marstar.ca/dynamic/category.jsp?catid=81526", "firearm")); // Firearms
 
-        return Observable.from(webPageEntities)
-                .toList().toBlocking().single();
+//        return Observable.from(webPageEntities)
+//                .toList().toBlocking().single();
+        return null;
     }
 
     @Override

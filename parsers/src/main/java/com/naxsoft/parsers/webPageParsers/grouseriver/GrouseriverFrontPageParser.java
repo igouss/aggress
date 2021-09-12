@@ -1,7 +1,6 @@
 package com.naxsoft.parsers.webPageParsers.grouseriver;
 
 import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.http.DocumentCompletionHandler;
 import com.naxsoft.http.DownloadResult;
 import com.naxsoft.http.HttpClient;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
@@ -10,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import rx.Observable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -50,12 +48,13 @@ public class GrouseriverFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.grouseriver.com/Firearms", "firearm"));
         webPageEntities.add(create(parent, "http://www.grouseriver.com/Optics", "optic"));
 
-        return Observable.from(webPageEntities)
-                .map(page -> client.get(page.getUrl(), new DocumentCompletionHandler(page)))
-                .flatMap(Observable::from)
-                .map(this::parseDocument)
-                .flatMap(Observable::from)
-                .toList().toBlocking().single();
+//        return Observable.from(webPageEntities)
+//                .map(page -> client.get(page.getUrl(), new DocumentCompletionHandler(page)))
+//                .flatMap(Observable::from)
+//                .map(this::parseDocument)
+//                .flatMap(Observable::from)
+//                .toList().toBlocking().single();
+        return null;
     }
 
     @Override
