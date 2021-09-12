@@ -1,0 +1,12 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation(libs.bundles.logging)
+    implementation(libs.commonsIo)
+    implementation(libs.gson)
+    implementation(libs.okhttp)
+    implementation(libs.jsoup)
+    implementation(project(':common'))
+}

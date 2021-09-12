@@ -15,8 +15,7 @@ dependencyResolutionManagement {
         create("libs") {
             version("bucket4jVersion", "4.0.1")
             version("buildScanPluginVersion", "1.13.4")
-            //  https://search.maven.org/artifact/commons-codec/commons-codec
-            version("commonsCodecVersion", "1.10")
+            version("commonsCodecVersion", "1.10") //  https://search.maven.org/artifact/commons-codec/commons-codec
             version("commonsCollections4Version", "4.1")
             version("commonsIoVersion", "2.6")
             version("daggerVersion", "2.16")
@@ -42,15 +41,18 @@ dependencyResolutionManagement {
             version("validationApiVersion", "2.0.1.Final")
             version("vertxVersion", "3.5.2")
             version("guavaVersion", "30.1.1-jre")
+            version("jansiVersion", "2.3.4")
 
             alias("commonsCodec").to("commons-codec", "commons-codec").versionRef("commonsCodecVersion")
             alias("commonsCollections4").to("org.apache.commons", "commons-collections4")
                 .versionRef("commonsCollections4Version")
             alias("commonsIo").to("commons-io", "commons-io").versionRef("commonsIoVersion")
+            alias("elasticsearch").to("org.elasticsearch", "elasticsearch").versionRef("elasticVersion")
             alias("elasticsearchClientTransport").to("org.elasticsearch.client", "transport")
                 .versionRef("elasticVersion")
-            alias("elasticsearch").to("org.elasticsearch", "elasticsearch").versionRef("elasticVersion")
             alias("gson").to("com.google.code.gson", "gson").versionRef("gsonVersion")
+            alias("guava").to("com.google.guava", "guava").versionRef("guavaVersion")
+            alias("jansi").to("org.fusesource.jansi", "jansi").versionRef("jansiVersion")
             alias("javaxInject").to("javax.inject", "javax.inject").versionRef("javaxInjectVersion")
             alias("joptSimple").to("net.sf.jopt-simple", "jopt-simple").versionRef("joptVersion")
             alias("jsoup").to("org.jsoup", "jsoup").versionRef("jsoupVersion")
@@ -67,11 +69,10 @@ dependencyResolutionManagement {
             alias("rxjava").to("io.reactivex", "rxjava").versionRef("rxjavaVersion")
             alias("slf4j").to("org.slf4j", "slf4j-api").versionRef("slf4jVersion")
             alias("thymeleaf").to("org.thymeleaf", "thymeleaf").versionRef("thymeleafVersion")
+            alias("validationApi").to("javax.validation", "validation-api").versionRef("validationApiVersion")
             alias("vertxCore").to("io.vertx", "vertx-core").versionRef("vertxVersion")
             alias("vertxWeb").to("io.vertx", "vertx-web").versionRef("vertxVersion")
             alias("vertxWebTemplThymeleaf").to("io.vertx", "vertx-web-templ-thymeleaf").versionRef("vertxVersion")
-            alias("validationApi").to("javax.validation", "validation-api").versionRef("validationApiVersion")
-            alias("guava").to("com.google.guava", "guava").versionRef("guavaVersion")
 
             bundle(
                 "logging", listOf(
@@ -108,6 +109,14 @@ dependencyResolutionManagement {
                 )
             )
         }
+    }
+}
+
+
+pluginManagement {
+    plugins {
+//        id("io.micronaut.application") version("2.0.4")
+//        id("io.micronaut.library") version("2.0.4")
     }
 }
 

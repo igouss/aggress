@@ -1,119 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xmlns="http://ch.qos.logback/xml/ns/logback"
-               xsi:schemaLocation="http://ch.qos.logback/xml/ns/logback https://raw.githubusercontent.com/enricopulatzo/logback-XSD/master/src/main/xsd/logback.xsd">
+<configuration>
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <!-- encoders are assigned the type
-             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-    </appender>
-
-    <appender name="APP-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR:-logs}/app.log</file>
-        <append>true</append>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_DIR:-logs}/app-%d{yyyy-MM-dd}.out.gz</fileNamePattern>
-            <maxHistory>12</maxHistory>
-            <totalSizeCap>100MB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
-
-    <appender name="ELASTIC-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR:-logs}/elastic.log</file>
-        <append>true</append>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_DIR:-logs}/elastic-%d{yyyy-MM-dd}.out.gz</fileNamePattern>
-            <maxHistory>12</maxHistory>
-            <totalSizeCap>100MB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
-    <appender name="ERROR-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR:-logs}/error.log</file>
-        <append>true</append>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>WARN</level>
-        </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_DIR:-logs}/error-%d{yyyy-MM-dd}.out.gz</fileNamePattern>
-            <maxHistory>12</maxHistory>
-            <totalSizeCap>100MB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
-    <appender name="METRICS-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR:-logs}/metrics.log</file>
-        <append>true</append>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} %msg%n</pattern>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_DIR:-logs}/metrics-%d{yyyy-MM-dd}.out.gz</fileNamePattern>
-            <maxHistory>12</maxHistory>
-            <totalSizeCap>100MB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
-    <appender name="APP-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="APP-LOG"/>
-    </appender>
-
-    <appender name="ERROR-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="ERROR-LOG"/>
-    </appender>
-
-    <appender name="ELASTIC-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="ELASTIC-LOG"/>
-    </appender>
-
-    <appender name="METRICS-LOG-ASYNC" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="METRICS-LOG"/>
-    </appender>
-
-    <appender name="HEALTHCHECK-LOG" class="ch.qos.logback.core.FileAppender">
-        <file>${LOG_DIR:-logs}/HealthCheck.log</file>
-        <append>false</append>
+        <withJansi>false</withJansi>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %log{36} - %msg%n</pattern>
+            <pattern>%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n
+            </pattern>
         </encoder>
     </appender>
 
-
-    <log name="org.elasticsearch" level="INFO"/>
-    <log name="io.netty" level="INFO"/>
-    <log name="com.zaxxer.hikari" level="INFO"/>
-    <log name="com.ning.http.client" level="INFO"/>
-    <log name="com.lambdaworks.redis" level="INFO"/>
-    <log name="org.asynchttpclient" level="INFO"/>
-
-    <!-- Set additivity="false" to avoid polluting root appender -->
-    <log name="HealthCheck" level="ALL" additivity="false">
-        <appender-ref ref="HEALTHCHECK-LOG"/>
-    </log>
-    <log name="metrics" level="ALL" additivity="false">
-        <appender-ref ref="METRICS-LOG-ASYNC"/>
-    </log>
-    <log name="elastic" level="ALL" additivity="true">
-        <appender-ref ref="ELASTIC-LOG-ASYNC"/>
-    </log>
-
-    <root level="ALL">
+    <root level="info">
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="APP-LOG-ASYNC"/>
-        <appender-ref ref="ERROR-LOG"/>
     </root>
 </configuration>
