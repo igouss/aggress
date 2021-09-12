@@ -1,6 +1,6 @@
 package com.naxsoft.parsingService;
 
-import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.common.entity.WebPageEntity;
 import com.naxsoft.storage.Persistent;
 
 import java.util.List;

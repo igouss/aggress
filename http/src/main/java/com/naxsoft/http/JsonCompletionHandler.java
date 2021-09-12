@@ -2,7 +2,7 @@ package com.naxsoft.http;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.common.entity.WebPageEntity;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;

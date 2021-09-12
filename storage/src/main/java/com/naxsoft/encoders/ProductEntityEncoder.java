@@ -1,7 +1,7 @@
 package com.naxsoft.encoders;
 
 
-import com.naxsoft.entity.ProductEntity;
+import com.naxsoft.common.entity.ProductEntity;
 import lombok.extern.slf4j.Slf4j;
 
 

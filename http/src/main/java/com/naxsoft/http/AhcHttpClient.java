@@ -73,7 +73,6 @@ public class AhcHttpClient implements HttpClient {
         cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         client = new OkHttpClient.Builder()
-                .cookieJar(new JavaNetCookieJar(cookieManager))
                 .sslSocketFactory(sc.getSocketFactory(), (X509TrustManager) trustAllCerts[0])
                 .hostnameVerifier((s, sslSession) -> true)
                 .build();

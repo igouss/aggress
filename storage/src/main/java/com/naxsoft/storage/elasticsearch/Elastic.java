@@ -1,6 +1,6 @@
 package com.naxsoft.storage.elasticsearch;
 
-import com.naxsoft.entity.ProductEntity;
+import com.naxsoft.common.entity.ProductEntity;
 import com.naxsoft.utils.JsonEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

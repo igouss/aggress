@@ -7,11 +7,11 @@ import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.metrics.DefaultCommandLatencyCollectorOptions;
 import com.lambdaworks.redis.resource.ClientResources;
 import com.lambdaworks.redis.resource.DefaultClientResources;
+import com.naxsoft.common.entity.ProductEntity;
+import com.naxsoft.common.entity.WebPageEntity;
 import com.naxsoft.encoders.Encoder;
 import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;
-import com.naxsoft.entity.ProductEntity;
-import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.storage.Persistent;
 import lombok.extern.slf4j.Slf4j;
 

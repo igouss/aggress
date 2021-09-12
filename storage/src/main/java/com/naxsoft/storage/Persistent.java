@@ -1,7 +1,7 @@
 package com.naxsoft.storage;
 
-import com.naxsoft.entity.ProductEntity;
-import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.common.entity.ProductEntity;
+import com.naxsoft.common.entity.WebPageEntity;
 
 import java.util.List;
 

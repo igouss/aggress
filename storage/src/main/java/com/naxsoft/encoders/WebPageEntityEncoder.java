@@ -1,6 +1,6 @@
 package com.naxsoft.encoders;
 
-import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.common.entity.WebPageEntity;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

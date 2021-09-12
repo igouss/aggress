@@ -1,6 +1,6 @@
 package com.naxsoft.http;
 
-import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.common.entity.WebPageEntity;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Cookie;
 import okhttp3.Response;

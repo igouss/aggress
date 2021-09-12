@@ -3,7 +3,7 @@ package com.naxsoft.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.naxsoft.entity.ProductEntity;
+import com.naxsoft.common.entity.ProductEntity;
 
 public class JsonEncoder {
     private final static Gson gson = new Gson();

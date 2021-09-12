@@ -1,6 +1,6 @@
 package com.naxsoft.http;
 
-import com.naxsoft.entity.WebPageEntity;
+import com.naxsoft.common.entity.WebPageEntity;
 import lombok.Value;
 
 import java.util.List;

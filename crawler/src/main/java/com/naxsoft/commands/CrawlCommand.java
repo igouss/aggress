@@ -1,7 +1,7 @@
 package com.naxsoft.commands;
 
-import com.naxsoft.entity.WebPageEntity;
-import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
+import com.naxsoft.common.entity.WebPageEntity;
+import com.naxsoft.crawler.parsers.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
 package com.naxsoft.parsingService;
 
-import com.naxsoft.entity.ProductEntity;
+import com.naxsoft.common.entity.ProductEntity;
 import com.naxsoft.storage.Persistent;
 
 import java.util.List;
