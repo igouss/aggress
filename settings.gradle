@@ -1,5 +1,14 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id("io.quarkus").version("2.2.2.Final")
+    }
+}
 rootProject.name = "aggress"
-
 include(":common")
 include(":crawler")
 include(":frontend")
@@ -75,48 +84,40 @@ dependencyResolutionManagement {
             alias("vertxWebTemplThymeleaf").to("io.vertx", "vertx-web-templ-thymeleaf").versionRef("vertxVersion")
 
             bundle(
-                "logging", listOf(
+                "logging", [
                     "slf4j",
                     "logbackClassic",
                     "logbackCore"
-                )
+                ]
             )
             bundle(
-                "vertxWeb", listOf(
+                "vertxWeb", [
                     "thymeleaf",
                     "vertxCore",
                     "vertxWeb",
                     "vertxWebTemplThymeleaf"
-                )
+                ]
             )
 
             bundle(
-                "testing", listOf(
+                "testing", [
                     "junit"
-                )
+                ]
             )
 
             bundle(
-                "okhttp", listOf(
+                "okhttp", [
                     "okhttp",
                     "okhttpUrlconnection"
-                )
+                ]
             )
             bundle(
-                "elasticsearch", listOf(
+                "elasticsearch", [
                     "elasticsearch",
                     "elasticsearchClientTransport"
-                )
+                ]
             )
         }
-    }
-}
-
-
-pluginManagement {
-    plugins {
-//        id("io.micronaut.application") version("2.0.4")
-//        id("io.micronaut.library") version("2.0.4")
     }
 }
 

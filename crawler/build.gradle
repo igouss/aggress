@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'io.quarkus'
 }
 
 /*
@@ -16,22 +17,12 @@ dependencies {
 
     testImplementation(libs.bundles.testing)
     testImplementation(libs.reflections)
-}
 
-javadoc {
-    options {
-        windowTitle = "Aggress Crawler Javadoc ${project.version}"
-    }
-}
 
-test {
-    testLogging.showStandardStreams = true
-    testLogging.showStackTraces = true
-    testLogging.showCauses = true
-    testLogging.showExceptions = true
-    maxParallelForks = 5
-    forkEvery = 50
-    include "**/Test*.*"
-//    useTestNG()
+    implementation enforcedPlatform("io.quarkus.platform:quarkus-bom:2.2.2.Final")
+    implementation 'io.quarkus:quarkus-resteasy-jackson'
+    implementation 'io.quarkus:quarkus-resteasy'
+    implementation 'io.quarkus:quarkus-arc'
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
 }
-
