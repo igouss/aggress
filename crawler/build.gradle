@@ -7,6 +7,48 @@ plugins {
 https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
+    implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-bigtable:0.10.0'
+    implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-pubsub:0.10.0'
+    implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-secret-manager:0.10.0'
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-consul-config'
+    implementation 'io.quarkus:quarkus-container-image-jib'
+    implementation 'io.quarkus:quarkus-elasticsearch-rest-high-level-client'
+    implementation 'io.quarkus:quarkus-funqy-google-cloud-functions'
+    implementation 'io.quarkus:quarkus-google-cloud-functions'
+    implementation 'io.quarkus:quarkus-google-cloud-functions-http'
+    implementation 'io.quarkus:quarkus-jackson'
+    implementation 'io.quarkus:quarkus-kafka-client'
+    implementation 'io.quarkus:quarkus-kafka-streams'
+    implementation 'io.quarkus:quarkus-kubernetes'
+    implementation 'io.quarkus:quarkus-kubernetes-config'
+    implementation 'io.quarkus:quarkus-kubernetes-service-binding'
+    implementation 'io.quarkus:quarkus-micrometer'
+    implementation 'io.quarkus:quarkus-micrometer-registry-prometheus'
+    implementation 'io.quarkus:quarkus-minikube'
+    implementation 'io.quarkus:quarkus-mutiny'
+    implementation 'io.quarkus:quarkus-opentelemetry'
+    implementation 'io.quarkus:quarkus-opentelemetry-exporter-jaeger'
+    implementation 'io.quarkus:quarkus-qute'
+    implementation 'io.quarkus:quarkus-redis-client'
+    implementation 'io.quarkus:quarkus-resteasy'
+    implementation 'io.quarkus:quarkus-resteasy-jackson'
+    implementation 'io.quarkus:quarkus-scheduler'
+    implementation 'io.quarkus:quarkus-smallrye-fault-tolerance'
+    implementation 'io.quarkus:quarkus-smallrye-health'
+    implementation 'io.quarkus:quarkus-smallrye-jwt'
+    implementation 'io.quarkus:quarkus-smallrye-jwt-build'
+    implementation 'io.quarkus:quarkus-smallrye-metrics'
+    implementation 'io.quarkus:quarkus-smallrye-opentracing'
+    implementation 'io.quarkus:quarkus-smallrye-reactive-messaging'
+    implementation 'io.quarkus:quarkus-smallrye-reactive-messaging-kafka'
+    implementation 'io.quarkus:quarkus-spring-boot-properties'
+    implementation 'io.quarkus:quarkus-spring-di'
+    implementation 'io.quarkus:quarkus-vault'
+    implementation 'io.quarkus:quarkus-vertx'
+    implementation 'io.quarkus:quarkus-vertx-web'
+    implementation 'io.quarkus:quarkus-webjars-locator'
+    implementation enforcedPlatform("io.quarkus.platform:quarkus-bom:2.2.2.Final")
     implementation(libs.bundles.logging)
     implementation(libs.joptSimple)
     implementation(libs.validationApi)
@@ -14,15 +56,9 @@ dependencies {
     implementation(project(':http'))
     implementation(project(':parsers'))
     implementation(project(':storage'))
-
-    testImplementation(libs.bundles.testing)
-    testImplementation(libs.reflections)
-
-
-    implementation enforcedPlatform("io.quarkus.platform:quarkus-bom:2.2.2.Final")
-    implementation 'io.quarkus:quarkus-resteasy-jackson'
-    implementation 'io.quarkus:quarkus-resteasy'
-    implementation 'io.quarkus:quarkus-arc'
+    testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation(libs.bundles.testing)
+    testImplementation(libs.reflections)
 }
