@@ -1,7 +1,5 @@
 package com.naxsoft;
 
-import com.naxsoft.aggress.utils.AppProperties;
-import com.naxsoft.aggress.utils.PropertyNotFoundException;
 import com.naxsoft.handlers.IndexHandler;
 import com.naxsoft.handlers.SearchHandler;
 import io.vertx.core.Vertx;
@@ -35,9 +33,9 @@ public class Server {
      * @param args Application command line args
      * @throws UnknownHostException Thrown when we try to connect to invalid elasticsearch client
      */
-    public static void main(final String[] args) throws UnknownHostException, PropertyNotFoundException {
+    public static void main(final String[] args) throws UnknownHostException {
         TemplateEngine templateEngine = getTemplateEngine();
-        TransportClient esClient = getTransportClient();
+        TransportClient esClient = getTransportClient("localhost", 9300);
 
 
         ApplicationContext context = new ApplicationContext();
@@ -73,10 +71,7 @@ public class Server {
      * @return Elasticsearch client
      * @throws UnknownHostException Thrown when we try to connect to invalid host
      */
-    private static TransportClient getTransportClient() throws UnknownHostException, PropertyNotFoundException {
-        String elasticHost = AppProperties.getProperty("elasticHost");
-        int elasticPort = Integer.parseInt(AppProperties.getProperty("elasticPort"));
-
+    private static TransportClient getTransportClient(String elasticHost, int elasticPort) throws UnknownHostException {
         Settings settings = Settings.builder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
         TransportClient client = new PreBuiltTransportClient(settings)
                 .addTransportAddress(new TransportAddress(InetAddress.getByName(elasticHost), elasticPort));

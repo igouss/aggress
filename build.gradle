@@ -1,6 +1,5 @@
 plugins {
     id "java"
-    id "idea"
     id 'com.autonomousapps.dependency-analysis' version '0.74.0'
 }
 
