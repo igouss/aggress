@@ -1,4 +1,4 @@
-package com.naxsoft.utils;
+package com.naxsoft.aggress.utils;
 
 public class PropertyNotFoundException extends Exception {
     private static final long serialVersionUID = 1;

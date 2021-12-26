@@ -4,6 +4,7 @@ dependencies {
     implementation(libs.elasticsearchClientTransport)
     implementation(libs.jts)
     implementation(project(':common'))
+    implementation(project(':utils'))
     implementation(project(':crawler'))
 
     testImplementation(libs.bundles.testing)

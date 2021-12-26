@@ -1,6 +1,6 @@
 package com.naxsoft.handlers;
 
-import com.naxsoft.utils.ElasticEscape;
+import com.naxsoft.aggress.utils.ElasticEscape;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,6 @@
 package com.naxsoft.storage.elasticsearch;
 
 import com.naxsoft.common.entity.ProductEntity;
-import com.naxsoft.utils.JsonEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -119,7 +118,7 @@ public class Elastic {
                 jsonBuilder.startObject();
                 IndexRequestBuilder request = client.prepareIndex(indexName, type, DigestUtils.sha1Hex(product.getUrl() + product.getProductName()));
                 log.info("Preparing to index {}/{} value {}", indexName, type, product.getUrl());
-                request.setSource(JsonEncoder.toJson(product), XContentType.JSON);
+                //request.setSource(JsonEncoder.toJson(product), XContentType.JSON);
                 request.setOpType(IndexRequest.OpType.INDEX);
                 bulkRequestBuilder.add(request);
             }

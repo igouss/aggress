@@ -1,4 +1,4 @@
-package com.naxsoft.utils;
+package com.naxsoft.aggress.utils;
 
 /**
  * Utility class to concatenate a number of parameters with separator tokens.

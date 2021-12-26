@@ -12,6 +12,7 @@ dependencies {
     implementation project(":storage")
     implementation project(":parsers")
     implementation project(":http")
+    implementation project(":utils")
 }
 
 allprojects {

@@ -1,9 +1,9 @@
 package com.naxsoft;
 
+import com.naxsoft.aggress.utils.AppProperties;
+import com.naxsoft.aggress.utils.PropertyNotFoundException;
 import com.naxsoft.handlers.IndexHandler;
 import com.naxsoft.handlers.SearchHandler;
-import com.naxsoft.utils.AppProperties;
-import com.naxsoft.utils.PropertyNotFoundException;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
