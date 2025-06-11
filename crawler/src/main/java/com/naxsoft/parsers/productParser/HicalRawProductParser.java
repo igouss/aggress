@@ -16,9 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-/**
- * Copyright NAXSoft 2015
- */
 class HicalRawProductParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(HicalRawProductParser.class);
 

@@ -8,9 +8,7 @@ import dagger.Provides;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 @Module(includes = {RedisModule.class})
 public class ProductServiceModule {
     @Provides

@@ -1,120 +1,79 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:3.0.6'
-    }
-}
-
 plugins {
     id "java"
     id "idea"
-    id 'com.gradle.build-scan' version '1.2'
-    id 'com.github.ben-manes.versions' version '0.14.0'
-}
-apply plugin: 'com.bmuschko.docker-remote-api'
-
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-
-buildScan {
-    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
-    licenseAgree = 'yes'
+    id 'com.github.ben-manes.versions' version '0.51.0'
+    id 'com.google.cloud.tools.jib' version '3.4.5' apply false
 }
 
 dependencies {
-    compile project(":common")
-    compile project(":crawler")
-    compile project(":frontend")
-    compile project(":webadmin")
-    compile project(":storage")
+    implementation project(":common")
+    implementation project(":crawler")
+    implementation project(":frontend")
+    implementation project(":webadmin")
+    implementation project(":storage")
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = "3.5"
-    distributionUrl = "https://services.gradle.org/distributions/gradle-" + gradleVersion + "-all.zip"
-}
 
 allprojects {
     group "com.naxsoft"
     version "1.0-SNAPSHOT"
     repositories {
         mavenCentral()
+        gradlePluginPortal()
+        // Lombok edge/snapshot repository for Java 24+ support
         maven {
-            url "http://jcenter.bintray.com"
-        }
-        maven {
-            url "https://plugins.gradle.org/m2/"
+            url "https://projectlombok.org/edge-releases"
         }
     }
-    gradle.projectsEvaluated {
-        tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+
+    // Configure Java 24 for all modules
+    plugins.withType(JavaPlugin) {
+        java {
+            sourceCompatibility = JavaVersion.VERSION_24
+            targetCompatibility = JavaVersion.VERSION_24
         }
     }
-    tasks.withType(JavaCompile) {
+
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs.addAll(["-Xlint:unchecked", "-Xlint:deprecation"])
         options.incremental = true
+    }
+
+    // Configure JUnit 5 for all test tasks
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
     }
 }
 
-dependencyUpdates.resolutionStrategy = {
-    componentSelection { rules ->
-        rules.all { ComponentSelection selection ->
-            boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
-                selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
-            }
-            if (rejected) {
-                selection.reject('Release candidate')
+tasks.named('dependencyUpdates').configure {
+    resolutionStrategy {
+        componentSelection {
+            all { ComponentSelection selection ->
+                boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
+                    selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+                }
+                if (rejected) {
+                    selection.reject('Release candidate')
+                }
             }
         }
     }
 }
 
 evaluationDependsOnChildren()
-docker {
-    url = "unix:///var/run/docker.sock"
+
+// Jib convenience tasks to replace old Docker build tasks
+tasks.register('buildJibImages') {
+    group = "Publishing"
+    description = "Build all Docker images using Jib"
+    dependsOn(":crawler:jibDockerBuild", ":frontend:jibDockerBuild", ":webadmin:jibDockerBuild")
 }
 
-task buildDockerS6Overlay(type: DockerBuildImage) {
+tasks.register('buildDockerImages') {
     group = "Publishing"
-    inputDir = file("docker/s6-overlay/")
+    description = "Alias for buildJibImages"
+    dependsOn tasks.buildJibImages
 }
-
-task buildDockerJava(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/java-8/")
-}
-buildDockerJava.dependsOn tasks.buildDockerS6Overlay
-
-task buildDockerRedis(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/redis/")
-}
-
-task buildDockerElasticsearch(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/elasticsearch/")
-}
-
-task buildDockerCrawler(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/crawler/")
-    dependsOn(":crawler:dockerPublish")
-}
-buildDockerCrawler.dependsOn tasks.buildDockerJava
-
-task buildDockerFrontend(type: DockerBuildImage) {
-    group = "Publishing"
-    inputDir = file("docker/frontend/")
-    dependsOn(":frontend:dockerPublish")
-}
-buildDockerFrontend.dependsOn tasks.buildDockerJava
-
-task buildDockerImages() {
-    group = "Publishing"
-}
-buildDockerImages.dependsOn tasks.buildDockerS6Overlay, tasks.buildDockerJava, tasks.buildDockerRedis, tasks.buildDockerElasticsearch, tasks.buildDockerCrawler, tasks.buildDockerFrontend
 
 def gitVersion() {
     if (!System.getenv('CI_BUILD')) {

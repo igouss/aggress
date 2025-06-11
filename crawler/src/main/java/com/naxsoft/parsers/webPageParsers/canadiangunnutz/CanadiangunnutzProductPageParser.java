@@ -17,9 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductPageParser.class);
     private final List<Cookie> cookies;

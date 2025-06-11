@@ -18,9 +18,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class CorwinArmsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorwinArmsFrontPageParser.class);
     private static final Pattern pagerPattern = Pattern.compile("(\\d+) of (\\d+)");

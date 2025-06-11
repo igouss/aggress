@@ -1,54 +1,45 @@
 plugins {
     id "java"
     id "idea"
+    id "com.google.cloud.tools.jib"
 }
 
-ext {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
 
 dependencies {
-    compile "ch.qos.logback:logback-core:1.2.3"
-    compile "ch.qos.logback:logback-classic:1.2.3"
+    implementation libs.bundles.logging
+    implementation libs.bundles.elasticsearch
+    implementation libs.log4jToSlf4j
+    implementation libs.jts
+    implementation libs.bundles.vertxWeb
+    implementation project(':common')
 
-    compile "junit:junit:4.12"
-
-    compile 'org.elasticsearch.client:transport:5.3.0'
-    compile 'org.apache.logging.log4j:log4j-to-slf4j:2.8.2'
-
-    compile "com.vividsolutions:jts:1.13"
-
-    compile "org.thymeleaf:thymeleaf:3.0.5.RELEASE"
-
-    compile "io.vertx:vertx-core:3.4.1"
-    compile "io.vertx:vertx-web:3.4.1"
-
-    compile project(':common')
+    testImplementation libs.junit5
 }
 
-task copyDepsToDocker(type: Copy) {
-    description = "Copy all dependencies to docker/frontend"
-    from configurations.compile
-    into "../docker/frontend/deps"
-}
-
-task copyAppToDocker(type: Copy) {
-    description = "Copy app to docker/frontend"
-    dependsOn jar
-    from("$buildDir/libs") {
-        include "frontend*.jar"
+jib {
+    from {
+        image = 'eclipse-temurin:24-jre'
     }
-    into("../docker/frontend/app")
-}
-
-task copyBaseDir(type: Copy) {
-    description = "Copy basedir to docker/frontend/basedir"
-    from "basedir"
-    into "../docker/frontend/basedir"
-}
-
-task dockerPublish() {
-    description = "Copy app and all dependencies to docker/frontend"
-    dependsOn copyDepsToDocker, copyAppToDocker, copyBaseDir
+    to {
+        image = 'aggress/frontend'
+        tags = ['latest']
+    }
+    container {
+        mainClass = 'com.naxsoft.Server'
+        ports = ['8080']
+        jvmFlags = [
+                '-Djdk.tls.allowUnsafeServerCertChange=true',
+                '-Dsun.security.ssl.allowUnsafeRenegotiation=true'
+        ]
+        workingDirectory = '/opt/frontend'
+        user = 'frontend:aggress'
+    }
+    extraDirectories {
+        paths {
+            path {
+                from = file('basedir')
+                into = '/opt/frontend/basedir'
+            }
+        }
+    }
 }

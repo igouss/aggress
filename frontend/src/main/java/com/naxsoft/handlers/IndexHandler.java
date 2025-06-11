@@ -9,9 +9,7 @@ import org.thymeleaf.context.Context;
 import java.util.HashMap;
 import java.util.Locale;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 public class IndexHandler {
     private static final String REGULAR_NAME = "layout";
 

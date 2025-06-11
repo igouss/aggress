@@ -5,9 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 public class HealthMonitor implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger("HealthCheck");
 

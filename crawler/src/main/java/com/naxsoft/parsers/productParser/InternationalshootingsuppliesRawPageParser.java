@@ -13,9 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class InternationalshootingsuppliesRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(HicalRawProductParser.class);
 

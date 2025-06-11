@@ -18,9 +18,7 @@ import rx.Observable;
 
 import java.util.*;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class CanadiangunnutzProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzProductListParser.class);
     private final List<Cookie> cookies;

@@ -1,5 +1,8 @@
 package com.naxsoft;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.naxsoft.handlers.IndexHandler;
 import com.naxsoft.handlers.SearchHandler;
 import com.naxsoft.utils.AppProperties;
@@ -8,21 +11,15 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.cluster.node.DiscoveryNode;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,12 +33,10 @@ public class Server {
      * Start server app
      *
      * @param args Application command line args
-     * @throws UnknownHostException Thrown when we try to connect to invalid elasticsearch client
      */
-    public static void main(final String[] args) throws UnknownHostException, PropertyNotFoundException {
+    public static void main(final String[] args) throws PropertyNotFoundException {
         TemplateEngine templateEngine = getTemplateEngine();
-        TransportClient esClient = getTransportClient();
-
+        ElasticsearchClient esClient = getElasticsearchClient();
 
         ApplicationContext context = new ApplicationContext();
         context.setInvalidateTemplateCache(true);
@@ -69,48 +64,56 @@ public class Server {
         server.requestHandler(router::accept).listen(8080);
     }
 
-
     /**
-     * Get Elasticsearch client
+     * Get Elasticsearch Java API Client
      *
-     * @return Elasticsearch client
-     * @throws UnknownHostException Thrown when we try to connect to invalid host
+     * @return Elasticsearch Java API Client
      */
-    private static TransportClient getTransportClient() throws UnknownHostException, PropertyNotFoundException {
+    private static ElasticsearchClient getElasticsearchClient() throws PropertyNotFoundException {
         String elasticHost = AppProperties.getProperty("elasticHost");
         int elasticPort = Integer.valueOf(AppProperties.getProperty("elasticPort"));
 
-        Settings settings = Settings.builder().put("cluster.name", "elasticsearch").put("client.transport.sniff", true).build();
-        TransportClient client = new PreBuiltTransportClient(settings)
-                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(elasticHost), elasticPort));
+        // Create the low-level REST client
+        RestClient restClient = RestClient.builder(
+                new HttpHost(elasticHost, elasticPort, "http")
+        ).build();
 
+        // Create the transport with Jackson mapper
+        RestClientTransport transport = new RestClientTransport(
+                restClient, new JacksonJsonpMapper()
+        );
 
+        // Create the high-level API client
+        ElasticsearchClient client = new ElasticsearchClient(transport);
+
+        // Test connection and wait for cluster to be available
         while (true) {
-            LOGGER.info("Waiting for elastic to connect to a node {}:{}...", elasticHost, elasticPort);
-            List<DiscoveryNode> discoveryNodes = client.connectedNodes();
-            if (0 != discoveryNodes.size()) {
-                LOGGER.info("Connection established {}", discoveryNodes.stream().map(DiscoveryNode::toString).reduce("", (a, b) -> {
-                    if (a.isEmpty()) {
-                        return b;
-                    } else {
-                        return a + ", " + b;
-                    }
-                }));
-                break;
+            LOGGER.info("Waiting for elastic to connect to {}:{}...", elasticHost, elasticPort);
+            try {
+                var response = client.info();
+                if (response != null) {
+                    LOGGER.info("Connection established to {}:{}, cluster: {}",
+                            elasticHost, elasticPort, response.clusterName());
+                    break;
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Failed to connect to Elasticsearch: {}", e.getMessage());
             }
+            
             try {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
             } catch (InterruptedException e) {
                 LOGGER.error("Thread sleep failed", e);
             }
         }
+
         return client;
     }
 
     /**
      * Get HTML5 template engine
      *
-     * @return TempleteEngine
+     * @return TemplateEngine
      */
     private static TemplateEngine getTemplateEngine() {
         TemplateEngine templateEngine = new TemplateEngine();

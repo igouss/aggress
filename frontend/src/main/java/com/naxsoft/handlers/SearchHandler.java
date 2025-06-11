@@ -1,25 +1,26 @@
 package com.naxsoft.handlers;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.ExistsQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.naxsoft.utils.ElasticEscape;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
-import org.elasticsearch.action.ListenableActionFuture;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 public class SearchHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchHandler.class);
     private static final String[] includeFields = new String[]{
@@ -30,36 +31,36 @@ public class SearchHandler {
             "productName",
             "category",
     };
-    private final TransportClient client;
+    private final ElasticsearchClient client;
 
     /**
-     * @param client
+     * @param client Elasticsearch Java API Client
      */
-    public SearchHandler(TransportClient client) {
+    public SearchHandler(ElasticsearchClient client) {
         this.client = client;
     }
 
     /**
-     * @param searchResponse
-     * @return
+     * Convert search response to JSON string
+     * @param searchResponse Elasticsearch search response
+     * @return JSON string representation
      */
-    private static String searchResultToJson(SearchResponse searchResponse) {
+    private static String searchResultToJson(SearchResponse<JsonNode> searchResponse) {
         LOGGER.debug(searchResponse.toString());
-        SearchHit[] searchHits = searchResponse.getHits().getHits();
+        List<Hit<JsonNode>> hits = searchResponse.hits().hits();
         StringBuilder builder = new StringBuilder();
-        int length = searchHits.length;
+        int length = hits.size();
         builder.append("[");
         for (int i = 0; i < length; i++) {
+            Hit<JsonNode> hit = hits.get(i);
             if (0 == i) {
-                builder.append(searchHits[i].getSourceAsString());
+                builder.append(hit.source().toString());
             } else {
                 builder.append(",");
-                builder.append(searchHits[i].getSourceAsString());
-
+                builder.append(hit.source().toString());
             }
-            LOGGER.info("Score = {}", searchHits[i].getScore());
+            LOGGER.info("Score = {}", hit.score());
         }
-
         builder.append("]");
         return builder.toString();
     }
@@ -71,7 +72,6 @@ public class SearchHandler {
         }
         return 0;
     }
-
 
     private static String getSearchKey(RoutingContext routingContext, String parameter) {
         StringWriter sw = new StringWriter();
@@ -85,33 +85,62 @@ public class SearchHandler {
     }
 
     /**
-     * @param searchKey
-     * @param category
-     * @param startFrom
-     * @return
+     * Execute search query using Java API Client
+     * @param searchKey Search term
+     * @param category Category filter
+     * @param startFrom Pagination offset
+     * @return CompletableFuture with search response
      */
-    private ListenableActionFuture<SearchResponse> runSearch(String searchKey, String category, int startFrom) {
+    private CompletableFuture<SearchResponse<JsonNode>> runSearch(String searchKey, String category, int startFrom) {
         String indexSuffix = "";//"""-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
-        MultiMatchQueryBuilder searchQuery = QueryBuilders.multiMatchQuery(searchKey, "productName^4", "description^2", "_all");
-        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                // Build multi-match query
+                MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(m -> m
+                        .query(searchKey)
+                        .fields("productName^4", "description^2", "_all")
+                );
 
-        boolQueryBuilder.must(searchQuery);
-        if (null != category && !category.isEmpty() && !category.equalsIgnoreCase("all")) {
-            boolQueryBuilder.must(QueryBuilders.existsQuery("category"));
-            boolQueryBuilder.filter(QueryBuilders.termQuery("category", category));
-        }
+                // Build bool query
+                BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+                boolQueryBuilder.must(multiMatchQuery._toQuery());
 
-        LOGGER.info("{}", boolQueryBuilder);
+                // Add category filter if specified
+                if (category != null && !category.isEmpty() && !category.equalsIgnoreCase("all")) {
+                    ExistsQuery existsQuery = ExistsQuery.of(e -> e.field("category"));
+                    TermQuery termQuery = TermQuery.of(t -> t
+                            .field("category")
+                            .value(category)
+                    );
 
-        SearchRequestBuilder searchRequestBuilder = client.prepareSearch("product" + indexSuffix);
-        searchRequestBuilder.setQuery(boolQueryBuilder);
-        searchRequestBuilder.setTypes("guns");
-        searchRequestBuilder.setSearchType(SearchType.DEFAULT);
-        searchRequestBuilder.setFetchSource(includeFields, null);
-        searchRequestBuilder.setFrom(startFrom).setSize(30).setExplain(true);
+                    boolQueryBuilder.must(existsQuery._toQuery());
+                    boolQueryBuilder.filter(termQuery._toQuery());
+                }
 
-        return searchRequestBuilder.execute();
+                BoolQuery boolQuery = boolQueryBuilder.build();
+                LOGGER.info("Executing query: {}", boolQuery);
+
+                // Build search request
+                SearchRequest searchRequest = SearchRequest.of(s -> s
+                        .index("product" + indexSuffix)
+                        .query(boolQuery._toQuery())
+                        .source(source -> source
+                                .filter(f -> f
+                                        .includes(Arrays.asList(includeFields))
+                                )
+                        )
+                        .from(startFrom)
+                        .size(30)
+                        .explain(true)
+                );
+
+                return client.search(searchRequest, JsonNode.class);
+            } catch (Exception e) {
+                LOGGER.error("Search failed", e);
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void handleRequestVertX(RoutingContext routingContext) {
@@ -120,17 +149,24 @@ public class SearchHandler {
         int startFrom = getStartFrom(routingContext);
         LOGGER.info("searchKey={} category={} startfrom={}", searchKey, categoryKey, startFrom);
 
-        ListenableActionFuture<SearchResponse> future = runSearch(searchKey, categoryKey, startFrom);
-        SearchResponse searchResponse = future.actionGet();
-        String result = searchResultToJson(searchResponse);
+        runSearch(searchKey, categoryKey, startFrom)
+                .whenComplete((searchResponse, throwable) -> {
+                    HttpServerResponse response = routingContext.response();
+                    response.setChunked(true);
+                    response.putHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+                    response.putHeader("Pragma", "no-cache");
+                    response.putHeader("Expires", "0");
+                    response.putHeader("content-type", "application/json;charset=UTF-8");
+                    response.putHeader("Access-Control-Allow-Origin", "*");
 
-        HttpServerResponse response = routingContext.response();
-        response.setChunked(true);
-        response.putHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.putHeader("Pragma", "no-cache");
-        response.putHeader("Expires", "0");
-        response.putHeader("content-type", "application/json;charset=UTF-8");
-        response.putHeader("Access-Control-Allow-Origin", "*");
-        response.end(result);
+                    if (throwable != null) {
+                        LOGGER.error("Search request failed", throwable);
+                        response.setStatusCode(500);
+                        response.end("{\"error\":\"Search failed\"}");
+                    } else {
+                        String result = searchResultToJson(searchResponse);
+                        response.end(result);
+                    }
+                });
     }
 }

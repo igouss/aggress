@@ -10,9 +10,7 @@ import io.vertx.core.Vertx;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 @Module()
 public class WebPageParserFactoryModule {
     @Provides

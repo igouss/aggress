@@ -3,9 +3,7 @@ package com.naxsoft.parsers.webPageParsers;
 import com.naxsoft.entity.WebPageEntity;
 import org.jsoup.nodes.Document;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 public class DownloadResult {
     private final WebPageEntity sourcePage;
     private final Document document;
