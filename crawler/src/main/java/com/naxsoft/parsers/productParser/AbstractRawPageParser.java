@@ -9,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Subscription;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 abstract class AbstractRawPageParser extends AbstractVerticle implements ProductParser {
     private static final Logger LOGGER = LoggerFactory.getLogger("RawPageParser");
     protected final Counter parseResultCounter;

@@ -15,9 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadiangunnutzRawPageParser.class);
 

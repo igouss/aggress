@@ -1,33 +1,22 @@
 plugins {
     id "java-library"
     id "idea"
-    id "net.ltgt.apt" version "0.6"
 }
 
-ext {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
 
 /*
 https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
     implementation project(':common')
-    implementation  "com.google.code.gson:gson:2.8.0"
+    implementation libs.gson
+    implementation libs.javaxInject
+    implementation libs.rxjava
+    implementation libs.bundles.logging
+    implementation libs.commonsIo
+    implementation libs.bundles.elasticsearch
 
-    implementation "javax.inject:javax.inject:1"
-    implementation "io.reactivex:rxjava:1.2.9"
+    api libs.lettuce
 
-    implementation "ch.qos.logback:logback-core:1.2.3"
-    implementation "ch.qos.logback:logback-classic:1.2.3"
-    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.8.2'
-
-    api "biz.paluch.redis:lettuce:4.3.1.Final"
-
-    implementation "commons-io:commons-io:2.5"
-
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-
-    implementation 'org.elasticsearch.client:transport:5.3.0'
+    testImplementation libs.junit5
 }

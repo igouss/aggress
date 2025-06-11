@@ -20,9 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class SailsProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SailsProductListParser.class);
     private static final Collection<Cookie> cookies;

@@ -17,9 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class DantesportsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DantesportsFrontPageParser.class);
 

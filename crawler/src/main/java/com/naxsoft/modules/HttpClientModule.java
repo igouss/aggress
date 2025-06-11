@@ -14,9 +14,7 @@ import javax.inject.Singleton;
 import javax.net.ssl.SSLException;
 import javax.validation.constraints.NotNull;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 @Module(includes = {MetricsRegistryModule.class})
 public class HttpClientModule {
     private final static Logger LOGGER = LoggerFactory.getLogger(HttpClientModule.class);

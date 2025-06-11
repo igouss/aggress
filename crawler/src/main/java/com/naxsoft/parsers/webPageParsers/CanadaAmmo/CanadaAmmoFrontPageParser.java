@@ -15,9 +15,7 @@ import rx.Observable;
 
 import java.util.HashSet;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class CanadaAmmoFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CanadaAmmoFrontPageParser.class);
 

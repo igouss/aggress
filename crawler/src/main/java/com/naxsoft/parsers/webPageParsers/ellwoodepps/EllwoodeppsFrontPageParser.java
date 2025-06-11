@@ -17,9 +17,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class EllwoodeppsFrontPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(EllwoodeppsFrontPageParser.class);
     private static final Pattern productTotalPattern = Pattern.compile("of\\s(\\d+)");

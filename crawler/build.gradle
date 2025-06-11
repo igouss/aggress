@@ -1,63 +1,46 @@
 plugins {
     id "java"
     id "idea"
-    id "net.ltgt.apt" version "0.6"
+    id "com.google.cloud.tools.jib"
 }
 
-configurations {
-    apt
-}
-tasks.withType(JavaCompile) {
-    options.annotationProcessorPath = configurations.apt
+
+tasks.withType(JavaCompile).configureEach {
     options.incremental = true
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 /*
 https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
-    compile "org.jsoup:jsoup:1.10.2"
+    implementation libs.jsoup
+    implementation libs.rxjava
+    implementation libs.bundles.logging
+    implementation libs.reflections
+    implementation libs.dropwizardMetrics
+    implementation libs.commonsCollections4
+    implementation libs.gson
+    implementation libs.asyncHttpClient
+    implementation libs.vertxCore
+    implementation libs.joptSimple
+    implementation libs.javaxValidation
+    implementation libs.javaxInject
+    implementation libs.javaxAnnotation
+    implementation libs.dagger
+    implementation project(':common')
+    implementation project(':storage')
+    implementation fileTree(dir: "libs", include: "*.jar")
 
-//    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.0-RC3'
-    compile "io.reactivex:rxjava:1.2.9"
+    testImplementation libs.junit5
 
-    compile "ch.qos.logback:logback-core:1.2.3"
-    compile "ch.qos.logback:logback-classic:1.2.3"
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
+    testCompileOnly libs.lombok
+    testAnnotationProcessor libs.lombok
 
-    compile "org.reflections:reflections:0.9.11"
-    compile "io.dropwizard.metrics:metrics-core:3.2.2"
-    compile "org.apache.commons:commons-collections4:4.1"
-    compile "com.google.code.gson:gson:2.8.0"
-
-    compile "org.asynchttpclient:async-http-client:2.0.31"
-    compile "junit:junit:4.12"
-    compile "io.vertx:vertx-core:3.4.1"
-
-    compile "net.sf.jopt-simple:jopt-simple:5.0.3"
-
-    compile "net.ltgt.gradle:gradle-apt-plugin:0.6"
-
-
-//    compile "com.github.davidmoten:rxjava-slf4j:0.6.2" // https://github.com/davidmoten/rxjava-slf4j
-//    compile "com.github.davidmoten:rxjava-extras:0.7.9.24" // https://github.com/davidmoten/rxjava-extras
-
-    compile project(':common')
-    compile project(':storage')
-
-    compile "javax.validation:validation-api:1.1.0.Final"
-    compile "javax.inject:javax.inject:1"
-
-    compile  "com.google.dagger:dagger:2.10"
-    apt "com.google.dagger:dagger-compiler:2.10"
-
-    compile fileTree(dir: "libs", include: "*.jar")
+    annotationProcessor libs.daggerCompiler
 }
 
-compileJava {
-    options.annotationProcessorPath = configurations.apt
-}
 
 javadoc {
     options {
@@ -65,51 +48,57 @@ javadoc {
     }
 }
 
-test {
-    testLogging.showStandardStreams = true;
-    testLogging.showStackTraces = true;
-    testLogging.showCauses = true;
-    testLogging.showExceptions = true;
+tasks.named('test').configure {
+    useJUnitPlatform()
+    testLogging {
+        showStandardStreams = true
+        showStackTraces = true
+        showCauses = true
+        showExceptions = true
+    }
     maxParallelForks = 5
     forkEvery = 50
     include "**/Test*.*"
-//    useTestNG()
+    onlyIf {
+        description = "gradle -Dcrawler.test=true"
+        System.properties["crawler.test"] == "true"
+    }
 }
 
-task integrationTest(type: Test) {
-    dependsOn test
+tasks.register('integrationTest', Test) {
+    useJUnitPlatform()
+    dependsOn tasks.test
     include "**/IntegrationTest*.*"
 }
 
-
-test.onlyIf {
-    description = "gradle -Dcrawler.test=true"
-    System.properties["crawler.test"] == "true"
-}
-
-task copyDepsToDocker(type: Copy) {
-    description = "Copy all dependencies to docker/crawler"
-    from configurations.compile
-    into "../docker/crawler/deps"
-}
-
-
-task copyAppToDocker(type: Copy) {
-    description = "Copy app to docker/crawler"
-    dependsOn jar
-    from("$buildDir/libs") {
-        include "crawler*.jar"
+jib {
+    from {
+        image = 'eclipse-temurin:24-jre'
     }
-    into("../docker/crawler/app")
-}
-
-task copyCetrificatesToDocker(type: Copy) {
-    description = "Copy app to docker/crawler"
-    from("src/main/resources/startssl-java-master")
-    into("../docker/crawler/cert")
-}
-
-task dockerPublish() {
-    description = "Copy app and all dependencies to docker/crawler"
-    dependsOn copyDepsToDocker, copyAppToDocker, copyCetrificatesToDocker
+    to {
+        image = 'aggress/crawler'
+        tags = ['latest']
+    }
+    container {
+        mainClass = 'com.naxsoft.Crawler'
+        ports = ['8000']
+        jvmFlags = [
+                '-Xdebug',
+                '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000',
+                '-Djdk.tls.allowUnsafeServerCertChange=true',
+                '-Dsun.security.ssl.allowUnsafeRenegotiation=true'
+        ]
+        args = ['-createESIndex', '-createESMappings', '-clean', '-populate', '-crawl', '-parse']
+        workingDirectory = '/opt/crawler'
+        user = 'crawler:aggress'
+    }
+    extraDirectories {
+        paths {
+            path {
+                from = file('src/main/resources/startssl-java-master')
+                into = '/opt/crawler'
+                includes = ['*.crt', '*.sh']
+            }
+        }
+    }
 }

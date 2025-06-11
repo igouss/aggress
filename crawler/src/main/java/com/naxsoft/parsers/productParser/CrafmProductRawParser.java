@@ -15,9 +15,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class CrafmProductRawParser extends AbstractRawPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrafmProductRawParser.class);
     private static final Map<String, String> mapping = new HashMap<>();

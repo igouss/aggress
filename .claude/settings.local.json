@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(./gradlew:*)",
+      "Bash(apt list:*)",
+      "Bash(java:*)",
+      "Bash(export GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\")",
+      "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew build)",
+      "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew :frontend:build)",
+      "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew tasks --group=publishing)",
+      "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew :crawler:jibDockerBuild --dry-run)",
+      "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew :webadmin:jibDockerBuild --dry-run)",
+      "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew buildDockerImages --dry-run)"
+    ],
+    "deny": []
+  }
+}

@@ -3,9 +3,7 @@ package com.naxsoft.utils;
 import java.io.IOException;
 import java.io.Writer;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 public class ElasticEscape {
     public static void escape(String value, Writer writer) throws Exception {
         try {

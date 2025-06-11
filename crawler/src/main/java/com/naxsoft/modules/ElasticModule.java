@@ -10,11 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
-import java.net.UnknownHostException;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 @Module
 public class ElasticModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticModule.class);
@@ -27,12 +24,8 @@ public class ElasticModule {
         try {
             String elasticHost = AppProperties.getProperty("elasticHost");
             int elasticPort = Integer.parseInt(AppProperties.getProperty("elasticPort"));
-            try {
-                elastic.connect(elasticHost, elasticPort);
-                return elastic;
-            } catch (UnknownHostException e) {
-                LOGGER.error("Failed to connect to elastic search " + elasticHost + ":" + elasticPort, e);
-            }
+            elastic.connect(elasticHost, elasticPort);
+            return elastic;
         } catch (PropertyNotFoundException e) {
             LOGGER.error("Failed to load elasticProperty: " + e.getMessage(), e);
         }

@@ -15,9 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 class SailsProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SailsProductPageParser.class);
     private static final List<Cookie> cookies;

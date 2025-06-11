@@ -1,20 +1,17 @@
 buildscript {
-    ext.kotlin_version = '1.1.1'
-
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}"
     }
 }
 
 plugins {
     id "java"
-    id "idea"
+    id "com.google.cloud.tools.jib"
 }
 
-apply plugin: 'kotlin'
 
 group 'com.naxsoft'
 version '1.0-SNAPSHOT'
@@ -25,8 +22,30 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "io.vertx:vertx-core:3.4.1"
-    compile "io.vertx:vertx-web:3.4.1"
-    compile "io.vertx:vertx-web-templ-thymeleaf:3.4.1"
+    implementation libs.kotlinStdlib
+    implementation libs.bundles.vertxWeb
+}
+
+jib {
+    from {
+        image = 'eclipse-temurin:24-jre'
+    }
+    to {
+        image = 'aggress/webadmin'
+        tags = ['latest']
+    }
+    container {
+        mainClass = 'WebAdminKt'
+        ports = ['8081']
+        workingDirectory = '/opt/webadmin'
+        user = 'webadmin:aggress'
+    }
+    extraDirectories {
+        paths {
+            path {
+                from = file('basedir')
+                into = '/opt/webadmin/basedir'
+            }
+        }
+    }
 }

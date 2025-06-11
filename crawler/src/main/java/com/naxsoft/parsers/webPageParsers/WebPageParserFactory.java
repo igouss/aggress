@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Emitter;
 import rx.Observable;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 import javax.inject.Inject;
@@ -30,9 +29,7 @@ import java.lang.reflect.Modifier;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 public class WebPageParserFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageParserFactory.class);
 

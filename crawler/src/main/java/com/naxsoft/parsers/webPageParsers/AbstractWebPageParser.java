@@ -5,20 +5,18 @@ import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.AbstractCompletionHandler;
 import com.naxsoft.crawler.HttpClient;
 import com.naxsoft.entity.WebPageEntity;
-import org.asynchttpclient.cookie.Cookie;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import org.asynchttpclient.Response;
+import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Subscription;
 
 import java.util.List;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 public abstract class AbstractWebPageParser extends AbstractVerticle implements WebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWebPageParser.class);
     protected final Counter parseResultCounter;

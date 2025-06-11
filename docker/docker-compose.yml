@@ -9,7 +9,7 @@ services:
     labels:
         com.naxsoft.frontend.description: "Web interface"
     container_name: frontend
-    build: frontend
+    image: aggress/frontend:latest
     ports:
       - "8080:8080"
       - "8000:8000"
@@ -24,7 +24,7 @@ services:
     labels:
         com.naxsoft.crawler.description: "Web crawler and indexer"
     container_name: crawler
-    build: crawler
+    image: aggress/crawler:latest
     ports:
       - "8001:8000"
     links:
@@ -34,6 +34,16 @@ services:
       - elasticsearch
       - redis
       - tor-proxy
+    env_file:
+      - common.env
+
+  webadmin:
+    labels:
+      com.naxsoft.webadmin.description: "Web admin interface"
+    container_name: webadmin
+    image: aggress/webadmin:latest
+    ports:
+      - "8081:8081"
     env_file:
       - common.env
 

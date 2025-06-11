@@ -13,9 +13,7 @@ import rx.schedulers.Schedulers;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Copyright NAXSoft 2015
- */
+
 public class PageDownloader {
     /**
      * Download page from the url.
