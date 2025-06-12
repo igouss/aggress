@@ -1,0 +1,100 @@
+FROM eclipse-temurin:24-jdk
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    unzip \
+    git \
+    jq \
+    vim \
+    redis-tools \
+    postgresql-client \
+    ca-certificates \
+    gnupg \
+    lsb-release \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create aggress user
+RUN groupadd --gid 1000 aggress \
+    && useradd --uid 1000 --gid aggress --shell /bin/bash --create-home aggress \
+    && mkdir -p /home/aggress/.gradle /home/aggress/.kube \
+    && chown -R aggress:aggress /home/aggress
+
+# Install Kubernetes tools
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && chmod +x kubectl \
+    && mv kubectl /usr/local/bin/
+
+# Install Helm
+RUN curl https://get.helm.sh/helm-v3.13.0-linux-amd64.tar.gz | tar -xzO linux-amd64/helm > /usr/local/bin/helm \
+    && chmod +x /usr/local/bin/helm
+
+# Install Kind for local Kubernetes
+RUN curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64 \
+    && chmod +x ./kind \
+    && mv ./kind /usr/local/bin/kind
+
+# Install Skaffold for hot reload development
+RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/v2.8.0/skaffold-linux-amd64 \
+    && chmod +x skaffold \
+    && mv skaffold /usr/local/bin/
+
+# Install K9s for Kubernetes TUI
+RUN curl -sS https://webinstall.dev/k9s | bash \
+    && mv ~/.local/bin/k9s /usr/local/bin/
+
+# Install stern for log tailing
+RUN curl -LO https://github.com/stern/stern/releases/download/v1.26.0/stern_1.26.0_linux_amd64.tar.gz \
+    && tar -xzf stern_1.26.0_linux_amd64.tar.gz \
+    && mv stern /usr/local/bin/ \
+    && rm stern_1.26.0_linux_amd64.tar.gz
+
+# Install kubectx and kubens for context switching
+RUN git clone https://github.com/ahmetb/kubectx /opt/kubectx \
+    && ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx \
+    && ln -s /opt/kubectx/kubens /usr/local/bin/kubens
+
+# Install kustomize for Kubernetes configuration management
+RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash \
+    && mv kustomize /usr/local/bin/
+
+# Install yq for YAML processing
+RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq \
+    && chmod +x /usr/local/bin/yq
+
+# Install dive for container image analysis
+RUN wget https://github.com/wagoodman/dive/releases/download/v0.10.0/dive_0.10.0_linux_amd64.deb \
+    && dpkg -i dive_0.10.0_linux_amd64.deb \
+    && rm dive_0.10.0_linux_amd64.deb
+
+# Install Gradle (latest version)
+RUN wget https://services.gradle.org/distributions/gradle-8.5-bin.zip \
+    && unzip gradle-8.5-bin.zip -d /opt \
+    && ln -s /opt/gradle-8.5/bin/gradle /usr/local/bin/gradle \
+    && rm gradle-8.5-bin.zip
+
+# Setup environment for aggress user
+USER aggress
+WORKDIR /workspace
+
+# Create useful aliases and functions
+RUN echo 'alias k=kubectl' >> ~/.bashrc \
+    && echo 'alias kns=kubens' >> ~/.bashrc \
+    && echo 'alias kctx=kubectx' >> ~/.bashrc \
+    && echo 'alias logs="stern"' >> ~/.bashrc \
+    && echo 'alias gradlew="./gradlew"' >> ~/.bashrc \
+    && echo 'export PATH=$PATH:/home/aggress/.local/bin' >> ~/.bashrc
+
+# Configure kubectl completion
+RUN echo 'source <(kubectl completion bash)' >> ~/.bashrc \
+    && echo 'complete -F __start_kubectl k' >> ~/.bashrc
+
+# Configure Helm completion
+RUN echo 'source <(helm completion bash)' >> ~/.bashrc
+
+# Set working directory
+WORKDIR /workspace
+
+# Default command
+CMD ["sleep", "infinity"]

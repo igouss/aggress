@@ -1,0 +1,94 @@
+{
+  "name": "Aggress Web Crawler (Kubernetes)",
+  "dockerComposeFile": [
+    "docker-compose.yml"
+  ],
+  "service": "dev-environment",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "24",
+      "jdkDistro": "temurin"
+    },
+    "ghcr.io/devcontainers/features/gradle:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "version": "latest",
+      "helm": "latest",
+      "minikube": "none"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "redhat.vscode-gradle",
+        "GabrielBB.vscode-lombok",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "ms-vscode.vscode-yaml",
+        "redhat.vscode-yaml",
+        "ms-vscode.remote-containers",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "java.configuration.runtimes": [
+          {
+            "name": "JavaSE-24",
+            "path": "/opt/java/openjdk"
+          }
+        ],
+        "java.compile.nullAnalysis.mode": "automatic",
+        "gradle.nestedProjects": true,
+        "kubernetes.outputFormat": "yaml"
+      }
+    },
+    "idea": {
+      "ideaLauncher": {
+        "vmOptions": [
+          "-Xmx2g",
+          "-XX:+UseG1GC"
+        ]
+      }
+    }
+  },
+  "forwardPorts": [
+    8080,
+    8081,
+    9200,
+    6379,
+    8118,
+    9092,
+    2181
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "Frontend",
+      "onAutoForward": "notify"
+    },
+    "8081": {
+      "label": "WebAdmin",
+      "onAutoForward": "notify"
+    },
+    "9200": {
+      "label": "Elasticsearch",
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    }
+  },
+  "postCreateCommand": ".devcontainer/scripts/post-create.sh",
+  "postStartCommand": ".devcontainer/scripts/post-start.sh",
+  "remoteUser": "aggress",
+  "containerEnv": {
+    "GRADLE_USER_HOME": "/home/aggress/.gradle",
+    "JAVA_HOME": "/opt/java/openjdk"
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder}/.devcontainer/gradle-cache,target=/home/aggress/.gradle,type=bind,consistency=cached"
+  ]
+}

@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: aggress-base
+
+# Common labels applied to all resources
+commonLabels:
+  project: aggress-web-crawler
+  version: v1.0-snapshot
+
+# Base resources
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secrets.yaml
+  - redis.yaml
+  - elasticsearch.yaml
+  - kafka.yaml
+  - tor-proxy.yaml
+  - crawler.yaml
+  - frontend.yaml
+  - webadmin.yaml
+
+# ConfigMap generators
+configMapGenerator:
+  - name: app-config
+    literals:
+      - deployment.env=kubernetes
+      - logging.level=INFO
+
+# Images to be replaced by overlays
+images:
+  - name: aggress/crawler
+    newTag: latest
+  - name: aggress/frontend
+    newTag: latest
+  - name: aggress/webadmin
+    newTag: latest

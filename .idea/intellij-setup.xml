@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PropertiesComponent">
+    <!-- Project-specific settings that auto-configure IntelliJ -->
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    
+    <!-- Auto-enable relevant tool windows -->
+    <property name="ToolWindowManager.ShowToolWindowNames" value="true" />
+    
+    <!-- Gradle-specific settings -->
+    <property name="gradle.settings.migrated" value="true" />
+    
+    <!-- Enable helpful features -->
+    <property name="show.inlinehints.kotlin.enabled" value="true" />
+    <property name="show.inlinehints.java.enabled" value="true" />
+    
+    <!-- Project setup completed flag -->
+    <property name="aggress.project.setup.completed" value="true" />
+  </component>
+  
+  <component name="NotificationDisplayer">
+    <!-- Custom notifications for project setup -->
+    <notifications>
+      <notification 
+        id="aggress.project.welcome"
+        title="Aggress Web Crawler Project"
+        message="Welcome! This project includes pre-configured IntelliJ settings. Check Run configurations, Database connections, and Live Templates."
+        type="INFORMATION"
+        important="true" />
+    </notifications>
+  </component>
+  
+  <component name="ProjectViewSettings">
+    <!-- Optimize project view for this project -->
+    <option name="autoscrollFromSource" value="true" />
+    <option name="autoscrollToSource" value="true" />
+    <option name="showExcludedFiles" value="false" />
+    <option name="showLibraryContents" value="false" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="abbreviatePackageNames" value="true" />
+    <option name="compactDirectories" value="true" />
+    <option name="showMembers" value="true" />
+  </component>
+</project>

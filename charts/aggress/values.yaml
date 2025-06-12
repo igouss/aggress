@@ -1,0 +1,264 @@
+# Default values for aggress web crawler
+# This is a YAML-formatted file.
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: [ ]
+  storageClass: ""
+
+# Image settings
+image:
+  registry: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: [ ]
+
+# Application components
+crawler:
+  enabled: true
+  image:
+    repository: aggress/crawler
+    tag: "latest"
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+  javaOpts: "-Xms512m -Xmx1024m"
+  debug:
+    enabled: false
+    port: 5005
+  config:
+    batchSize: 32
+    timeout: 30000
+    retryAttempts: 3
+    parallelThreads: 4
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+frontend:
+  enabled: true
+  image:
+    repository: aggress/frontend
+    tag: "latest"
+  replicaCount: 2
+  service:
+    type: ClusterIP
+    port: 8080
+    nodePort: 30080
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
+  javaOpts: "-Xms256m -Xmx512m"
+  debug:
+    enabled: false
+    port: 5006
+
+webadmin:
+  enabled: true
+  image:
+    repository: aggress/webadmin
+    tag: "latest"
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 8081
+    nodePort: 30081
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
+  javaOpts: "-Xms256m -Xmx512m"
+  debug:
+    enabled: false
+    port: 5007
+
+# External dependencies
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "devpassword"
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "250m"
+
+elasticsearch:
+  enabled: true
+  clusterName: "aggress"
+  nodeGroup: "master"
+  masterService: "aggress-elasticsearch"
+  replicas: 1
+  minimumMasterNodes: 1
+  esJavaOpts: "-Xmx512m -Xms512m"
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+  volumeClaimTemplate:
+    resources:
+      requests:
+        storage: 10Gi
+  persistence:
+    enabled: true
+
+kafka:
+  enabled: true
+  replicaCount: 1
+  persistence:
+    enabled: true
+    size: 8Gi
+  zookeeper:
+    enabled: true
+    replicaCount: 1
+    persistence:
+      enabled: true
+      size: 8Gi
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+
+# Tor proxy for anonymity
+torProxy:
+  enabled: true
+  image:
+    repository: arulrajnet/torprivoxy
+    tag: "latest"
+  replicaCount: 1
+  service:
+    privoxyPort: 8118
+    torPort: 9050
+    controlPort: 9051
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "100m"
+
+# Configuration
+config:
+  # Application environment
+  environment: "production"
+  
+  # Logging configuration
+  logging:
+    level: "INFO"
+
+  # Crawler credentials (use secrets in production)
+  crawler:
+    login: ""
+    password: ""
+
+# Kubernetes configuration
+serviceAccount:
+  create: true
+  name: "aggress-service-account"
+  annotations: { }
+
+rbac:
+  create: true
+
+# Pod Security Context
+podSecurityContext:
+  fsGroup: 2000
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# Security Context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: { }
+  hosts:
+    - host: aggress.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+        - path: /admin
+          pathType: Prefix
+          service: webadmin
+  tls: [ ]
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Node selection
+nodeSelector: { }
+tolerations: [ ]
+affinity: { }
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+# Network Policies
+networkPolicy:
+  enabled: false
+
+# Monitoring
+monitoring:
+  enabled: false
+  prometheus:
+    enabled: false
+  grafana:
+    enabled: false
+
+# Backup
+backup:
+  enabled: false
+  schedule: "0 2 * * *"
+  retention: "7d"

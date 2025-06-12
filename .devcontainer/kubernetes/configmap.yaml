@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aggress-config
+  namespace: aggress-dev
+  labels:
+    app: aggress
+    environment: development
+data:
+  # Redis Configuration
+  redis.host: "redis"
+  redis.port: "6379"
+  redis.database: "0"
+  
+  # Elasticsearch Configuration
+  elasticsearch.host: "elasticsearch"
+  elasticsearch.port: "9200"
+  elasticsearch.index: "products"
+  
+  # Kafka Configuration
+  kafka.bootstrap.servers: "kafka:9092"
+  kafka.topic.pages: "pages"
+  
+  # Application Configuration
+  deployment.env: "development"
+  logging.level: "DEBUG"
+  crawler.batch.size: "32"
+  crawler.timeout: "30000"
+  
+  # Tor Proxy Configuration
+  tor.proxy.host: "tor-proxy"
+  tor.proxy.port: "8118"
+  
+  # Application Properties
+  application.properties: |
+    # Redis Configuration
+    redisHost=${REDIS_HOST:redis}
+    redisPort=${REDIS_PORT:6379}
+    redisPassword=${REDIS_PASSWORD:}
+    # Elasticsearch Configuration  
+    elasticHost=${ELASTIC_HOST:elasticsearch}
+    elasticPort=${ELASTIC_PORT:9200}
+    # Kafka Configuration
+    kafkaBootstrapServers=${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    # Crawler Configuration
+    canadiangunnutzLogin=${CRAWLER_LOGIN:}
+    canadiangunnutzPassword=${CRAWLER_PASSWORD:}
+    # Development Settings
+    deployment.env=development
+    logging.level=DEBUG
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-config
+  namespace: aggress-dev
+  labels:
+    app: elasticsearch
+    environment: development
+data:
+  elasticsearch.yml: |
+    cluster.name: "aggress-dev"
+    network.host: 0.0.0.0
+    discovery.type: single-node
+    xpack.security.enabled: false
+    xpack.monitoring.collection.enabled: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: aggress-dev
+  labels:
+    app: redis
+    environment: development
+data:
+  redis.conf: |
+    bind 0.0.0.0
+    port 6379
+    timeout 0
+    tcp-keepalive 300
+    daemonize no
+    supervised no
+    loglevel notice
+    databases 16
+    save 900 1
+    save 300 10
+    save 60 10000
+    stop-writes-on-bgsave-error yes
+    rdbcompression yes
+    rdbchecksum yes
+    dbfilename dump.rdb
+    dir /data
+    appendonly yes
+    appendfilename "appendonly.aof"
+    appendfsync everysec

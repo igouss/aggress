@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aggress-dev
+  labels:
+    name: aggress-dev
+    environment: development
+    project: aggress-web-crawler

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="TipOfTheDayManager">
+    <option name="projectTips">
+      <list>
+        <TipOfTheDay>
+          <option name="tipText" value="&lt;html&gt;Welcome to Aggress Web Crawler! This project includes pre-configured run configurations for Crawler, Frontend, and WebAdmin. Check &lt;b&gt;Run → Edit Configurations&lt;/b&gt; to see them all.&lt;/html&gt;" />
+        </TipOfTheDay>
+        <TipOfTheDay>
+          <option name="tipText" value="&lt;html&gt;💡 Use Live Templates for faster coding! Type &lt;code&gt;lombokdata&lt;/code&gt; + Tab for @Data classes, &lt;code&gt;service&lt;/code&gt; + Tab for Spring services, and more. See all in &lt;b&gt;Settings → Live Templates → Aggress&lt;/b&gt;&lt;/html&gt;" />
+        </TipOfTheDay>
+        <TipOfTheDay>
+          <option name="tipText" value="&lt;html&gt;🗄️ Database connections are pre-configured! Open &lt;b&gt;Database&lt;/b&gt; tool window to access Redis and Elasticsearch with one click.&lt;/html&gt;" />
+        </TipOfTheDay>
+        <TipOfTheDay>
+          <option name="tipText" value="&lt;html&gt;☸️ Debug Kubernetes pods directly! Use &lt;b&gt;Kubectl Port Forward: Crawler Debug&lt;/b&gt; then &lt;b&gt;Remote Debug: Kubernetes Crawler&lt;/b&gt; to debug live code.&lt;/html&gt;" />
+        </TipOfTheDay>
+        <TipOfTheDay>
+          <option name="tipText" value="&lt;html&gt;🐳 Manage Docker services visually! Open &lt;b&gt;Services&lt;/b&gt; tool window → Docker → Compose to start/stop services with a GUI.&lt;/html&gt;" />
+        </TipOfTheDay>
+      </list>
+    </option>
+  </component>
+</project>

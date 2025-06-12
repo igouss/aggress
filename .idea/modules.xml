@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/aggress.iml" filepath="$PROJECT_DIR$/.idea/modules/aggress.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/aggress.common.iml" filepath="$PROJECT_DIR$/.idea/modules/common/aggress.common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/aggress.common.main.iml" filepath="$PROJECT_DIR$/.idea/modules/common/aggress.common.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/aggress.common.test.iml" filepath="$PROJECT_DIR$/.idea/modules/common/aggress.common.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/crawler/aggress.crawler.iml" filepath="$PROJECT_DIR$/.idea/modules/crawler/aggress.crawler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/crawler-admin/aggress.crawler-admin.iml" filepath="$PROJECT_DIR$/.idea/modules/crawler-admin/aggress.crawler-admin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/crawler-admin/aggress.crawler-admin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/crawler-admin/aggress.crawler-admin.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/crawler-admin/aggress.crawler-admin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/crawler-admin/aggress.crawler-admin.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/crawler/aggress.crawler.main.iml" filepath="$PROJECT_DIR$/.idea/modules/crawler/aggress.crawler.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/crawler/aggress.crawler.test.iml" filepath="$PROJECT_DIR$/.idea/modules/crawler/aggress.crawler.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/frontend/aggress.frontend.iml" filepath="$PROJECT_DIR$/.idea/modules/frontend/aggress.frontend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/frontend/aggress.frontend.main.iml" filepath="$PROJECT_DIR$/.idea/modules/frontend/aggress.frontend.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/frontend/aggress.frontend.test.iml" filepath="$PROJECT_DIR$/.idea/modules/frontend/aggress.frontend.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/aggress.main.iml" filepath="$PROJECT_DIR$/.idea/modules/aggress.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/storage/aggress.storage.iml" filepath="$PROJECT_DIR$/.idea/modules/storage/aggress.storage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/storage/aggress.storage.main.iml" filepath="$PROJECT_DIR$/.idea/modules/storage/aggress.storage.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/storage/aggress.storage.test.iml" filepath="$PROJECT_DIR$/.idea/modules/storage/aggress.storage.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/aggress.test.iml" filepath="$PROJECT_DIR$/.idea/modules/aggress.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/webadmin/aggress.webadmin.iml" filepath="$PROJECT_DIR$/.idea/modules/webadmin/aggress.webadmin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/webadmin/aggress.webadmin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/webadmin/aggress.webadmin.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/webadmin/aggress.webadmin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/webadmin/aggress.webadmin.test.iml" />
+    </modules>
+  </component>
+</project>

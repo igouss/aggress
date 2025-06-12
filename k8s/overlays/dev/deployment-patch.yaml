@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crawler
+  namespace: aggress-dev
+spec:
+  template:
+    spec:
+      containers:
+        - name: crawler
+          # Development-specific environment variables
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "development"
+            - name: JAVA_OPTS
+              value: "-Xms256m -Xmx512m -Djdk.tls.allowUnsafeServerCertChange=true -Dsun.security.ssl.allowUnsafeRenegotiation=true -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:8000"
+          # Lower resource requirements for development
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+          # More lenient health checks for development
+          livenessProbe:
+            initialDelaySeconds: 120
+            periodSeconds: 60
+            timeoutSeconds: 30
+            failureThreshold: 5
+          readinessProbe:
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 15
+            failureThreshold: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: aggress-dev
+spec:
+  template:
+    spec:
+      containers:
+        - name: frontend
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "development"
+            - name: JAVA_OPTS
+              value: "-Xms256m -Xmx512m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:8000"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webadmin
+  namespace: aggress-dev
+spec:
+  template:
+    spec:
+      containers:
+        - name: webadmin
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "development"
+            - name: JAVA_OPTS
+              value: "-Xms256m -Xmx512m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:8000"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"

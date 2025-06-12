@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crawler
+  namespace: aggress-dev
+  labels:
+    app: crawler
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crawler
+  template:
+    metadata:
+      labels:
+        app: crawler
+        component: backend
+    spec:
+      serviceAccountName: aggress-service-account
+      containers:
+        - name: crawler
+          image: aggress/crawler:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: debug
+          env:
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: aggress-config
+                  key: redis.host
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: aggress-config
+                  key: redis.port
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: aggress-secrets
+                  key: redis-password
+            - name: ELASTIC_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: aggress-config
+                  key: elasticsearch.host
+            - name: ELASTIC_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: aggress-config
+                  key: elasticsearch.port
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: aggress-config
+                  key: kafka.bootstrap.servers
+            - name: CRAWLER_LOGIN
+              valueFrom:
+                secretKeyRef:
+                  name: aggress-secrets
+                  key: crawler-login
+                  optional: true
+            - name: CRAWLER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: aggress-secrets
+                  key: crawler-password
+                  optional: true
+            - name: JAVA_OPTS
+              value: "-Xms512m -Xmx1024m -Djdk.tls.allowUnsafeServerCertChange=true -Dsun.security.ssl.allowUnsafeRenegotiation=true"
+          volumeMounts:
+            - name: ssl-certs
+              mountPath: /opt/crawler/certs
+              readOnly: true
+            - name: config-volume
+              mountPath: /opt/crawler/config
+              readOnly: true
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: ssl-certs
+          secret:
+            secretName: ssl-certificates
+            optional: true
+        - name: config-volume
+          configMap:
+            name: aggress-config
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crawler
+  namespace: aggress-dev
+  labels:
+    app: crawler
+    component: backend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: debug
+  selector:
+    app: crawler

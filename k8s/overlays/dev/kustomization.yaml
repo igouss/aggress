@@ -1,0 +1,54 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: aggress-dev
+
+# Include base configuration
+resources:
+  - ../../base
+  - ../../.devcontainer/kubernetes
+
+# Environment-specific namespace
+namespace: aggress-dev
+
+# Development-specific labels
+commonLabels:
+  environment: development
+
+# Development-specific annotations
+commonAnnotations:
+  environment: development
+  managed-by: skaffold
+
+# ConfigMap patches for development
+patchesStrategicMerge:
+  - configmap-patch.yaml
+  - deployment-patch.yaml
+
+# Development-specific ConfigMap
+configMapGenerator:
+  - name: dev-config
+    literals:
+      - deployment.env=development
+      - logging.level=DEBUG
+      - crawler.batch.size=16
+      - crawler.timeout=60000
+
+# Image tags for development (will be overridden by Skaffold)
+images:
+  - name: aggress/crawler
+    newTag: dev
+  - name: aggress/frontend
+    newTag: dev
+  - name: aggress/webadmin
+    newTag: dev
+
+# Replicas for development
+replicas:
+  - name: crawler
+    count: 1
+  - name: frontend
+    count: 1
+  - name: webadmin
+    count: 1

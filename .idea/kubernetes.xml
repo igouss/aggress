@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="KubernetesApiProvider">
+    <option name="contexts">
+      <list>
+        <option value="kind-aggress-dev" />
+        <option value="docker-desktop" />
+      </list>
+    </option>
+  </component>
+  <component name="KubernetesSettings">
+    <option name="kubernetesNamespaces">
+      <list>
+        <option value="aggress-dev" />
+        <option value="aggress-staging" />
+        <option value="aggress-prod" />
+        <option value="default" />
+        <option value="kube-system" />
+      </list>
+    </option>
+    <option name="defaultContext" value="kind-aggress-dev" />
+    <option name="defaultNamespace" value="aggress-dev" />
+    <option name="enableResourceAutoRefresh" value="true" />
+    <option name="resourceAutoRefreshInterval" value="30" />
+  </component>
+</project>

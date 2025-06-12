@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration default="false" name="Crawler" type="Application" factoryName="Application">
+  <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/.devcontainer/java-24" />
+  <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+  <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
+  <option name="MAIN_CLASS_NAME" value="com.naxsoft.Crawler" />
+  <module name="crawler" />
+  <option name="PROGRAM_PARAMETERS" value="-createESIndex -createESMappings -clean -populate -crawl -parse" />
+  <option name="VM_PARAMETERS" value="-Xms512m -Xmx1024m -Djdk.tls.allowUnsafeServerCertChange=true -Dsun.security.ssl.allowUnsafeRenegotiation=true" />
+  <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+  <envs>
+    <env name="REDIS_HOST" value="redis" />
+    <env name="REDIS_PORT" value="6379" />
+    <env name="REDIS_PASSWORD" value="devpassword" />
+    <env name="ELASTIC_HOST" value="elasticsearch" />
+    <env name="ELASTIC_PORT" value="9200" />
+    <env name="KAFKA_BOOTSTRAP_SERVERS" value="kafka:29092" />
+    <env name="DEPLOYMENT_ENV" value="development" />
+    <env name="LOGGING_LEVEL" value="DEBUG" />
+  </envs>
+  <method v="2">
+    <option name="Make" enabled="true" />
+    <option name="Gradle.BeforeRunTask" enabled="true" tasks="crawler:build" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
+  </method>
+</configuration>

@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aggress-config
+  namespace: aggress-dev
+data:
+  # Development-specific overrides
+  deployment.env: "development"
+  logging.level: "DEBUG"
+  crawler.batch.size: "16"
+  crawler.timeout: "60000"
+  
+  # Development service endpoints
+  redis.host: "redis"
+  redis.port: "6379"
+  elasticsearch.host: "elasticsearch"
+  elasticsearch.port: "9200"
+  kafka.bootstrap.servers: "kafka:9092"
+  
+  # Development application properties
+  application.properties: |
+    # Development Configuration
+    deployment.env=development
+    logging.level=DEBUG
+    # Redis Configuration (Development)
+    redisHost=redis
+    redisPort=6379
+    redisPassword=devpassword
+    redisDatabase=0
+    # Elasticsearch Configuration (Development)
+    elasticHost=elasticsearch
+    elasticPort=9200
+    elasticIndex=products-dev
+    # Kafka Configuration (Development)
+    kafkaBootstrapServers=kafka:9092
+    kafkaTopicPages=pages-dev
+    # Crawler Configuration (Development)
+    canadiangunnutzLogin=
+    canadiangunnutzPassword=
+    # Tor Proxy Configuration (Development)
+    torProxyHost=tor-proxy
+    torProxyPort=8118
+    # Development-specific settings
+    crawler.parallel.threads=2
+    crawler.batch.size=16
+    crawler.timeout=60000
+    crawler.retry.attempts=3
+    crawler.rate.limit=100

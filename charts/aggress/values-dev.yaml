@@ -1,0 +1,162 @@
+# Development environment values for Aggress Web Crawler
+# Override values for development environment
+
+# Global settings for development
+global:
+  imageRegistry: "localhost:5000"
+
+# Development image settings
+image:
+  pullPolicy: Never  # Don't pull images in development
+
+# Crawler configuration for development
+crawler:
+  replicaCount: 1
+  debug:
+    enabled: true
+    port: 5005
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
+  javaOpts: "-Xms256m -Xmx512m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005"
+  config:
+    batchSize: 16
+    timeout: 60000
+    parallelThreads: 2
+  livenessProbe:
+    initialDelaySeconds: 120
+    periodSeconds: 60
+    failureThreshold: 5
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    failureThreshold: 5
+
+# Frontend configuration for development
+frontend:
+  replicaCount: 1
+  debug:
+    enabled: true
+    port: 5006
+  service:
+    type: NodePort
+    nodePort: 30080
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "100m"
+  javaOpts: "-Xms128m -Xmx256m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5006"
+
+# WebAdmin configuration for development
+webadmin:
+  debug:
+    enabled: true
+    port: 5007
+  service:
+    type: NodePort
+    nodePort: 30081
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "100m"
+  javaOpts: "-Xms128m -Xmx256m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5007"
+
+# Redis configuration for development
+redis:
+  auth:
+    password: "devpassword"
+  master:
+    persistence:
+      enabled: false  # Disable persistence in development
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "50m"
+      limits:
+        memory: "256Mi"
+        cpu: "100m"
+
+# Elasticsearch configuration for development
+elasticsearch:
+  clusterName: "aggress-dev"
+  replicas: 1
+  minimumMasterNodes: 1
+  esJavaOpts: "-Xmx256m -Xms256m"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "250m"
+      memory: "512Mi"
+  persistence:
+    enabled: false  # Disable persistence in development
+
+# Kafka configuration for development
+kafka:
+  replicaCount: 1
+  persistence:
+    enabled: false  # Disable persistence in development
+  zookeeper:
+    replicaCount: 1
+    persistence:
+      enabled: false
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
+
+# Tor proxy for development
+torProxy:
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "25m"
+    limits:
+      memory: "128Mi"
+      cpu: "50m"
+
+# Development configuration
+config:
+  environment: "development"
+  logging:
+    level: "DEBUG"
+
+# Security context for development (more relaxed)
+podSecurityContext:
+  runAsNonRoot: false
+  runAsUser: 0  # Run as root in development for easier debugging
+
+securityContext:
+  allowPrivilegeEscalation: true
+  runAsNonRoot: false
+  runAsUser: 0
+
+# Disable autoscaling in development
+autoscaling:
+  enabled: false
+
+# Disable network policies in development
+networkPolicy:
+  enabled: false
+
+# Disable monitoring in development
+monitoring:
+  enabled: false
+
+# Disable backup in development
+backup:
+  enabled: false

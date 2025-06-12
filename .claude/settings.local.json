@@ -11,7 +11,12 @@
       "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew tasks --group=publishing)",
       "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew :crawler:jibDockerBuild --dry-run)",
       "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew :webadmin:jibDockerBuild --dry-run)",
-      "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew buildDockerImages --dry-run)"
+      "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED\" ./gradlew buildDockerImages --dry-run)",
+      "Bash(chmod:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(git add:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

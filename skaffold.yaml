@@ -1,0 +1,135 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: aggress-dev
+build:
+  artifacts:
+    - image: aggress/crawler
+      jib:
+        project: crawler
+        args:
+          - -Djib.to.image=aggress/crawler
+    - image: aggress/frontend
+      jib:
+        project: frontend
+        args:
+          - -Djib.to.image=aggress/frontend
+    - image: aggress/webadmin
+      jib:
+        project: webadmin
+        args:
+          - -Djib.to.image=aggress/webadmin
+  local:
+    push: false
+    useDockerCLI: false
+manifests:
+  kustomize:
+    paths:
+      - k8s/overlays/dev
+deploy:
+  statusCheckDeadlineSeconds: 300
+  logs:
+    prefix: container
+  kubectl:
+    flags:
+      global: [ "--context=kind-aggress-dev" ]
+portForward:
+  - resourceType: service
+    resourceName: frontend
+    namespace: aggress-dev
+    port: 8080
+    localPort: 8080
+  - resourceType: service
+    resourceName: webadmin
+    namespace: aggress-dev
+    port: 8081
+    localPort: 8081
+  - resourceType: service
+    resourceName: elasticsearch
+    namespace: aggress-dev
+    port: 9200
+    localPort: 9200
+  - resourceType: service
+    resourceName: redis
+    namespace: aggress-dev
+    port: 6379
+    localPort: 6379
+profiles:
+  - name: dev
+    activation:
+      - env: SKAFFOLD_PROFILE=dev
+    build:
+      artifacts:
+        - image: aggress/crawler
+          jib:
+            project: crawler
+        - image: aggress/frontend
+          jib:
+            project: frontend
+        - image: aggress/webadmin
+          jib:
+            project: webadmin
+      local:
+        push: false
+    deploy:
+      kubectl:
+        flags:
+          global: [ "--context=kind-aggress-dev", "--namespace=aggress-dev" ]
+  - name: debug
+    activation:
+      - command: debug
+    build:
+      artifacts:
+        - image: aggress/crawler
+          jib:
+            project: crawler
+            args:
+              - -Djib.container.jvmFlags=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+        - image: aggress/frontend
+          jib:
+            project: frontend
+            args:
+              - -Djib.container.jvmFlags=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006
+        - image: aggress/webadmin
+          jib:
+            project: webadmin
+            args:
+              - -Djib.container.jvmFlags=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007
+    portForward:
+      - resourceType: service
+        resourceName: crawler
+        namespace: aggress-dev
+        port: 5005
+        localPort: 5005
+      - resourceType: service
+        resourceName: frontend
+        namespace: aggress-dev
+        port: 5006
+        localPort: 5006
+      - resourceType: service
+        resourceName: webadmin
+        namespace: aggress-dev
+        port: 5007
+        localPort: 5007
+  - name: staging
+    activation:
+      - env: SKAFFOLD_PROFILE=staging
+    build:
+      artifacts:
+        - image: aggress/crawler
+          jib:
+            project: crawler
+        - image: aggress/frontend
+          jib:
+            project: frontend
+        - image: aggress/webadmin
+          jib:
+            project: webadmin
+    manifests:
+      kustomize:
+        paths:
+          - k8s/overlays/staging
+    deploy:
+      kubectl:
+        flags:
+          global: [ "--namespace=aggress-staging" ]

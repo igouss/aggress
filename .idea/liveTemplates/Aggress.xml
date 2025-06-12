@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templateSet group="Aggress">
+  <template name="lombokdata" value="@Data&#10;@Builder&#10;@NoArgsConstructor&#10;@AllArgsConstructor&#10;public class $CLASS_NAME$ {&#10;    $END$&#10;}&#10;" description="Lombok Data Class" toReformat="true" toShortenFQNames="true">
+    <variable name="CLASS_NAME" expression="className()" defaultValue="" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_DECLARATION" value="true" />
+    </context>
+  </template>
+  
+  <template name="lombokvalue" value="@Value&#10;@Builder&#10;public class $CLASS_NAME$ {&#10;    $END$&#10;}&#10;" description="Lombok Immutable Value Class" toReformat="true" toShortenFQNames="true">
+    <variable name="CLASS_NAME" expression="className()" defaultValue="" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_DECLARATION" value="true" />
+    </context>
+  </template>
+  
+  <template name="slf4j" value="@Slf4j&#10;" description="SLF4J Logger annotation" toReformat="true" toShortenFQNames="true">
+    <context>
+      <option name="JAVA_DECLARATION" value="true" />
+    </context>
+  </template>
+  
+  <template name="service" value="@Service&#10;@RequiredArgsConstructor&#10;@Slf4j&#10;public class $CLASS_NAME$ {&#10;    &#10;    $END$&#10;}&#10;" description="Spring Service Class" toReformat="true" toShortenFQNames="true">
+    <variable name="CLASS_NAME" expression="className()" defaultValue="" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_DECLARATION" value="true" />
+    </context>
+  </template>
+  
+  <template name="controller" value="@RestController&#10;@RequestMapping(&quot;/$PATH$&quot;)&#10;@RequiredArgsConstructor&#10;@Slf4j&#10;public class $CLASS_NAME$ {&#10;    &#10;    $END$&#10;}&#10;" description="Spring REST Controller" toReformat="true" toShortenFQNames="true">
+    <variable name="CLASS_NAME" expression="className()" defaultValue="" alwaysStopAt="true" />
+    <variable name="PATH" expression="&quot;&quot;" defaultValue="" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_DECLARATION" value="true" />
+    </context>
+  </template>
+  
+  <template name="configprops" value="@Data&#10;@ConfigurationProperties(&quot;$PREFIX$&quot;)&#10;@Validated&#10;public class $CLASS_NAME$ {&#10;    &#10;    $END$&#10;}&#10;" description="Spring Configuration Properties" toReformat="true" toShortenFQNames="true">
+    <variable name="CLASS_NAME" expression="className()" defaultValue="" alwaysStopAt="true" />
+    <variable name="PREFIX" expression="&quot;&quot;" defaultValue="" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_DECLARATION" value="true" />
+    </context>
+  </template>
+  
+  <template name="completablefuture" value="CompletableFuture&lt;$TYPE$&gt; $VAR$ = CompletableFuture.supplyAsync(() -&gt; {&#10;    $END$&#10;});" description="CompletableFuture async operation" toReformat="true" toShortenFQNames="true">
+    <variable name="TYPE" expression="&quot;Object&quot;" defaultValue="&quot;Object&quot;" alwaysStopAt="true" />
+    <variable name="VAR" expression="&quot;future&quot;" defaultValue="&quot;future&quot;" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_STATEMENT" value="true" />
+    </context>
+  </template>
+  
+  <template name="crawlertest" value="@Test&#10;void should$TEST_NAME$() {&#10;    // Given&#10;    $GIVEN$&#10;    &#10;    // When&#10;    $WHEN$&#10;    &#10;    // Then&#10;    $THEN$&#10;    $END$&#10;}&#10;" description="Crawler Test Method" toReformat="true" toShortenFQNames="true">
+    <variable name="TEST_NAME" expression="&quot;&quot;" defaultValue="" alwaysStopAt="true" />
+    <variable name="GIVEN" expression="&quot;&quot;" defaultValue="" alwaysStopAt="true" />
+    <variable name="WHEN" expression="&quot;&quot;" defaultValue="" alwaysStopAt="true" />
+    <variable name="THEN" expression="&quot;&quot;" defaultValue="" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_DECLARATION" value="true" />
+    </context>
+  </template>
+</templateSet>

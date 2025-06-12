@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  dev-environment:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ../:/workspace:cached
+      - gradle-cache:/home/aggress/.gradle
+      - k8s-cache:/home/aggress/.kube
+      - docker-socket:/var/run/docker.sock
+    command: sleep infinity
+    environment:
+      - GRADLE_USER_HOME=/home/aggress/.gradle
+      - KUBECONFIG=/home/aggress/.kube/config
+    depends_on:
+      - redis
+      - elasticsearch
+      - tor-proxy
+    networks:
+      - aggress-dev
+
+  # Development Redis instance
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --requirepass devpassword
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - aggress-dev
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+
+  # Development Elasticsearch instance  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.24
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - aggress-dev
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  # Kafka for message processing
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - aggress-dev
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    networks:
+      - aggress-dev
+
+  # Tor proxy for crawler anonymity
+  tor-proxy:
+    image: arulrajnet/torprivoxy
+    restart: unless-stopped
+    ports:
+      - "8118:8118"
+      - "9050:9050"
+      - "9051:9051"
+    networks:
+      - aggress-dev
+
+  # Local container registry for development
+  registry:
+    image: registry:2
+    ports:
+      - "5000:5000"
+    volumes:
+      - registry-data:/var/lib/registry
+    networks:
+      - aggress-dev
+
+volumes:
+  gradle-cache:
+  k8s-cache:
+  docker-socket:
+  redis-data:
+  elasticsearch-data:
+  registry-data:
+
+networks:
+  aggress-dev:
+    driver: bridge

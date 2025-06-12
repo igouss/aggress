@@ -193,3 +193,11 @@ Product mapping and index configuration is defined in:
 
 **Note**: Both storage and frontend modules now use the modern Elasticsearch Java API Client, eliminating all deprecated
 Elasticsearch warnings.
+
+## Development Guidelines
+
+### Class Documentation Strategy
+
+In each Java class directory, create a `claude.md` file with a small description about the class and how it fits into
+the application architecture. Keep these files up-to-date during refactoring to maintain clear documentation of the
+codebase structure and purpose of each class.

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DockerComposeFileWatcher">
+    <option name="enabled" value="true" />
+  </component>
+  <component name="DockerComposeSettings">
+    <option name="composeFiles">
+      <list>
+        <option value="$PROJECT_DIR$/.devcontainer/docker-compose.yml" />
+        <option value="$PROJECT_DIR$/docker/docker-compose.yml" />
+      </list>
+    </option>
+    <option name="defaultProfile" value="Development" />
+    <option name="profiles">
+      <map>
+        <entry key="Development">
+          <value>
+            <DockerComposeProfile>
+              <option name="composeFiles">
+                <list>
+                  <option value="$PROJECT_DIR$/.devcontainer/docker-compose.yml" />
+                </list>
+              </option>
+              <option name="env">
+                <map>
+                  <entry key="DEPLOYMENT_ENV" value="development" />
+                </map>
+              </option>
+              <option name="name" value="Development" />
+            </DockerComposeProfile>
+          </value>
+        </entry>
+        <entry key="Production">
+          <value>
+            <DockerComposeProfile>
+              <option name="composeFiles">
+                <list>
+                  <option value="$PROJECT_DIR$/docker/docker-compose.yml" />
+                </list>
+              </option>
+              <option name="env">
+                <map>
+                  <entry key="DEPLOYMENT_ENV" value="production" />
+                </map>
+              </option>
+              <option name="name" value="Production" />
+            </DockerComposeProfile>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

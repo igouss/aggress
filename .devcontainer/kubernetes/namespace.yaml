@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aggress-dev
+  labels:
+    name: aggress-dev
+    environment: development
+    project: aggress-web-crawler
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aggress-staging
+  labels:
+    name: aggress-staging
+    environment: staging
+    project: aggress-web-crawler
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aggress-prod
+  labels:
+    name: aggress-prod
+    environment: production
+    project: aggress-web-crawler
