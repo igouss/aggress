@@ -11,8 +11,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter;
-import rx.Observable;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
 
 public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WestcoastHuntingProductListParser.class);
@@ -21,8 +21,8 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        return Observable.create(emitter -> {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        return Flux.create(emitter -> {
             try {
                 Document document = downloadResult.getDocument();
                 if (document != null) {
@@ -31,9 +31,9 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
                     // Sub- categories
                     Elements elements = document.select(".product-category > a");
                     for (Element element : elements) {
-                        WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                        WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                         LOGGER.info("Product sub-listing {}", webPageEntity.getUrl());
-                        emitter.onNext(webPageEntity);
+                        emitter.next(webPageEntity);
                     }
 
                     // Pagination
@@ -47,32 +47,32 @@ public class WestcoastHuntingProductListParser extends AbstractWebPageParser {
                             }
                         }
                         for (int i = 2; i < max; i++) {
-                            WebPageEntity webPageEntity = new WebPageEntity(sourcePage, "", "productList", sourcePage.getUrl() + "page/" + i + "/", sourcePage.getCategory());
+                            WebPageEntity webPageEntity = WebPageEntity.legacyCreate(sourcePage, "", "productList", sourcePage.getUrl() + "page/" + i + "/", sourcePage.getCategory());
                             LOGGER.info("Product list subpage {} {}", i, webPageEntity.getUrl());
-                            emitter.onNext(webPageEntity);
+                            emitter.next(webPageEntity);
                         }
                     }
 
                     // Product pages
                     elements = document.select(".product.instock a");
                     for (Element el : elements) {
-                        WebPageEntity webPageEntity = new WebPageEntity(sourcePage, "", "productPage", el.attr("abs:href"), sourcePage.getCategory());
+                        WebPageEntity webPageEntity = WebPageEntity.legacyCreate(sourcePage, "", "productPage", el.attr("abs:href"), sourcePage.getCategory());
                         LOGGER.info("Product page {}", webPageEntity.getUrl());
-                        emitter.onNext(webPageEntity);
+                        emitter.next(webPageEntity);
                     }
 
-                    emitter.onCompleted();
+                    emitter.complete();
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to parse", e);
-                emitter.onCompleted();
+                emitter.complete();
             }
 
-        }, Emitter.BackpressureMode.BUFFER);
+        }, FluxSink.OverflowStrategy.BUFFER);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

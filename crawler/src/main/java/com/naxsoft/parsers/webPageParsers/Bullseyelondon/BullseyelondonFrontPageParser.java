@@ -11,7 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,23 +23,23 @@ class BullseyelondonFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".vertnav-cat a");
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href") + "?limit=all", element.text());
+                WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href") + "?limit=all", element.text());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPage) {
         return client.get(webPage.getUrl(), new DocumentCompletionHandler(webPage))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

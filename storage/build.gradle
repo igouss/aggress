@@ -1,8 +1,16 @@
 plugins {
     id "java-library"
     id "idea"
+    id "org.springframework.boot" apply false
+    id "io.spring.dependency-management"
 }
 
+// Import Spring Boot BOM for dependency management
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:${libs.versions.springBoot.get()}"
+    }
+}
 
 /*
 https://docs.gradle.org/current/userguide/java_library_plugin.html
@@ -10,13 +18,20 @@ https://docs.gradle.org/current/userguide/java_library_plugin.html
 dependencies {
     implementation project(':common')
     implementation libs.gson
-    implementation libs.javaxInject
-    implementation libs.rxjava
     implementation libs.bundles.logging
     implementation libs.commonsIo
     implementation libs.bundles.elasticsearch
 
+    // Reactor core for reactive programming
+    implementation 'io.projectreactor:reactor-core'
+
     api libs.lettuce
 
+    // Spring Boot data dependencies
+    implementation libs.springBootStarter
+    implementation libs.springBootStarterData
+    annotationProcessor libs.springBootConfigurationProcessor
+
     testImplementation libs.junit5
+    testImplementation libs.springBootStarterTest
 }

@@ -14,7 +14,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.*;
 
@@ -35,13 +35,13 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
             formParameters.put("do", "login");
             formParameters.put("vb_login_md5password", "");
             formParameters.put("vb_login_md5password_utf", "");
-            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).toBlocking().first();
+            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).blockFirst();
         } catch (PropertyNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -56,7 +56,7 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                     if (select.first().text().contains("WTS")) {
                         element = element.select("a.title").first();
                         if (!element.text().toLowerCase().contains("remove")) {
-                            WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                            WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                             LOGGER.info("productPage={}", webPageEntity.getUrl());
                             result.add(webPageEntity);
                         }
@@ -64,11 +64,11 @@ class CanadiangunnutzProductListParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flux<WebPageEntity> parse(WebPageEntity parent) {
         return client.get(parent.getUrl(), cookies, new DocumentCompletionHandler(parent))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

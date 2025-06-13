@@ -1,15 +1,14 @@
 package com.naxsoft.utils;
 
-import rx.exceptions.OnErrorNotImplementedException;
-import rx.functions.Action1;
+import java.util.function.Consumer;
 
 /**
  * Copyright NAXSoft 2015
  * <p>
- * Helper gunctions for RxJava
+ * Helper functions for Reactor
  */
 class Rx {
-    public static Action1<Throwable> crashOnError() {
+    public static Consumer<Throwable> crashOnError() {
         final Throwable checkpoint = new Throwable();
         return throwable -> {
             StackTraceElement[] stackTrace = checkpoint.getStackTrace();
@@ -21,7 +20,7 @@ class Rx {
                     element.getLineNumber());
 
             new Thread(() -> {
-                throw new OnErrorNotImplementedException(msg, throwable);
+                throw new RuntimeException(msg, throwable);
             }).start();
         };
     }

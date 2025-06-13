@@ -10,7 +10,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashSet;
 import java.util.List;
@@ -28,10 +28,10 @@ public class NordicmarksmanFrontPageParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", url, category);
+        return WebPageEntity.legacyCreate(parent, "", "productList", url, category);
     }
 
-    private Observable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -43,11 +43,11 @@ public class NordicmarksmanFrontPageParser extends AbstractWebPageParser {
                     .collect(Collectors.toList());
             result.addAll(webPageEntities);
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flux<WebPageEntity> parse(WebPageEntity parent) {
         return client.get("http://www.nordicmarksman.com/", new DocumentCompletionHandler(parent))
                 .flatMap(this::parseFrontPage)
                 .doOnNext(e -> this.parseResultCounter.inc());

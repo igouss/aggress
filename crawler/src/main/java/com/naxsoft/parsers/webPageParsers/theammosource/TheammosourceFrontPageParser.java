@@ -11,8 +11,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,10 +26,10 @@ class TheammosourceFrontPageParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", url, category);
+        return WebPageEntity.legacyCreate(parent, "", "productList", url, category);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -37,16 +37,16 @@ class TheammosourceFrontPageParser extends AbstractWebPageParser {
             Elements elements = document.select(".categoryListBoxContents > a");
 
             for (Element el : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productList", el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flux<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=1", "ammo")); // Ammo
         webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=286", "ammo")); // Ammo
@@ -66,8 +66,8 @@ class TheammosourceFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=222", "optic")); // optic
         webPageEntities.add(create(parent, "http://www.theammosource.com/index.php?main_page=index&cPath=21", "optic")); // optic
 
-        return Observable.from(webPageEntities)
-                .observeOn(Schedulers.io())
+        return Flux.fromIterable(webPageEntities)
+                .publishOn(Schedulers.boundedElastic())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

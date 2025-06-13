@@ -1,6 +1,5 @@
 package com.naxsoft.parsers.webPageParsers;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
@@ -19,23 +18,25 @@ import io.vertx.core.eventbus.MessageConsumer;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
-import javax.inject.Inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 
+@Component
 public class WebPageParserFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageParserFactory.class);
 
     private final Vertx vertx;
     private final LinkedBlockingDeque<String> parserVertex;
-    private final Observable<WebPageEntity> parseResult;
+    private final Flux<WebPageEntity> parseResult;
+    private final Sinks.Many<WebPageEntity> parseResultSink;
     private final Meter parseWebPageRequestsSensor;
     private final Meter parseWebPageResultsSensor;
 
@@ -44,7 +45,7 @@ public class WebPageParserFactory {
      *
      * @param client HTTP client for WebPageParsers to use
      */
-    @Inject
+    @Autowired
     public WebPageParserFactory(Vertx vertx, HttpClient client, MetricRegistry metricRegistry) {
         this.vertx = vertx;
         parserVertex = new LinkedBlockingDeque<>();
@@ -54,10 +55,11 @@ public class WebPageParserFactory {
 
         MessageConsumer<WebPageEntity> consumer = vertx.eventBus().consumer("webPageParseResult");
 
-        parseResult = Observable.create(asyncEmitter -> {
-            consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
-            consumer.endHandler(v -> asyncEmitter.onCompleted());
-        }, Emitter.BackpressureMode.BUFFER);
+        parseResultSink = Sinks.many().multicast().onBackpressureBuffer();
+        parseResult = parseResultSink.asFlux();
+
+        consumer.handler(handler -> parseResultSink.tryEmitNext(handler.body()));
+        consumer.endHandler(v -> parseResultSink.tryEmitComplete());
 
 //        parseResult = Observable.fromAsync(asyncEmitter -> {
 //            vertx.eventBus().consumer("webPageParseResult", event -> asyncEmitter.onNext((WebPageEntity) event.body()));
@@ -108,15 +110,15 @@ public class WebPageParserFactory {
 
         DeploymentOptions options = new DeploymentOptions()
                 .setWorker(true)
-                .setMultiThreaded(true)
                 .setWorkerPoolName("webPageParsers");
 
 
         Reflections reflections = new Reflections("com.naxsoft.parsers.webPageParsers");
         Set<Class<? extends AbstractWebPageParser>> classes = reflections.getSubTypesOf(AbstractWebPageParser.class);
 
-        Observable.create(asyncEmitter -> {
-            classes.stream().filter(clazz -> !Modifier.isAbstract(clazz.getModifiers())).forEach(clazz -> {
+        Flux.fromIterable(classes)
+                .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
+                .doOnNext(clazz -> {
                 try {
                     createLogger(clazz);
 
@@ -127,7 +129,6 @@ public class WebPageParserFactory {
                         if (res.succeeded()) {
                             LOGGER.debug("deployment id {} {}", res.result(), clazz.getName());
                             parserVertex.add(res.result());
-                            asyncEmitter.onNext(clazz);
                         } else {
                             LOGGER.error("Deployment failed!", res.cause());
                         }
@@ -135,9 +136,8 @@ public class WebPageParserFactory {
                 } catch (Exception e) {
                     LOGGER.error("Failed to instantiate WebPage parser {}", clazz, e);
                 }
-            });
-            asyncEmitter.onCompleted();
-        }, Emitter.BackpressureMode.BUFFER).subscribeOn(Schedulers.immediate()).subscribe();
+                })
+                .subscribe();
 
 
     }
@@ -158,7 +158,6 @@ public class WebPageParserFactory {
         encoder.start();
         fileAppender.setEncoder(encoder);
         fileAppender.start();
-        logger.setLevel(Level.ALL);
         logger.addAppender(fileAppender);
     }
 
@@ -167,7 +166,7 @@ public class WebPageParserFactory {
      *
      * @param webPageEntity Page to parse
      */
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPageEntity) {
         parseWebPageRequestsSensor.mark();
 
         String host = SitesUtil.getHost(webPageEntity);

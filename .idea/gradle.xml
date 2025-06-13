@@ -4,13 +4,7 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="delegatedBuild" value="true" />
-        <option name="testRunner" value="GRADLE" />
-        <option name="distributionType" value="WRAPPER" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleJvm" value="24" />
-        <option name="resolveExternalAnnotations" value="true" />
-        <option name="resolveModulePerSourceSet" value="false" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
@@ -22,6 +16,8 @@
             <option value="$PROJECT_DIR$/webadmin" />
           </set>
         </option>
+        <option name="resolveExternalAnnotations" value="true" />
+        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
     <option name="parallelModelFetch" value="true" />

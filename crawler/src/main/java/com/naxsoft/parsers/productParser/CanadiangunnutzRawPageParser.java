@@ -9,7 +9,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +24,7 @@ class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             ProductEntity product;
@@ -46,7 +46,7 @@ class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
             }
 
             if (productName.toLowerCase().contains("sold") || productName.toLowerCase().contains("remove") || productName.toLowerCase().contains("delete")) {
-                return Observable.empty();
+                return Flux.empty();
             }
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
@@ -85,12 +85,12 @@ class CanadiangunnutzRawPageParser extends AbstractRawPageParser {
             description = document.select("div.postdetails  div.postrow.has_after_content .content").text();
             category = getNormalizedCategories(webPageEntity);
 
-            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+            product = ProductEntity.legacyCreate(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
+        return Flux.fromIterable(result)
                 .doOnNext(e -> parseResultCounter.inc());
     }
 

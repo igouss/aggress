@@ -9,7 +9,7 @@ import com.naxsoft.parsers.webPageParsers.JsonResult;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashSet;
 import java.util.List;
@@ -24,20 +24,20 @@ public class GrouseriverProductParser extends AbstractWebPageParser {
     }
 
     @SuppressWarnings("unchecked")
-    public Observable<WebPageEntity> parseJson(JsonResult downloadResult) {
+    public Flux<WebPageEntity> parseJson(JsonResult downloadResult) {
         HashSet<WebPageEntity> result = new HashSet<>();
         Map parsedJson = downloadResult.getJson();
         List<Map<String, String>> items = (List<Map<String, String>>) parsedJson.get("items");
         for (Map<String, String> itemData : items) {
             LOGGER.info("Processing: " + itemData.get("displayname"));
-            WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPageRaw", "http://www.grouseriver.com/" + itemData.get("urlcomponent"), downloadResult.getSourcePage().getCategory());
+            WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productPageRaw", "http://www.grouseriver.com/" + itemData.get("urlcomponent"), downloadResult.getSourcePage().getCategory());
             result.add(webPageEntity);
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flux<WebPageEntity> parse(WebPageEntity parent) {
         return client.get(parent.getUrl(), new JsonCompletionHandler(parent))
                 .flatMap(this::parseJson)
                 .flatMap(webPage -> PageDownloader.download(client, webPage, "productPageRaw")

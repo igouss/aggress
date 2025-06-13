@@ -11,7 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,14 +24,14 @@ class FrontierfirearmsProductListParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
         if (document != null) {
             Elements elements = document.select(".ProductDetails a");
             for (Element element : elements) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
@@ -39,16 +39,16 @@ class FrontierfirearmsProductListParser extends AbstractWebPageParser {
             // select next active productListing page
             Elements select = document.select(".PagingList .ActivePage + li a");
             if (select != null && !select.isEmpty()) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", select.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productList", select.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("Product page listing={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

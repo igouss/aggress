@@ -7,8 +7,8 @@ import org.asynchttpclient.Response;
 import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +22,7 @@ public class PageDownloader {
      * @param webPageEntity Page to download
      * @return Stream of downloaded pages.
      */
-    public static Observable<WebPageEntity> download(HttpClient client, WebPageEntity webPageEntity, String type) {
+    public static Flux<WebPageEntity> download(HttpClient client, WebPageEntity webPageEntity, String type) {
         return download(client, Collections.emptyList(), webPageEntity, type);
     }
 
@@ -34,7 +34,7 @@ public class PageDownloader {
      * @param parent  Page to download
      * @return Stream of downloaded pages.
      */
-    public static Observable<WebPageEntity> download(final HttpClient client, final List<Cookie> cookies, final WebPageEntity parent, final String type) {
+    public static Flux<WebPageEntity> download(final HttpClient client, final List<Cookie> cookies, final WebPageEntity parent, final String type) {
         return client.get(parent.getUrl(), cookies, new AbstractCompletionHandler<WebPageEntity>() {
             private final Logger LOGGER = LoggerFactory.getLogger("com.naxsoft.parsers.webPageParsers.PageDownloader.Handler");
             private final String pageType = type;
@@ -45,12 +45,12 @@ public class PageDownloader {
 //                LOGGER.info("Completed request to {} {}", parentPage.getType(), response.getUri().toString());
                 WebPageEntity result = null;
                 if (200 == response.getStatusCode()) {
-                    result = new WebPageEntity(parentPage, response.getResponseBody(), pageType, response.getUri().toUrl(), parentPage.getCategory());
+                    result = WebPageEntity.legacyCreate(parentPage, response.getResponseBody(), pageType, response.getUri().toUrl(), parentPage.getCategory());
                 } else {
                     LOGGER.error("Bad HTTP code={} page={}", response.getStatusCode(), response.getUri());
                 }
                 return result;
             }
-        }).observeOn(Schedulers.io());
+        }).publishOn(Schedulers.boundedElastic());
     }
 }

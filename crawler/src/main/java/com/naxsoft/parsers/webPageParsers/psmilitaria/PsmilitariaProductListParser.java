@@ -6,7 +6,7 @@ import com.naxsoft.entity.WebPageEntity;
 import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 
 class PsmilitariaProductListParser extends AbstractWebPageParser {
@@ -18,9 +18,9 @@ class PsmilitariaProductListParser extends AbstractWebPageParser {
 
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, parent.getContent(), "productPage", parent.getUrl(), parent.getCategory());
-        return Observable.just(webPageEntity)
+    public Flux<WebPageEntity> parse(WebPageEntity parent) {
+        WebPageEntity webPageEntity = WebPageEntity.legacyCreate(parent, parent.getContent(), "productPage", parent.getUrl(), parent.getCategory());
+        return Flux.just(webPageEntity)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

@@ -11,9 +11,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.HashSet;
 
@@ -25,29 +25,29 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", url, category);
+        return WebPageEntity.legacyCreate(parent, "", "productList", url, category);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
-        return Observable.create(emitter -> {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+        return Flux.create(emitter -> {
             try {
                 Document document = downloadResult.getDocument();
                 Elements elements = document.select(".product-category > a");
                 for (Element el : elements) {
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productList", el.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                     LOGGER.info("Product page listing={}", webPageEntity.getUrl());
-                    emitter.onNext(webPageEntity);
+                    emitter.next(webPageEntity);
                 }
-                emitter.onCompleted();
+                emitter.complete();
             } catch (Exception e) {
                 LOGGER.error("Failed to parse", e);
-                emitter.onCompleted();
+                emitter.complete();
             }
-        }, Emitter.BackpressureMode.BUFFER);
+        }, FluxSink.OverflowStrategy.BUFFER);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flux<WebPageEntity> parse(WebPageEntity parent) {
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/firearms/", "firearm"));
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/optics/", "optic"));
@@ -55,8 +55,8 @@ public class WestcoastHuntingFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/firearms-accessories/", "misc"));
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/gun-maintenance/", "misc"));
         webPageEntities.add(create(parent, "http://www.westcoasthunting.ca/product-category/ammunition/", "ammo"));
-        return Observable.from(webPageEntities)
-                .observeOn(Schedulers.io())
+        return Flux.fromIterable(webPageEntities)
+                .publishOn(Schedulers.boundedElastic())
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

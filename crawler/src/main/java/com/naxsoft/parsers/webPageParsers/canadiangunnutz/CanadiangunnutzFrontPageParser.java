@@ -14,7 +14,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -53,13 +53,13 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
             formParameters.put("do", "login");
             formParameters.put("vb_login_md5password", "");
             formParameters.put("vb_login_md5password_utf", "");
-            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).toBlocking().first();
+            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).blockFirst();
         } catch (PropertyNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -76,7 +76,7 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
                 for (String category : categories.keySet()) {
                     if (text.endsWith(category)) {
-                        WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), categories.get(category));
+                        WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productList", element.attr("abs:href"), categories.get(category));
                         LOGGER.info("productList={}", webPageEntity.getUrl());
                         result.add(webPageEntity);
                         break;
@@ -84,10 +84,10 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
-    private Observable<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument2(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -100,18 +100,18 @@ class CanadiangunnutzFrontPageParser extends AbstractWebPageParser {
                 int total = Integer.parseInt(matcher.group(3));
                 int pages = (int) Math.ceil((double) total / postsPerPage);
                 for (int i = 1; i <= pages; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productList", document.location() + "/page" + i, downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "", "http://www.canadiangunnutz.com/forum/forum.php", "");
+    public Flux<WebPageEntity> parse(WebPageEntity parent) {
+        WebPageEntity webPageEntity = WebPageEntity.legacyCreate(parent, "", "", "http://www.canadiangunnutz.com/forum/forum.php", "");
         return client.get(webPageEntity.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .flatMap(webPageEntity1 -> client.get(webPageEntity1.getUrl(), cookies, new DocumentCompletionHandler(webPageEntity1)))

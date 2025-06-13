@@ -7,7 +7,7 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 public class WolverinesuppliesProductPageParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductPageParser.class);
@@ -17,7 +17,7 @@ public class WolverinesuppliesProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         return PageDownloader.download(client, webPage, "productPageRaw")
                 .filter(data -> null != data)

@@ -2,7 +2,7 @@ package com.naxsoft.parsers.productParser;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 
 interface ProductParser {
@@ -10,5 +10,5 @@ interface ProductParser {
      * @param webPage Page to parse
      * @return All products on the pahe
      */
-    Observable<ProductEntity> parse(WebPageEntity webPage);
+    Flux<ProductEntity> parse(WebPageEntity webPage);
 }

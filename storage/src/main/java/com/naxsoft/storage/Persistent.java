@@ -2,7 +2,8 @@ package com.naxsoft.storage;
 
 import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
-import rx.Observable;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface Persistent extends AutoCloseable, Cloneable {
     /**
@@ -15,7 +16,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param type Type of WebPageEntries
      * @return Number unparsed of WebPageEntries of specified type
      */
-    Observable<Long> getUnparsedCount(String type);
+    Mono<Long> getUnparsedCount(String type);
 
     /**
      * Mark webPageEntity as parsed
@@ -23,14 +24,14 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param webPageEntity page to make as parsed
      * @return Number of entries affected. Should be 1 on success.
      */
-    Observable<Long> markWebPageAsParsed(WebPageEntity webPageEntity);
+    Mono<Long> markWebPageAsParsed(WebPageEntity webPageEntity);
 
     /**
      * Mark all ProductEntity as parsed
      *
      * @return number of ProductEntity's affected
      */
-    Observable<Integer> markAllProductPagesAsIndexed();
+    Mono<Integer> markAllProductPagesAsIndexed();
 
     /**
      * Persist ProductEntity
@@ -38,7 +39,7 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param productEntity entity to persist
      * @return True of success, false otherwise
      */
-    Observable<Long> addProductPageEntry(ProductEntity productEntity);
+    Mono<Long> addProductPageEntry(ProductEntity productEntity);
 
     /**
      * Persist WebPageEntity
@@ -46,14 +47,14 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param webPageEntity entity to persist
      * @return True of success, false otherwise
      */
-    Observable<Long> addWebPageEntry(WebPageEntity webPageEntity);
+    Mono<Long> addWebPageEntry(WebPageEntity webPageEntity);
 
     /**
      * Get all ProductEntity from the storage
      *
      * @return all ProductEntity from the storage
      */
-    Observable<ProductEntity> getProducts();
+    Flux<ProductEntity> getProducts();
 
     /**
      * Get at most count unparsed WebPageEntity's of specified type
@@ -61,12 +62,12 @@ public interface Persistent extends AutoCloseable, Cloneable {
      * @param type Specify type of unparsed WebPageEntity's to return
      * @return all unparsed WebPageEntity's of specified type
      */
-    Observable<WebPageEntity> getUnparsedByType(String type, Long count);
+    Flux<WebPageEntity> getUnparsedByType(String type, Long count);
 
     /**
      * Delete data from tables
      *
      * @param tables WebPageEntity or ProductEntity
      */
-    Observable<String> cleanUp(String[] tables);
+    Mono<String> cleanUp(String[] tables);
 }

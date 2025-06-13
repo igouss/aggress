@@ -1,0 +1,152 @@
+# Spring Boot configuration for Aggress Web Crawler
+# This works alongside existing config.properties during migration
+
+spring:
+  application:
+    name: aggress-crawler
+  profiles:
+    active: development
+  
+  # Jackson configuration for JSON handling
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+  
+  # Spring Boot 3.5 Redis configuration
+  data:
+    redis:
+      lettuce:
+        read-from: replica-preferred
+      timeout: PT5S
+
+  # Spring Boot 3.5 WebClient global configuration
+  webclient:
+    timeout:
+      connect: PT10S
+      read: PT30S
+      write: PT30S
+    max-redirects: 10
+  
+  # Spring Boot 3.5 Task Scheduling with bootstrap executor
+  task:
+    scheduling:
+      pool:
+        size: 5
+      thread-name-prefix: aggress-scheduler-
+    execution:
+      pool:
+        core-size: 8
+        max-size: 16
+        queue-capacity: 100
+      thread-name-prefix: aggress-executor-
+
+# Management and monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging configuration with Spring Boot 3.5 structured logging
+logging:
+  level:
+    com.naxsoft: INFO
+    co.elastic.clients: WARN
+    org.springframework: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  structured:
+    format: json
+    json:
+      stacktrace:
+        max-lines: 50
+        format: full
+
+# Crawler configuration (type-safe alternative to config.properties)
+crawler:
+  core:
+    deployment-env: development
+    crawl-threads: 5
+    request-timeout: PT2M
+    debug-logging: true
+  
+  elasticsearch:
+    enabled: true
+    host: ${ELASTIC_HOST:localhost}
+    port: ${ELASTIC_PORT:9200}
+    index-name: products
+    batch-size: 100
+    timeout: PT30S
+  
+  redis:
+    enabled: true
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    database: 0
+    timeout: PT5S
+
+  tor-proxy:
+    enabled: false
+    host: ${TOR_HOST:localhost}
+    port: ${TOR_PORT:8118}
+  
+  authentication:
+    canadiangunnutz-login: ${CANADIANGUNNUTZ_LOGIN:}
+    canadiangunnutz-password: ${CANADIANGUNNUTZ_PASSWORD:}
+
+---
+# Development profile
+spring:
+  config:
+    activate:
+      on-profile: development
+
+logging:
+  level:
+    com.naxsoft: DEBUG
+
+crawler:
+  core:
+    debug-logging: true
+  elasticsearch:
+    host: elasticsearch  # Dev container service name
+  redis:
+    host: redis  # Dev container service name
+    password: devpassword
+
+---
+# Production profile  
+spring:
+  config:
+    activate:
+      on-profile: production
+
+logging:
+  level:
+    root: WARN
+    com.naxsoft: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+
+crawler:
+  core:
+    debug-logging: false
+    crawl-threads: 10
+  elasticsearch:
+    batch-size: 500
+    timeout: PT60S

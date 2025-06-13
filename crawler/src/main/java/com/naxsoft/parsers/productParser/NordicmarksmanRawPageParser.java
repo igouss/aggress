@@ -7,7 +7,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,7 +55,7 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -72,7 +72,7 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
             String[] category = null;
 
             if (document.select(".optionstyle").text().contains("This item is currently out of stock.")) {
-                return Observable.empty();
+                return Flux.empty();
             }
 
             productName = document.select(".productname").text();
@@ -95,12 +95,12 @@ public class NordicmarksmanRawPageParser extends AbstractRawPageParser {
             }
             category = getNormalizedCategories(webPageEntity.getCategory());
 
-            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+            product = ProductEntity.legacyCreate(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
+        return Flux.fromIterable(result)
                 .doOnNext(e -> parseResultCounter.inc());
     }
 

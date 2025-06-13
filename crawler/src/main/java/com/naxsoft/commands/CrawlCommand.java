@@ -5,11 +5,12 @@ import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.Subscription;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 
-import javax.inject.Inject;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 /**
  * Copyright NAXSoft 2015
@@ -19,15 +20,16 @@ import java.util.concurrent.TimeUnit;
  * Process the stream of unparsed webpages. Processed web pages are saved into the
  * database and the page is marked as parsed
  */
+@Component
 public class CrawlCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(CrawlCommand.class);
 
     private final WebPageService webPageService;
     private final WebPageParserFactory webPageParserFactory;
-    private Subscription webPageParseSubscription;
-    private Subscription parentMarkSubscription;
+    private Disposable webPageParseSubscription;
+    private Disposable parentMarkSubscription;
 
-    @Inject
+    @Autowired
     public CrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
         this.webPageService = webPageService;
         this.webPageParserFactory = webPageParserFactory;
@@ -42,14 +44,13 @@ public class CrawlCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<WebPageEntity> webPageEntriesStream = Observable.interval(5, 5, TimeUnit.SECONDS).flatMap(i ->
-                Observable.mergeDelayError(
+        Flux<WebPageEntity> webPageEntriesStream = Flux.interval(Duration.ofSeconds(5), Duration.ofSeconds(5))
+                .flatMap(i -> Flux.mergeDelayError(8,
                         webPageService.getUnparsedByType("frontPage"),
                         webPageService.getUnparsedByType("productList"),
                         webPageService.getUnparsedByType("productPage")))
                 .retry()
-                .publish()
-                .autoConnect(2);
+                .share();
 
         webPageParseSubscription = webPageEntriesStream
                 .doOnNext(webPageEntity -> LOGGER.trace("Starting parse {}", webPageEntity))
@@ -81,10 +82,10 @@ public class CrawlCommand implements Command {
     @Override
     public void tearDown() throws CLIException {
         if (webPageParseSubscription != null) {
-            webPageParseSubscription.unsubscribe();
+            webPageParseSubscription.dispose();
         }
         if (parentMarkSubscription != null) {
-            parentMarkSubscription.unsubscribe();
+            parentMarkSubscription.dispose();
         }
     }
 }

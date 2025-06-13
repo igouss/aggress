@@ -10,7 +10,7 @@ import com.naxsoft.utils.PropertyNotFoundException;
 import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,14 +34,14 @@ class CanadiangunnutzProductPageParser extends AbstractWebPageParser {
             formParameters.put("do", "login");
             formParameters.put("vb_login_md5password", "");
             formParameters.put("vb_login_md5password_utf", "");
-            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).toBlocking().first();
+            cookies = client.post("http://www.canadiangunnutz.com/forum/login.php?do=login", formParameters, new LinkedList<>(), getCookiesHandler()).blockFirst();
         } catch (PropertyNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         return PageDownloader.download(client, cookies, webPage, "productPageRaw")
                 .doOnNext(e -> this.parseResultCounter.inc());

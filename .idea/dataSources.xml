@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="Redis (Development)" uuid="redis-dev-uuid" dialect="Redis">
+    <data-source source="LOCAL" name="Redis (Development)" uuid="redis-dev-uuid">
       <driver-ref>redis</driver-ref>
       <synchronize>true</synchronize>
-      <jdbc-driver>io.lettuce.core.RedisClient</jdbc-driver>
+      <jdbc-driver>jdbc.RedisDriver</jdbc-driver>
       <jdbc-url>redis://localhost:6379</jdbc-url>
-      <secret-storage>master_key</secret-storage>
-      <user-name>default</user-name>
-      <schema-mapping />
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="Elasticsearch (Development)" uuid="elastic-dev-uuid" dialect="ES">
+    <data-source source="LOCAL" name="Elasticsearch (Development)" uuid="elastic-dev-uuid">
       <driver-ref>elasticsearch</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.elasticsearch.xpack.sql.jdbc.EsDriver</jdbc-driver>

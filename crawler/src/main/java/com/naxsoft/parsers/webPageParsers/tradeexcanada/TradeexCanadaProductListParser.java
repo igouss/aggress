@@ -11,7 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,10 +27,10 @@ class TradeexCanadaProductListParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", url, category);
+        return WebPageEntity.legacyCreate(parent, "", "productList", url, category);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -38,7 +38,7 @@ class TradeexCanadaProductListParser extends AbstractWebPageParser {
             if (document.location().contains("page=")) {
                 Elements elements = document.select(".view-content a");
                 for (Element element : elements) {
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
@@ -51,11 +51,11 @@ class TradeexCanadaProductListParser extends AbstractWebPageParser {
                 result.add(create(downloadResult.getSourcePage(), document.location() + "?page=0", downloadResult.getSourcePage().getCategory()));
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

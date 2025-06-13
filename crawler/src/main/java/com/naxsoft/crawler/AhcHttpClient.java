@@ -15,14 +15,16 @@ import org.asynchttpclient.netty.channel.ChannelManager;
 import org.asynchttpclient.netty.request.NettyRequestSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -165,7 +167,7 @@ public class AhcHttpClient implements HttpClient {
      */
 
     @Override
-    public <R> Observable<R> get(String url, AbstractCompletionHandler<R> handler) {
+    public <R> Flux<R> get(String url, AbstractCompletionHandler<R> handler) {
         return get(url, Collections.emptyList(), handler);
     }
 
@@ -179,7 +181,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Observable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
+    public <R> Flux<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         return get(url, cookies, handler, true);
     }
 
@@ -194,7 +196,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Observable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
+    public <R> Flux<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect) {
         LOGGER.trace("Starting async http GET request url = {}", url);
         httpRequestsSensor.mark();
 
@@ -207,7 +209,7 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
 
         handler.setProxyManager(proxyManager);
-        return Observable.from(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(handler)), Schedulers.io());
+        return Mono.fromFuture(toCompletableFuture(asyncHttpClient.executeRequest(request, new StatsRecodringCompletionHandlerWrapper<>(handler)))).flux().subscribeOn(Schedulers.boundedElastic());
     }
 
 
@@ -221,7 +223,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Observable<R> post(String url, String content, AbstractCompletionHandler<R> handler) {
+    public <R> Flux<R> post(String url, String content, AbstractCompletionHandler<R> handler) {
         return post(url, content, Collections.emptyList(), handler);
     }
 
@@ -236,7 +238,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Observable<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
+    public <R> Flux<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         httpRequestsSensor.mark();
 
@@ -253,7 +255,7 @@ public class AhcHttpClient implements HttpClient {
 
         handler.setProxyManager(proxyManager);
 
-        return Observable.from(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
+        return Mono.fromFuture(toCompletableFuture(asyncHttpClient.executeRequest(request, handler))).flux().subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
@@ -267,7 +269,7 @@ public class AhcHttpClient implements HttpClient {
      * @return a Future of type T
      */
     @Override
-    public <R> Observable<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
+    public <R> Flux<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler) {
         LOGGER.debug("Starting async http POST request url = {}", url);
         httpRequestsSensor.mark();
 
@@ -285,7 +287,7 @@ public class AhcHttpClient implements HttpClient {
         Request request = requestBuilder.build();
         handler.setProxyManager(proxyManager);
 
-        return Observable.from(asyncHttpClient.executeRequest(request, handler), Schedulers.io());
+        return Mono.fromFuture(toCompletableFuture(asyncHttpClient.executeRequest(request, handler))).flux().subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
@@ -293,6 +295,25 @@ public class AhcHttpClient implements HttpClient {
      */
     public void close() throws java.io.IOException {
         asyncHttpClient.close();
+    }
+
+    /**
+     * Convert AsyncHttpClient ListenableFuture to CompletableFuture for Reactor compatibility
+     */
+    private <T> CompletableFuture<T> toCompletableFuture(org.asynchttpclient.ListenableFuture<T> listenableFuture) {
+        CompletableFuture<T> completableFuture = new CompletableFuture<>();
+        listenableFuture.addListener(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    T result = listenableFuture.get();
+                    completableFuture.complete(result);
+                } catch (Exception e) {
+                    completableFuture.completeExceptionally(e);
+                }
+            }
+        }, null);
+        return completableFuture;
     }
 
     private class StatsRecodringCompletionHandlerWrapper<R> extends AbstractCompletionHandler<R> {

@@ -24,7 +24,8 @@ if(!Array.isArray) {
   Array.isArray = function(arg) {
     return Object.prototype.toString.call(arg) === '[object Array]';
   };
-};/**
+}
+/**
  * @license wysihtml5x v0.4.15
  * https://github.com/Edicy/wysihtml5
  *
@@ -3793,7 +3794,8 @@ var wysihtml5 = {
     /*----------------------------------------------------------------------------------------------------------------*/
 
     return api;
-}, this);;/**
+}, this);
+/**
  * Selection save and restore module for Rangy.
  * Saves and restores user selections using marker invisible elements in the DOM.
  *
@@ -4041,8 +4043,8 @@ var wysihtml5 = {
             removeMarkers: removeMarkers
         });
     });
-    
-}, this);;/*
+
+}, this);/*
 	Base.js, version 1.1a
 	Copyright 2006-2010, Dean Edwards
 	License: http://www.opensource.org/licenses/mit-license.php
@@ -4180,7 +4182,8 @@ Base = Base.extend({
 	toString: function() {
 		return String(this.valueOf());
 	}
-});;/**
+});
+/**
  * Detect browser support for specific features
  */
 wysihtml5.browser = (function() {
@@ -4574,7 +4577,7 @@ wysihtml5.browser = (function() {
     }
   };
 })();
-;wysihtml5.lang.array = function(arr) {
+wysihtml5.lang.array = function (arr) {
   return {
     /**
      * Check whether a given object exists in an array
@@ -4700,7 +4703,7 @@ wysihtml5.browser = (function() {
 
   };
 };
-;wysihtml5.lang.Dispatcher = Base.extend(
+wysihtml5.lang.Dispatcher = Base.extend(
   /** @scope wysihtml5.lang.Dialog.prototype */ {
   on: function(eventName, handler) {
     this.events = this.events || {};
@@ -4750,7 +4753,7 @@ wysihtml5.browser = (function() {
     return this.off.apply(this, arguments);
   }
 });
-;wysihtml5.lang.object = function(obj) {
+wysihtml5.lang.object = function (obj) {
   return {
     /**
      * @example
@@ -5066,7 +5069,7 @@ wysihtml5.browser = (function() {
     return (elementClassName.length > 0 && (elementClassName == className || new RegExp("(^|\\s)" + className + "(\\s|$)").test(elementClassName)));
   };
 })(wysihtml5);
-;wysihtml5.dom.contains = (function() {
+wysihtml5.dom.contains = (function () {
   var documentElement = document.documentElement;
   if (documentElement.contains) {
     return function(container, element) {
@@ -5375,7 +5378,8 @@ wysihtml5.dom.copyAttributes = function(attributesToCopy) {
 
     };
   };
-})(wysihtml5);;/**
+})(wysihtml5);
+/**
  * Returns the given html wrapped in a div element
  *
  * Fixing IE's inability to treat unknown elements (HTML5 section, article, ...) correctly
@@ -5579,7 +5583,7 @@ wysihtml5.dom.getStyle = (function() {
     };
   };
 })();
-;wysihtml5.dom.getTextNodes = function(node, ingoreEmpty){
+wysihtml5.dom.getTextNodes = function (node, ingoreEmpty) {
   var all = [];
   for (node=node.firstChild;node;node=node.nextSibling){
     if (node.nodeType == 3) {
@@ -5591,7 +5595,8 @@ wysihtml5.dom.getStyle = (function() {
     }
   }
   return all;
-};;/**
+};
+/**
  * High performant way to check whether an element with a specific tag name is in the given document
  * Optimized for being heavily executed
  * Unleashes the power of live node lists
@@ -5653,7 +5658,7 @@ wysihtml5.dom.hasElementWithTagName = (function() {
     return cacheEntry.length > 0;
   };
 })(wysihtml5);
-;wysihtml5.dom.insert = function(elementToInsert) {
+wysihtml5.dom.insert = function (elementToInsert) {
   return {
     after: function(element) {
       element.parentNode.insertBefore(elementToInsert, element.nextSibling);
@@ -5668,7 +5673,7 @@ wysihtml5.dom.hasElementWithTagName = (function() {
     }
   };
 };
-;wysihtml5.dom.insertCSS = function(rules) {
+wysihtml5.dom.insertCSS = function (rules) {
   rules = rules.join("\n");
 
   return {
@@ -5685,7 +5690,7 @@ wysihtml5.dom.hasElementWithTagName = (function() {
       var link = doc.querySelector("head link");
       if (link) {
         link.parentNode.insertBefore(styleElement, link);
-        return;
+
       } else {
         var head = doc.querySelector("head");
         if (head) {
@@ -5756,7 +5761,8 @@ wysihtml5.dom.hasElementWithTagName = (function() {
       }
     };
   };
-})(wysihtml5);;/**
+})(wysihtml5);
+/**
  * Method to set dom events
  *
  * @example
@@ -5807,7 +5813,7 @@ wysihtml5.dom.observe = function(element, eventNames, handler) {
     }
   };
 };
-;/**
+/**
  * HTML Sanitizer
  * Rewrites the HTML based on given rules
  *
@@ -6251,7 +6257,7 @@ wysihtml5.dom.parse = function(elementOrHtml_current, config_current) {
         }
       }
     }
-  };
+  }
 
   function _getAttributesBeginningWith(beginning, attributes) {
     var returnAttributes = [];
@@ -7157,7 +7163,7 @@ wysihtml5.dom.replaceWithChildNodes = function(node) {
     };
   };
 })();
-;wysihtml5.dom.setStyles = function(styles) {
+wysihtml5.dom.setStyles = function (styles) {
   return {
     on: function(element) {
       var style = element.style;
@@ -7257,7 +7263,7 @@ wysihtml5.dom.replaceWithChildNodes = function(node) {
   }
 })(wysihtml5.dom);
 
-;/**
+/**
  * Get a set of attribute from one element
  *
  * IE gives wrong results for hasAttribute/getAttribute, for example:
@@ -7288,7 +7294,7 @@ wysihtml5.dom.getAttribute = function(node, attributeName) {
     return node.getAttribute(attributeName);
   }
 };
-;/**
+/**
  * Get all attributes of an element
  *
  * IE gives wrong results for hasAttribute/getAttribute, for example:
@@ -7320,7 +7326,7 @@ wysihtml5.dom.getAttributes = function(node) {
     }
   }
   return attributes;
-};;/**
+};/**
    * Check whether the given node is a proper loaded image
    * FIXME: Returns undefined when unknown (Chrome, Safari)
 */
@@ -8212,7 +8218,7 @@ wysihtml5.dom.isLoadedImage = function (node) {
 
 
 })(wysihtml5);
-;// does a selector query on element or array of elements
+// does a selector query on element or array of elements
 
 wysihtml5.dom.query = function(elements, query) {
     var ret = [],
@@ -8230,7 +8236,7 @@ wysihtml5.dom.query = function(elements, query) {
     }
     return ret;
 };
-;wysihtml5.dom.compareDocumentPosition = (function() {
+wysihtml5.dom.compareDocumentPosition = (function () {
   var documentElement = document.documentElement;
   if (documentElement.compareDocumentPosition) {
     return function(container, element) {
@@ -8294,14 +8300,14 @@ wysihtml5.dom.query = function(elements, query) {
     };
   }
 })();
-;wysihtml5.dom.unwrap = function(node) {
+wysihtml5.dom.unwrap = function (node) {
   if (node.parentNode) {
     while (node.lastChild) {
       wysihtml5.dom.insert(node.lastChild).after(node);
     }
     node.parentNode.removeChild(node);
   }
-};;/* 
+};/*
  * Methods for fetching pasted html before it gets inserted into content
 **/
 
@@ -8341,7 +8347,8 @@ wysihtml5.dom.getPastedHtmlWithDiv = function (composer, f) {
     f(cleanerDiv.innerHTML);
     cleanerDiv.parentNode.removeChild(cleanerDiv);
   }, 0);
-};;/**
+};
+/**
  * Fix most common html formatting misbehaviors of browsers implementation when inserting
  * content via copy & paste contentEditable
  *
@@ -8417,7 +8424,8 @@ wysihtml5.quirks.cleanPastedHTML = (function() {
     return newHtml;
   };
 
-})();;/**
+})();
+/**
  * IE and Opera leave an empty paragraph in the contentEditable element after clearing it
  *
  * @param {Object} contentEditableElement The contentEditable element to observe for clearing events
@@ -8493,7 +8501,7 @@ wysihtml5.quirks.ensureProperClearing = (function() {
     } catch(e) {}
   };
 })(wysihtml5);
-;wysihtml5.quirks.tableCellsSelection = function(editable, editor) {
+wysihtml5.quirks.tableCellsSelection = function (editable, editor) {
 
     var dom = wysihtml5.dom,
         select = {
@@ -10283,7 +10291,7 @@ wysihtml5.Commands = Base.extend(
     }
   }
 });
-;wysihtml5.commands.bold = {
+wysihtml5.commands.bold = {
   exec: function(composer, command) {
     wysihtml5.commands.formatInline.execWithToggle(composer, command, "b");
   },
@@ -10832,7 +10840,7 @@ wysihtml5.Commands = Base.extend(
 
   };
 })(wysihtml5);
-;/* Formats block for as a <pre><code class="classname"></code></pre> block
+/* Formats block for as a <pre><code class="classname"></code></pre> block
  * Useful in conjuction for sytax highlight utility: highlight.js
  *
  * Usage:
@@ -10881,7 +10889,8 @@ wysihtml5.commands.formatCode = {
       return wysihtml5.dom.getParentElement(selectedNode, { nodeName: "CODE" }) && wysihtml5.dom.getParentElement(selectedNode, { nodeName: "PRE" });
     }
   }
-};;/**
+};
+/**
  * formatInline scenarios for tag "B" (| = caret, |foo| = selected text)
  *
  *   #1 caret in unformatted text:
@@ -11068,7 +11077,8 @@ wysihtml5.commands.formatCode = {
     }
   };
 
-})(wysihtml5);;wysihtml5.commands.insertHTML = {
+})(wysihtml5);
+wysihtml5.commands.insertHTML = {
   exec: function(composer, command, html) {
     if (composer.commands.support(command)) {
       composer.doc.execCommand(command, false, html);
@@ -11199,7 +11209,7 @@ wysihtml5.commands.formatCode = {
     }
   };
 })(wysihtml5);
-;wysihtml5.commands.insertOrderedList = {
+wysihtml5.commands.insertOrderedList = {
   exec: function(composer, command) {
     wysihtml5.commands.insertList.exec(composer, command, "OL");
   },
@@ -11208,7 +11218,7 @@ wysihtml5.commands.formatCode = {
     return wysihtml5.commands.insertList.state(composer, command, "OL");
   }
 };
-;wysihtml5.commands.insertUnorderedList = {
+wysihtml5.commands.insertUnorderedList = {
   exec: function(composer, command) {
     wysihtml5.commands.insertList.exec(composer, command, "UL");
   },
@@ -11217,7 +11227,7 @@ wysihtml5.commands.formatCode = {
     return wysihtml5.commands.insertList.state(composer, command, "UL");
   }
 };
-;wysihtml5.commands.insertList = (function(wysihtml5) {
+wysihtml5.commands.insertList = (function (wysihtml5) {
 
   var isNode = function(node, name) {
     if (node && node.nodeName) {
@@ -11375,7 +11385,8 @@ wysihtml5.commands.formatCode = {
     }
   };
 
-})(wysihtml5);;wysihtml5.commands.italic = {
+})(wysihtml5);
+wysihtml5.commands.italic = {
   exec: function(composer, command) {
     wysihtml5.commands.formatInline.execWithToggle(composer, command, "i");
   },
@@ -11487,7 +11498,7 @@ wysihtml5.commands.formatCode = {
     }
   };
 })(wysihtml5);
-;wysihtml5.commands.redo = {
+wysihtml5.commands.redo = {
   exec: function(composer) {
     return composer.undoManager.redo();
   },
@@ -11496,7 +11507,7 @@ wysihtml5.commands.formatCode = {
     return false;
   }
 };
-;wysihtml5.commands.underline = {
+wysihtml5.commands.underline = {
   exec: function(composer, command) {
     wysihtml5.commands.formatInline.execWithToggle(composer, command, "u");
   },
@@ -11505,7 +11516,7 @@ wysihtml5.commands.formatCode = {
     return wysihtml5.commands.formatInline.state(composer, command, "u");
   }
 };
-;wysihtml5.commands.undo = {
+wysihtml5.commands.undo = {
   exec: function(composer) {
     return composer.undoManager.undo();
   },
@@ -11514,7 +11525,7 @@ wysihtml5.commands.formatCode = {
     return false;
   }
 };
-;wysihtml5.commands.createTable = {
+wysihtml5.commands.createTable = {
   exec: function(composer, command, value) {
       var col, row, html;
       if (value && value.cols && value.rows && parseInt(value.cols, 10) > 0 && parseInt(value.rows, 10) > 0) {
@@ -11543,7 +11554,7 @@ wysihtml5.commands.formatCode = {
       return false;
   }
 };
-;wysihtml5.commands.mergeTableCells = {
+wysihtml5.commands.mergeTableCells = {
   exec: function(composer, command) {
       if (composer.tableSelection && composer.tableSelection.start && composer.tableSelection.end) {
           if (this.state(composer, command)) {
@@ -11573,7 +11584,7 @@ wysihtml5.commands.formatCode = {
       return false;
   }
 };
-;wysihtml5.commands.addTableCells = {
+wysihtml5.commands.addTableCells = {
   exec: function(composer, command, value) {
       if (composer.tableSelection && composer.tableSelection.start && composer.tableSelection.end) {
 
@@ -11594,7 +11605,7 @@ wysihtml5.commands.formatCode = {
       return false;
   }
 };
-;wysihtml5.commands.deleteTableCells = {
+wysihtml5.commands.deleteTableCells = {
   exec: function(composer, command, value) {
       if (composer.tableSelection && composer.tableSelection.start && composer.tableSelection.end) {
           var tableSelect = wysihtml5.dom.table.orderSelectionEnds(composer.tableSelection.start, composer.tableSelection.end),
@@ -11634,7 +11645,7 @@ wysihtml5.commands.formatCode = {
       return false;
   }
 };
-;wysihtml5.commands.indentList = {
+wysihtml5.commands.indentList = {
   exec: function(composer, command, value) {
     var listEls = composer.selection.getSelectionParentsByTag('LI');
     if (listEls) {
@@ -11675,7 +11686,7 @@ wysihtml5.commands.formatCode = {
     return found;
   }
 };
-;wysihtml5.commands.outdentList = {
+wysihtml5.commands.outdentList = {
   exec: function(composer, command, value) {
     var listEls = composer.selection.getSelectionParentsByTag('LI');
     if (listEls) {
@@ -11752,7 +11763,8 @@ wysihtml5.commands.formatCode = {
     return newList;
   }
 
-};;/**
+};
+/**
  * Undo Manager for wysihtml5
  * slightly inspired by http://rniwa.com/editing/undomanager.html#the-undomanager-interface
  */
@@ -13117,7 +13129,7 @@ wysihtml5.views.View = Base.extend(
     }
   });
 })(wysihtml5);
-;wysihtml5.views.Textarea = wysihtml5.views.View.extend(
+wysihtml5.views.Textarea = wysihtml5.views.View.extend(
   /** @scope wysihtml5.views.Textarea.prototype */ {
   name: "textarea",
 

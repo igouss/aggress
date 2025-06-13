@@ -3,8 +3,9 @@ package com.naxsoft.commands;
 import com.naxsoft.storage.elasticsearch.Elastic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -12,12 +13,13 @@ import java.util.concurrent.Semaphore;
  * <p>
  * Create Elasticsearch index
  */
+@Component
 public class CreateESIndexCommand implements Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateESIndexCommand.class);
 
     private Elastic elastic = null;
 
-    @Inject
+    @Autowired
     public CreateESIndexCommand(Elastic elastic) {
         this.elastic = elastic;
     }

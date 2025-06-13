@@ -1,28 +1,28 @@
 package com.naxsoft.utils;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Utility class to concatenate a number of parameters with separator tokens.
+ * Provides a fluent API for building delimited strings with start/end tokens.
  * From org.apache.maven.shared.dependency.graph.internal.ItemAppender
  */
+@RequiredArgsConstructor
 public class ItemAppender {
+    @NonNull
     private final StringBuffer buffer;
 
+    @NonNull
     private final String startToken;
 
+    @NonNull
     private final String separatorToken;
 
+    @NonNull
     private final String endToken;
 
-    private boolean appended;
-
-    public ItemAppender(StringBuffer buffer, String startToken, String separatorToken, String endToken) {
-        this.buffer = buffer;
-        this.startToken = startToken;
-        this.separatorToken = separatorToken;
-        this.endToken = endToken;
-
-        appended = false;
-    }
+    private boolean appended = false;
 
     public ItemAppender append(String item1, String item2) {
         appendToken();

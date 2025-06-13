@@ -8,7 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +40,7 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
 
         try {
@@ -62,7 +62,7 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (2 == document.select("div.alert.negative").size()) {
-                return Observable.empty();
+                return Flux.empty();
             }
 
             url = webPageEntity.getUrl();
@@ -83,12 +83,12 @@ class WholesalesportsProductRawPageParser extends AbstractRawPageParser {
             }
             description = document.select(".summary").text();
 
-            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+            product = ProductEntity.legacyCreate(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
+        return Flux.fromIterable(result)
                 .doOnNext(e -> parseResultCounter.inc());
     }
 

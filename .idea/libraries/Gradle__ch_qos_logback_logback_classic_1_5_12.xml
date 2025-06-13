@@ -5,6 +5,8 @@
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.5.12/3790d1a62e868f7915776dfb392bd9a29ce8d954/logback-classic-1.5.12.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.5.12/b881768e260dfff1c119944756a0a6973979c66a/logback-classic-1.5.12-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

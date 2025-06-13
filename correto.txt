@@ -1,0 +1,11 @@
+--2025-06-12 19:14:45--  https://apt.corretto.aws/corretto.key
+Resolving apt.corretto.aws (apt.corretto.aws)... 3.161.213.64, 3.161.213.13, 3.161.213.122, ...
+Connecting to apt.corretto.aws (apt.corretto.aws)|3.161.213.64|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 2459 (2.4K) [binary/octet-stream]
+Saving to: 'corretto.key'
+
+     0K ..                                                    100%  732M=0s
+
+2025-06-12 19:14:45 (732 MB/s) - 'corretto.key' saved [2459/2459]
+

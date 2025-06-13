@@ -2,19 +2,23 @@ package com.naxsoft.modules;
 
 import com.naxsoft.parsingService.ProductService;
 import com.naxsoft.storage.Persistent;
-import dagger.Module;
-import dagger.Provides;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
-import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
-
-
-@Module(includes = {RedisModule.class})
+/**
+ * Spring Boot configuration for product service.
+ * Replaces Dagger ProductServiceModule with Spring native dependency injection.
+ */
+@Configuration
+@Import(RedisModule.class)
+@Slf4j
 public class ProductServiceModule {
-    @Provides
-    @Singleton
-    @NotNull
-    static ProductService provideProductService(Persistent db) {
-        return new ProductService(db);
+
+    @Bean
+    public ProductService productService(Persistent persistent) {
+        log.info("Creating ProductService");
+        return new ProductService(persistent);
     }
 }

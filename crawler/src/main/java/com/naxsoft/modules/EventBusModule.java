@@ -1,21 +1,23 @@
 package com.naxsoft.modules;
 
-import com.lambdaworks.redis.event.DefaultEventBus;
-import com.lambdaworks.redis.event.EventBus;
-import dagger.Module;
-import dagger.Provides;
-import rx.schedulers.Schedulers;
+import io.lettuce.core.event.DefaultEventBus;
+import io.lettuce.core.event.EventBus;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import reactor.core.scheduler.Schedulers;
 
-import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
-
-
-@Module
+/**
+ * Spring Boot configuration for Redis event bus services.
+ * Replaces Dagger EventBusModule with Spring native dependency injection.
+ */
+@Configuration
+@Slf4j
 public class EventBusModule {
-    @Provides
-    @Singleton
-    @NotNull
-    static EventBus provideWebPageEntityEncoder() {
-        return new DefaultEventBus(Schedulers.computation());
+
+    @Bean
+    public EventBus eventBus() {
+        log.info("Creating Redis event bus with parallel scheduler");
+        return new DefaultEventBus(Schedulers.parallel());
     }
 }

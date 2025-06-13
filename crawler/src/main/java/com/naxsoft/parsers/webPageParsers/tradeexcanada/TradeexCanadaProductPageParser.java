@@ -7,7 +7,7 @@ import com.naxsoft.parsers.webPageParsers.AbstractWebPageParser;
 import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 
 class TradeexCanadaProductPageParser extends AbstractWebPageParser {
@@ -18,10 +18,10 @@ class TradeexCanadaProductPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         if (webPage.getUrl().contains("out-stock") || webPage.getUrl().contains("-sold")) {
-            return Observable.empty();
+            return Flux.empty();
         } else {
             return PageDownloader.download(client, webPage, "productPageRaw")
                     .filter(data -> {

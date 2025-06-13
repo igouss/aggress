@@ -1,21 +1,21 @@
 package com.naxsoft.modules;
 
-import dagger.Module;
-import dagger.Provides;
 import io.vertx.core.Vertx;
-
-import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
- * Copyright Naxsoft 2016.
+ * Spring Boot configuration for Vert.x reactive framework.
+ * Replaces Dagger VertxModule with Spring native dependency injection.
  */
-@Module
+@Configuration
+@Slf4j
 public class VertxModule {
-    @Provides
-    @Singleton
-    @NotNull
-    static Vertx provideProductService() {
+
+    @Bean
+    public Vertx vertx() {
+        log.info("Creating Vert.x instance");
         // use the JVM built-in resolver
         System.setProperty("vertx.disableDnsResolver", "true");
         return Vertx.vertx();

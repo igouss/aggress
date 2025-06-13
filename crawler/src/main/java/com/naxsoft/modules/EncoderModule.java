@@ -2,26 +2,27 @@ package com.naxsoft.modules;
 
 import com.naxsoft.encoders.ProductEntityEncoder;
 import com.naxsoft.encoders.WebPageEntityEncoder;
-import dagger.Module;
-import dagger.Provides;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
-
-
-@Module
+/**
+ * Spring Boot configuration for entity encoding services.
+ * Replaces Dagger EncoderModule with Spring native dependency injection.
+ */
+@Configuration
+@Slf4j
 public class EncoderModule {
-    @Provides
-    @Singleton
-    @NotNull
-    static WebPageEntityEncoder provideWebPageEntityEncoder() {
+
+    @Bean
+    public WebPageEntityEncoder webPageEntityEncoder() {
+        log.info("Creating WebPageEntityEncoder");
         return new WebPageEntityEncoder();
     }
 
-    @Provides
-    @Singleton
-    @NotNull
-    static ProductEntityEncoder provideProductEntityEncoder() {
+    @Bean
+    public ProductEntityEncoder productEntityEncoder() {
+        log.info("Creating ProductEntityEncoder");
         return new ProductEntityEncoder();
     }
 }

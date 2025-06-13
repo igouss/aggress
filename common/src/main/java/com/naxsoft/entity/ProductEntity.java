@@ -1,64 +1,108 @@
 package com.naxsoft.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * Immutable product entity representing a crawled product with all its metadata.
+ * Uses Lombok for reduced boilerplate and improved maintainability.
  */
+@Value
+@Builder(toBuilder = true)
+@Slf4j
+@JsonDeserialize(builder = ProductEntity.ProductEntityBuilder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductEntity {
-    private final static Gson gson = new Gson();
-    private final String productName;
-    private final String url;
-    private final String regularPrice;
-    private final String specialPrice;
-    private final String productImage;
-    private final String description;
-    private final Timestamp modificationDate;
-    private final Map<String, String> attr;
-    private final String[] category;
-    private final String json;
+    private static final Gson gson = new Gson();
+
+    @NonNull
+    String productName;
+
+    @NonNull
+    String url;
+
+    String regularPrice;
+    String specialPrice;
+    String productImage;
+    String description;
+
+    @Builder.Default
+    Instant modificationDate = Instant.now();
+
+    @Builder.Default
+    Map<String, String> attr = Collections.emptyMap();
+
+    @Builder.Default
+    List<String> category = Collections.emptyList();
 
     /**
-     * @param productName
-     * @param url
-     * @param regularPrice
-     * @param specialPrice
-     * @param productImage
-     * @param description
-     * @param categories
+     * Create a ProductEntity with basic information (backward compatibility)
      */
-    public ProductEntity(String productName, String url, String regularPrice, String specialPrice, String productImage, String description, String... categories) {
-        this(productName, url, regularPrice, specialPrice, productImage, description, Collections.emptyMap(), categories);
+    public static ProductEntity create(String productName, String url, String regularPrice,
+                                       String specialPrice, String productImage, String description,
+                                       String... categories) {
+        return ProductEntity.builder()
+                .productName(productName)
+                .url(url)
+                .regularPrice(regularPrice)
+                .specialPrice(specialPrice)
+                .productImage(productImage)
+                .description(description)
+                .category(categories != null ? List.of(categories) : Collections.emptyList())
+                .build();
     }
 
     /**
-     * @param productName
-     * @param url
-     * @param regularPrice
-     * @param specialPrice
-     * @param productImage
-     * @param description
-     * @param attr
-     * @param category
+     * Legacy factory method for backward compatibility during Spring Boot migration.
+     * TODO: Remove this method in Phase 2 when all legacy code is migrated.
+     *
+     * @param productName  Product name
+     * @param url          Product URL
+     * @param regularPrice Regular price
+     * @param specialPrice Special/sale price
+     * @param productImage Product image URL
+     * @param description  Product description
+     * @param attr         Product attributes map
+     * @param category     Product categories array
+     * @return ProductEntity instance
      */
-    public ProductEntity(String productName, String url, String regularPrice, String specialPrice, String productImage, String description, Map<String, String> attr, String... category) {
-        this.productName = productName;
-        this.category = category;
-        this.url = url;
-        this.modificationDate = new Timestamp(System.currentTimeMillis());
-        this.regularPrice = regularPrice;
-        this.specialPrice = specialPrice;
-        this.productImage = productImage;
-        this.description = description;
-        this.attr = attr;
+    public static ProductEntity legacyCreate(String productName, String url, String regularPrice,
+                                             String specialPrice, String productImage, String description,
+                                             Map<String, String> attr, String[] category) {
+        return ProductEntity.builder()
+                .productName(productName)
+                .url(url)
+                .regularPrice(regularPrice)
+                .specialPrice(specialPrice)
+                .productImage(productImage)
+                .description(description)
+                .attr(attr != null ? attr : Collections.emptyMap())
+                .category(category != null ? List.of(category) : Collections.emptyList())
+                .build();
+    }
+
+    /**
+     * Get JSON representation for Elasticsearch storage
+     * @return json encoded product entity
+     */
+    public String getJson() {
+        log.debug("Generating JSON for product: {}", productName);
 
         JsonObject jsonObject = new JsonObject();
+
+        // Add non-null properties
         if (productName != null && !productName.isEmpty()) {
             jsonObject.addProperty("productName", productName);
         }
@@ -80,68 +124,31 @@ public class ProductEntity {
 
         jsonObject.addProperty("modificationDate", modificationDate.toString());
 
+        // Add attributes
         attr.forEach(jsonObject::addProperty);
 
-        if (category != null && category.length > 0) {
+        // Add categories
+        if (category != null && !category.isEmpty()) {
             JsonArray categoryArray = new JsonArray();
-            for (String cat : category) {
-                categoryArray.add(cat);
-            }
-
-            if (categoryArray.size() != 0) {
-                jsonObject.add("category", categoryArray);
-            }
+            category.forEach(categoryArray::add);
+            jsonObject.add("category", categoryArray);
         }
-        json = gson.toJson(jsonObject);
+
+        return gson.toJson(jsonObject);
     }
 
     /**
-     * Get JSON representation
-     *
-     * @return json encoded product entity
+     * Check if the product has a discount (special price different from regular price)
+     * @return true if product has a discount
      */
-    public String getJson() {
-        return json;
+    public boolean hasDiscount() {
+        return specialPrice != null && !specialPrice.equals(regularPrice);
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public String getRegularPrice() {
-        return regularPrice;
-    }
-
-    public String getSpecialPrice() {
-        return specialPrice;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ProductEntity that = (ProductEntity) o;
-
-        return getJson().equals(that.getJson()) && url.equals(that.url);
-    }
-
-
-    @Override
-    public int hashCode() {
-        int result = getJson().hashCode();
-        result = 31 * result + url.hashCode();
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "ProductEntity{" +
-                "url='" + url + '\'' +
-                '}';
+    /**
+     * Log product processing information
+     */
+    public void logProcessing() {
+        log.info("Processing product: {} from URL: {}", productName, url);
     }
 }

@@ -2,7 +2,7 @@ package com.naxsoft.crawler;
 
 
 import org.asynchttpclient.cookie.Cookie;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.Collection;
 import java.util.Map;
@@ -21,7 +21,7 @@ public interface HttpClient extends AutoCloseable {
      * @param <R>     resource type returned by Completion handler
      * @return a Future of type R
      */
-    <R> Observable<R> get(String url, AbstractCompletionHandler<R> handler);
+    <R> Flux<R> get(String url, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP GET request
@@ -32,7 +32,7 @@ public interface HttpClient extends AutoCloseable {
      * @param <R>     result of an asynchronous computation.
      * @return a Future of type R
      */
-    <R> Observable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
+    <R> Flux<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP GET request
@@ -44,7 +44,7 @@ public interface HttpClient extends AutoCloseable {
      * @param followRedirect Follow HTTP redirects
      * @return a Future of type R
      */
-    <R> Observable<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect);
+    <R> Flux<R> get(String url, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler, boolean followRedirect);
 
     /**
      * Perform an HTTP POST request
@@ -55,7 +55,7 @@ public interface HttpClient extends AutoCloseable {
      * @param <R>     result of an asynchronous computation.
      * @return a Future of type R
      */
-    <R> Observable<R> post(String url, String content, AbstractCompletionHandler<R> handler);
+    <R> Flux<R> post(String url, String content, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP POST request
@@ -67,19 +67,19 @@ public interface HttpClient extends AutoCloseable {
      * @param handler Completion handler
      * @return a Future of type R
      */
-    <R> Observable<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
+    <R> Flux<R> post(String url, String content, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
 
     /**
      * Perform an HTTP POST request
      *
      * @param <R>            result of an asynchronous computation.
      * @param url            Page address
-     * @param formParameters HTTP Form paramaters
+     * @param formParameters HTTP Form parameters
      * @param cookies        Request cookies
      * @param handler        Completion handler
      * @return a Future of type R
      */
-    <R> Observable<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
+    <R> Flux<R> post(String url, Map<String, String> formParameters, Collection<Cookie> cookies, AbstractCompletionHandler<R> handler);
 
     /**
      * Close HTTP client

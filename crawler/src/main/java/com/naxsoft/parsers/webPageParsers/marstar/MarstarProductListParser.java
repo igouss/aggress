@@ -11,7 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,19 +26,19 @@ class MarstarProductListParser extends AbstractWebPageParser {
 
     private static WebPageEntity getProductList(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href") + "&displayOutOfStock=no";
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", linkUrl, category);
+        WebPageEntity webPageEntity = WebPageEntity.legacyCreate(parent, "", "productList", linkUrl, category);
         LOGGER.info("Found product list page {} url={}", e.text(), linkUrl);
         return webPageEntity;
     }
 
     private static WebPageEntity getProductPage(WebPageEntity parent, Element e, String category) {
         String linkUrl = e.attr("abs:href");
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productPage", linkUrl, category);
+        WebPageEntity webPageEntity = WebPageEntity.legacyCreate(parent, "", "productPage", linkUrl, category);
         LOGGER.info("Found product {} url={}", e.text(), linkUrl);
         return webPageEntity;
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -60,11 +60,11 @@ class MarstarProductListParser extends AbstractWebPageParser {
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: io.lettuce:lettuce-core:6.4.0.RELEASE" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="io.lettuce" artifactId="lettuce-core" version="6.4.0.RELEASE" baseVersion="6.4.0.RELEASE" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.lettuce/lettuce-core/6.4.0.RELEASE/8e5523e6b4962d8981572da4772351a80e6ce29e/lettuce-core-6.4.0.RELEASE.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

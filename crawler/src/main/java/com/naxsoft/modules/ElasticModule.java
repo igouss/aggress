@@ -3,32 +3,31 @@ package com.naxsoft.modules;
 import com.naxsoft.storage.elasticsearch.Elastic;
 import com.naxsoft.utils.AppProperties;
 import com.naxsoft.utils.PropertyNotFoundException;
-import dagger.Module;
-import dagger.Provides;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
-
-
-@Module
+/**
+ * Spring Boot configuration for Elasticsearch services.
+ * Replaces Dagger ElasticModule with Spring native dependency injection.
+ */
+@Configuration
+@Slf4j
 public class ElasticModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticModule.class);
 
-    @Provides
-    @Singleton
-    @NotNull
-    static Elastic provideElastic() {
+    @Bean
+    public Elastic elastic() {
+        log.info("Creating Elasticsearch connection");
         Elastic elastic = new Elastic();
         try {
             String elasticHost = AppProperties.getProperty("elasticHost");
             int elasticPort = Integer.parseInt(AppProperties.getProperty("elasticPort"));
             elastic.connect(elasticHost, elasticPort);
+            log.info("Connected to Elasticsearch at {}:{}", elasticHost, elasticPort);
             return elastic;
         } catch (PropertyNotFoundException e) {
-            LOGGER.error("Failed to load elasticProperty: " + e.getMessage(), e);
+            log.error("Failed to load Elasticsearch properties: {}", e.getMessage(), e);
+            throw new RuntimeException("Elasticsearch configuration error", e);
         }
-        return null;
     }
 }

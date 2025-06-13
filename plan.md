@@ -146,7 +146,7 @@ public class RedisProperties {
     
     @Min(0)
     @Builder.Default
-    private int database = 0;
+    private final int database = 0;
 }
 ```
 
@@ -410,7 +410,7 @@ public class SearchResult<T> {
     String scrollId;
     
     public boolean hasMore() {
-        return (page + 1) * size < totalHits;
+        return (long) (page + 1) * size < totalHits;
     }
 }
 

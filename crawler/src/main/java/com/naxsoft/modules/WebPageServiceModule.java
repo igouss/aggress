@@ -2,19 +2,23 @@ package com.naxsoft.modules;
 
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.storage.Persistent;
-import dagger.Module;
-import dagger.Provides;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
-import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
-
-
-@Module(includes = {RedisModule.class})
+/**
+ * Spring Boot configuration for web page service.
+ * Replaces Dagger WebPageServiceModule with Spring native dependency injection.
+ */
+@Configuration
+@Import(RedisModule.class)
+@Slf4j
 public class WebPageServiceModule {
-    @Provides
-    @Singleton
-    @NotNull
-    static WebPageService provideWebPageService(Persistent db) {
-        return new WebPageService(db);
+
+    @Bean
+    public WebPageService webPageService(Persistent persistent) {
+        log.info("Creating WebPageService");
+        return new WebPageService(persistent);
     }
 }

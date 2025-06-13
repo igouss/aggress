@@ -9,7 +9,7 @@ import com.naxsoft.parsers.webPageParsers.PageDownloader;
 import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ class SailsProductPageParser extends AbstractWebPageParser {
 
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.trace("Processing productPage {}", webPage.getUrl());
         return PageDownloader.download(client, cookies, webPage, "productPageRaw")
                 .filter(Objects::nonNull)

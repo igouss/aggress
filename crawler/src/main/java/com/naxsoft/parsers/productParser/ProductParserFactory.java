@@ -19,27 +19,30 @@ import io.vertx.core.eventbus.MessageConsumer;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter;
-import rx.Observable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
-import javax.inject.Inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Set;
 
 
+@Component
 public class ProductParserFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductParserFactory.class);
 
     private final Vertx vertx;
     private final ArrayList<String> parserVertex;
-    private final Observable<ProductEntity> parseResult;
+    private final Flux<ProductEntity> parseResult;
+    private final Sinks.Many<ProductEntity> parseResultSink;
 
     private final Meter parseWebPageRawRequestsSensor;
     private final Meter parseProductResultSensor;
 
-    @Inject
+    @Autowired
     public ProductParserFactory(Vertx vertx, MetricRegistry metricRegistry) {
         this.vertx = vertx;
         parserVertex = new ArrayList<>();
@@ -92,7 +95,6 @@ public class ProductParserFactory {
 
         DeploymentOptions options = new DeploymentOptions()
                 .setWorker(true)
-                .setMultiThreaded(true)
                 .setWorkerPoolName("productParser");
 
         Reflections reflections = new Reflections("com.naxsoft.parsers.productParser");
@@ -122,10 +124,11 @@ public class ProductParserFactory {
                 });
 
         MessageConsumer<ProductEntity> consumer = vertx.eventBus().consumer("productParseResult");
-        parseResult = Observable.create(asyncEmitter -> {
-            consumer.handler(handler -> asyncEmitter.onNext(handler.body()));
-            consumer.endHandler(v -> asyncEmitter.onCompleted());
-        }, Emitter.BackpressureMode.BUFFER);
+        parseResultSink = Sinks.many().multicast().onBackpressureBuffer();
+        parseResult = parseResultSink.asFlux();
+
+        consumer.handler(handler -> parseResultSink.tryEmitNext(handler.body()));
+        consumer.endHandler(v -> parseResultSink.tryEmitComplete());
     }
 
     private void createLogger(Class<? extends AbstractRawPageParser> clazz) {
@@ -144,7 +147,7 @@ public class ProductParserFactory {
         encoder.start();
         fileAppender.setEncoder(encoder);
         fileAppender.start();
-        logger.setLevel(Level.ALL);
+        logger.setLevel(Level.TRACE);
         logger.addAppender(fileAppender);
     }
 
@@ -154,7 +157,7 @@ public class ProductParserFactory {
      * @param webPageEntity page to parse
      * @return Parser capable of parsing the page
      */
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<ProductEntity> parse(WebPageEntity webPageEntity) {
         parseWebPageRawRequestsSensor.mark();
 
         String host = SitesUtil.getHost(webPageEntity);

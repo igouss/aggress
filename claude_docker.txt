@@ -1,0 +1,6 @@
+wget -o corretto.txt https://apt.corretto.aws/corretto.key | cat  corretto.key |  gpg --dearmor -o /usr/share/keyrings/corretto-keyring.gpg && \
+echo "deb [signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main" |  tee /etc/apt/sources.list.d/corretto.list
+
+apt-get update
+apt-get install nodejs npm ripgrep java-24-amazon-corretto-jdk -y
+npm install -g @anthropic-ai/claude-code

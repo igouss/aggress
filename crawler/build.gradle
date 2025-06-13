@@ -2,6 +2,8 @@ plugins {
     id "java"
     id "idea"
     id "com.google.cloud.tools.jib"
+    id "org.springframework.boot"
+    id "io.spring.dependency-management"
 }
 
 
@@ -14,31 +16,41 @@ https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
     implementation libs.jsoup
-    implementation libs.rxjava
     implementation libs.bundles.logging
     implementation libs.reflections
     implementation libs.dropwizardMetrics
     implementation libs.commonsCollections4
     implementation libs.gson
+    implementation libs.guava
     implementation libs.asyncHttpClient
+    implementation 'io.projectreactor:reactor-core'
     implementation libs.vertxCore
     implementation libs.joptSimple
     implementation libs.javaxValidation
-    implementation libs.javaxInject
-    implementation libs.javaxAnnotation
-    implementation libs.dagger
     implementation project(':common')
     implementation project(':storage')
     implementation fileTree(dir: "libs", include: "*.jar")
 
+    // Spring Boot dependencies
+    implementation libs.springBootStarter
+    implementation libs.springBootStarterActuator
+    implementation libs.springBootStarterValidation
+    annotationProcessor libs.springBootConfigurationProcessor
+
     testImplementation libs.junit5
+    testImplementation libs.springBootStarterTest
 
     compileOnly libs.lombok
     annotationProcessor libs.lombok
     testCompileOnly libs.lombok
     testAnnotationProcessor libs.lombok
 
-    annotationProcessor libs.daggerCompiler
+    // Pure Reactor implementation - no RxJava
+}
+
+// Explicitly set the main class to avoid Spring Boot plugin issues with Java 24
+springBoot {
+    mainClass = 'com.naxsoft.CrawlerApplication'
 }
 
 
@@ -80,17 +92,24 @@ jib {
         tags = ['latest']
     }
     container {
-        mainClass = 'com.naxsoft.Crawler'
-        ports = ['8000']
+        // Use Spring Boot main class (new parallel infrastructure)
+        // To use legacy Dagger main class, change to 'com.naxsoft.Crawler'
+        mainClass = 'com.naxsoft.CrawlerApplication'
+        ports = ['8000', '8080'] // Debug port + Spring Boot Actuator
         jvmFlags = [
                 '-Xdebug',
                 '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000',
                 '-Djdk.tls.allowUnsafeServerCertChange=true',
                 '-Dsun.security.ssl.allowUnsafeRenegotiation=true'
         ]
-        args = ['-createESIndex', '-createESMappings', '-clean', '-populate', '-crawl', '-parse']
+        // Spring Boot args (legacy Dagger args: ['-createESIndex', '-createESMappings', '-clean', '-populate', '-crawl', '-parse'])
+        args = ['--spring.profiles.active=development']
         workingDirectory = '/opt/crawler'
         user = 'crawler:aggress'
+        environment = [
+                'SPRING_PROFILES_ACTIVE'                   : 'development',
+                'MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE': 'health,info,metrics'
+        ]
     }
     extraDirectories {
         paths {

@@ -6,19 +6,21 @@ import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.storage.elasticsearch.Elastic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.Subscription;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 
-import javax.inject.Inject;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright NAXSoft 2015
  * <p>
  * Parse raw web pages entries, generate JSON representation and sent it to Elasticsearch
  */
+@Component
 public class ParseCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(ParseCommand.class);
 
@@ -35,10 +37,10 @@ public class ParseCommand implements Command {
     private WebPageService webPageService = null;
     private Elastic elastic = null;
     private ProductParserFactory productParserFactory = null;
-    private Subscription productIndexSubscription;
-    private Subscription priceIndexSubscription;
+    private Disposable productIndexSubscription;
+    private Disposable priceIndexSubscription;
 
-    @Inject
+    @Autowired
     public ParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
         this.webPageService = webPageService;
         this.productParserFactory = productParserFactory;
@@ -54,13 +56,12 @@ public class ParseCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<ProductEntity> productPages = Observable.interval(5, TimeUnit.SECONDS)
+        Flux<ProductEntity> productPages = Flux.interval(Duration.ofSeconds(5))
                 .flatMap(i -> webPageService.getUnparsedByType("productPageRaw"))
                 .doOnNext(webPageEntity -> LOGGER.info("Starting RAW page parsing {}", webPageEntity))
                 .flatMap(productParserFactory::parse)
                 .doOnNext(productEntity -> LOGGER.info("Parsed page {}", productEntity))
-                .publish()
-                .autoConnect(2);
+                .share();
 
         productIndexSubscription = productPages
                 .doOnNext(productEntity -> LOGGER.info("Starting product indexing {}", productEntity))
@@ -91,10 +92,10 @@ public class ParseCommand implements Command {
     @Override
     public void tearDown() throws CLIException {
         if (productIndexSubscription != null) {
-            productIndexSubscription.unsubscribe();
+            productIndexSubscription.dispose();
         }
         if (priceIndexSubscription != null) {
-            priceIndexSubscription.unsubscribe();
+            priceIndexSubscription.dispose();
         }
     }
 }

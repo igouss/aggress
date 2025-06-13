@@ -11,7 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +24,7 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -103,15 +103,15 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
                     LOGGER.info("Ignoring category: " + e.text() + " " + e.attr("abs:href"));
                     continue;
                 }
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", e.attr("abs:href"), e.text());
+                WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productList", e.attr("abs:href"), e.text());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
-    private Observable<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseProductPage(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
         Document document = downloadResult.getDocument();
         if (document != null) {
@@ -128,22 +128,22 @@ class AlflahertysFrontPageParser extends AbstractWebPageParser {
                 }
             }
             if (max == 0) {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                 result.add(webPageEntity);
             } else {
                 for (int i = 1; i <= max; i++) {
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl() + "?page=" + i, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productList", downloadResult.getSourcePage().getUrl() + "?page=" + i, downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productList = {}, parent = {}", webPageEntity.getUrl(), document.location());
                     result.add(webPageEntity);
                 }
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flux<WebPageEntity> parse(WebPageEntity parent) {
         return client.get(parent.getUrl(), new DocumentCompletionHandler(parent))
                 .flatMap(this::parseFrontPage)
                 .flatMap(webPageEntity -> client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity)))

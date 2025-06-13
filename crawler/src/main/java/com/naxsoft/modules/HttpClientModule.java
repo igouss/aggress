@@ -3,37 +3,36 @@ package com.naxsoft.modules;
 import com.codahale.metrics.MetricRegistry;
 import com.naxsoft.crawler.AhcHttpClient;
 import com.naxsoft.crawler.HttpClient;
-import dagger.Module;
-import dagger.Provides;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
-import javax.inject.Singleton;
 import javax.net.ssl.SSLException;
-import javax.validation.constraints.NotNull;
 
-
-@Module(includes = {MetricsRegistryModule.class})
+/**
+ * Spring Boot configuration for HTTP client services.
+ * Replaces Dagger HttpClientModule with Spring native dependency injection.
+ */
+@Configuration
+@Import(MetricsRegistryModule.class)
+@Slf4j
 public class HttpClientModule {
-    private final static Logger LOGGER = LoggerFactory.getLogger(HttpClientModule.class);
 
-    @Provides
-    @Singleton
-    @NotNull
-    static HttpClient provideHttpClient(MetricRegistry registry) {
-        HttpClient httpClient;
-
+    @Bean
+    public HttpClient httpClient(MetricRegistry metricRegistry) {
+        log.info("Creating HTTP client with SSL support");
         try {
             SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
             SslContext sslContext = sslContextBuilder.build();
-            httpClient = new AhcHttpClient(registry, sslContext);
+            HttpClient httpClient = new AhcHttpClient(metricRegistry, sslContext);
+            log.info("HTTP client created successfully");
+            return httpClient;
         } catch (SSLException e) {
-            LOGGER.error("Failed to initialize HttpClientModule", e);
-            throw new RuntimeException("Failed to initialize HttpClientModule", e);
-
+            log.error("Failed to initialize HTTP client with SSL context", e);
+            throw new RuntimeException("Failed to initialize HTTP client", e);
         }
-        return httpClient;
     }
 }

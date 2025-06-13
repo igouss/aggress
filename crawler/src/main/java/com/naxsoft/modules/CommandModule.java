@@ -6,48 +6,45 @@ import com.naxsoft.parsers.webPageParsers.WebPageParserFactory;
 import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.storage.Persistent;
 import com.naxsoft.storage.elasticsearch.Elastic;
-import dagger.Module;
-import dagger.Provides;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
-
-
-@Module
+/**
+ * Spring Boot configuration for crawler command implementations.
+ * Replaces Dagger CommandModule with Spring native dependency injection.
+ */
+@Configuration
+@Slf4j
 public class CommandModule {
-    @Provides
-    @Singleton
-    @NotNull
-    static CleanDBCommand provideCleanDbCommand(Persistent db) {
-        return new CleanDBCommand(db);
+
+    @Bean
+    public CleanDBCommand cleanDBCommand(Persistent persistent) {
+        log.info("Creating CleanDBCommand");
+        return new CleanDBCommand(persistent);
     }
 
-    @Provides
-    @Singleton
-    @NotNull
-    static CrawlCommand provideCrawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
+    @Bean
+    public CrawlCommand crawlCommand(WebPageService webPageService, WebPageParserFactory webPageParserFactory) {
+        log.info("Creating CrawlCommand");
         return new CrawlCommand(webPageService, webPageParserFactory);
     }
 
-
-    @Provides
-    @Singleton
-    @NotNull
-    static CreateESIndexCommand provideCreateESIndexCommand(Elastic elastic) {
+    @Bean
+    public CreateESIndexCommand createESIndexCommand(Elastic elastic) {
+        log.info("Creating CreateESIndexCommand");
         return new CreateESIndexCommand(elastic);
     }
 
-    @Provides
-    @Singleton
-    @NotNull
-    static ParseCommand provideParseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
+    @Bean
+    public ParseCommand parseCommand(WebPageService webPageService, ProductParserFactory productParserFactory, Elastic elastic) {
+        log.info("Creating ParseCommand");
         return new ParseCommand(webPageService, productParserFactory, elastic);
     }
 
-    @Provides
-    @Singleton
-    @NotNull
-    static PopulateDBCommand providePopulateDBCommand(WebPageService webPageService) {
+    @Bean
+    public PopulateDBCommand populateDBCommand(WebPageService webPageService) {
+        log.info("Creating PopulateDBCommand");
         return new PopulateDBCommand(webPageService);
     }
 }

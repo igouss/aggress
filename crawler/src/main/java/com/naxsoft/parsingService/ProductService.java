@@ -4,7 +4,8 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.storage.Persistent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  *
@@ -23,7 +24,7 @@ public class ProductService {
     /**
      * @param products Save
      */
-    public Observable<Long> save(ProductEntity products) {
+    public Mono<Long> save(ProductEntity products) {
         return database.addProductPageEntry(products);
     }
 
@@ -32,7 +33,7 @@ public class ProductService {
      *
      * @return Stream of unindexed products
      */
-    public Observable<ProductEntity> getProducts() {
+    public Flux<ProductEntity> getProducts() {
         return database.getProducts();
     }
 

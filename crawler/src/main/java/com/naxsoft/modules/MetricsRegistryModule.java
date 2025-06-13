@@ -1,19 +1,21 @@
 package com.naxsoft.modules;
 
 import com.codahale.metrics.MetricRegistry;
-import dagger.Module;
-import dagger.Provides;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
-
-
-@Module
+/**
+ * Spring Boot configuration for metrics collection.
+ * Replaces Dagger MetricsRegistryModule with Spring native dependency injection.
+ */
+@Configuration
+@Slf4j
 public class MetricsRegistryModule {
-    @Provides
-    @Singleton
-    @NotNull
-    static MetricRegistry provideMetricRegistry() {
+
+    @Bean
+    public MetricRegistry metricRegistry() {
+        log.info("Creating MetricRegistry for application monitoring");
         return new MetricRegistry();
     }
 }

@@ -2,8 +2,8 @@ package com.naxsoft.scheduler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,9 +29,16 @@ public class Scheduler {
         ScheduledFuture<?> scheduledFuture = scheduler.scheduleAtFixedRate(command, initialDelay, period, unit);
         tasks.add(scheduledFuture);
 
-        Observable.from(scheduledFuture)
-                .observeOn(Schedulers.computation())
-                .subscribeOn(Schedulers.immediate())
+        // Monitor the scheduled future completion
+        Mono.fromCallable(() -> {
+                    try {
+                        scheduledFuture.get(); // Wait for completion
+                        return scheduledFuture;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .subscribeOn(Schedulers.boundedElastic())
                 .subscribe(
                         v -> tasks.remove(scheduledFuture),
                         e -> LOGGER.error("Scheduling error", e),

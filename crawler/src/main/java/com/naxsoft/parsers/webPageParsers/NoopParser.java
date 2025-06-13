@@ -6,7 +6,7 @@ import com.naxsoft.entity.WebPageEntity;
 import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 
 class NoopParser extends AbstractWebPageParser {
@@ -17,9 +17,9 @@ class NoopParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPage) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPage) {
         LOGGER.error("Using NOOP parser for: " + webPage);
-        return Observable.empty();
+        return Flux.empty();
     }
 
     @Override

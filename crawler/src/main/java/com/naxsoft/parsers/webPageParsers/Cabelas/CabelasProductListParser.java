@@ -11,7 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,18 +36,18 @@ class CabelasProductListParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity getProductList(WebPageEntity parent, String url, String category) {
-        WebPageEntity webPageEntity = new WebPageEntity(parent, "", "productList", url, category);
+        WebPageEntity webPageEntity = WebPageEntity.legacyCreate(parent, "", "productList", url, category);
         LOGGER.info("productList={}", webPageEntity.getUrl());
         return webPageEntity;
     }
 
     private static WebPageEntity productPage(WebPageEntity parent, String url, String category) {
-        WebPageEntity productPage = new WebPageEntity(parent, "", "productPage", url, category);
+        WebPageEntity productPage = WebPageEntity.legacyCreate(parent, "", "productPage", url, category);
         LOGGER.info("productPage={}", url);
         return productPage;
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -96,11 +96,11 @@ class CabelasProductListParser extends AbstractWebPageParser {
                 }
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());

@@ -12,7 +12,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,13 +22,13 @@ import java.util.regex.Pattern;
 public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(WolverinesuppliesProductListParser.class);
     private static final Pattern itemNumberPattern = Pattern.compile("ItemNumber\":\"(\\w+|\\d+)\"");
-    private static final Pattern categoryPattern = Pattern.compile("\'\\d+\'");
+    private static final Pattern categoryPattern = Pattern.compile("'\\d+'");
 
     public WolverinesuppliesProductListParser(MetricRegistry metricRegistry, HttpClient client) {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> onCompleted(WebPageEntity parent) {
+    private Flux<WebPageEntity> onCompleted(WebPageEntity parent) {
         Set<WebPageEntity> result = new HashSet<>();
         try {
             String productDetailsJson = parent.getContent();
@@ -42,17 +42,17 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
             }
 
             if (0 != sb.length()) {
-                WebPageEntity e = new WebPageEntity(parent, "", "productPage", "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb, parent.getCategory());
+                WebPageEntity e = WebPageEntity.legacyCreate(parent, "", "productPage", "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetItemsData?ItemNumbersString=" + sb, parent.getCategory());
                 LOGGER.info("productPage={}", e.getUrl());
                 result.add(e);
             }
         } catch (NullPointerException npe) {
             LOGGER.error("NPE = {}", parent, npe);
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -66,16 +66,16 @@ public class WolverinesuppliesProductListParser extends AbstractWebPageParser {
                 if (categoryMatcher.find()) {
                     String productCategory = categoryMatcher.group();
                     String productDetailsUrl = "https://www.wolverinesupplies.com/WebServices/ProductSearchService.asmx/GetJSONItems?data={\"WordList\":\"\",\"ItemNumber\":\"\",\"CategoryCode\":" + productCategory + ",\"SearchMethod\":\"Category\",\"Limit\":0}";
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "tmp", productDetailsUrl, downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "tmp", productDetailsUrl, downloadResult.getSourcePage().getCategory());
                     result.add(webPageEntity);
                 }
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<WebPageEntity> parse(WebPageEntity webPageEntity) {
         return client.get(webPageEntity.getUrl() + "?sortValue=0&Stock=In%20Stock", new DocumentCompletionHandler(webPageEntity))
                 .flatMap(this::parseDocument)
                 .flatMap(webPageEntity1 -> PageDownloader.download(client, webPageEntity1, "tmp"))

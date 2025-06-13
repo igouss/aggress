@@ -11,7 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +24,7 @@ class GotendaProductListParser extends AbstractWebPageParser {
         super(metricRegistry, client);
     }
 
-    private Observable<WebPageEntity> parseDocument(DownloadResult downloadResult) {
+    private Flux<WebPageEntity> parseDocument(DownloadResult downloadResult) {
         Set<WebPageEntity> result = new HashSet<>(1);
 
         Document document = downloadResult.getDocument();
@@ -32,22 +32,22 @@ class GotendaProductListParser extends AbstractWebPageParser {
             Elements elements = document.select(".InfoArea a[title]");
             if (!elements.isEmpty()) {
                 for (Element element : elements) {
-                    WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
+                    WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productPage", element.attr("abs:href"), downloadResult.getSourcePage().getCategory());
                     LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                     result.add(webPageEntity);
                 }
             } else {
-                WebPageEntity webPageEntity = new WebPageEntity(downloadResult.getSourcePage(), "", "productPage", downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
+                WebPageEntity webPageEntity = WebPageEntity.legacyCreate(downloadResult.getSourcePage(), "", "productPage", downloadResult.getSourcePage().getUrl(), downloadResult.getSourcePage().getCategory());
                 LOGGER.info("productPageUrl={}", webPageEntity.getUrl());
                 result.add(webPageEntity);
             }
         }
-        return Observable.from(result);
+        return Flux.fromIterable(result);
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity webPageEntity) {
-        Observable<DownloadResult> pages = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
+    public Flux<WebPageEntity> parse(WebPageEntity webPageEntity) {
+        Flux<DownloadResult> pages = client.get(webPageEntity.getUrl(), new DocumentCompletionHandler(webPageEntity));
         return pages.flatMap(this::parseDocument)
                 .doOnNext(e -> this.parseResultCounter.inc());
     }

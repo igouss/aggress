@@ -1,7 +1,6 @@
 package com.naxsoft.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -10,9 +9,10 @@ import java.util.Properties;
 /**
  * Copyright NAXSoft 2015
  * User configurable application configuration state
+ * TODO: Replace with Spring Boot @ConfigurationProperties in Phase 1.2
  */
+@Slf4j
 public class AppProperties {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AppProperties.class);
     private static final Properties PROPERTIES = new Properties();
 
     /*
@@ -22,17 +22,17 @@ public class AppProperties {
         String configFileName = "config.properties";
         URL configLocation = AppProperties.class.getClassLoader().getResource(configFileName);
         try {
-            LOGGER.debug("Loading config.properties");
+            log.debug("Loading config.properties");
             InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream(configFileName);
             if (resourceAsStream == null || resourceAsStream.available() <= 0) {
-                LOGGER.error("Config file {} at {} is empty", configFileName, configLocation);
+                log.error("Config file {} at {} is empty", configFileName, configLocation);
             } else {
                 PROPERTIES.load(resourceAsStream);
                 /* TODO: mask password */
-                LOGGER.debug("App properties {}", PROPERTIES);
+                log.debug("App properties {}", PROPERTIES);
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to load properties {}", configLocation, e);
+            log.error("Failed to load properties {}", configLocation, e);
         }
 
         /*
@@ -43,16 +43,16 @@ public class AppProperties {
             String deploymentConfigFile = "config-" + deployment_env + ".properties";
             URL deploymentConfigFileLocation = AppProperties.class.getClassLoader().getResource(deploymentConfigFile);
             try {
-                LOGGER.debug("Loading " + deploymentConfigFile);
+                log.debug("Loading " + deploymentConfigFile);
                 InputStream resourceAsStream = AppProperties.class.getClassLoader().getResourceAsStream(deploymentConfigFile);
                 if (resourceAsStream.available() <= 0) {
-                    LOGGER.debug("config is missing or empty does not exist {}", deploymentConfigFileLocation);
+                    log.debug("config is missing or empty does not exist {}", deploymentConfigFileLocation);
                 } else {
                     PROPERTIES.load(resourceAsStream);
-                    LOGGER.debug("App properties {}", PROPERTIES);
+                    log.debug("App properties {}", PROPERTIES);
                 }
             } catch (Exception e) {
-                LOGGER.error("Failed to load properties: " + deploymentConfigFileLocation, e);
+                log.error("Failed to load properties: " + deploymentConfigFileLocation, e);
             }
         }
     }

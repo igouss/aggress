@@ -10,8 +10,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,7 +26,7 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
     }
 
     private static WebPageEntity create(WebPageEntity parent, String url, String category) {
-        return new WebPageEntity(parent, "", "productList", url, category);
+        return WebPageEntity.legacyCreate(parent, "", "productList", url, category);
     }
 
     private Collection<WebPageEntity> parseFrontPage(DownloadResult downloadResult) {
@@ -45,7 +45,7 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
     }
 
     @Override
-    public Observable<WebPageEntity> parse(WebPageEntity parent) {
+    public Flux<WebPageEntity> parse(WebPageEntity parent) {
         LOGGER.info("Parsing psmilitaria front-page");
         HashSet<WebPageEntity> webPageEntities = new HashSet<>();
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/guns.html", "firearm"));
@@ -64,8 +64,8 @@ class PsmilitariaFrontPageParser extends AbstractWebPageParser {
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/miscel.html", "misc"));
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/newitems.html", "firearm,misc"));
         webPageEntities.add(create(parent, "http://psmilitaria.50megs.com/tools.html", "reload"));
-        return Observable.from(webPageEntities)
-                .observeOn(Schedulers.io())
+        return Flux.fromIterable(webPageEntities)
+                .publishOn(Schedulers.boundedElastic())
                 .doOnNext(e -> this.parseResultCounter.inc());
     }
 

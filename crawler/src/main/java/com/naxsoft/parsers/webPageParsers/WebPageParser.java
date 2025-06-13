@@ -1,7 +1,7 @@
 package com.naxsoft.parsers.webPageParsers;
 
 import com.naxsoft.entity.WebPageEntity;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 
 public interface WebPageParser {
@@ -11,5 +11,5 @@ public interface WebPageParser {
      * @param webPage Page to parse
      * @return All sub-pages
      */
-    Observable<WebPageEntity> parse(WebPageEntity webPage);
+    Flux<WebPageEntity> parse(WebPageEntity webPage);
 }

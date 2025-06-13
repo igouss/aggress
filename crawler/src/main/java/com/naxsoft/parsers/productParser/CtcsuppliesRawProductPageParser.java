@@ -7,7 +7,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,7 +44,7 @@ class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPageEntity) {
+    public Flux<ProductEntity> parse(WebPageEntity webPageEntity) {
         HashSet<ProductEntity> result = new HashSet<>();
         try {
             Document document = Jsoup.parse(webPageEntity.getContent(), webPageEntity.getUrl());
@@ -63,7 +63,7 @@ class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
             LOGGER.info("Parsing {}, page={}", productName, webPageEntity.getUrl());
 
             if (document.select("#AddToCartText").text().equalsIgnoreCase("Sold Out")) {
-                return Observable.empty();
+                return Flux.empty();
             }
 
             url = webPageEntity.getUrl();
@@ -73,12 +73,12 @@ class CtcsuppliesRawProductPageParser extends AbstractRawPageParser {
             regularPrice = parsePrice(webPageEntity, document.select("#ProductPrice").text());
             description = document.select(".product-description p").text();
 
-            product = new ProductEntity(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
+            product = ProductEntity.legacyCreate(productName, url, regularPrice, specialPrice, productImage, description, attr, category);
             result.add(product);
         } catch (Exception e) {
             LOGGER.error("Failed to parse: {}", webPageEntity, e);
         }
-        return Observable.from(result)
+        return Flux.fromIterable(result)
                 .doOnNext(e -> parseResultCounter.inc());
     }
 

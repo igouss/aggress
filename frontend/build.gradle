@@ -2,6 +2,8 @@ plugins {
     id "java"
     id "idea"
     id "com.google.cloud.tools.jib"
+    id "org.springframework.boot"
+    id "io.spring.dependency-management"
 }
 
 
@@ -12,8 +14,21 @@ dependencies {
     implementation libs.jts
     implementation libs.bundles.vertxWeb
     implementation project(':common')
+    implementation project(':storage')
+
+    // Spring Boot web dependencies (includes Reactor)
+    implementation libs.springBootStarter
+    implementation libs.springBootStarterWeb
+    implementation libs.springBootStarterActuator
+    annotationProcessor libs.springBootConfigurationProcessor
 
     testImplementation libs.junit5
+    testImplementation libs.springBootStarterTest
+}
+
+// Explicitly set the main class to avoid Spring Boot plugin issues with Java 24
+springBoot {
+    mainClass = 'com.naxsoft.FrontendApplication'
 }
 
 jib {
@@ -25,14 +40,21 @@ jib {
         tags = ['latest']
     }
     container {
-        mainClass = 'com.naxsoft.Server'
-        ports = ['8080']
+        // Use Spring Boot main class (new parallel infrastructure)
+        // To use legacy Vert.x main class, change to 'com.naxsoft.Server'
+        mainClass = 'com.naxsoft.FrontendApplication'
+        ports = ['8082', '8080'] // Spring Boot port + legacy Vert.x port
         jvmFlags = [
                 '-Djdk.tls.allowUnsafeServerCertChange=true',
                 '-Dsun.security.ssl.allowUnsafeRenegotiation=true'
         ]
+        args = ['--spring.profiles.active=development']
         workingDirectory = '/opt/frontend'
         user = 'frontend:aggress'
+        environment = [
+                'SPRING_PROFILES_ACTIVE': 'development',
+                'SERVER_PORT'           : '8082'
+        ]
     }
     extraDirectories {
         paths {

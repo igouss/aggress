@@ -12,7 +12,7 @@ import org.asynchttpclient.Response;
 import org.asynchttpclient.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Subscription;
+import reactor.core.Disposable;
 
 import java.util.List;
 
@@ -21,8 +21,8 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWebPageParser.class);
     protected final Counter parseResultCounter;
     protected final HttpClient client;
-    private Handler<Message<WebPageEntity>> messageHandler;
-    private Subscription webPageParseResult;
+    private final Handler<Message<WebPageEntity>> messageHandler;
+    private Disposable webPageParseResult;
 
 
     public AbstractWebPageParser(MetricRegistry metricRegistry, HttpClient client) {
@@ -72,6 +72,6 @@ public abstract class AbstractWebPageParser extends AbstractVerticle implements 
 
     @Override
     public void stop() throws Exception {
-        webPageParseResult.unsubscribe();
+        webPageParseResult.dispose();
     }
 }

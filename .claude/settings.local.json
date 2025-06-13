@@ -16,7 +16,15 @@
       "Bash(ls:*)",
       "Bash(mkdir:*)",
       "Bash(git add:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED\" ./gradlew build)",
+      "Bash(GRADLE_OPTS=\"--enable-native-access=ALL-UNNAMED\" ./gradlew :webadmin:resolveMainClassName --stacktrace)",
+      "Bash(rm:*)",
+      "Bash(for:*)",
+      "Bash(do)",
+      "Bash(sed:*)",
+      "Bash(done)"
     ],
     "deny": []
   }

@@ -5,7 +5,7 @@ import com.naxsoft.entity.ProductEntity;
 import com.naxsoft.entity.WebPageEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
+import reactor.core.publisher.Flux;
 
 
 class NoopParser extends AbstractRawPageParser {
@@ -16,9 +16,9 @@ class NoopParser extends AbstractRawPageParser {
     }
 
     @Override
-    public Observable<ProductEntity> parse(WebPageEntity webPage) {
+    public Flux<ProductEntity> parse(WebPageEntity webPage) {
         LOGGER.warn("Why are we here?! page = " + webPage);
-        return Observable.empty();
+        return Flux.empty();
     }
 
     @Override

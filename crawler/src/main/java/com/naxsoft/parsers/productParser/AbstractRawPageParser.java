@@ -7,14 +7,14 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Subscription;
+import reactor.core.Disposable;
 
 
 abstract class AbstractRawPageParser extends AbstractVerticle implements ProductParser {
     private static final Logger LOGGER = LoggerFactory.getLogger("RawPageParser");
     protected final Counter parseResultCounter;
 
-    private Subscription productParseResult;
+    private Disposable productParseResult;
 
     public AbstractRawPageParser(MetricRegistry metricRegistry) {
         String metricName = MetricRegistry.name(getSite().replaceAll("\\.", "_") + "." + getParserType(), "parseResults");
@@ -40,6 +40,6 @@ abstract class AbstractRawPageParser extends AbstractVerticle implements Product
 
     @Override
     public void stop() throws Exception {
-        productParseResult.unsubscribe();
+        productParseResult.dispose();
     }
 }

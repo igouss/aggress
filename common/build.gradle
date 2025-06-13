@@ -1,19 +1,49 @@
 plugins {
     id "java-library"
     id "idea"
+    id "org.springframework.boot" apply false
+    id "io.spring.dependency-management"
 }
 
+// Import Spring Boot BOM for dependency management
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:${libs.versions.springBoot.get()}"
+    }
+}
 
 /*
 https://docs.gradle.org/current/userguide/java_library_plugin.html
 */
 dependencies {
+    // Existing dependencies
     implementation libs.bundles.logging
     implementation libs.gson
     implementation libs.commonsIo
 
+    // Spring Boot core dependencies (for @ConfigurationProperties, etc.)
+    implementation libs.springBootStarter
+    implementation libs.springBootStarterValidation
+    implementation libs.springBootStarterActuator
+    implementation libs.springBootStarterData
+    annotationProcessor libs.springBootConfigurationProcessor
+
+    // WebClient and Reactor dependencies for Spring Boot 3.5
+    implementation 'org.springframework:spring-webflux'
+    implementation 'io.projectreactor.netty:reactor-netty-http'
+
+    // Lettuce Redis client for Spring Boot 3.5 features
+    implementation libs.lettuce
+
+    // Jackson for JSON support
+    implementation libs.bundles.jackson
+
+    // Lombok (already configured in root build.gradle)
     compileOnly libs.lombok
     annotationProcessor libs.lombok
     testCompileOnly libs.lombok
     testAnnotationProcessor libs.lombok
+
+    // Testing
+    testImplementation libs.springBootStarterTest
 }

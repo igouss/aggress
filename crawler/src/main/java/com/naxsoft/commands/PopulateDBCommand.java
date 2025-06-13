@@ -6,10 +6,9 @@ import com.naxsoft.parsingService.WebPageService;
 import com.naxsoft.utils.SitesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
-
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 /**
  * Copyright NAXSoft 2015
@@ -17,12 +16,13 @@ import javax.inject.Inject;
  * Add initial dataset to the database.
  * The crawling is basically breath first search from that dataset
  */
+@Component
 public class PopulateDBCommand implements Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(PopulateDBCommand.class);
 
     private final WebPageService webPageService;
 
-    @Inject
+    @Autowired
     public PopulateDBCommand(WebPageService webPageService) {
         this.webPageService = webPageService;
     }
@@ -33,11 +33,9 @@ public class PopulateDBCommand implements Command {
 
     @Override
     public void start() throws CLIException {
-        Observable<String> roots = Observable.from(SitesUtil.SOURCES);
+        Flux<String> roots = Flux.fromArray(SitesUtil.SOURCES);
 
-        roots.observeOn(Schedulers.immediate())
-                .subscribeOn(Schedulers.immediate())
-                .map(entry -> new WebPageEntity(null, "", "frontPage", entry, ""))
+        roots.map(entry -> WebPageEntity.legacyCreate(null, "", "frontPage", entry, ""))
                 .flatMap(webPageService::addWebPageEntry)
                 .all(result -> result != 0L)
                 .subscribe(
